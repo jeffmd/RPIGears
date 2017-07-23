@@ -78,9 +78,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GLES/gl.h"
 #include "GLES2/gl2.h"
+#include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 
+//Attributes changes flag mask
+#define ELEMENT_CHANGE_LAYER          (1<<0)
+#define ELEMENT_CHANGE_OPACITY        (1<<1)
+#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
+#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
+#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
+#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
 
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
@@ -118,6 +126,9 @@ typedef struct
    EGLSurface surface;
    EGLContext context;
    GLenum drawMode;
+// EGL info
+   int major;
+   int minor;
 // current distance from camera
    GLfloat viewDist;
    GLfloat distance_inc;
@@ -150,9 +161,15 @@ typedef struct
    int useVSync;
    int wantInfo;
 
-} CUBE_STATE_T;
+	 EGL_DISPMANX_WINDOW_T nativewindow;
+	 DISPMANX_ELEMENT_HANDLE_T dispman_element;
+	 DISPMANX_DISPLAY_HANDLE_T dispman_display;
+	 VC_RECT_T dst_rect;
+	 VC_RECT_T src_rect;
 
-static CUBE_STATE_T _state, *state = &_state;
+} DEMO_STATE_T;
+
+static DEMO_STATE_T _state, *state = &_state;
 
 #include "RPi_Logo256.c"
 
@@ -218,6 +235,37 @@ static const char fragment_shader[] =
 "    // materials that have more red in them are shinnier\n"
 "    gl_FragColor += pow(max(0.0, dot(n, h)), 7.0) * diffCol.r;\n"
 "}";
+
+static void update_avgfps(float fps)
+{
+  state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
+}
+
+static void update_angleFrame(void)
+{
+	state->angleFrame = state->angleVel / state->avgfps;
+}
+
+static void update_useVSync(int sync)
+{
+  state->useVSync = sync;
+  EGLBoolean result = eglSwapInterval(state->display, state->useVSync );
+  assert(EGL_FALSE != result);
+}
+
+static void toggle_useVSync(void)
+{
+  int sync = state->useVSync ? 0 : 1;
+  update_useVSync(sync);
+}
+
+static void update_gear_rotation(void)
+{
+    /* advance gear rotation for next frame */
+    state->angle += state->angleFrame;
+    if (state->angle > 360.0)
+      state->angle -= 360.0;
+}
 
 uint getMilliseconds()
 {
@@ -428,6 +476,15 @@ void m4x4_perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, G
    m4x4_copy(m, tmp);
 }
 
+static void print_GLInfo(void)
+{
+  printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
+  printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
+  printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
+  printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
+  printf("EGL version   = %i.%i\n", state->major, state->minor);
+}
+
 /***********************************************************
  * Name: init_egl
  *
@@ -445,13 +502,8 @@ static void init_egl(void)
    EGLBoolean result;
    EGLint num_config;
 
-   static EGL_DISPMANX_WINDOW_T nativewindow;
-
-   DISPMANX_ELEMENT_HANDLE_T dispman_element;
-   DISPMANX_DISPLAY_HANDLE_T dispman_display;
    DISPMANX_UPDATE_HANDLE_T dispman_update;
-   VC_RECT_T dst_rect;
-   VC_RECT_T src_rect;
+
 
    static const EGLint attribute_list[] =
    {
@@ -477,7 +529,7 @@ static void init_egl(void)
    assert(state->display!=EGL_NO_DISPLAY);
 
    // initialize the EGL display connection
-   result = eglInitialize(state->display, NULL, NULL);
+   result = eglInitialize(state->display, &state->major, &state->minor);
    assert(EGL_FALSE != result);
 
    // get an appropriate EGL frame buffer configuration
@@ -498,29 +550,29 @@ static void init_egl(void)
    success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
    assert( success >= 0 );
 
-   dst_rect.x = 0;
-   dst_rect.y = 0;
-   dst_rect.width = state->screen_width;
-   dst_rect.height = state->screen_height;
+   state->dst_rect.x = state->screen_width/4;
+   state->dst_rect.y = state->screen_height/4;
+   state->dst_rect.width = state->screen_width/2;
+   state->dst_rect.height = state->screen_height/2;
 
-   src_rect.x = 0;
-   src_rect.y = 0;
-   src_rect.width = state->screen_width << 16;
-   src_rect.height = state->screen_height << 16;
+   state->src_rect.x = 0;
+   state->src_rect.y = 0;
+   state->src_rect.width = (state->screen_width/2) << 16;
+   state->src_rect.height = (state->screen_height/2) << 16;
 
-   dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
+   state->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
    dispman_update = vc_dispmanx_update_start( 0 );
 
-   dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
-      0/*layer*/, &dst_rect, 0/*src*/,
-      &src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
+   state->dispman_element = vc_dispmanx_element_add( dispman_update, state->dispman_display,
+      0/*layer*/, &state->dst_rect, 0/*src*/,
+      &state->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
 
-   nativewindow.element = dispman_element;
-   nativewindow.width = state->screen_width;
-   nativewindow.height = state->screen_height;
+   state->nativewindow.element = state->dispman_element;
+   state->nativewindow.width = state->screen_width;
+   state->nativewindow.height = state->screen_height;
    vc_dispmanx_update_submit_sync( dispman_update );
 
-   state->surface = eglCreateWindowSurface( state->display, config, &nativewindow, NULL );
+   state->surface = eglCreateWindowSurface( state->display, config, &state->nativewindow, NULL );
    assert(state->surface != EGL_NO_SURFACE);
 
    // connect the context to the surface
@@ -528,23 +580,15 @@ static void init_egl(void)
    assert(EGL_FALSE != result);
 
    // default to no vertical sync but user option may turn it on
-   result = eglSwapInterval(state->display, state->useVSync );
-   assert(EGL_FALSE != result);
+   update_useVSync(state->useVSync);
 
    // Set background color and clear buffers
-   glClearColor(0.25f, 0.45f, 0.55f, 1.0f);
+   glClearColor(0.25f, 0.45f, 0.55f, 0.50f);
 
    // Enable back face culling.
    glEnable(GL_CULL_FACE);
    glFrontFace(GL_CCW);
 
-   if (state->wantInfo) {
-      printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
-      printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
-      printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
-      printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-	   
-   }
 }
 
 /**
@@ -844,6 +888,20 @@ static void init_textures(void)
    
 }
 
+static void frameClear(void)
+{
+  glDisable(GL_SCISSOR_TEST);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  glStencilMask(0xFFFFFFFF);
+
+  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
+  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  
+}
+
 /** 
  * Draws the gears in GLES 2 mode.
  */
@@ -852,10 +910,8 @@ static void draw_sceneGLES2(void)
    GLfloat transform[16];
    m4x4_identity(transform);
 
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
    /* Translate and rotate the view */
-   m4x4_translate(transform, 0.9, 0.0, -state->viewDist);
+   m4x4_translate(transform, -8.0, -7.0, -state->viewDist);
    m4x4_rotate(transform, view_rotx, 1, 0, 0);
    m4x4_rotate(transform, view_roty, 0, 1, 0);
    m4x4_rotate(transform, view_rotz, 0, 0, 1);
@@ -895,34 +951,28 @@ void draw_gearGLES1(gear_t* gear, GLfloat x, GLfloat y, GLfloat angle)
 
 static void draw_sceneGLES1(void)
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   glPushMatrix();
 
-    glTranslatef(0.9, 0.0, -state->viewDist);
+  glTranslatef(-8.0, -7.0, -state->viewDist);
 
-    glRotatef(view_rotx, 1.0, 0.0, 0.0);
-    glRotatef(view_roty, 0.0, 1.0, 0.0);
-    glRotatef(view_rotz, 0.0, 0.0, 1.0);
+  glRotatef(view_rotx, 1.0, 0.0, 0.0);
+  glRotatef(view_roty, 0.0, 1.0, 0.0);
+  glRotatef(view_rotz, 0.0, 0.0, 1.0);
 
-    draw_gearGLES1(state->gear1, -3.0, -2.0, state->angle);
-    draw_gearGLES1(state->gear2, 3.1, -2.0, -2.0 * state->angle - 9.0);
-    draw_gearGLES1(state->gear3, -3.1, 4.2, -2.0 * state->angle - 25.0);
+  draw_gearGLES1(state->gear1, -3.0, -2.0, state->angle);
+  draw_gearGLES1(state->gear2, 3.1, -2.0, -2.0 * state->angle - 9.0);
+  draw_gearGLES1(state->gear3, -3.1, 4.2, -2.0 * state->angle - 25.0);
 
   glPopMatrix();
 }
 
-static void update_angleFrame(void)
-{
-	state->angleFrame = state->angleVel / state->avgfps;
-}
 
 static void setup_user_options(int argc, char *argv[])
 {
   int i, printhelp = 0;
 
   // setup some default states
-  state->viewDist = 18.0;
+  state->viewDist = 38.0;
   state->avgfps = 300;
   state->angleVel = 70;
   state->useVBO = 0;
@@ -1093,15 +1143,64 @@ static void build_gears()
   
 }
 
-static void update_gear_rotation(void)
+static void move_Window(void)
 {
-    /* advance gear rotation for next frame */
-    state->angle += state->angleFrame;
-    if (state->angle > 360.0)
-      state->angle -= 360.0;
+  static int chg = 1;
+  state->dst_rect.x += chg;
+  if ((state->dst_rect.x > state->dst_rect.width) || (state->dst_rect.x < 0)) chg *= -1;
+  
+  DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+  assert(update != 0);
+
+  int result = vc_dispmanx_element_change_attributes(update,
+                                          state->dispman_element,
+                                          0,
+                                          0,
+                                          255,
+                                          &(state->dst_rect),
+                                          &(state->src_rect),
+                                          0,
+                                          DISPMANX_ROTATE_90);
+    assert(result == 0);
+
+    result = vc_dispmanx_update_submit(update, 0, 0);
+    assert(result == 0);	
 }
 
-static void run_gears()
+static void check_keys(int inpkey)
+{
+  switch(inpkey)
+  {
+    case 'w': break; // move up
+    case 'v': {
+      toggle_useVSync();
+      break;
+    }
+  }
+  move_Window();
+}
+
+static int detect_keypress(void)
+{
+  int active = FRAMES;
+  if (_kbhit()) {
+    int inpchar = getchar();
+    printf("input %i\n", inpchar);
+    if (inpchar < 31) {
+      // end program
+      active = 0;
+    }
+    else {
+      check_keys(inpchar);
+      // speed up input checking to process keys held down
+      active = 5;
+    }
+  }
+  
+  return active;  
+}
+ 
+static void run_gears(void)
 {
   const uint ttr = state->timeToRun;
   const uint st = getMilliseconds();
@@ -1122,26 +1221,27 @@ static void run_gears()
     dt = (float)(ct - seconds)/1000.0f;
     // adjust angleFrame each half second
     if ((ct - prevct) > 500) {
-	  if (dt > 0.0f) {
-        state->avgfps = state->avgfps * 0.4f + (float)frames / dt * 0.6f;
-	    update_angleFrame();
+	    if (dt > 0.0f) {
+        update_avgfps((float)frames / dt);
+	      update_angleFrame();
+	    }
+	    prevct = ct;	
 	  }
-	  prevct = ct;	
-	}
 
     update_gear_rotation();
 
+	  frameClear();
     // draw the scene for the next new frame
     if (state->useGLES2) {
-	  draw_sceneGLES2();
-	}
-	else {
+	    draw_sceneGLES2();
+	  }
+	  else {
       draw_sceneGLES1();
     }
-    
+
     // swap the current buffer for the next new frame
     eglSwapBuffers(state->display, state->surface);
-
+    
     if (dt >= 5.0f)
     {
       fps = (float)frames  / dt;
@@ -1150,11 +1250,10 @@ static void run_gears()
       frames = 0;
     }
     // once in a while check if the user hit the keyboard
-    // stop the program if a key was hit
-    if (active-- == 1)
+    // stop the program if a special key was hit
+    if (--active == 1)
     {
-      if (_kbhit()) active = 0;
-      else active = FRAMES;
+      active = detect_keypress();
     }
 
   }
@@ -1211,12 +1310,12 @@ static void init_model_projGLES1(void)
 static void free_gear(gear_t *gear)
 {
    if (gear) {
-	 if (gear->vboId) {
-	   glDeleteBuffers(1, &gear->vboId);
-	 }
-	 if (gear->iboId) {
-	   glDeleteBuffers(1, &gear->iboId);
-	 }
+	   if (gear->vboId) {
+	     glDeleteBuffers(1, &gear->vboId);
+	   }
+	   if (gear->iboId) {
+	     glDeleteBuffers(1, &gear->iboId);
+	   }
      free(gear->vertices);
      free(gear->indices);
      free(gear);
@@ -1237,7 +1336,7 @@ static void exit_func(void)
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
    // clear screen
-   glClear( GL_COLOR_BUFFER_BIT );
+   frameClear();
    eglSwapBuffers(state->display, state->surface);
 
    // Release OpenGL resources
@@ -1268,12 +1367,16 @@ int main (int argc, char *argv[])
 
    // Start OGLES
    init_egl();
+   if (state->wantInfo) {
+     print_GLInfo();
+	   
+   }
    init_textures();
    build_gears();
    
    // setup the scene based on rendering mode
    if (state->useGLES2) {
-	 init_scene_GLES2();
+	   init_scene_GLES2();
      // Setup the model projection/world
      init_model_projGLES2();
    }
