@@ -966,6 +966,26 @@ static void draw_sceneGLES1(void)
   glPopMatrix();
 }
 
+static void print_keyhelp()
+{
+  printf("special keys and what they do\n");
+  printf("i - print GL info\n");
+  printf("o - print command line options\n");
+  printf("v - toggle vertical sync on/off\n");
+}
+
+static void print_CLoptions_help(void)
+{
+  printf("\nusage: RPIGears [options]\n");
+  printf("options: -vsync | -exit | -info | -vbo | -gles2 | -line | -nospin\n");
+  printf("-vsync: wait for vertical sync before new frame is displayed\n");
+  printf("-exit: automatically exit RPIGears after 30 seconds\n");
+  printf("-info: display opengl driver info\n");
+  printf("-vbo: use vertex buffer object in GPU memory\n");
+  printf("-gles2: use opengl es 2.0\n");
+  printf("-line: draw lines only, wire frame mode\n");
+  printf("-nospin: gears don't turn\n");  
+}
 
 static void setup_user_options(int argc, char *argv[])
 {
@@ -1014,16 +1034,7 @@ static void setup_user_options(int argc, char *argv[])
   }
 
   if (printhelp) {
-    printf("\nusage: RPIGears [options]\n");
-    printf("options: -vsync | -exit | -info | -vbo | -gles2 | -line | -nospin\n");
-    printf("-vsync: wait for vertical sync before new frame is displayed\n");
-    printf("-exit: automatically exit RPIGears after 30 seconds\n");
-    printf("-info: display opengl driver info\n");
-    printf("-vbo: use vertex buffer object in GPU memory\n");
-    printf("-gles2: use opengl es 2.0\n");
-    printf("-line: draw lines only, wire frame mode\n");
-    printf("-nospin: gears don't turn\n");
-
+    print_CLoptions_help();
   }
   
   update_angleFrame();
@@ -1171,11 +1182,20 @@ static void check_keys(int inpkey)
 {
   switch(inpkey)
   {
+    case 'i': 
+      print_GLInfo();
+      break;
+      
+    case 'o':
+      print_CLoptions_help();
+      break;
+    
     case 'w': break; // move up
-    case 'v': {
+    case 'v': 
       toggle_useVSync();
       break;
-    }
+    
+    default: print_keyhelp();
   }
   move_Window();
 }
