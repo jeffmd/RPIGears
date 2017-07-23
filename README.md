@@ -39,3 +39,13 @@ options: -vsync | -exit | -info | -vbo | -gles2
 
 
 Options can be used in any combination.
+
+
+Speed keys while demo is running
+-----------------------------
+i - print GL info to console
+
+o - print command line options to console
+
+v - toggle vertical sync on/off
+
