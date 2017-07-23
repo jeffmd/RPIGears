@@ -257,6 +257,7 @@ static void toggle_useVSync(void)
 {
   int sync = state->useVSync ? 0 : 1;
   update_useVSync(sync);
+  printf("vertical sync is %s\n", sync ? "on": "off");
 }
 
 static void update_gear_rotation(void)
