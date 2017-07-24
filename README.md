@@ -7,8 +7,16 @@ Building
 --------
 The following files should be in the build directory:
 
-RPIGears.c
+LICENSE
+
 Makefile
+
+README.md
+
+RPIGears.c
+
+RPi_Logo256.c
+
 
 In a terminal session, change directory to the build directory where the 
 RPIGears source file is located.  Use make at the commandline to build
@@ -19,7 +27,7 @@ Running
 -------
 
 To run the demo type ./RPIGears.bin.  The demo runs full screen.  To
-exit the demo press any key on the keyboard.
+exit the demo press esc or enter key on the keyboard.
 
 
 Command line Options
