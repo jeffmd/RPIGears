@@ -260,6 +260,12 @@ static void toggle_useVSync(void)
   printf("vertical sync is %s\n", sync ? "on": "off");
 }
 
+static void toggle_drawmode(void)
+{
+  state->drawMode = state->drawMode == GL_TRIANGLES ? GL_LINES : GL_TRIANGLES;
+  printf("draw mode is %s\n", state->drawMode == GL_TRIANGLES ? "GL_TRIANGLES": "GL_LINES");
+}
+
 static void update_gear_rotation(void)
 {
     /* advance gear rotation for next frame */
@@ -971,6 +977,7 @@ static void print_keyhelp()
 {
   printf("special keys and what they do\n");
   printf("i - print GL info\n");
+  printf("l - toggle draw mode GL_TRIAGLES/GL_LINES\n");
   printf("o - print command line options\n");
   printf("v - toggle vertical sync on/off\n");
 }
@@ -1185,6 +1192,10 @@ static void check_keys(int inpkey)
   {
     case 'i': 
       print_GLInfo();
+      break;
+      
+    case 'l':
+      toggle_drawmode();
       break;
       
     case 'o':

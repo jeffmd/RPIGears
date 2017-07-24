@@ -53,6 +53,8 @@ Speed keys while demo is running
 -----------------------------
 i - print GL info to console
 
+l - toggle draw mode GL_TRIAGLES/GL_LINES
+
 o - print command line options to console
 
 v - toggle vertical sync on/off
