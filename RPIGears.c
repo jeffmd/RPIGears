@@ -257,13 +257,13 @@ static void toggle_useVSync(void)
 {
   int sync = state->useVSync ? 0 : 1;
   update_useVSync(sync);
-  printf("vertical sync is %s\n", sync ? "on": "off");
+  printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
 static void toggle_drawmode(void)
 {
   state->drawMode = state->drawMode == GL_TRIANGLES ? GL_LINES : GL_TRIANGLES;
-  printf("draw mode is %s\n", state->drawMode == GL_TRIANGLES ? "GL_TRIANGLES": "GL_LINES");
+  printf("\ndraw mode is %s\n", state->drawMode == GL_TRIANGLES ? "GL_TRIANGLES": "GL_LINES");
 }
 
 static void update_gear_rotation(void)
@@ -485,7 +485,7 @@ void m4x4_perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, G
 
 static void print_GLInfo(void)
 {
-  printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
+  printf("\nGL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
   printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
   printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
   printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
@@ -975,11 +975,17 @@ static void draw_sceneGLES1(void)
 
 static void print_keyhelp()
 {
-  printf("special keys and what they do\n");
+  printf("\nspecial keys and what they do\n");
   printf("i - print GL info\n");
   printf("l - toggle draw mode GL_TRIAGLES/GL_LINES\n");
   printf("o - print command line options\n");
   printf("v - toggle vertical sync on/off\n");
+  printf("up arrow - move window up\n");
+  printf("down arrow - move window down\n");
+  printf("left arrow - move window left\n");
+  printf("right arrow - move window right\n");
+  printf("home - move window to centre of screen\n");
+  printf("end - move window off screen\n");
 }
 
 static void print_CLoptions_help(void)
@@ -1162,10 +1168,41 @@ static void build_gears()
   
 }
 
+static void move_window_right(void)
+{
+  state->dst_rect.x -= 1;
+}
+
+static void move_window_left(void)
+{
+  state->dst_rect.x += 1;
+}
+
+static void move_window_up(void)
+{
+  state->dst_rect.y -= 1;
+}
+
+static void move_window_down(void)
+{
+  state->dst_rect.y += 1;
+}
+
+static void move_window_home(void)
+{
+  state->dst_rect.x = state->screen_width/4;
+  state->dst_rect.y = state->screen_height/4;
+}
+
+static void move_window_end(void)
+{
+  state->dst_rect.x = state->screen_width;
+  state->dst_rect.y = state->screen_height;
+}
+
 static void move_Window(void)
 {
   static int chg = 1;
-  state->dst_rect.x += chg;
   if ((state->dst_rect.x > state->dst_rect.width) || (state->dst_rect.x < 0)) chg *= -1;
   
   DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
@@ -1186,10 +1223,73 @@ static void move_Window(void)
     assert(result == 0);	
 }
 
-static void check_keys(int inpkey)
+static void check_movekey(const int inpkey)
 {
+  //printf("input %i\n", inpkey);
+  
+  switch (inpkey)
+  {
+    case 'A': // move window up
+      move_window_up();
+      break;
+      
+    case 'B': // move window down
+      move_window_down();
+      break;
+      
+    case 'C': // move window left
+      move_window_left();
+      break;
+      
+    case 'D': // move window right
+      move_window_right();
+      break;
+
+    case 'F': // move window right
+      move_window_end();
+      break;
+
+    case 'H': // move window right
+      move_window_home();
+      break;
+  }
+  
+  move_Window();
+  
+}
+
+static void check_esckey(const int inpkey)
+{
+  //printf("input %i\n", inpkey);
+
+  switch (inpkey)
+  {
+    case 'O': // process edit keys
+    case '[': // process arrow keys
+      check_movekey(getchar());
+      break;
+  }
+  
+}
+
+static int check_key(const int inpkey)
+{
+  // value returned to indicate if more keys to be processed or terminate program
+  int result = FRAMES;
+
+  //printf("input %i\n", inpkey);
+  
   switch(inpkey)
   {
+    case 10:
+      result = 0;
+      break;
+      
+    case 27: // check escape sequence
+      if (_kbhit()) check_esckey(getchar());
+      else result = 0; // user pressed esc key to exit program
+      break;
+      
     case 'i': 
       print_GLInfo();
       break;
@@ -1209,24 +1309,21 @@ static void check_keys(int inpkey)
     
     default: print_keyhelp();
   }
-  move_Window();
+  
+  // if falling behind in key processing then speed it up
+  if ((result > 0) && _kbhit()) result = 2; 
+  return result;
 }
+
 
 static int detect_keypress(void)
 {
   int active = FRAMES;
-  if (_kbhit()) {
-    int inpchar = getchar();
-    printf("input %i\n", inpchar);
-    if (inpchar < 31) {
-      // end program
-      active = 0;
-    }
-    else {
-      check_keys(inpchar);
-      // speed up input checking to process keys held down
-      active = 5;
-    }
+  int keyswaiting = _kbhit();
+  
+  if (keyswaiting) {
+    //printf("keys waiting: %i\n", keyswaiting);
+    active = check_key(getchar());
   }
   
   return active;  
