@@ -59,3 +59,14 @@ o - print command line options to console
 
 v - toggle vertical sync on/off
 
+up arrow - move window up
+
+down arrow - move window down
+
+left arrow - move window left
+
+right arrow - move window right
+
+home - move window to centre of screen
+
+end - move window off screen
