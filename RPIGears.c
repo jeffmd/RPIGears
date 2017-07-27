@@ -92,6 +92,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
+// default angle velocity of the gears
+#define ANGLEVEL 70
 
 #define check() assert(glGetError() == 0)
 
@@ -265,6 +267,16 @@ static void toggle_drawmode(void)
 {
   state->drawMode = state->drawMode == GL_TRIANGLES ? GL_LINES : GL_TRIANGLES;
   printf("\ndraw mode is %s\n", state->drawMode == GL_TRIANGLES ? "GL_TRIANGLES": "GL_LINES");
+}
+
+static void change_angleVel(const float val)
+{
+  state->angleVel += val;
+}
+
+static void change_viewDist(const float val)
+{
+  state->viewDist += val;  
 }
 
 static void update_gear_rotation(void)
@@ -1046,32 +1058,41 @@ static void draw_sceneGLES1(void)
 
 static void print_keyhelp()
 {
-  printf("\nspecial keys and what they do\n");
-  printf("i - print GL info\n");
-  printf("l - toggle draw mode GL_TRIAGLES/GL_LINES\n");
-  printf("o - print command line options\n");
-  printf("v - toggle vertical sync on/off\n");
-  printf("z - increase window size (zoom in)\n");
-  printf("Z - decrease window size (zoom out)\n");
-  printf("up arrow - move window up\n");
-  printf("down arrow - move window down\n");
-  printf("left arrow - move window left\n");
-  printf("right arrow - move window right\n");
-  printf("home - move window to centre of screen\n");
-  printf("end - move window off screen\n");
+  printf(
+   "\nspecial keys and what they do\n"
+   "i - print GL info\n"
+   "l - toggle draw mode GL_TRIAGLES/GL_LINES\n"
+   "o - print command line options\n"
+   "p - toggle spin on/off of gears\n"
+   "v - toggle vertical sync on/off\n"
+   "z - increase window size (zoom in)\n"
+   "Z - decrease window size (zoom out)\n"
+   "< - decrease gear spin rate\n"
+   "> - increase gear spin rate\n"
+   "r - move back from gears\n"
+   "f - move toward gears\n"
+   "up arrow - move window up\n"
+   "down arrow - move window down\n"
+   "left arrow - move window left\n"
+   "right arrow - move window right\n"
+   "home - move window to centre of screen\n"
+   "end - move window off screen\n"
+   );
 }
 
 static void print_CLoptions_help(void)
 {
-  printf("\nusage: RPIGears [options]\n");
-  printf("options: -vsync | -exit | -info | -vbo | -gles2 | -line | -nospin\n");
-  printf("-vsync: wait for vertical sync before new frame is displayed\n");
-  printf("-exit: automatically exit RPIGears after 30 seconds\n");
-  printf("-info: display opengl driver info\n");
-  printf("-vbo: use vertex buffer object in GPU memory\n");
-  printf("-gles2: use opengl es 2.0\n");
-  printf("-line: draw lines only, wire frame mode\n");
-  printf("-nospin: gears don't turn\n");  
+  printf(
+    "\nusage: RPIGears [options]\n"
+    "options: -vsync | -exit | -info | -vbo | -gles2 | -line | -nospin\n"
+    "-vsync: wait for vertical sync before new frame is displayed\n"
+    "-exit: automatically exit RPIGears after 30 seconds\n"
+    "-info: display opengl driver info\n"
+    "-vbo: use vertex buffer object in GPU memory\n"
+    "-gles2: use opengl es 2.0\n"
+    "-line: draw lines only, wire frame mode\n"
+    "-nospin: gears don't turn\n"
+    );  
 }
 
 static void setup_user_options(int argc, char *argv[])
@@ -1081,7 +1102,7 @@ static void setup_user_options(int argc, char *argv[])
   // setup some default states
   state->viewDist = 38.0;
   state->avgfps = 300;
-  state->angleVel = 70;
+  state->angleVel = ANGLEVEL;
   state->useVBO = 0;
   state->drawMode = GL_TRIANGLES;
 
@@ -1373,6 +1394,22 @@ static int check_key(const int inpkey)
     case 'Z':
       zoom_window(-1);
       move_Window();
+      break;
+      
+    case '<':
+      change_angleVel(-1.0f);
+      break;
+      
+    case '>':
+      change_angleVel(1.0f);
+      break;
+      
+    case 'r':
+      change_viewDist(0.05f);
+      break;
+          
+    case 'f':
+      change_viewDist(-0.05f);
       break;
           
     default: print_keyhelp();

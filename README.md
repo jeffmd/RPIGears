@@ -67,6 +67,14 @@ z - increase window size (zoom in)
 
 Z - decrease window size (zoom out)
 
+< - decrease gear spin rate
+
+> - increase gear spin rate
+
+r - move camera away from gears
+
+f - move camera toward gears
+
 up arrow - move window up
 
 down arrow - move window down
