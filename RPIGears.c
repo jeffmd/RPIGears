@@ -1281,6 +1281,16 @@ static void build_gears()
   
 }
 
+static void draw_scene(void)
+{
+  if (state->useGLES2) {
+    draw_sceneGLES2();
+  }
+  else {
+    draw_sceneGLES1();
+  }
+}
+
 static void move_Window(void)
 {
   check_window_offsets();
@@ -1473,64 +1483,109 @@ static int detect_keypress(void)
   
   return active;  
 }
+
+typedef struct
+{
+  uint prev_ms; // when the task last executed in milliseconds
+  uint interval_ms; // how often in milliseconds the task should run
+  uint elapsed_ms; // how many milliseconds since the last time the task executed 
+  
+} Task_T;
+
+uint current_ms; // current time in milliseconds
  
+static void update_current_ms(void)
+{
+  current_ms = getMilliseconds();
+}
+
+static int task_is_ready(Task_T * const task)
+{
+  task->elapsed_ms = current_ms - task->prev_ms;
+  
+  const int is_ready = task->elapsed_ms > task->interval_ms;
+  if (is_ready) {
+    task->prev_ms = current_ms;
+  }
+  
+  return is_ready;
+}
+
+static void reset_task(Task_T * const task)
+{
+  task->prev_ms = getMilliseconds();
+}
+
+static int frames;
+
+static Task_T AngleFrame_task = { 0, 500, 0};
+static Task_T FPS_task = {0, 5000, 0};
+static Task_T KeyScan_task = {0, 40, 0};
+
+static void do_AngleFrame_task(void)
+{
+  const float dt = FPS_task.elapsed_ms / 1000.0f;
+  if (dt > 0.0f) {
+    update_avgfps((float)frames / dt);
+    update_angleFrame();
+  }
+}
+
+static void do_FPS_task(void)
+{
+  const float dt = FPS_task.elapsed_ms / 1000.0f;
+  const float fps = (float)frames / dt;
+  printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
+  frames = 0;
+}
+
+
 static void run_gears(void)
 {
-  const uint ttr = state->timeToRun;
-  const uint st = getMilliseconds();
-  uint ct = st;
-  uint prevct = ct, seconds = st;
-  uint key_prevct = ct;
-  float dt;
-  float fps;
-  int   frames = 0;
+  //const uint ttr = state->timeToRun;
   int   active = FRAMES;
+
+  frames = 0;
+  
+  reset_task(&FPS_task);
+  reset_task(&AngleFrame_task);
+  reset_task(&KeyScan_task);
+  
 
   // keep doing the loop while no key hit and ttr
   // is either 0 or time since start is less than time to run (ttr)
-  while ( active && ((ttr == 0) || ((ct - st) < ttr)) )
+  while ( active ) //&& ((ttr == 0) || ((ct - st) < ttr)) )
   {
-    ct = getMilliseconds();
-    
+    update_current_ms();
+        
     frames++;
-    dt = (float)(ct - seconds)/1000.0f;
+
+    // print out fps stats every 5 secs
+    if (task_is_ready(&FPS_task)) {
+      do_FPS_task();
+    }
+
     // adjust angleFrame each half second
-    if ((ct - prevct) > 500) {
-	    if (dt > 0.0f) {
-        update_avgfps((float)frames / dt);
-	      update_angleFrame();
-	    }
-	    prevct = ct;	
+    if (task_is_ready(&AngleFrame_task)) {
+      do_AngleFrame_task();
 	  }
 
-    update_gear_rotation();
+    // about every 40ms check if the user hit the keyboard
+    // stop the program if a special key was hit
+    if ((--active == 1) || task_is_ready(&KeyScan_task)) {
+      active = detect_keypress();
+	  }
 
 	  frameClear();
+
+    update_gear_rotation();
     // draw the scene for the next new frame
-    if (state->useGLES2) {
-	    draw_sceneGLES2();
-	  }
-	  else {
-      draw_sceneGLES1();
-    }
+    draw_scene();
 
     // swap the current buffer for the next new frame
     eglSwapBuffers(state->display, state->surface);
     
-    if (dt >= 5.0f)
-    {
-      fps = (float)frames / dt;
-      printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
-      seconds = ct;
-      frames = 0;
-    }
     
-    // about every 40ms check if the user hit the keyboard
-    // stop the program if a special key was hit
-    if ((--active == 1) || ((ct - key_prevct) > 40)) {
-      active = detect_keypress();
-	    key_prevct = ct;	
-	  }
 
   }
 }
