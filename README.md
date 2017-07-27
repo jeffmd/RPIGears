@@ -71,6 +71,14 @@ Z - decrease window size (zoom out)
 
 > - increase gear spin rate
 
+a - move camera left
+
+d - move camera right
+
+w - move camera up
+
+s - move camera down
+
 r - move camera away from gears
 
 f - move camera toward gears

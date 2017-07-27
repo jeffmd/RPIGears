@@ -134,7 +134,9 @@ typedef struct
    int minor;
 // current distance from camera
    GLfloat viewDist;
-   GLfloat distance_inc;
+   GLfloat view_inc;
+   GLfloat viewX;
+   GLfloat viewY;
 // number of seconds to run the demo
    uint timeToRun;
    GLuint texId;
@@ -277,6 +279,16 @@ static void change_angleVel(const float val)
 static void change_viewDist(const float val)
 {
   state->viewDist += val;  
+}
+
+static void change_viewX(const float val)
+{
+  state->viewX += val;  
+}
+
+static void change_viewY(const float val)
+{
+  state->viewY += val;  
 }
 
 static void update_gear_rotation(void)
@@ -1001,7 +1013,7 @@ static void draw_sceneGLES2(void)
    m4x4_identity(transform);
 
    /* Translate and rotate the view */
-   m4x4_translate(transform, -8.0, -7.0, -state->viewDist);
+   m4x4_translate(transform, state->viewX, state->viewY, state->viewDist);
    m4x4_rotate(transform, view_rotx, 1, 0, 0);
    m4x4_rotate(transform, view_roty, 0, 1, 0);
    m4x4_rotate(transform, view_rotz, 0, 0, 1);
@@ -1043,7 +1055,7 @@ static void draw_sceneGLES1(void)
 {
   glPushMatrix();
 
-  glTranslatef(-8.0, -7.0, -state->viewDist);
+  glTranslatef(state->viewX, state->viewY, state->viewDist);
 
   glRotatef(view_rotx, 1.0, 0.0, 0.0);
   glRotatef(view_roty, 0.0, 1.0, 0.0);
@@ -1069,8 +1081,12 @@ static void print_keyhelp()
    "Z - decrease window size (zoom out)\n"
    "< - decrease gear spin rate\n"
    "> - increase gear spin rate\n"
-   "r - move back from gears\n"
-   "f - move toward gears\n"
+   "a - move camera left\n"
+   "d - move camera right\n"
+   "w - move camera up\n"
+   "s - move camera down\n"
+   "r - move camera back from gears\n"
+   "f - move camera toward gears\n"
    "up arrow - move window up\n"
    "down arrow - move window down\n"
    "left arrow - move window left\n"
@@ -1100,7 +1116,10 @@ static void setup_user_options(int argc, char *argv[])
   int i, printhelp = 0;
 
   // setup some default states
-  state->viewDist = 38.0;
+  state->viewDist = -38.0f;
+  state->viewX = -8.0f;
+  state->viewY = -7.0f;
+  state->view_inc = 0.02f;
   state->avgfps = 300;
   state->angleVel = ANGLEVEL;
   state->useVBO = 0;
@@ -1405,12 +1424,29 @@ static int check_key(const int inpkey)
       break;
       
     case 'r':
-      change_viewDist(0.05f);
+      change_viewDist(-state->view_inc);
       break;
           
     case 'f':
-      change_viewDist(-0.05f);
+      change_viewDist(state->view_inc);
       break;
+      
+    case 'a':
+      change_viewX(state->view_inc);
+      break;
+          
+    case 'd':
+      change_viewX(-state->view_inc);
+      break;
+          
+    case 'w':
+      change_viewY(-state->view_inc);
+      break;
+
+    case 's':
+      change_viewY(state->view_inc);
+      break;
+          
           
     default: print_keyhelp();
   }
