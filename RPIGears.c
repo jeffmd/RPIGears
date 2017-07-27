@@ -313,6 +313,12 @@ static void move_window_end(void)
   state->dst_rect.y = state->screen_height;
 }
 
+static void zoom_window(const int val)
+{
+  state->dst_rect.width += val;
+  state->dst_rect.height += val;
+}
+
 static void check_window_offsets(void)
 {
   if (state->dst_rect.x <= -state->dst_rect.width) state->dst_rect.x = -state->dst_rect.width + 1;
@@ -1045,6 +1051,8 @@ static void print_keyhelp()
   printf("l - toggle draw mode GL_TRIAGLES/GL_LINES\n");
   printf("o - print command line options\n");
   printf("v - toggle vertical sync on/off\n");
+  printf("z - increase window size (zoom in)\n");
+  printf("Z - decrease window size (zoom out)\n");
   printf("up arrow - move window up\n");
   printf("down arrow - move window down\n");
   printf("left arrow - move window left\n");
@@ -1353,11 +1361,20 @@ static int check_key(const int inpkey)
       print_CLoptions_help();
       break;
     
-    case 'w': break; // move up
     case 'v': 
       toggle_useVSync();
       break;
-    
+
+    case 'z':
+      zoom_window(1);
+      move_Window();
+      break;
+      
+    case 'Z':
+      zoom_window(-1);
+      move_Window();
+      break;
+          
     default: print_keyhelp();
   }
   

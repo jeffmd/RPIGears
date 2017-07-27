@@ -59,6 +59,10 @@ o - print command line options to console
 
 v - toggle vertical sync on/off
 
+z - increase window size (zoom in)
+
+Z - decrease window size (zoom out)
+
 up arrow - move window up
 
 down arrow - move window down
