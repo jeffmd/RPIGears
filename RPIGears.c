@@ -288,25 +288,41 @@ uint getMilliseconds()
 // Check to see if a key has been pressed
 // returns 0 if no key is being pressed
 // returns >0 if a key has been pressed
-int _kbhit(void) {
-    static const int STDIN = 0;
-    static int initialized = 0;
+static struct termios saved_attributes;
+static int initialized = 0;
+
+static void reset_input_mode(void)
+{
+  if (initialized) {
+    tcsetattr (STDIN_FILENO, TCSANOW, &saved_attributes);
+    fprintf (stdout, "\nstdin terminal attributes restored\n");
+  }
+}
+
+static int _kbhit(void) {
 
     if (! initialized) {
-        // Use termios to turn off line buffering
         struct termios term;
-        tcgetattr(STDIN, &term);
-        term.c_lflag &= ~ICANON;
-        tcsetattr(STDIN, TCSANOW, &term);
+        
+        /* Save the terminal attributes so we can restore them later. */
+        tcgetattr (STDIN_FILENO, &saved_attributes);
+        atexit (reset_input_mode);
+        // Use termios to turn off line buffering and echo
+        tcgetattr (STDIN_FILENO, &term);
+        term.c_lflag &= ~(ICANON | ECHO);
+        term.c_cc[VMIN] = 0;
+        term.c_cc[VTIME] = 0;
+        tcsetattr(STDIN_FILENO, TCSANOW, &term);
         setbuf(stdin, NULL);
         initialized = 1;
     }
 
     int bytesWaiting;
-    ioctl(STDIN, FIONREAD, &bytesWaiting);
-    //if (bytesWaiting > 0) printf("key count: %d", bytesWaiting);
+    ioctl(STDIN_FILENO, FIONREAD, &bytesWaiting);
+
     return bytesWaiting;
 }
+
 
 /** 
  * Copies a 4x4 matrix.
@@ -1246,7 +1262,7 @@ static void check_movekey(const int inpkey)
       move_window_right();
       break;
 
-    case 'F': // move window right
+    case 'F': // move window off screen
       move_window_end();
       break;
 
