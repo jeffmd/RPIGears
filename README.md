@@ -45,6 +45,10 @@ options: -vsync | -exit | -info | -vbo | -gles2
 
 -gles2 : use opengl es 2.0 rendering path (programable shaders)
 
+-line  : draw lines only, wire frame mode
+
+-nospin: gears don't turn
+
 
 Options can be used in any combination.
 
