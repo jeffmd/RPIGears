@@ -1480,6 +1480,7 @@ static void run_gears(void)
   const uint st = getMilliseconds();
   uint ct = st;
   uint prevct = ct, seconds = st;
+  uint key_prevct = ct;
   float dt;
   float fps;
   int   frames = 0;
@@ -1518,17 +1519,18 @@ static void run_gears(void)
     
     if (dt >= 5.0f)
     {
-      fps = (float)frames  / dt;
+      fps = (float)frames / dt;
       printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
       seconds = ct;
       frames = 0;
     }
-    // once in a while check if the user hit the keyboard
+    
+    // about every 40ms check if the user hit the keyboard
     // stop the program if a special key was hit
-    if (--active == 1)
-    {
+    if ((--active == 1) || ((ct - key_prevct) > 40)) {
       active = detect_keypress();
-    }
+	    key_prevct = ct;	
+	  }
 
   }
 }
