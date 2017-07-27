@@ -275,6 +275,54 @@ static void update_gear_rotation(void)
       state->angle -= 360.0;
 }
 
+static void inc_move_rate(void)
+{
+  // increase window movement speed if not at max
+  if (state->move_rate < 20.0f) state->move_rate += 0.1f;
+}
+
+static void move_window_right(void)
+{
+  state->dst_rect.x -= (int)state->move_rate;
+}
+
+static void move_window_left(void)
+{
+  state->dst_rect.x += (int)state->move_rate;
+}
+
+static void move_window_up(void)
+{
+  state->dst_rect.y -= (int)state->move_rate;
+}
+
+static void move_window_down(void)
+{
+  state->dst_rect.y += (int)state->move_rate;
+}
+
+static void move_window_home(void)
+{
+  state->dst_rect.x = state->screen_width/4;
+  state->dst_rect.y = state->screen_height/4;
+}
+
+static void move_window_end(void)
+{
+  state->dst_rect.x = state->screen_width;
+  state->dst_rect.y = state->screen_height;
+}
+
+static void check_window_offsets(void)
+{
+  if (state->dst_rect.x <= -state->dst_rect.width) state->dst_rect.x = -state->dst_rect.width + 1;
+  else if (state->dst_rect.x > (int)state->screen_width) state->dst_rect.x = (int)state->screen_width;
+    
+  if (state->dst_rect.y <= -state->dst_rect.height) state->dst_rect.y = -state->dst_rect.height + 1;
+  else if (state->dst_rect.y > (int)state->screen_height) state->dst_rect.y = (int)state->screen_height;
+}
+
+
 uint getMilliseconds()
 {
     struct timespec spec;
@@ -1185,42 +1233,9 @@ static void build_gears()
   
 }
 
-static void move_window_right(void)
-{
-  state->dst_rect.x -= (int)state->move_rate;
-}
-
-static void move_window_left(void)
-{
-  state->dst_rect.x += (int)state->move_rate;
-}
-
-static void move_window_up(void)
-{
-  state->dst_rect.y -= (int)state->move_rate;
-}
-
-static void move_window_down(void)
-{
-  state->dst_rect.y += (int)state->move_rate;
-}
-
-static void move_window_home(void)
-{
-  state->dst_rect.x = state->screen_width/4;
-  state->dst_rect.y = state->screen_height/4;
-}
-
-static void move_window_end(void)
-{
-  state->dst_rect.x = state->screen_width;
-  state->dst_rect.y = state->screen_height;
-}
-
 static void move_Window(void)
 {
-  static int chg = 1;
-  if ((state->dst_rect.x > state->dst_rect.width) || (state->dst_rect.x < 0)) chg *= -1;
+  check_window_offsets();
   
   DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
   assert(update != 0);
@@ -1262,6 +1277,20 @@ static void check_movekey(const int inpkey)
       move_window_right();
       break;
 
+  }
+  
+  inc_move_rate();  
+  move_Window();
+  
+}
+
+static void check_editkey(const int inpkey)
+{
+  //printf("input %i\n", inpkey);
+  
+  switch (inpkey)
+  {
+
     case 'F': // move window off screen
       move_window_end();
       break;
@@ -1270,12 +1299,12 @@ static void check_movekey(const int inpkey)
       move_window_home();
       break;
   }
-  // increase window movement speed if not at max
-  if (state->move_rate < 10.0f) state->move_rate += 0.1f;
   
+  inc_move_rate();
   move_Window();
   
 }
+
 
 static void check_esckey(const int inpkey)
 {
@@ -1284,6 +1313,9 @@ static void check_esckey(const int inpkey)
   switch (inpkey)
   {
     case 'O': // process edit keys
+      check_editkey(getchar());
+      break;
+
     case '[': // process arrow keys
       check_movekey(getchar());
       break;
@@ -1330,7 +1362,7 @@ static int check_key(const int inpkey)
   }
   
   // if falling behind in key processing then speed it up
-  if ((result > 0) && _kbhit()) result = 2; 
+  if (_kbhit()) result = 2; 
   return result;
 }
 
@@ -1345,7 +1377,7 @@ static int detect_keypress(void)
     active = check_key(getchar());
   }
   else {
-    // reset window move_rate to 1 pixel
+    // reset window move_rate to 1 pixel since no keys are being pressed
     state->move_rate = 1;
   }
   
