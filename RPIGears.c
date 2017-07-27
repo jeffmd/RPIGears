@@ -121,7 +121,7 @@ typedef struct
 {
    uint32_t screen_width;
    uint32_t screen_height;
-   int move_rate;
+   float move_rate;
 // OpenGL|ES objects
    EGLDisplay display;
    EGLSurface surface;
@@ -1187,22 +1187,22 @@ static void build_gears()
 
 static void move_window_right(void)
 {
-  state->dst_rect.x -= state->move_rate;
+  state->dst_rect.x -= (int)state->move_rate;
 }
 
 static void move_window_left(void)
 {
-  state->dst_rect.x += state->move_rate;
+  state->dst_rect.x += (int)state->move_rate;
 }
 
 static void move_window_up(void)
 {
-  state->dst_rect.y -= state->move_rate;
+  state->dst_rect.y -= (int)state->move_rate;
 }
 
 static void move_window_down(void)
 {
-  state->dst_rect.y += state->move_rate;
+  state->dst_rect.y += (int)state->move_rate;
 }
 
 static void move_window_home(void)
@@ -1270,8 +1270,8 @@ static void check_movekey(const int inpkey)
       move_window_home();
       break;
   }
-  // increase window movement speed
-  state->move_rate += 1;
+  // increase window movement speed if not at max
+  if (state->move_rate < 10.0f) state->move_rate += 0.1f;
   
   move_Window();
   
