@@ -118,12 +118,16 @@ typedef struct {
   GLvoid *texCoords_p;  // offset or pointer to first texcoord
 } gear_t;
 
+typedef void (*UPDATE_KEY_DOWN)(const float);
 
 typedef struct
 {
    uint32_t screen_width;
    uint32_t screen_height;
    float move_rate;
+   float move_direction;
+   float rate_frame;
+   UPDATE_KEY_DOWN key_down_update;
 // OpenGL|ES objects
    EGLDisplay display;
    EGLSurface surface;
@@ -171,7 +175,11 @@ typedef struct
 	 DISPMANX_DISPLAY_HANDLE_T dispman_display;
 	 VC_RECT_T dst_rect;
 	 VC_RECT_T src_rect;
-
+   float pos_x;
+   float pos_y;
+   float width;
+   float height;
+   int window_update;
 } DEMO_STATE_T;
 
 static DEMO_STATE_T _state, *state = &_state;
@@ -241,6 +249,24 @@ static const char fragment_shader[] =
 "    gl_FragColor += pow(max(0.0, dot(n, h)), 7.0) * diffCol.r;\n"
 "}";
 
+static void init_window_pos(void)
+{
+  state->pos_x = (float)state->dst_rect.x;
+  state->pos_y = (float)state->dst_rect.y;
+}
+
+static void init_window_size(void)
+{
+  state->width = (float)state->dst_rect.width;
+  state->height = (float)state->dst_rect.height;
+}
+
+static void set_key_down_update(UPDATE_KEY_DOWN updatefn, const float direction)
+{
+  state->key_down_update = updatefn;
+  state->move_direction = direction;  
+}
+
 static void update_avgfps(float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
@@ -249,6 +275,11 @@ static void update_avgfps(float fps)
 static void update_angleFrame(void)
 {
 	state->angleFrame = state->angleVel / state->avgfps;
+}
+
+static void update_rate_frame(void)
+{
+  state->rate_frame = state->move_rate / state->avgfps;
 }
 
 static void update_useVSync(int sync)
@@ -273,22 +304,22 @@ static void toggle_drawmode(void)
 
 static void change_angleVel(const float val)
 {
-  state->angleVel += val * state->move_rate;
+  state->angleVel += val;
 }
 
 static void change_viewDist(const float val)
 {
-  state->viewDist += val * state->move_rate;  
+  state->viewDist += val;  
 }
 
 static void change_viewX(const float val)
 {
-  state->viewX += val * state->move_rate;
+  state->viewX += val;
 }
 
 static void change_viewY(const float val)
 {
-  state->viewY += val * state->move_rate;  
+  state->viewY += val;  
 }
 
 static void update_gear_rotation(void)
@@ -301,55 +332,72 @@ static void update_gear_rotation(void)
 
 static void inc_move_rate(void)
 {
-  // increase window movement speed if not at max
-  if (state->move_rate < 40.0f) state->move_rate += 0.1f;
+  // increase movement speed if not at max
+  //if (state->move_rate < 40.0f)
+  state->move_rate += 0.1f;
 }
 
-static void move_window_right(void)
+static void move_window_x(const float val)
 {
-  state->dst_rect.x -= (int)state->move_rate;
+  state->pos_x += val;
+  state->dst_rect.x = (int)state->pos_x;
+  state->window_update = 1;
 }
 
-static void move_window_left(void)
-{
-  state->dst_rect.x += (int)state->move_rate;
-}
 
-static void move_window_up(void)
+static void move_window_y(const float val)
 {
-  state->dst_rect.y -= (int)state->move_rate;
-}
-
-static void move_window_down(void)
-{
-  state->dst_rect.y += (int)state->move_rate;
+  state->pos_y += val;
+  state->dst_rect.y = (int)state->pos_y;
+  state->window_update = 1;
 }
 
 static void move_window_home(void)
 {
   state->dst_rect.x = state->screen_width/4;
   state->dst_rect.y = state->screen_height/4;
+  init_window_pos();
+  state->window_update = 1;
 }
 
 static void move_window_end(void)
 {
   state->dst_rect.x = state->screen_width;
   state->dst_rect.y = state->screen_height;
+  init_window_pos();
+  state->window_update = 1;
 }
 
-static void zoom_window(const int val)
+static void zoom_window(const float val)
 {
-  state->dst_rect.width += val * state->move_rate;
-  state->dst_rect.height += val * state->move_rate;
+  state->width += val;
+  state->height += val;
+  state->dst_rect.width = (int)state->width;
+  state->dst_rect.height = (int)state->height;
+  state->window_update = 1;
 }
 
 static void check_window_offsets(void)
 {
-  if (state->dst_rect.x <= -state->dst_rect.width) state->dst_rect.x = -state->dst_rect.width + 1;
-  else if (state->dst_rect.x > (int)state->screen_width) state->dst_rect.x = (int)state->screen_width;
-    
-  if (state->dst_rect.y <= -state->dst_rect.height) state->dst_rect.y = -state->dst_rect.height + 1;
-  else if (state->dst_rect.y > (int)state->screen_height) state->dst_rect.y = (int)state->screen_height;
+  if (state->dst_rect.x <= -state->dst_rect.width) {
+    state->dst_rect.x = -state->dst_rect.width + 1;
+    state->pos_x = (float)state->dst_rect.x;
+  }
+  else
+    if (state->dst_rect.x > (int)state->screen_width) {
+      state->dst_rect.x = (int)state->screen_width;
+      state->pos_x = (float)state->dst_rect.x; 
+    }
+       
+  if (state->dst_rect.y <= -state->dst_rect.height) {
+    state->dst_rect.y = -state->dst_rect.height + 1;
+    state->pos_y = (float)state->dst_rect.y; 
+  }  
+  else
+    if (state->dst_rect.y > (int)state->screen_height) {
+       state->dst_rect.y = (int)state->screen_height;
+       state->pos_y = (float)state->dst_rect.y;
+    }
 }
 
 
@@ -1120,6 +1168,7 @@ static void setup_user_options(int argc, char *argv[])
   state->viewX = -8.0f;
   state->viewY = -7.0f;
   state->view_inc = 0.02f;
+  state->move_rate = 1.0f;
   state->avgfps = 300;
   state->angleVel = ANGLEVEL;
   state->useVBO = 0;
@@ -1291,26 +1340,29 @@ static void draw_scene(void)
   }
 }
 
-static void move_Window(void)
+static void update_Window(void)
 {
-  check_window_offsets();
+  if (state->window_update) {
+    check_window_offsets();
+    
+    DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+    assert(update != 0);
   
-  DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
-  assert(update != 0);
-
-  int result = vc_dispmanx_element_change_attributes(update,
-                                          state->dispman_element,
-                                          0,
-                                          0,
-                                          255,
-                                          &(state->dst_rect),
-                                          &(state->src_rect),
-                                          0,
-                                          DISPMANX_ROTATE_90);
-    assert(result == 0);
-
-    result = vc_dispmanx_update_submit(update, 0, 0);
-    assert(result == 0);	
+    int result = vc_dispmanx_element_change_attributes(update,
+                                            state->dispman_element,
+                                            0,
+                                            0,
+                                            255,
+                                            &(state->dst_rect),
+                                            &(state->src_rect),
+                                            0,
+                                            DISPMANX_ROTATE_90);
+      assert(result == 0);
+  
+      result = vc_dispmanx_update_submit(update, 0, 0);
+      assert(result == 0);
+      state->window_update = 0;
+    }
 }
 
 static void check_movekey(const int inpkey)
@@ -1320,25 +1372,23 @@ static void check_movekey(const int inpkey)
   switch (inpkey)
   {
     case 'A': // move window up
-      move_window_up();
+      set_key_down_update(move_window_y, -10.0f);
       break;
       
     case 'B': // move window down
-      move_window_down();
+      set_key_down_update(move_window_y, 10.0f);
       break;
       
     case 'C': // move window left
-      move_window_left();
+      set_key_down_update(move_window_x, 10.0f);
       break;
       
     case 'D': // move window right
-      move_window_right();
+      set_key_down_update(move_window_x, -10.0f);
       break;
 
   }
-  
-  move_Window();
-  
+   
 }
 
 static void check_editkey(const int inpkey)
@@ -1356,8 +1406,6 @@ static void check_editkey(const int inpkey)
       move_window_home();
       break;
   }
-  
-  move_Window();
   
 }
 
@@ -1414,45 +1462,43 @@ static int check_key(const int inpkey)
       break;
 
     case 'z':
-      zoom_window(1);
-      move_Window();
+      set_key_down_update(zoom_window, 10.0f);
       break;
       
     case 'Z':
-      zoom_window(-1);
-      move_Window();
+      set_key_down_update(zoom_window, -10.0f);
       break;
       
     case '<':
-      change_angleVel(-1.0f);
+      set_key_down_update(change_angleVel, -10.0f);
       break;
       
     case '>':
-      change_angleVel(1.0f);
+      set_key_down_update(change_angleVel, 10.0f);
       break;
       
     case 'r':
-      change_viewDist(-state->view_inc);
+      set_key_down_update(change_viewDist, -1.0f);
       break;
           
     case 'f':
-      change_viewDist(state->view_inc);
+      set_key_down_update(change_viewDist, 1.0f);
       break;
       
     case 'a':
-      change_viewX(state->view_inc);
+      set_key_down_update(change_viewX, 1.0f);
       break;
           
     case 'd':
-      change_viewX(-state->view_inc);
+      set_key_down_update(change_viewX, -1.0f);
       break;
           
     case 'w':
-      change_viewY(-state->view_inc);
+      set_key_down_update(change_viewY, -1.0f);
       break;
 
     case 's':
-      change_viewY(state->view_inc);
+      set_key_down_update(change_viewY, 1.0f);
       break;
           
           
@@ -1473,12 +1519,13 @@ static int detect_keypress(void)
   if (keyswaiting) {
     //printf("keys waiting: %i\n", keyswaiting);
     active = check_key(getchar());
-    // accelerate camera view movement
+    // accelerate move rate
     inc_move_rate();
   }
   else {
     // reset window move_rate to 1 pixel since no keys are being pressed
-    state->move_rate = 1;
+    state->move_rate = 1.0f;
+    state->key_down_update = 0;
   }
   
   return active;  
@@ -1544,6 +1591,7 @@ static void do_AngleFrame_task(void)
   if (dt > 0.0f) {
     update_avgfps((float)frames / dt);
     update_angleFrame();
+    update_rate_frame();
   }
 }
 
@@ -1575,8 +1623,8 @@ static void do_KeyScan_task(void)
     // stop the program if a special key was hit
     case 0: do_Exit_task(); break;
     // speed up key processing if more keys in buffer
-    case 2: KeyScan_task.interval_ms = 1.0f; break;
-    default: KeyScan_task.interval_ms = 40.0f;
+    case 2: KeyScan_task.interval_ms = 20.0f; break;
+    default: KeyScan_task.interval_ms = 250.0f;
   }
 }
 
@@ -1606,12 +1654,21 @@ static void run_gears(void)
   frames = 0;
 
   reset_tasks();
+  state->key_down_update = 0;
+  init_window_pos();
+  init_window_size();
   
   // keep doing the loop while no exit keys hit and exit timer not finished
   while ( ! run_task(&Exit_task, 0) )
   {
     frames++;
     do_tasks();
+    
+    if (state->key_down_update) {
+      state->key_down_update(state->move_direction * state->rate_frame);
+    }
+    update_Window();
+
     update_gear_rotation();
 	  frameClear();
     // draw the scene for the next new frame
