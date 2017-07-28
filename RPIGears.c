@@ -334,7 +334,7 @@ static void inc_move_rate(void)
 {
   // increase movement speed if not at max
   //if (state->move_rate < 40.0f)
-  state->move_rate += 0.1f;
+  state->move_rate += 0.5f;
 }
 
 static void move_window_x(const float val)
@@ -1623,8 +1623,8 @@ static void do_KeyScan_task(void)
     // stop the program if a special key was hit
     case 0: do_Exit_task(); break;
     // speed up key processing if more keys in buffer
-    case 2: KeyScan_task.interval_ms = 20.0f; break;
-    default: KeyScan_task.interval_ms = 250.0f;
+    case 2: KeyScan_task.interval_ms = 10.0f; break;
+    default: KeyScan_task.interval_ms = 100.0f;
   }
 }
 
