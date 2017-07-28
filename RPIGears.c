@@ -1484,11 +1484,18 @@ static int detect_keypress(void)
   return active;  
 }
 
+typedef enum
+{
+  TS_PAUSED,
+  TS_RUN  
+} TASKSTATE;
+
 typedef struct
 {
   uint prev_ms; // when the task last executed in milliseconds
   uint interval_ms; // how often in milliseconds the task should run
-  uint elapsed_ms; // how many milliseconds since the last time the task executed 
+  uint elapsed_ms; // how many milliseconds since the last time the task executed
+  TASKSTATE state; // state of the task ie TS_RUN, TS_PAUSED
   
 } Task_T;
 
@@ -1499,15 +1506,22 @@ static void update_current_ms(void)
   current_ms = getMilliseconds();
 }
 
-static int task_is_ready(Task_T * const task)
+typedef void (*Action)(void);
+
+static int run_task(Task_T * const task, Action dofunc)
 {
-  task->elapsed_ms = current_ms - task->prev_ms;
+  int is_ready = 0;
   
-  const int is_ready = task->elapsed_ms > task->interval_ms;
-  if (is_ready) {
-    task->prev_ms = current_ms;
+  if (task->state == TS_RUN) {
+    task->elapsed_ms = current_ms - task->prev_ms;
+    
+    is_ready = task->elapsed_ms > task->interval_ms;
+    if (is_ready) {
+      if (dofunc) dofunc();
+      task->prev_ms = current_ms;
+    }
   }
-  
+    
   return is_ready;
 }
 
@@ -1519,10 +1533,10 @@ static void reset_task(Task_T * const task)
 
 static int frames; // number of frames drawn since the last frame/sec calculation
 
-static Task_T AngleFrame_task = { 0, 500, 0};
-static Task_T FPS_task = {0, 5000, 0};
-static Task_T KeyScan_task = {0, 40, 0};
-static Task_T Exit_task = {0, 0, 0};
+static Task_T AngleFrame_task = { 0, 500, 0, TS_RUN};
+static Task_T FPS_task = {0, 5000, 0, TS_RUN};
+static Task_T KeyScan_task = {0, 40, 0, TS_RUN};
+static Task_T Exit_task = {0, 0, 0, TS_PAUSED};
 
 static void do_AngleFrame_task(void)
 {
@@ -1541,63 +1555,76 @@ static void do_FPS_task(void)
   frames = 0;
 }
 
-
-static void run_gears(void)
+static void init_Exit_task(void)
 {
-  //const uint ttr = state->timeToRun;
-  int   active = FRAMES;
+  reset_task(&Exit_task);
+  Exit_task.interval_ms = state->timeToRun;
+  if (Exit_task.interval_ms > 0.0f) Exit_task.state = TS_RUN;
+}
 
-  frames = 0;
-  
+static void do_Exit_task(void)
+{
+  Exit_task.state = TS_RUN;
+  Exit_task.interval_ms = 0.0f;
+}
+
+static void do_KeyScan_task(void)
+{
+  switch (detect_keypress())
+  {
+    // stop the program if a special key was hit
+    case 0: do_Exit_task(); break;
+    // speed up key processing if more keys in buffer
+    case 2: KeyScan_task.interval_ms = 1.0f; break;
+    default: KeyScan_task.interval_ms = 40.0f;
+  }
+}
+
+static void reset_tasks(void)
+{
   reset_task(&FPS_task);
   reset_task(&AngleFrame_task);
   reset_task(&KeyScan_task);
-  reset_task(&Exit_task);
-  Exit_task.interval_ms = state->timeToRun;
+  init_Exit_task();
 
   update_current_ms();
-  // keep doing the loop while no key hit and ttr
-  // is either 0 or time since start is less than time to run (ttr)
-  while ( active && ((Exit_task.interval_ms == 0) || ! task_is_ready(&Exit_task)) )
+}
+
+static void do_tasks(void)
+{
+  update_current_ms();
+  // print out fps stats every 5 secs
+  run_task(&FPS_task, do_FPS_task);
+  // adjust angleFrame each half second
+  run_task(&AngleFrame_task, do_AngleFrame_task);
+  // about every 40ms check if the user hit the keyboard
+  run_task(&KeyScan_task, do_KeyScan_task);
+}
+
+static void run_gears(void)
+{
+  frames = 0;
+
+  reset_tasks();
+  
+  // keep doing the loop while no exit keys hit and exit timer not finished
+  while ( ! run_task(&Exit_task, 0) )
   {
-    update_current_ms();
-        
     frames++;
-
-    // print out fps stats every 5 secs
-    if (task_is_ready(&FPS_task)) {
-      do_FPS_task();
-    }
-
-    // adjust angleFrame each half second
-    if (task_is_ready(&AngleFrame_task)) {
-      do_AngleFrame_task();
-	  }
-
-    // about every 40ms check if the user hit the keyboard
-    // stop the program if a special key was hit
-    if ((--active == 1) || task_is_ready(&KeyScan_task)) {
-      active = detect_keypress();
-	  }
-
-	  frameClear();
-
+    do_tasks();
     update_gear_rotation();
+	  frameClear();
     // draw the scene for the next new frame
     draw_scene();
-
     // swap the current buffer for the next new frame
     eglSwapBuffers(state->display, state->surface);
-    
-    
-
   }
 }
 
 static void init_model_projGLES2(void)
 {
    /* Update the projection matrix */
-   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)state->screen_width / (float)state->screen_height, 1.0, 50.0);
+   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)state->screen_width / (float)state->screen_height, 1.0, 100.0);
    glViewport(0, 0, (GLsizei)state->screen_width, (GLsizei)state->screen_height);
 	
 }
@@ -1618,7 +1645,7 @@ static void init_model_projGLES1(void)
    // near clipping plane
    const float nearp = 1.0f;
    // far clipping plane
-   const float farp = 50.0f;
+   const float farp = 100.0f;
    float hht;
    float hwd;
 
@@ -1704,7 +1731,6 @@ int main (int argc, char *argv[])
    init_egl();
    if (state->wantInfo) {
      print_GLInfo();
-	   
    }
    init_textures();
    build_gears();
