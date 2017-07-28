@@ -273,22 +273,22 @@ static void toggle_drawmode(void)
 
 static void change_angleVel(const float val)
 {
-  state->angleVel += val;
+  state->angleVel += val * state->move_rate;
 }
 
 static void change_viewDist(const float val)
 {
-  state->viewDist += val;  
+  state->viewDist += val * state->move_rate;  
 }
 
 static void change_viewX(const float val)
 {
-  state->viewX += val;  
+  state->viewX += val * state->move_rate;
 }
 
 static void change_viewY(const float val)
 {
-  state->viewY += val;  
+  state->viewY += val * state->move_rate;  
 }
 
 static void update_gear_rotation(void)
@@ -302,7 +302,7 @@ static void update_gear_rotation(void)
 static void inc_move_rate(void)
 {
   // increase window movement speed if not at max
-  if (state->move_rate < 20.0f) state->move_rate += 0.1f;
+  if (state->move_rate < 40.0f) state->move_rate += 0.1f;
 }
 
 static void move_window_right(void)
@@ -339,8 +339,8 @@ static void move_window_end(void)
 
 static void zoom_window(const int val)
 {
-  state->dst_rect.width += val;
-  state->dst_rect.height += val;
+  state->dst_rect.width += val * state->move_rate;
+  state->dst_rect.height += val * state->move_rate;
 }
 
 static void check_window_offsets(void)
@@ -1337,7 +1337,6 @@ static void check_movekey(const int inpkey)
 
   }
   
-  inc_move_rate();  
   move_Window();
   
 }
@@ -1358,7 +1357,6 @@ static void check_editkey(const int inpkey)
       break;
   }
   
-  inc_move_rate();
   move_Window();
   
 }
@@ -1475,6 +1473,8 @@ static int detect_keypress(void)
   if (keyswaiting) {
     //printf("keys waiting: %i\n", keyswaiting);
     active = check_key(getchar());
+    // accelerate camera view movement
+    inc_move_rate();
   }
   else {
     // reset window move_rate to 1 pixel since no keys are being pressed
