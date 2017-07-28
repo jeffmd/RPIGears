@@ -1514,13 +1514,15 @@ static int task_is_ready(Task_T * const task)
 static void reset_task(Task_T * const task)
 {
   task->prev_ms = getMilliseconds();
+  task->elapsed_ms = 0.0f;
 }
 
-static int frames;
+static int frames; // number of frames drawn since the last frame/sec calculation
 
 static Task_T AngleFrame_task = { 0, 500, 0};
 static Task_T FPS_task = {0, 5000, 0};
 static Task_T KeyScan_task = {0, 40, 0};
+static Task_T Exit_task = {0, 0, 0};
 
 static void do_AngleFrame_task(void)
 {
@@ -1550,11 +1552,13 @@ static void run_gears(void)
   reset_task(&FPS_task);
   reset_task(&AngleFrame_task);
   reset_task(&KeyScan_task);
-  
+  reset_task(&Exit_task);
+  Exit_task.interval_ms = state->timeToRun;
 
+  update_current_ms();
   // keep doing the loop while no key hit and ttr
   // is either 0 or time since start is less than time to run (ttr)
-  while ( active ) //&& ((ttr == 0) || ((ct - st) < ttr)) )
+  while ( active && ((Exit_task.interval_ms == 0) || ! task_is_ready(&Exit_task)) )
   {
     update_current_ms();
         
