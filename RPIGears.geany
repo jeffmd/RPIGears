@@ -1,0 +1,43 @@
+[file_prefs]
+final_new_line=true
+ensure_convert_new_lines=false
+strip_trailing_spaces=false
+replace_tabs=false
+
+[indentation]
+indent_width=2
+indent_type=0
+indent_hard_tab_width=8
+detect_indent=false
+detect_indent_width=false
+indent_mode=2
+
+[project]
+name=RPIGears
+base_path=/home/pi/SoftwareDevelopment/RPIGears
+description=
+file_patterns=
+
+[long line marker]
+long_line_behaviour=1
+long_line_column=72
+
+[files]
+current_page=0
+FILE_NAME_0=12742;C;0;EUTF-8;0;1;0;%2Fhome%2Fpi%2FSoftwareDevelopment%2FRPIGears%2FRPIGears.c;0;2
+FILE_NAME_1=1523;Markdown;0;EUTF-8;0;1;0;%2Fhome%2Fpi%2FSoftwareDevelopment%2FRPIGears%2FREADME.md;0;2
+FILE_NAME_2=1586;C;0;EUTF-8;0;1;0;%2Fusr%2Finclude%2FGLES2%2Fgl2.h;0;2
+FILE_NAME_3=0;C;0;EUTF-8;0;1;0;%2Fopt%2Fvc%2Fsrc%2Fhello_pi%2Fhello_teapot%2Ftriangle.c;0;2
+FILE_NAME_4=4486;C;0;EUTF-8;0;1;0;%2Fopt%2Fvc%2Finclude%2Finterface%2Fvmcs_host%2Fvc_dispmanx.h;0;2
+FILE_NAME_5=0;C;0;EUTF-8;0;1;0;%2Fopt%2Fvc%2Finclude%2Finterface%2Fvctypes%2Fvc_display_types.h;0;2
+FILE_NAME_6=629;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2FSoftwareDevelopment%2FRPIGears%2FMakefile;0;2
+FILE_NAME_7=3;C;0;EUTF-8;0;1;0;%2Fhome%2Fpi%2FSoftwareDevelopment%2FRPIGears%2Fmatrix_math.c;0;2
+FILE_NAME_8=0;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2FSoftwareDevelopment%2Frf%2FMakefile;0;2
+
+[VTE]
+last_dir=/home/pi
+
+[build-menu]
+NF_02_LB=Make _Object
+NF_02_CM=make %e.o
+NF_02_WD=

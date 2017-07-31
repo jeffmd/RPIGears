@@ -17,6 +17,16 @@ RPIGears.c
 
 RPi_Logo256.c
 
+matrix_math.c
+
+key_input.c
+
+tasks.c
+
+shaders.c
+
+print_info.c
+
 
 In a terminal session, change directory to the build directory where the 
 RPIGears source file is located.  Use make at the commandline to build
