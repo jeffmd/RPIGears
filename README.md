@@ -27,6 +27,14 @@ shaders.c
 
 print_info.c
 
+gles1.c
+
+gles2.c
+
+gear.c
+
+user_options.c
+
 
 In a terminal session, change directory to the build directory where the 
 RPIGears source file is located.  Use make at the commandline to build
