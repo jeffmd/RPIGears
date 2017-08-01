@@ -37,6 +37,8 @@ user_options.c
 
 demo_state.c
 
+demo_state.h
+
 
 In a terminal session, change directory to the build directory where the 
 RPIGears source file is located.  Use make at the commandline to build
