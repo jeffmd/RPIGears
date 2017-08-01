@@ -78,7 +78,7 @@ static void check_editkey(const int inpkey)
       move_window_end();
       break;
 
-    case 'H': // move window right
+    case 'H': // move window to center of screen
       move_window_home();
       break;
   }

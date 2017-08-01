@@ -88,8 +88,9 @@ static void inc_move_rate(void)
 {
   // increase movement speed if not at max
   //if (state->move_rate < 40.0f)
-  state->move_rate += 0.5f;
+  state->move_rate += state->move_rate * 0.02f;
 }
+
 
 static void move_window_x(const float val)
 {

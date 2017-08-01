@@ -269,16 +269,18 @@ static void init_egl(void)
    state->src_rect.height = (state->screen_height/2) << 16;
 
    state->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
+   
    dispman_update = vc_dispmanx_update_start( 0 );
 
    state->dispman_element = vc_dispmanx_element_add( dispman_update, state->dispman_display,
       0/*layer*/, &state->dst_rect, 0/*src*/,
       &state->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
 
+   vc_dispmanx_update_submit_sync( dispman_update );
+
    state->nativewindow.element = state->dispman_element;
    state->nativewindow.width = state->screen_width;
    state->nativewindow.height = state->screen_height;
-   vc_dispmanx_update_submit_sync( dispman_update );
 
    state->surface = eglCreateWindowSurface( state->display, config, &state->nativewindow, NULL );
    assert(state->surface != EGL_NO_SURFACE);
@@ -443,6 +445,21 @@ static void exit_func(void)
    
 } // exit_func()
 
+static void init_scene(void)
+{
+   // setup the scene based on rendering mode
+   if (state->useGLES2) {
+	   init_scene_GLES2();
+     // Setup the model projection/world
+     init_model_projGLES2();
+   }
+   else { // using gles1
+     init_scene_GLES1();
+     // Setup the model projection/world
+     init_model_projGLES1();
+   }
+}
+
 //==============================================================================
 
 int main (int argc, char *argv[])
@@ -462,17 +479,7 @@ int main (int argc, char *argv[])
    init_textures();
    build_gears();
    
-   // setup the scene based on rendering mode
-   if (state->useGLES2) {
-	   init_scene_GLES2();
-     // Setup the model projection/world
-     init_model_projGLES2();
-   }
-   else { // using gles1
-     init_scene_GLES1();
-     // Setup the model projection/world
-     init_model_projGLES1();
-   }
+   init_scene();
 
    // animate the gears
    run_gears();
