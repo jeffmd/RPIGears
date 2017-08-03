@@ -166,11 +166,15 @@ static void init_egl(void)
 
    // create an EGL rendering context
    // select es 1.x or 2.x based on user option
-   context_attributes[1] = state->useGLES2 + 1;
-   state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
-   assert(state->context!=EGL_NO_CONTEXT);
+   context_attributes[1] = 1;
+   state->contextGLES1 = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
+   assert(state->contextGLES1 != EGL_NO_CONTEXT);
 
-   // create an EGL window surface
+   context_attributes[1] = 2;
+   state->contextGLES2 = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
+   assert(state->contextGLES2 != EGL_NO_CONTEXT);
+
+   // create an EGL window surface based on current screen size
    success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
    assert( success >= 0 );
 
@@ -202,7 +206,7 @@ static void init_egl(void)
    assert(state->surface != EGL_NO_SURFACE);
 
    // connect the context to the surface
-   result = eglMakeCurrent(state->display, state->surface, state->surface, state->context);
+   result = eglMakeCurrent(state->display, state->surface, state->surface, state->useGLES2 ? state->contextGLES2 : state->contextGLES1);
    assert(EGL_FALSE != result);
 
    // default to no vertical sync but user option may turn it on
@@ -315,11 +319,9 @@ static void run_gears(void)
     frames++;
     do_tasks();
     
-    if (state->key_down_update) {
-      state->key_down_update(state->move_direction * state->rate_frame);
-    }
+    do_key_down_update();
     update_Window();
-
+    inc_move_rate();
     update_gear_rotation();
 	  frameClear();
     // draw the scene for the next new frame
@@ -334,73 +336,72 @@ static void run_gears(void)
 static void exit_func(void)
 // Function to be passed to atexit().
 {
-   if (!state->useGLES2) {
-     glDisableClientState(GL_NORMAL_ARRAY);
-     glDisableClientState(GL_VERTEX_ARRAY);
-   }
-
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-   // clear screen
-   frameClear();
-   eglSwapBuffers(state->display, state->surface);
-
-   // Release OpenGL resources
-   eglMakeCurrent( state->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
-   eglDestroySurface( state->display, state->surface );
-   eglDestroyContext( state->display, state->context );
-   eglTerminate( state->display );
-
-   // release memory used for gear and associated vertex arrays
-   free_gear(state->gear1);
-   free_gear(state->gear2);
-   free_gear(state->gear3);
-   
-   printf("\nRPIGears finished\n");
+  if (!state->useGLES2) {
+   glDisableClientState(GL_NORMAL_ARRAY);
+   glDisableClientState(GL_VERTEX_ARRAY);
+  }
+  
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  
+  // clear screen
+  frameClear();
+  eglSwapBuffers(state->display, state->surface);
+  
+  // Release OpenGL resources
+  eglMakeCurrent( state->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
+  eglDestroySurface( state->display, state->surface );
+  eglDestroyContext( state->display, state->contextGLES1 );
+  eglDestroyContext( state->display, state->contextGLES2 );
+  eglTerminate( state->display );
+  
+  // release memory used for gear and associated vertex arrays
+  free_gear(state->gear1);
+  free_gear(state->gear2);
+  free_gear(state->gear3);
+  
+  printf("\nRPIGears finished\n");
    
 } // exit_func()
 
 static void init_scene(void)
 {
-   // setup the scene based on rendering mode
-   if (state->useGLES2) {
-	   init_scene_GLES2();
-     // Setup the model projection/world
-     init_model_projGLES2();
-   }
-   else { // using gles1
-     init_scene_GLES1();
-     // Setup the model projection/world
-     init_model_projGLES1();
-   }
+  // setup the scene based on rendering mode
+  if (state->useGLES2) {
+   init_scene_GLES2();
+   // Setup the model projection/world
+   init_model_projGLES2();
+  }
+  else { // using gles1
+   init_scene_GLES1();
+   // Setup the model projection/world
+   init_model_projGLES1();
+  }
 }
 
 //==============================================================================
 
 int main (int argc, char *argv[])
 {
-   bcm_host_init();
-
-   // Clear application state
-   memset( state, 0, sizeof( *state ) );
-
-   setup_user_options(argc, argv);
-
-   // Start OGLES
-   init_egl();
-   if (state->wantInfo) {
-     print_GLInfo();
-   }
-   init_textures();
-   build_gears();
-   
-   init_scene();
-
-   // animate the gears
-   run_gears();
-
-   exit_func();
-
-   return 0;
+  bcm_host_init();
+  
+  init_demo_state();
+  setup_user_options(argc, argv);
+  
+  // Start OGLES
+  init_egl();
+  if (state->wantInfo) {
+   print_GLInfo();
+  }
+  init_textures();
+  build_gears();
+  
+  init_scene();
+  
+  // animate the gears
+  run_gears();
+  
+  exit_func();
+  
+  return 0;
 }

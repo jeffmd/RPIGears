@@ -33,13 +33,15 @@ typedef struct
    uint32_t screen_width;
    uint32_t screen_height;
    float move_rate;
+   int move_rate_enabled;
    float move_direction;
    float rate_frame;
    UPDATE_KEY_DOWN key_down_update;
 // OpenGL|ES objects
    EGLDisplay display;
    EGLSurface surface;
-   EGLContext context;
+   EGLContext contextGLES1;
+   EGLContext contextGLES2;
    GLenum drawMode;
 // EGL info
    int major;
@@ -73,6 +75,8 @@ typedef struct
    GLfloat angleVel;
 // Average Frames Per Second
    float avgfps;
+   // the average time between each frame update = 1/avgfps
+   float period_rate;
    int useVBO;
    int useGLES2;
    int useVSync;

@@ -21,19 +21,27 @@ static void set_key_down_update(UPDATE_KEY_DOWN updatefn, const float direction)
   state->move_direction = direction;  
 }
 
+static void do_key_down_update(void)
+{
+  if (state->key_down_update) {
+    state->key_down_update(state->move_direction * state->rate_frame);
+  }
+}
+
 static void update_avgfps(float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
+  state->period_rate = 1.0f / state->avgfps;
 }
 
 static void update_angleFrame(void)
 {
-	state->angleFrame = state->angleVel / state->avgfps;
+	state->angleFrame = state->angleVel * state->period_rate;
 }
 
 static void update_rate_frame(void)
 {
-  state->rate_frame = state->move_rate / state->avgfps;
+  state->rate_frame = state->move_rate * state->period_rate;
 }
 
 static void update_useVSync(int sync)
@@ -84,11 +92,23 @@ static void update_gear_rotation(void)
       state->angle -= 360.0;
 }
 
+static void move_rate_on(void)
+{
+  state->move_rate_enabled = 1;
+}
+
+static void move_rate_off(void)
+{
+  state->move_rate_enabled = 0;
+  state->move_rate = 1.0f;
+  state->key_down_update = 0;
+}
+
 static void inc_move_rate(void)
 {
   // increase movement speed if not at max
   //if (state->move_rate < 40.0f)
-  state->move_rate += state->move_rate * 0.02f;
+  if (state->move_rate_enabled) state->move_rate += 10 * state->period_rate;
 }
 
 
@@ -155,3 +175,20 @@ static void check_window_offsets(void)
     }
 }
 
+static void init_demo_state(void)
+{
+  // Clear application state
+  memset( state, 0, sizeof( *state ) );
+// setup some default states
+  state->viewDist = -38.0f;
+  state->viewX = -8.0f;
+  state->viewY = -7.0f;
+  state->view_inc = 0.02f;
+  state->move_rate = 1.0f;
+  state->avgfps = 300.0f;
+  state->period_rate = 1.0f / state->avgfps;
+  state->angleVel = ANGLEVEL;
+  state->useVBO = 0;
+  state->drawMode = GL_TRIANGLES;
+  
+}

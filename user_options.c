@@ -6,16 +6,6 @@ static void setup_user_options(int argc, char *argv[])
 {
   int i, printhelp = 0;
 
-  // setup some default states
-  state->viewDist = -38.0f;
-  state->viewX = -8.0f;
-  state->viewY = -7.0f;
-  state->view_inc = 0.02f;
-  state->move_rate = 1.0f;
-  state->avgfps = 300;
-  state->angleVel = ANGLEVEL;
-  state->useVBO = 0;
-  state->drawMode = GL_TRIANGLES;
 
   for ( i=1; i<argc; i++ ) {
     if (strcmp(argv[i], "-info")==0) {
