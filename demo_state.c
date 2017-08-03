@@ -60,8 +60,26 @@ static void toggle_useVSync(void)
 
 static void toggle_drawmode(void)
 {
-  state->drawMode = state->drawMode == GL_TRIANGLES ? GL_LINES : GL_TRIANGLES;
-  printf("\ndraw mode is %s\n", state->drawMode == GL_TRIANGLES ? "GL_TRIANGLES": "GL_LINES");
+  char *modestr = 0;
+  
+  switch (state->drawMode) {
+    case GL_TRIANGLES:
+      state->drawMode = GL_LINES;
+      modestr = "GL_LINES";
+      break;
+      
+    case GL_LINES:
+      state->drawMode = GL_POINTS;
+      modestr = "GL_POINTS";
+      break;
+      
+    case GL_POINTS:
+      state->drawMode = GL_TRIANGLES;
+      modestr = "GL_TRIANGLES";
+      break;
+  }
+  
+  printf("\ndraw mode is %s\n", modestr);
 }
 
 static void change_angleVel(const float val)

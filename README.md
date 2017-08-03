@@ -79,7 +79,7 @@ Speed keys while demo is running
 -----------------------------
 i - print GL info to console
 
-l - toggle draw mode GL_TRIAGLES/GL_LINES
+l - toggle draw mode GL_TRIAGLES/GL_LINES/GL_POINTS
 
 o - print command line options to console
 
