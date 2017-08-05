@@ -78,6 +78,32 @@ static void check_window_offsets(void)
     }
 }
 
+static void update_Window(void)
+{
+  if (window->update) {
+    check_window_offsets();
+    
+    DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+    assert(update != 0);
+  
+    int result = vc_dispmanx_element_change_attributes(update,
+                                            window->dispman_element,
+                                            0,
+                                            0,
+                                            255,
+                                            &(window->dst_rect),
+                                            &(window->src_rect),
+                                            0,
+                                            DISPMANX_ROTATE_90);
+      assert(result == 0);
+  
+      result = vc_dispmanx_update_submit(update, 0, 0);
+      assert(result == 0);
+      window->update = 0;
+    }
+}
+
+
 /***********************************************************
  * Name: init_window
  *
