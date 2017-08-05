@@ -97,14 +97,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define check() assert(glGetError() == 0)
 
+#include "user_options.h"
+static OPTIONS_T _options, *options = &_options;
+
+#include "gear.h"
 #include "demo_state.h"
 static DEMO_STATE_T _state, *state = &_state;
+
+#include "window.h"
+static WINDOW_T _window, *window = &_window;
 
 #include "RPi_Logo256.c"
 
 #include "shaders.c"
 
 #include "demo_state.c"
+
+#include "window.c"
 
 #include "matrix_math.c"
 
@@ -149,15 +158,15 @@ static void init_egl(void)
    EGLConfig config;
 
    // get an EGL display connection
-   state->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-   assert(state->display!=EGL_NO_DISPLAY);
+   window->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+   assert(window->display!=EGL_NO_DISPLAY);
 
    // initialize the EGL display connection
-   result = eglInitialize(state->display, &state->major, &state->minor);
+   result = eglInitialize(window->display, &window->major, &window->minor);
    assert(EGL_FALSE != result);
 
    // get an appropriate EGL frame buffer configuration
-   result = eglChooseConfig(state->display, attribute_list, &config, 1, &num_config);
+   result = eglChooseConfig(window->display, attribute_list, &config, 1, &num_config);
    assert(EGL_FALSE != result);
 
    // bind the gles api to this thread - this is default so not required
@@ -167,50 +176,50 @@ static void init_egl(void)
    // create an EGL rendering context
    // select es 1.x or 2.x based on user option
    context_attributes[1] = 1;
-   state->contextGLES1 = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
-   assert(state->contextGLES1 != EGL_NO_CONTEXT);
+   window->contextGLES1 = eglCreateContext(window->display, config, EGL_NO_CONTEXT, context_attributes);
+   assert(window->contextGLES1 != EGL_NO_CONTEXT);
 
    context_attributes[1] = 2;
-   state->contextGLES2 = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
-   assert(state->contextGLES2 != EGL_NO_CONTEXT);
+   window->contextGLES2 = eglCreateContext(window->display, config, EGL_NO_CONTEXT, context_attributes);
+   assert(window->contextGLES2 != EGL_NO_CONTEXT);
 
    // create an EGL window surface based on current screen size
-   success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
+   success = graphics_get_display_size(0 /* LCD */, &window->screen_width, &window->screen_height);
    assert( success >= 0 );
 
-   state->dst_rect.x = state->screen_width/4;
-   state->dst_rect.y = state->screen_height/4;
-   state->dst_rect.width = state->screen_width/2;
-   state->dst_rect.height = state->screen_height/2;
+   window->dst_rect.x = window->screen_width/4;
+   window->dst_rect.y = window->screen_height/4;
+   window->dst_rect.width = window->screen_width/2;
+   window->dst_rect.height = window->screen_height/2;
 
-   state->src_rect.x = 0;
-   state->src_rect.y = 0;
-   state->src_rect.width = (state->screen_width/2) << 16;
-   state->src_rect.height = (state->screen_height/2) << 16;
+   window->src_rect.x = 0;
+   window->src_rect.y = 0;
+   window->src_rect.width = (window->screen_width/2) << 16;
+   window->src_rect.height = (window->screen_height/2) << 16;
 
-   state->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
+   window->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
    
    dispman_update = vc_dispmanx_update_start( 0 );
 
-   state->dispman_element = vc_dispmanx_element_add( dispman_update, state->dispman_display,
-      0/*layer*/, &state->dst_rect, 0/*src*/,
-      &state->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
+   window->dispman_element = vc_dispmanx_element_add( dispman_update, window->dispman_display,
+      0/*layer*/, &window->dst_rect, 0/*src*/,
+      &window->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
 
    vc_dispmanx_update_submit_sync( dispman_update );
 
-   state->nativewindow.element = state->dispman_element;
-   state->nativewindow.width = state->screen_width;
-   state->nativewindow.height = state->screen_height;
+   window->nativewindow.element = window->dispman_element;
+   window->nativewindow.width = window->screen_width;
+   window->nativewindow.height = window->screen_height;
 
-   state->surface = eglCreateWindowSurface( state->display, config, &state->nativewindow, NULL );
-   assert(state->surface != EGL_NO_SURFACE);
+   window->surface = eglCreateWindowSurface( window->display, config, &window->nativewindow, NULL );
+   assert(window->surface != EGL_NO_SURFACE);
 
    // connect the context to the surface
-   result = eglMakeCurrent(state->display, state->surface, state->surface, state->useGLES2 ? state->contextGLES2 : state->contextGLES1);
+   result = eglMakeCurrent(window->display, window->surface, window->surface, options->useGLES2 ? window->contextGLES2 : window->contextGLES1);
    assert(EGL_FALSE != result);
 
    // default to no vertical sync but user option may turn it on
-   update_useVSync(state->useVSync);
+   update_useVSync(options->useVSync);
 
    // Set background color and clear buffers
    glClearColor(0.25f, 0.45f, 0.55f, 0.50f);
@@ -267,7 +276,7 @@ static void frameClear(void)
 
 static void draw_scene(void)
 {
-  if (state->useGLES2) {
+  if (options->useGLES2) {
     draw_sceneGLES2();
   }
   else {
@@ -277,26 +286,26 @@ static void draw_scene(void)
 
 static void update_Window(void)
 {
-  if (state->window_update) {
+  if (window->update) {
     check_window_offsets();
     
     DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
     assert(update != 0);
   
     int result = vc_dispmanx_element_change_attributes(update,
-                                            state->dispman_element,
+                                            window->dispman_element,
                                             0,
                                             0,
                                             255,
-                                            &(state->dst_rect),
-                                            &(state->src_rect),
+                                            &(window->dst_rect),
+                                            &(window->src_rect),
                                             0,
                                             DISPMANX_ROTATE_90);
       assert(result == 0);
   
       result = vc_dispmanx_update_submit(update, 0, 0);
       assert(result == 0);
-      state->window_update = 0;
+      window->update = 0;
     }
 }
 
@@ -327,7 +336,7 @@ static void run_gears(void)
     // draw the scene for the next new frame
     draw_scene();
     // swap the current buffer for the next new frame
-    eglSwapBuffers(state->display, state->surface);
+    eglSwapBuffers(window->display, window->surface);
   }
 }
 
@@ -336,7 +345,7 @@ static void run_gears(void)
 static void exit_func(void)
 // Function to be passed to atexit().
 {
-  if (!state->useGLES2) {
+  if (!options->useGLES2) {
    glDisableClientState(GL_NORMAL_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);
   }
@@ -346,14 +355,14 @@ static void exit_func(void)
   
   // clear screen
   frameClear();
-  eglSwapBuffers(state->display, state->surface);
+  eglSwapBuffers(window->display, window->surface);
   
   // Release OpenGL resources
-  eglMakeCurrent( state->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
-  eglDestroySurface( state->display, state->surface );
-  eglDestroyContext( state->display, state->contextGLES1 );
-  eglDestroyContext( state->display, state->contextGLES2 );
-  eglTerminate( state->display );
+  eglMakeCurrent( window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
+  eglDestroySurface( window->display, window->surface );
+  eglDestroyContext( window->display, window->contextGLES1 );
+  eglDestroyContext( window->display, window->contextGLES2 );
+  eglTerminate( window->display );
   
   // release memory used for gear and associated vertex arrays
   free_gear(state->gear1);
@@ -367,7 +376,7 @@ static void exit_func(void)
 static void init_scene(void)
 {
   // setup the scene based on rendering mode
-  if (state->useGLES2) {
+  if (options->useGLES2) {
    init_scene_GLES2();
    // Setup the model projection/world
    init_model_projGLES2();
@@ -390,7 +399,7 @@ int main (int argc, char *argv[])
   
   // Start OGLES
   init_egl();
-  if (state->wantInfo) {
+  if (options->wantInfo) {
    print_GLInfo();
   }
   init_textures();

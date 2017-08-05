@@ -11,7 +11,7 @@ void draw_gearGLES1(gear_t* gear, GLfloat x, GLfloat y, GLfloat angle)
 	
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gear->color);
   
-  if (state->useVBO) {
+  if (options->useVBO) {
 	glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
   }
@@ -23,7 +23,7 @@ void draw_gearGLES1(gear_t* gear, GLfloat x, GLfloat y, GLfloat angle)
   // Bind texture surface to current vertices
   glBindTexture(GL_TEXTURE_2D, state->texId);
     
-  glDrawElements(state->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
+  glDrawElements(options->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
                    gear->index_p);
   glPopMatrix();
   
@@ -95,13 +95,13 @@ static void init_model_projGLES1(void)
 
    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
-   glViewport(0, 0, (GLsizei)state->screen_width, (GLsizei)state->screen_height);
+   glViewport(0, 0, (GLsizei)window->screen_width, (GLsizei)window->screen_height);
 
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
 
    hht = nearp * (float)tan(45.0 / 2.0 / 180.0 * M_PI);
-   hwd = hht * (float)state->screen_width / (float)state->screen_height;
+   hwd = hht * (float)window->screen_width / (float)window->screen_height;
    // set up the viewing frustum
    glFrustumf(-hwd, hwd, -hht, hht, nearp, farp);
 

@@ -9,7 +9,7 @@ static void setup_user_options(int argc, char *argv[])
 
   for ( i=1; i<argc; i++ ) {
     if (strcmp(argv[i], "-info")==0) {
-	  state->wantInfo = 1;
+	  options->wantInfo = 1;
     }
     else if ( strcmp(argv[i], "-exit")==0) {
       state->timeToRun = 30000;
@@ -17,20 +17,20 @@ static void setup_user_options(int argc, char *argv[])
     }
     else if ( strcmp(argv[i], "-vsync")==0) {
       // want vertical sync
-      state->useVSync = 1;
+      options->useVSync = 1;
       state->avgfps = 60;
     }
     else if ( strcmp(argv[i], "-vbo")==0) {
 	  // use VBO instead of Vertex Array
-	  state->useVBO = 1;
+	  options->useVBO = 1;
 	}
     else if ( strcmp(argv[i], "-gles2")==0) {
 	  // use opengl es 2.0
-	  state->useGLES2 = 1;
+	  options->useGLES2 = 1;
 	}
     else if ( strcmp(argv[i], "-line")==0) {
 	  // use line mode draw ie wire mesh
-	  state->drawMode = GL_LINES;
+	  options->drawMode = GL_LINES;
 	}
     else if ( strcmp(argv[i], "-nospin")==0) {
 	  // gears don't spin
@@ -46,6 +46,5 @@ static void setup_user_options(int argc, char *argv[])
     print_CLoptions_help();
   }
   
-  update_angleFrame();
   
 }

@@ -33,11 +33,20 @@ gles2.c
 
 gear.c
 
+gear.h
+
 user_options.c
+
+user_options.h
 
 demo_state.c
 
 demo_state.h
+
+window.h
+
+window.c
+
 
 
 In a terminal session, change directory to the build directory where the 

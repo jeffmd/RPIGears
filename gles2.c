@@ -52,7 +52,7 @@ static void draw_gearGLES2(gear_t *gear, GLfloat *transform,
    /* Set the gear color */
    glUniform4fv(state->MaterialColor_location, 1, gear->color);
 
-   if (state->useVBO) {
+   if (options->useVBO) {
      glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   	 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
    }
@@ -76,7 +76,7 @@ static void draw_gearGLES2(gear_t *gear, GLfloat *transform,
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state->texId);
     
-   glDrawElements(state->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
+   glDrawElements(options->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
                    gear->index_p);
 
    /* Disable the attributes */
@@ -160,8 +160,8 @@ static void init_scene_GLES2(void)
 static void init_model_projGLES2(void)
 {
    /* Update the projection matrix */
-   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)state->screen_width / (float)state->screen_height, 1.0, 100.0);
-   glViewport(0, 0, (GLsizei)state->screen_width, (GLsizei)state->screen_height);
+   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)window->screen_width / (float)window->screen_height, 1.0, 100.0);
+   glViewport(0, 0, (GLsizei)window->screen_width, (GLsizei)window->screen_height);
 	
 }
 

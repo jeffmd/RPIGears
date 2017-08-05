@@ -176,7 +176,7 @@ static gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
   }
 
   // setup pointers/offsets for draw operations
-  if (state->useVBO) {
+  if (options->useVBO) {
 	// for VBO use offsets into the buffer object
     gear->vertex_p = 0;
     gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
@@ -222,7 +222,7 @@ static void build_gears()
   state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
   
   // if VBO enabled then set them up for each gear
-  if (state->useVBO) {
+  if (options->useVBO) {
     make_gear_vbo(state->gear1);
     make_gear_vbo(state->gear2);
     make_gear_vbo(state->gear3);
