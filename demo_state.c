@@ -3,19 +3,6 @@
 */
 
 
-static void set_key_down_update(UPDATE_KEY_DOWN updatefn, const float direction)
-{
-  state->key_down_update = updatefn;
-  state->rate_direction = direction;  
-}
-
-static void do_key_down_update(void)
-{
-  if (state->key_down_update) {
-    state->key_down_update(state->rate_direction * state->rate_frame);
-  }
-}
-
 static void update_avgfps(float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;

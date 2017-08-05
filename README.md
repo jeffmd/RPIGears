@@ -35,6 +35,8 @@ gear.c
 
 gear.h
 
+scene.c
+
 user_options.c
 
 user_options.h
