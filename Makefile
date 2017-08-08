@@ -8,23 +8,20 @@ LDFLAGS+=-L$(SDKSTAGE)/opt/vc/lib/ -lGLESv2 -lEGL -lbcm_host -lrt -lm
 
 INCLUDES+=-I$(SDKSTAGE)/opt/vc/include/ -I$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -I$(SDKSTAGE)/opt/vc/include/interface/vmcs_host/linux 
 
-all: $(BIN) $(LIB)
+all: $(BIN)
 
 %.o: %.c $(SRC) $(HDR)
-	@rm -f $@ 
 	$(CC) $(CFLAGS) $(INCLUDES) -g -c -o $@ $< -Wno-deprecated-declarations
 
 %.o: %.cpp
-	@rm -f $@ 
 	$(CXX) $(CFLAGS) $(INCLUDES) -g -c $< -o $@ -Wno-deprecated-declarations
 
-%.bin: $(OBJS)
-	$(CC) -o $@ -Wl,--whole-archive $(OBJS) $(LDFLAGS) -Wl,--no-whole-archive -rdynamic
+$(BIN): $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS) 
 
-%.a: $(OBJS)
-	$(AR) r $@ $^
+.PHONY: clean
 
 clean:
 	for i in $(OBJS); do (if test -e "$$i"; then ( rm $$i ); fi ); done
 	@rm -f $(BIN) $(LIB)
-
+ 
