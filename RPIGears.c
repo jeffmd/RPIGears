@@ -65,12 +65,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // three rotating gears rendered with OpenGL|ES 1.1.
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #define _GNU_SOURCE
 #include <math.h>
 #include <assert.h>
-#include <unistd.h>
 #include <termio.h>
 #include <sys/time.h>
 
@@ -81,6 +78,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
+#include "matrix_math.h"
 
 //Attributes changes flag mask
 #define ELEMENT_CHANGE_LAYER          (1<<0)
@@ -114,8 +112,6 @@ static WINDOW_T _window, *window = &_window;
 #include "demo_state.c"
 
 #include "window.c"
-
-#include "matrix_math.c"
 
 
 static GLfloat view_rotx = 25.0, view_roty = 30.0, view_rotz = 0.0;

@@ -2,7 +2,7 @@
 * demo_state.h
 */
 #ifndef _demo_state_h_
-#define _demo_state_h_ 1
+#define _demo_state_h_
 
 
 // a procedure that takes a value representing the rate change to apply to an update

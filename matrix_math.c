@@ -1,6 +1,14 @@
 /**
  * matrix_math.c
  */
+
+#include <stdlib.h>
+#include <math.h> 
+#include <string.h>
+
+#include "GLES/gl.h"
+
+ 
 /** 
  * Copies a 4x4 matrix.
  * 
@@ -8,7 +16,7 @@
  * @param md the destination matrix
  * @param ms the matrix to copy
  */
-static void m4x4_copy(GLfloat *md, const GLfloat *ms)
+void m4x4_copy(GLfloat *md, const GLfloat *ms)
 {
    memcpy (md, ms, sizeof(GLfloat) * 16);
 }
@@ -21,7 +29,7 @@ static void m4x4_copy(GLfloat *md, const GLfloat *ms)
  * @param m the first matrix to multiply
  * @param n the second matrix to multiply
  */
-static void m4x4_multiply(GLfloat *m, const GLfloat *n)
+void m4x4_multiply(GLfloat *m, const GLfloat *n)
 {
    GLfloat tmp[16];
    const GLfloat *row, *column;
@@ -48,7 +56,7 @@ static void m4x4_multiply(GLfloat *m, const GLfloat *n)
  * @param y the y component of the direction to rotate to
  * @param z the z component of the direction to rotate to
  */
-static void m4x4_rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
+void m4x4_rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
    float s, c;
    
@@ -75,7 +83,7 @@ static void m4x4_rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat
  * @param y the y component of the direction to translate to
  * @param z the z component of the direction to translate to
  */
-static void m4x4_translate(GLfloat *m, GLfloat x, GLfloat y, GLfloat z)
+void m4x4_translate(GLfloat *m, GLfloat x, GLfloat y, GLfloat z)
 {
    GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
 
@@ -87,7 +95,7 @@ static void m4x4_translate(GLfloat *m, GLfloat x, GLfloat y, GLfloat z)
  * 
  * @param m the matrix make an identity matrix
  */
-static void m4x4_identity(GLfloat *m)
+void m4x4_identity(GLfloat *m)
 {
    static const GLfloat t[16] = {
       1.0, 0.0, 0.0, 0.0,
@@ -104,7 +112,7 @@ static void m4x4_identity(GLfloat *m)
  *
  * @param m the matrix to transpose
  */
-static void m4x4_transpose(GLfloat *m)
+void m4x4_transpose(GLfloat *m)
 {
    const GLfloat t[16] = {
       m[0], m[4], m[8],  m[12],
@@ -122,7 +130,7 @@ static void m4x4_transpose(GLfloat *m)
  * Read http://www.gamedev.net/community/forums/topic.asp?topic_id=425118
  * for an explanation.
  */
-static void m4x4_invert(GLfloat *m)
+void m4x4_invert(GLfloat *m)
 {
    GLfloat t[16];
    m4x4_identity(t);

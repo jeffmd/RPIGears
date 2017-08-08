@@ -1,7 +1,7 @@
-OBJS=RPIGears.o
+OBJS=RPIGears.o matrix_math.o
 BIN=RPIGears.bin
-SRC=matrix_math.c key_input.c tasks.c shaders.c print_info.c gles1.c gles2.c gear.c user_options.c demo_state.c window.c scene.c
-HDR= user_options.h demo_state.h window.h
+SRC=key_input.c tasks.c shaders.c print_info.c gles1.c gles2.c gear.c user_options.c demo_state.c window.c scene.c
+HDR=user_options.h demo_state.h window.h matrix_math.h
 CFLAGS+=-DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -Wall -DHAVE_LIBOPENMAX=2 -DOMX -DOMX_SKIP64BIT -ftree-vectorize -pipe -DUSE_EXTERNAL_OMX -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM -Wno-psabi
 
 LDFLAGS+=-L$(SDKSTAGE)/opt/vc/lib/ -lGLESv2 -lEGL -lbcm_host -lrt -lm 
@@ -12,7 +12,7 @@ all: $(BIN) $(LIB)
 
 %.o: %.c $(SRC) $(HDR)
 	@rm -f $@ 
-	$(CC) $(CFLAGS) $(INCLUDES) -g -c $< -o $@ -Wno-deprecated-declarations
+	$(CC) $(CFLAGS) $(INCLUDES) -g -c -o $@ $< -Wno-deprecated-declarations
 
 %.o: %.cpp
 	@rm -f $@ 
