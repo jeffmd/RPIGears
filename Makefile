@@ -10,11 +10,11 @@ INCLUDES+=-I$(SDKSTAGE)/opt/vc/include/ -I$(SDKSTAGE)/opt/vc/include/interface/v
 
 all: $(BIN)
 
-%.o: %.c $(SRC) $(HDR)
+RPIGears.o: RPIGears.c $(SRC) $(HDR)
 	$(CC) $(CFLAGS) $(INCLUDES) -g -c -o $@ $< -Wno-deprecated-declarations
-
-%.o: %.cpp
-	$(CXX) $(CFLAGS) $(INCLUDES) -g -c $< -o $@ -Wno-deprecated-declarations
+	
+matrix_math.o: matrix_math.c
+	$(CC) $(CFLAGS) $(INCLUDES) -g -c -o $@ $< -Wno-deprecated-declarations
 
 $(BIN): $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS) 
