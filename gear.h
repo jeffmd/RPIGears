@@ -27,12 +27,14 @@
     GLvoid *texCoords_p;  // offset or pointer to first texcoord
   } gear_t;
 
-extern gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
-                     const GLfloat width, const GLint teeth,
-                     const GLfloat tooth_depth, const GLfloat color[]);
+  extern gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
+                       const GLfloat width, const GLint teeth,
+                       const GLfloat tooth_depth, const GLfloat color[]);
+  
+  extern void set_gear_va_ptrs(gear_t *gear);
+  extern void make_gear_vbo(gear_t *gear);
+  extern void free_gear(gear_t *gear);
+  extern void gear_use_vbo(gear_t *gear);
 
-extern void set_gear_va_ptrs(gear_t *gear);
-extern void make_gear_vbo(gear_t *gear);
-extern void free_gear(gear_t *gear);
 #endif  
   

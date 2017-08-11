@@ -11,10 +11,7 @@ void draw_gearGLES1(gear_t* gear, GLfloat x, GLfloat y, GLfloat angle)
 	
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gear->color);
   
-  if (options->useVBO) {
-	glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-  }
+  if (options->useVBO) gear_use_vbo(gear);
   
   glNormalPointer(GL_FLOAT, sizeof(vertex_t), gear->normal_p);
   glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), gear->vertex_p);

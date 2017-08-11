@@ -52,10 +52,7 @@ static void draw_gearGLES2(gear_t *gear, GLfloat *transform,
    /* Set the gear color */
    glUniform4fv(state->MaterialColor_location, 1, gear->color);
 
-   if (options->useVBO) {
-     glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-  	 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-   }
+   if (options->useVBO) gear_use_vbo(gear);
 
    /* Set up the position of the attributes in the vertex buffer object */
    // setup where vertex data is

@@ -218,6 +218,13 @@ void make_gear_vbo(gear_t *gear)
    	
 }
 
+void gear_use_vbo(gear_t *gear)
+{
+  glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
+}
+
+
 void free_gear(gear_t *gear)
 {
    if (gear) {
