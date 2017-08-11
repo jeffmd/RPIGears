@@ -110,8 +110,6 @@ static WINDOW_T _window, *window = &_window;
 
 #include "demo_state.c"
 
-#include "window.c"
-
 
 static GLfloat view_rotx = 25.0, view_roty = 30.0, view_rotz = 0.0;
 
@@ -148,6 +146,8 @@ static void frameClear(void)
 #include "print_info.c"
 
 #include "user_options.c"
+
+#include "window.c"
 
 #include "gles1.c"
 
