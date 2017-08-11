@@ -6,6 +6,8 @@ static void setup_user_options(int argc, char *argv[])
 {
   int i, printhelp = 0;
 
+  options->useVBO = 0;
+  options->drawMode = GL_TRIANGLES;
 
   for ( i=1; i<argc; i++ ) {
     if (strcmp(argv[i], "-info")==0) {

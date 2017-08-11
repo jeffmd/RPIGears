@@ -3,7 +3,7 @@
 */
 
 
-static void update_avgfps(float fps)
+static void update_avgfps(const float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
   state->period_rate = 1.0f / state->avgfps;
@@ -19,7 +19,7 @@ static void update_rate_frame(void)
   state->rate_frame = state->rate * state->period_rate;
 }
 
-static void update_useVSync(int sync)
+static void update_useVSync(const int sync)
 {
   options->useVSync = sync;
   EGLBoolean result = eglSwapInterval(window->display, options->useVSync );
@@ -119,7 +119,6 @@ static void init_demo_state(void)
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = ANGLEVEL;
-  options->useVBO = 0;
-  options->drawMode = GL_TRIANGLES;
   
+  update_angleFrame();
 }
