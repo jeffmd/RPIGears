@@ -98,7 +98,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "user_options.h"
 static OPTIONS_T _options, *options = &_options;
 
-#include "gear.h"
 #include "demo_state.h"
 static DEMO_STATE_T _state, *state = &_state;
 
@@ -149,8 +148,6 @@ static void frameClear(void)
 #include "print_info.c"
 
 #include "user_options.c"
-
-#include "gear.c"
 
 #include "gles1.c"
 

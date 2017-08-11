@@ -2,6 +2,13 @@
  * gear.c
 */
 
+#include <stdlib.h>
+#include <math.h> 
+#include <string.h>
+
+#include "gear.h"
+
+
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -16,7 +23,7 @@
  
  **/
 
-static gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
+gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
                      const GLfloat tooth_depth, const GLfloat color[])
 {
@@ -181,7 +188,7 @@ static gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
 }
 
 // setup pointers/offsets for draw operations
-static void set_gear_va_ptrs(gear_t *gear)
+void set_gear_va_ptrs(gear_t *gear)
 {
   // for Vertex Array use pointers to where the buffer starts
   gear->vertex_p = gear->vertices[0].pos;
@@ -191,7 +198,7 @@ static void set_gear_va_ptrs(gear_t *gear)
 }
   
 
-static void make_gear_vbo(gear_t *gear)
+void make_gear_vbo(gear_t *gear)
 {
   // for VBO use offsets into the buffer object
   gear->vertex_p = 0;
@@ -211,7 +218,7 @@ static void make_gear_vbo(gear_t *gear)
    	
 }
 
-static void free_gear(gear_t *gear)
+void free_gear(gear_t *gear)
 {
    if (gear) {
 	   if (gear->vboId) {
