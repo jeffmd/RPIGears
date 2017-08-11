@@ -162,6 +162,32 @@ static void frameClear(void)
 
 #include "tasks.c"
 
+static void build_gears(const int useVBO)
+{
+  const GLfloat red[4] = {0.9, 0.3, 0.3, 1.0};
+  const GLfloat green[4] = {0.3, 0.9, 0.3, 1.0};
+  const GLfloat blue[4] = {0.3, 0.3, 0.9, 1.0};
+
+  /* make the meshes for the gears */
+  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red);
+  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green);
+  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
+  
+  // if VBO enabled then set them up for each gear
+  if (useVBO) {
+    make_gear_vbo(state->gear1);
+    make_gear_vbo(state->gear2);
+    make_gear_vbo(state->gear3);
+  }
+  else {
+    set_gear_va_ptrs(state->gear1);   
+    set_gear_va_ptrs(state->gear2);   
+    set_gear_va_ptrs(state->gear3);   
+  }
+
+}
+
+
 static void run_gears(void)
 {
   frames = 0;
@@ -237,7 +263,7 @@ int main (int argc, char *argv[])
    print_GLInfo();
   }
   init_textures();
-  build_gears();
+  build_gears(options->useVBO);
   
   init_scene();
   

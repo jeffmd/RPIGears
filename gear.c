@@ -175,59 +175,40 @@ static gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix1, ix3, ix2);
   }
 
-  // setup pointers/offsets for draw operations
-  if (options->useVBO) {
-	// for VBO use offsets into the buffer object
-    gear->vertex_p = 0;
-    gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
-    gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
-    gear->index_p = 0;
-  }
-  else {
-	// for Vertex Array use pointers to where the buffer starts
-    gear->vertex_p = gear->vertices[0].pos;
-    gear->normal_p = gear->vertices[0].norm;
-    gear->texCoords_p = gear->vertices[0].texCoords;
-    gear->index_p = gear->indices;
-  }
-  
   gear->tricount = gear->nindices / 3;
 
   return gear;
 }
 
+// setup pointers/offsets for draw operations
+static void set_gear_va_ptrs(gear_t *gear)
+{
+  // for Vertex Array use pointers to where the buffer starts
+  gear->vertex_p = gear->vertices[0].pos;
+  gear->normal_p = gear->vertices[0].norm;
+  gear->texCoords_p = gear->vertices[0].texCoords;
+  gear->index_p = gear->indices;
+}
+  
+
 static void make_gear_vbo(gear_t *gear)
 {
-   // setup the vertex buffer that will hold the vertices and normals 
-   glGenBuffers(1, &gear->vboId);
-   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
-   
-   // setup the index buffer that will hold the indices
-   glGenBuffers(1, &gear->iboId);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
-   	
-}
-
-static void build_gears()
-{
-  const GLfloat red[4] = {0.9, 0.3, 0.3, 1.0};
-  const GLfloat green[4] = {0.3, 0.9, 0.3, 1.0};
-  const GLfloat blue[4] = {0.3, 0.3, 0.9, 1.0};
-
-  /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red);
-  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green);
-  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
+  // for VBO use offsets into the buffer object
+  gear->vertex_p = 0;
+  gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
+  gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
+  gear->index_p = 0;
   
-  // if VBO enabled then set them up for each gear
-  if (options->useVBO) {
-    make_gear_vbo(state->gear1);
-    make_gear_vbo(state->gear2);
-    make_gear_vbo(state->gear3);
-  }
-
+  // setup the vertex buffer that will hold the vertices and normals 
+  glGenBuffers(1, &gear->vboId);
+  glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
+  
+  // setup the index buffer that will hold the indices
+  glGenBuffers(1, &gear->iboId);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
+   	
 }
 
 static void free_gear(gear_t *gear)
