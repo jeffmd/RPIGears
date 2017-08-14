@@ -110,9 +110,6 @@ static void init_scene_GLES2(void)
    char msg[512];
 
 
-   glEnable(GL_CULL_FACE);
-   glEnable(GL_DEPTH_TEST);
-
    /* Compile the vertex shader */
    p = vertex_shader;
    v = glCreateShader(GL_VERTEX_SHADER);

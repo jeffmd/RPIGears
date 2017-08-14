@@ -49,10 +49,8 @@ static void init_scene_GLES1()
 
 
   glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-  glEnable(GL_CULL_FACE);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-  glEnable(GL_DEPTH_TEST);
 
   glShadeModel(GL_SMOOTH);
 

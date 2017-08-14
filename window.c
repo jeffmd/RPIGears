@@ -211,6 +211,7 @@ static void init_window(void)
   // Enable back face culling.
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
+  glEnable(GL_DEPTH_TEST);
 
 }
 
