@@ -34,6 +34,7 @@ typedef struct {
 
 static int gearID = 0;
 static gear_t* gears[3];
+
 /**
  
   build a gear wheel.  You'll probably want to call this function when

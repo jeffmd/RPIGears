@@ -128,7 +128,6 @@ static void init_model_projGLES2(void)
 {
    /* Update the projection matrix */
    m4x4_perspective(state->ProjectionMatrix, 45.0, (float)window->screen_width / (float)window->screen_height, 1.0, 100.0);
-   glViewport(0, 0, (GLsizei)window->screen_width, (GLsizei)window->screen_height);
 	
 }
 

@@ -14,6 +14,8 @@ static void draw_scene(void)
 
 static void init_scene(void)
 {
+  glViewport(0, 0, (GLsizei)window->screen_width, (GLsizei)window->screen_height);
+  
   // setup the scene based on rendering mode
   if (options->useGLES2) {
    init_scene_GLES2();

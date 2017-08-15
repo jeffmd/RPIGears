@@ -82,8 +82,6 @@ static void init_model_projGLES1(void)
 
    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
-   glViewport(0, 0, (GLsizei)window->screen_width, (GLsizei)window->screen_height);
-
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
 
