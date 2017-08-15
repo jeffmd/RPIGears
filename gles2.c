@@ -127,7 +127,7 @@ static void init_scene_GLES2(void)
 static void init_model_projGLES2(void)
 {
    /* Update the projection matrix */
-   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)window->screen_width / (float)window->screen_height, 1.0, 100.0);
+   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)window_screen_width() / (float)window_screen_height(), 1.0, 100.0);
 	
 }
 

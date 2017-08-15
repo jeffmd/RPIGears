@@ -2,20 +2,80 @@
 * window.c
 */
 
-static void init_window_pos(void)
+#include <assert.h>
+
+#include "bcm_host.h"
+
+#include "GLES/gl.h"
+#include "EGL/egl.h"
+#include "EGL/eglext.h"
+
+typedef  struct {
+   // window data
+   uint32_t screen_width;
+   uint32_t screen_height;
+// OpenGL|ES objects
+   EGLDisplay display;
+   EGLSurface surface;
+   EGLContext contextGLES1;
+   EGLContext contextGLES2;
+// EGL info
+   int major;
+   int minor;
+	 EGL_DISPMANX_WINDOW_T nativewindow;
+	 DISPMANX_ELEMENT_HANDLE_T dispman_element;
+	 DISPMANX_DISPLAY_HANDLE_T dispman_display;
+	 VC_RECT_T dst_rect;
+	 VC_RECT_T src_rect;
+   float pos_x;
+   float pos_y;
+   float width;
+   float height;
+   int update; // if > 0 then window needs updating in dispmanx
+} WINDOW_T;
+
+
+static WINDOW_T _window, *window = &_window;
+
+int window_major(void)
+{
+  return window->major;
+}
+
+int window_minor(void)
+{
+  return window->minor;
+}
+
+EGLDisplay window_display(void)
+{
+  return window->display;
+}
+
+uint32_t window_screen_width(void)
+{
+  return window->screen_width;
+}
+
+uint32_t window_screen_height(void)
+{
+  return window->screen_height;
+}
+
+void init_window_pos(void)
 {
   window->pos_x = (float)window->dst_rect.x;
   window->pos_y = (float)window->dst_rect.y;
 }
 
-static void init_window_size(void)
+void init_window_size(void)
 {
   window->width = (float)window->dst_rect.width;
   window->height = (float)window->dst_rect.height;
 }
 
 
-static void move_window_x(const float val)
+void move_window_x(const float val)
 {
   window->pos_x += val;
   window->dst_rect.x = (int)window->pos_x;
@@ -23,14 +83,14 @@ static void move_window_x(const float val)
 }
 
 
-static void move_window_y(const float val)
+void move_window_y(const float val)
 {
   window->pos_y += val;
   window->dst_rect.y = (int)window->pos_y;
   window->update = 1;
 }
 
-static void move_window_home(void)
+void move_window_home(void)
 {
   window->dst_rect.x = window->screen_width/4;
   window->dst_rect.y = window->screen_height/4;
@@ -38,7 +98,7 @@ static void move_window_home(void)
   window->update = 1;
 }
 
-static void move_window_end(void)
+void move_window_end(void)
 {
   window->dst_rect.x = window->screen_width;
   window->dst_rect.y = window->screen_height;
@@ -46,7 +106,7 @@ static void move_window_end(void)
   window->update = 1;
 }
 
-static void zoom_window(const float val)
+void zoom_window(const float val)
 {
   window->width += val;
   window->height += val;
@@ -78,7 +138,7 @@ static void check_window_offsets(void)
     }
 }
 
-static void update_Window(void)
+void update_Window(void)
 {
   if (window->update) {
     check_window_offsets();
@@ -113,7 +173,7 @@ static void update_Window(void)
  * Returns: void
  *
  ***********************************************************/
-static void init_window(void)
+void init_window(const int useVSync, const int useGLES2)
 {
   int32_t success = 0;
   EGLBoolean result;
@@ -199,11 +259,8 @@ static void init_window(void)
   assert(window->surface != EGL_NO_SURFACE);
   
   // connect the context to the surface
-  result = eglMakeCurrent(window->display, window->surface, window->surface, options->useGLES2 ? window->contextGLES2 : window->contextGLES1);
+  result = eglMakeCurrent(window->display, window->surface, window->surface, useGLES2 ? window->contextGLES2 : window->contextGLES1);
   assert(EGL_FALSE != result);
-  
-  // default to no vertical sync but user option may turn it on
-  update_useVSync(options->useVSync);
   
   // Set background color and clear buffers
   glClearColor(0.25f, 0.45f, 0.55f, 0.50f);
@@ -215,4 +272,16 @@ static void init_window(void)
 
 }
 
+void window_swap_buffers(void)
+{
+  eglSwapBuffers(window->display, window->surface);
+}
 
+void window_release(void)
+{
+  eglMakeCurrent( window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
+  eglDestroySurface( window->display, window->surface );
+  eglDestroyContext( window->display, window->contextGLES1 );
+  eglDestroyContext( window->display, window->contextGLES2 );
+  eglTerminate( window->display );
+}

@@ -102,7 +102,6 @@ static OPTIONS_T _options, *options = &_options;
 static DEMO_STATE_T _state, *state = &_state;
 
 #include "window.h"
-static WINDOW_T _window, *window = &_window;
 
 #include "RPi_Logo256.c"
 
@@ -146,8 +145,6 @@ static void frameClear(void)
 #include "print_info.c"
 
 #include "user_options.c"
-
-#include "window.c"
 
 #include "gear.h"
 
@@ -207,10 +204,8 @@ static void run_gears(void)
     inc_move_rate();
     update_gear_rotation();
 	  frameClear();
-    // draw the scene for the next new frame
     draw_scene();
-    // swap the current buffer for the next new frame
-    eglSwapBuffers(window->display, window->surface);
+    window_swap_buffers();
   }
 }
 
@@ -229,14 +224,10 @@ static void exit_func(void)
   
   // clear screen
   frameClear();
-  eglSwapBuffers(window->display, window->surface);
+  window_swap_buffers();
   
   // Release OpenGL resources
-  eglMakeCurrent( window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
-  eglDestroySurface( window->display, window->surface );
-  eglDestroyContext( window->display, window->contextGLES1 );
-  eglDestroyContext( window->display, window->contextGLES2 );
-  eglTerminate( window->display );
+  window_release();
   
   // release memory used for gear and associated vertex arrays
   free_gear(state->gear1);
@@ -257,7 +248,10 @@ int main (int argc, char *argv[])
   setup_user_options(argc, argv);
   
   // Start OGLES
-  init_window();
+  init_window(options->useVSync, options->useGLES2);
+  // default to no vertical sync but user option may turn it on
+  update_useVSync(options->useVSync);
+
   if (options->wantInfo) {
    print_GLInfo();
   }

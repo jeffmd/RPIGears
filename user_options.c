@@ -5,7 +5,7 @@
 static void update_useVSync(const int sync)
 {
   options->useVSync = sync;
-  EGLBoolean result = eglSwapInterval(window->display, options->useVSync );
+  EGLBoolean result = eglSwapInterval(window_display(), options->useVSync );
   assert(EGL_FALSE != result);
 }
 

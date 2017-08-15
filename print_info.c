@@ -8,7 +8,7 @@ static void print_GLInfo(void)
   printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
   printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
   printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-  printf("EGL version   = %i.%i\n", window->major, window->minor);
+  printf("EGL version   = %i.%i\n", window_major(), window_minor());
 }
 
 static void print_keyhelp()

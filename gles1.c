@@ -86,7 +86,7 @@ static void init_model_projGLES1(void)
    glLoadIdentity();
 
    hht = nearp * (float)tan(45.0 / 2.0 / 180.0 * M_PI);
-   hwd = hht * (float)window->screen_width / (float)window->screen_height;
+   hwd = hht * (float)window_screen_width() / (float)window_screen_height();
    // set up the viewing frustum
    glFrustumf(-hwd, hwd, -hht, hht, nearp, farp);
 
