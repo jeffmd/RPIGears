@@ -149,6 +149,8 @@ static void frameClear(void)
 
 #include "window.c"
 
+#include "gear.h"
+
 #include "gles1.c"
 
 #include "gles2.c"

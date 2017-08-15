@@ -2,26 +2,18 @@
 * gles1.c
 */
 
-void draw_gearGLES1(gear_t* gear, GLfloat x, GLfloat y, GLfloat angle)
+void draw_gearGLES1(const int gearid, const GLfloat x, const GLfloat y, const GLfloat angle)
 {
 
   glPushMatrix();
   glTranslatef(x, y, 0.0);
   glRotatef(angle, 0.0, 0.0, 1.0);
 	
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gear->color);
-  
-  if (options->useVBO) gear_use_vbo(gear);
-  
-  glNormalPointer(GL_FLOAT, sizeof(vertex_t), gear->normal_p);
-  glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), gear->vertex_p);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), gear->texCoords_p);
-
   // Bind texture surface to current vertices
   glBindTexture(GL_TEXTURE_2D, state->texId);
-    
-  glDrawElements(options->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
-                   gear->index_p);
+
+  gear_drawGLES1(gearid, options->useVBO, options->drawMode);
+                   
   glPopMatrix();
   
 }

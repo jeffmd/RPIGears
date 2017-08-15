@@ -6,9 +6,34 @@
 #include <math.h> 
 #include <string.h>
 
-#include "gear.h"
+#include "GLES/gl.h"
+#include "GLES2/gl2.h"
 
 
+typedef struct {
+  GLfloat pos[3];
+  GLfloat norm[3];
+  GLfloat texCoords[2];
+} vertex_t;
+
+typedef struct {
+  vertex_t *vertices;
+  GLshort *indices;
+  GLfloat color[4];
+  int nvertices, nindices;
+  GLuint vboId; // ID for vertex buffer object
+  GLuint iboId; // ID for index buffer object
+  
+  GLuint tricount; // number of triangles to draw
+  GLvoid *vertex_p; // offset or pointer to first vertex
+  GLvoid *normal_p; // offset or pointer to first normal
+  GLvoid *index_p;  // offset or pointer to first index
+  GLvoid *texCoords_p;  // offset or pointer to first texcoord
+} gear_t;
+
+
+static int gearID = 0;
+static gear_t* gears[3];
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -22,8 +47,7 @@
           tooth_depth - depth of tooth
  
  **/
-
-gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
+int gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
                      const GLfloat tooth_depth, const GLfloat color[])
 {
@@ -36,8 +60,10 @@ gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLshort ix0, ix1, ix2, ix3, ix4;
   vertex_t *vt, *nm, *tx;
   GLshort *ix;
-
+  
   gear_t *gear = calloc(1, sizeof(gear_t));
+  gears[gearID++] = gear;
+  
   gear->nvertices = teeth * 38;
   gear->nindices = teeth * 64 * 3;
   gear->vertices = calloc(gear->nvertices, sizeof(vertex_t));
@@ -184,12 +210,13 @@ gear_t* gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   gear->tricount = gear->nindices / 3;
 
-  return gear;
+  return gearID;
 }
 
 // setup pointers/offsets for draw operations
-void set_gear_va_ptrs(gear_t *gear)
+void set_gear_va_ptrs(const int gearid)
 {
+  gear_t* gear = gears[gearid - 1];
   // for Vertex Array use pointers to where the buffer starts
   gear->vertex_p = gear->vertices[0].pos;
   gear->normal_p = gear->vertices[0].norm;
@@ -198,8 +225,9 @@ void set_gear_va_ptrs(gear_t *gear)
 }
   
 
-void make_gear_vbo(gear_t *gear)
+void make_gear_vbo(const int gearid)
 {
+  gear_t* gear = gears[gearid - 1];
   // for VBO use offsets into the buffer object
   gear->vertex_p = 0;
   gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
@@ -218,15 +246,17 @@ void make_gear_vbo(gear_t *gear)
    	
 }
 
-void gear_use_vbo(const gear_t *gear)
+void gear_use_vbo(const int gearid)
 {
+  gear_t* gear = gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
 }
 
 
-void free_gear(gear_t *gear)
+void free_gear(const int gearid)
 {
+  gear_t* gear = gears[gearid - 1];
    if (gear) {
 	   if (gear->vboId) {
 	     glDeleteBuffers(1, &gear->vboId);
@@ -237,6 +267,56 @@ void free_gear(gear_t *gear)
      free(gear->vertices);
      free(gear->indices);
      free(gear);
+     gears[gearid - 1] = 0;
    }
 }
 
+void gear_drawGLES1(const int gearid, const int useVBO,const GLenum drawMode)
+{
+  gear_t* gear = gears[gearid - 1];
+
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gear->color);
+  
+  if (useVBO) gear_use_vbo(gearid);
+  
+  glNormalPointer(GL_FLOAT, sizeof(vertex_t), gear->normal_p);
+  glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), gear->vertex_p);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), gear->texCoords_p);
+    
+  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
+                   gear->index_p);
+}
+
+void gear_drawGLES2(const int gearid, const int useVBO,const GLenum drawMode, const GLuint MaterialColor_location)
+{
+  gear_t* gear = gears[gearid - 1];
+  /* Set the gear color */
+  glUniform4fv(MaterialColor_location, 1, gear->color);
+  
+  if (useVBO) gear_use_vbo(gearid);
+  
+  /* Set up the position of the attributes in the vertex buffer object */
+  // setup where vertex data is
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+       sizeof(vertex_t), gear->vertex_p);
+  // setup where normal data is
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+       sizeof(vertex_t), gear->normal_p);
+  // setup where uv data is
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+       sizeof(vertex_t), gear->texCoords_p);
+  
+  /* Enable the attributes */
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
+  
+  
+  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
+                 gear->index_p);
+  
+  /* Disable the attributes */
+  glDisableVertexAttribArray(2);
+  glDisableVertexAttribArray(1);
+  glDisableVertexAttribArray(0);
+}

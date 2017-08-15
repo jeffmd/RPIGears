@@ -5,8 +5,7 @@
 #ifndef _demo_state_h_
   #define _demo_state_h_
 
-  #include "gear.h"  
-  
+ 
   // a procedure that takes a value representing the rate change to apply to an update
   typedef void (*UPDATE_KEY_DOWN)(const float);
   
@@ -16,7 +15,7 @@
      uint timeToRun;
      GLuint texId;
   
-     gear_t *gear1, *gear2, *gear3;
+     int gear1, gear2, gear3;
   // camera data
      GLfloat viewDist;
      GLfloat view_inc;

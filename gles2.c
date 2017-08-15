@@ -12,7 +12,7 @@
  * @param angle the rotation angle of the gear
  * @param color the color of the gear
  */
-static void draw_gearGLES2(gear_t *gear, GLfloat *transform,
+static void draw_gearGLES2(int gearid, GLfloat *transform,
       GLfloat x, GLfloat y, GLfloat angle)
 {
    // The direction of the directional light for the scene */
@@ -49,38 +49,11 @@ static void draw_gearGLES2(gear_t *gear, GLfloat *transform,
    m4x4_transpose(normal_matrix);
    glUniformMatrix4fv(state->NormalMatrix_location, 1, GL_FALSE, normal_matrix);
 
-   /* Set the gear color */
-   glUniform4fv(state->MaterialColor_location, 1, gear->color);
-
-   if (options->useVBO) gear_use_vbo(gear);
-
-   /* Set up the position of the attributes in the vertex buffer object */
-   // setup where vertex data is
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-         sizeof(vertex_t), gear->vertex_p);
-   // setup where normal data is
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-         sizeof(vertex_t), gear->normal_p);
-   // setup where uv data is
-   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-         sizeof(vertex_t), gear->texCoords_p);
-
-   /* Enable the attributes */
-   glEnableVertexAttribArray(0);
-   glEnableVertexAttribArray(1);
-   glEnableVertexAttribArray(2);
-
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state->texId);
-    
-   glDrawElements(options->drawMode, gear->tricount, GL_UNSIGNED_SHORT,
-                   gear->index_p);
 
-   /* Disable the attributes */
-   glDisableVertexAttribArray(2);
-   glDisableVertexAttribArray(1);
-   glDisableVertexAttribArray(0);
- 
+   gear_drawGLES2(gearid, options->useVBO, options->drawMode, state->MaterialColor_location);
+   
 }
 
 /** 
