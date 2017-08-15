@@ -10,6 +10,14 @@
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 
+//Attributes changes flag mask
+#define ELEMENT_CHANGE_LAYER          (1<<0)
+#define ELEMENT_CHANGE_OPACITY        (1<<1)
+#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
+#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
+#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
+#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
+
 typedef  struct {
    // window data
    uint32_t screen_width;

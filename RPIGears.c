@@ -80,26 +80,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "EGL/eglext.h"
 #include "matrix_math.h"
 
-//Attributes changes flag mask
-#define ELEMENT_CHANGE_LAYER          (1<<0)
-#define ELEMENT_CHANGE_OPACITY        (1<<1)
-#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
-#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
-#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
-#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
-
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
 // default angle velocity of the gears
 #define ANGLEVEL 70
 
-#define check() assert(glGetError() == 0)
-
 #include "user_options.h"
-static OPTIONS_T _options, *options = &_options;
-
-#include "demo_state.h"
-static DEMO_STATE_T _state, *state = &_state;
 
 #include "window.h"
 
@@ -107,6 +93,7 @@ static DEMO_STATE_T _state, *state = &_state;
 
 #include "shaders.c"
 
+#include "demo_state.h"
 #include "demo_state.c"
 
 

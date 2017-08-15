@@ -2,6 +2,8 @@
 * user_options.c
 */
 
+static OPTIONS_T _options, *options = &_options;
+
 static void update_useVSync(const int sync)
 {
   options->useVSync = sync;

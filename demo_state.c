@@ -3,6 +3,8 @@
 */
 
 
+static DEMO_STATE_T _state, *state = &_state;
+
 static void update_avgfps(const float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
