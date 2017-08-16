@@ -5,6 +5,16 @@
 
 static DEMO_STATE_T _state, *state = &_state;
 
+void update_timeToRun(uint val)
+{
+  state->timeToRun = val; 
+}
+
+void update_angleVel(GLfloat val)
+{
+  state->angleVel = val;
+}
+
 static void update_avgfps(const float fps)
 {
   state->avgfps = state->avgfps * 0.4f + fps * 0.6f;

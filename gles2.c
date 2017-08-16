@@ -52,7 +52,7 @@ static void draw_gearGLES2(int gearid, GLfloat *transform,
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state->texId);
 
-   gear_drawGLES2(gearid, options->useVBO, options->drawMode, state->MaterialColor_location);
+   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), state->MaterialColor_location);
    
 }
 

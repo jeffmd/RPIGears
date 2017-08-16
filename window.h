@@ -18,3 +18,5 @@ extern void init_window_pos(void);
 extern void init_window_size(void);
 extern void window_swap_buffers(void);
 extern void window_release(void);
+extern void window_update_VSync(const int sync);
+

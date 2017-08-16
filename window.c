@@ -171,6 +171,11 @@ void update_Window(void)
     }
 }
 
+void window_update_VSync(const int sync)
+{
+  EGLBoolean result = eglSwapInterval(window->display, sync );
+  assert(EGL_FALSE != result);
+}
 
 /***********************************************************
  * Name: init_window

@@ -2,23 +2,66 @@
 * user_options.c
 */
 
+#include <stdio.h>
+#include "GLES/gl.h"
+#include "EGL/egl.h"
+
+typedef struct {
+
+  int useVBO;
+  int useGLES2;
+  int useVSync;
+  int wantInfo;
+  GLenum drawMode;
+  uint timeToRun;
+  GLfloat angleVel;
+  
+} OPTIONS_T;
+
+
 static OPTIONS_T _options, *options = &_options;
 
-static void update_useVSync(const int sync)
+int options_useVBO(void)
+{
+  return options->useVBO;  
+}
+
+int options_useGLES2(void)
+{
+  return options->useGLES2;  
+}
+
+int options_useVSync(void)
+{
+  return options->useVSync;  
+}
+
+int options_wantInfo(void)
+{
+  return options->wantInfo;  
+}
+
+GLenum options_drawMode(void)
+{
+  return options->drawMode;
+}
+
+GLfloat options_angleVel(void)
+{
+  return options->angleVel;
+}
+
+uint options_timeToRun(void)
+{
+  return options->timeToRun;
+}
+
+void update_useVSync(const int sync)
 {
   options->useVSync = sync;
-  EGLBoolean result = eglSwapInterval(window_display(), options->useVSync );
-  assert(EGL_FALSE != result);
 }
 
-static void toggle_useVSync(void)
-{
-  int sync = options->useVSync ? 0 : 1;
-  update_useVSync(sync);
-  printf("\nvertical sync is %s\n", sync ? "on": "off");
-}
-
-static void toggle_drawmode(void)
+void toggle_drawmode(void)
 {
   char *modestr = 0;
   
@@ -42,20 +85,22 @@ static void toggle_drawmode(void)
   printf("\ndraw mode is %s\n", modestr);
 }
 
-static void setup_user_options(int argc, char *argv[])
+int setup_user_options(int argc, char *argv[])
 {
-  int i, printhelp = 0;
+  int i, optionsgood = 1;
 
   options->useVBO = 0;
   options->drawMode = GL_TRIANGLES;
+  options->timeToRun = 0;
+  options->angleVel = 70.0f;
 
   for ( i=1; i<argc; i++ ) {
     if (strcmp(argv[i], "-info")==0) {
 	  options->wantInfo = 1;
     }
     else if ( strcmp(argv[i], "-exit")==0) {
-      state->timeToRun = 30000;
-      printf("Auto Exit after %i seconds.\n", state->timeToRun/1000 );
+      options->timeToRun = 30000;
+      printf("Auto Exit after %i seconds.\n", options->timeToRun/1000 );
     }
     else if ( strcmp(argv[i], "-vsync")==0) {
       // want vertical sync
@@ -75,17 +120,13 @@ static void setup_user_options(int argc, char *argv[])
 	}
     else if ( strcmp(argv[i], "-nospin")==0) {
 	  // gears don't spin
-	  state->angleVel = 0.0f;
+	  options->angleVel = 0.0f;
 	}
     else {
 	  printf("\nunknown option: %s\n", argv[i]);
-      printhelp = 1;
+      optionsgood = 0;
     }
   }
-
-  if (printhelp) {
-    print_CLoptions_help();
-  }
-  
-  
+ 
+  return optionsgood;  
 }

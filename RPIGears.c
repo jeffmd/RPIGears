@@ -131,8 +131,6 @@ static void frameClear(void)
 
 #include "print_info.c"
 
-#include "user_options.c"
-
 #include "gear.h"
 
 #include "gles1.c"
@@ -140,6 +138,15 @@ static void frameClear(void)
 #include "gles2.c"
 
 #include "scene.c"
+
+static void toggle_useVSync(void)
+{
+  const int sync = options_useVSync() ? 0 : 1;
+  update_useVSync(sync);
+  window_update_VSync(sync);
+  printf("\nvertical sync is %s\n", sync ? "on": "off");
+}
+
 
 #include "key_input.c"
 
@@ -201,7 +208,7 @@ static void run_gears(void)
 static void exit_func(void)
 // Function to be passed to atexit().
 {
-  if (!options->useGLES2) {
+  if (!options_useGLES2()) {
    glDisableClientState(GL_NORMAL_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);
   }
@@ -226,24 +233,32 @@ static void exit_func(void)
 } // exit_func()
 
 //==============================================================================
+void init_options(int argc, char *argv[])
+{
+  if (! setup_user_options(argc, argv)) {
+    print_CLoptions_help();
+  }
+
+  update_timeToRun(options_timeToRun());
+  update_angleVel(options_angleVel());
+}
 
 int main (int argc, char *argv[])
 {
   bcm_host_init();
   
   init_demo_state();
-  setup_user_options(argc, argv);
-  
+  init_options(argc, argv);
   // Start OGLES
-  init_window(options->useVSync, options->useGLES2);
+  init_window(options_useVSync(), options_useGLES2());
   // default to no vertical sync but user option may turn it on
-  update_useVSync(options->useVSync);
+  window_update_VSync(options_useVSync());
 
-  if (options->wantInfo) {
+  if (options_wantInfo()) {
    print_GLInfo();
   }
   init_textures();
-  build_gears(options->useVBO);
+  build_gears(options_useVBO());
   
   init_scene();
   
