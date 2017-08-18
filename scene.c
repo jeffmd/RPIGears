@@ -19,7 +19,7 @@ static void init_scene(void)
   // setup the scene based on rendering mode
   if (options_useGLES2()) {
    init_scene_GLES2();
-   init_model_projGLES2();
+   init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
   }
   else { // using gles1
    init_scene_GLES1();

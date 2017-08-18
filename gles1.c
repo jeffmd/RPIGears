@@ -10,7 +10,7 @@ void draw_gearGLES1(const int gearid, const GLfloat x, const GLfloat y, const GL
   glRotatef(angle, 0.0, 0.0, 1.0);
 	
   // Bind texture surface to current vertices
-  glBindTexture(GL_TEXTURE_2D, state->texId);
+  glBindTexture(GL_TEXTURE_2D, state_texId());
 
   gear_drawGLES1(gearid, options_useVBO(), options_drawMode());
                    
@@ -22,15 +22,15 @@ static void draw_sceneGLES1(void)
 {
   glPushMatrix();
 
-  glTranslatef(state->viewX, state->viewY, state->viewDist);
+  glTranslatef(state_viewX(), state_viewY(), state_viewDist());
 
   glRotatef(view_rotx, 1.0, 0.0, 0.0);
   glRotatef(view_roty, 0.0, 1.0, 0.0);
   glRotatef(view_rotz, 0.0, 0.0, 1.0);
 
-  draw_gearGLES1(state->gear1, -3.0, -2.0, state->angle);
-  draw_gearGLES1(state->gear2, 3.1, -2.0, -2.0 * state->angle - 9.0);
-  draw_gearGLES1(state->gear3, -3.1, 4.2, -2.0 * state->angle - 25.0);
+  draw_gearGLES1(state_gear1(), -3.0, -2.0, state_angle());
+  draw_gearGLES1(state_gear2(), 3.1, -2.0, -2.0 * state_angle() - 9.0);
+  draw_gearGLES1(state_gear3(), -3.1, 4.2, -2.0 * state_angle() - 25.0);
 
   glPopMatrix();
 }

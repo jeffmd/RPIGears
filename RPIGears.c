@@ -78,23 +78,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
+
 #include "matrix_math.h"
-
-// number of frames to draw before checking if a key on the keyboard was hit
-#define FRAMES 30
-// default angle velocity of the gears
-#define ANGLEVEL 70
-
 #include "user_options.h"
-
+#include "demo_state.h"
 #include "window.h"
 
 #include "RPi_Logo256.c"
 
 #include "shaders.c"
 
-#include "demo_state.h"
-#include "demo_state.c"
 
 
 static GLfloat view_rotx = 25.0, view_roty = 30.0, view_rotz = 0.0;
@@ -102,10 +95,12 @@ static GLfloat view_rotx = 25.0, view_roty = 30.0, view_rotz = 0.0;
 static void init_textures(void)
 {
    // load a texture buffer but use them on six OGL|ES texture surfaces
-   glGenTextures(1, &state->texId);
+   GLuint texId;
+   glGenTextures(1, &texId);
+   update_texId(texId);
 
    // setup texture
-   glBindTexture(GL_TEXTURE_2D, state->texId);
+   glBindTexture(GL_TEXTURE_2D, state_texId());
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rpi_image.width, rpi_image.height, 0,
                 GL_RGB, GL_UNSIGNED_BYTE, rpi_image.pixel_data);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -152,30 +147,6 @@ static void toggle_useVSync(void)
 
 #include "tasks.c"
 
-static void build_gears(const int useVBO)
-{
-  const GLfloat red[4] = {0.9, 0.3, 0.3, 1.0};
-  const GLfloat green[4] = {0.3, 0.9, 0.3, 1.0};
-  const GLfloat blue[4] = {0.3, 0.3, 0.9, 1.0};
-
-  /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red);
-  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green);
-  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
-  
-  // if VBO enabled then set them up for each gear
-  if (useVBO) {
-    make_gear_vbo(state->gear1);
-    make_gear_vbo(state->gear2);
-    make_gear_vbo(state->gear3);
-  }
-  else {
-    set_gear_va_ptrs(state->gear1);   
-    set_gear_va_ptrs(state->gear2);   
-    set_gear_va_ptrs(state->gear3);   
-  }
-
-}
 
 
 static void run_gears(void)
@@ -183,7 +154,7 @@ static void run_gears(void)
   frames = 0;
 
   reset_tasks();
-  state->key_down_update = 0;
+  set_key_down_update(0, 0.0f);
   init_window_pos();
   init_window_size();
   
@@ -224,9 +195,9 @@ static void exit_func(void)
   window_release();
   
   // release memory used for gear and associated vertex arrays
-  free_gear(state->gear1);
-  free_gear(state->gear2);
-  free_gear(state->gear3);
+  free_gear(state_gear1());
+  free_gear(state_gear2());
+  free_gear(state_gear3());
   
   printf("\nRPIGears finished\n");
    

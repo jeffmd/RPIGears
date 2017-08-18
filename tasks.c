@@ -90,7 +90,7 @@ static void do_FPS_task(void)
 static void init_Exit_task(void)
 {
   reset_task(&Exit_task);
-  Exit_task.interval_ms = state->timeToRun;
+  Exit_task.interval_ms = state_timeToRun();
   if (Exit_task.interval_ms > 0.0f) Exit_task.state = TS_RUN;
 }
 

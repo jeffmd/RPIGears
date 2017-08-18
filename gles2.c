@@ -12,7 +12,7 @@
  * @param angle the rotation angle of the gear
  * @param color the color of the gear
  */
-static void draw_gearGLES2(int gearid, GLfloat *transform,
+static void draw_gearGLES2(const int gearid, GLfloat *transform,
       GLfloat x, GLfloat y, GLfloat angle)
 {
    // The direction of the directional light for the scene */
@@ -28,17 +28,17 @@ static void draw_gearGLES2(int gearid, GLfloat *transform,
    m4x4_rotate(model_view, angle, 0, 0, 1);
 
    /* Create and set the ModelViewProjectionMatrix */
-   m4x4_copy(model_view_projection, state->ProjectionMatrix);
+   state_ProjectionMatrix(model_view_projection);
    m4x4_multiply(model_view_projection, model_view);
 
-   glUniformMatrix4fv(state->ModelViewProjectionMatrix_location, 1, GL_FALSE,
+   glUniformMatrix4fv(state_ModelViewProjectionMatrix_location(), 1, GL_FALSE,
                       model_view_projection);
-   glUniformMatrix4fv(state->ModelViewMatrix_location, 1, GL_FALSE,
+   glUniformMatrix4fv(state_ModelViewMatrix_location(), 1, GL_FALSE,
                       model_view);
    /* Set the LightSourcePosition uniform in relation to the object */
-   glUniform4fv(state->LightSourcePosition_location, 1, LightSourcePosition);
+   glUniform4fv(state_LightSourcePosition_location(), 1, LightSourcePosition);
 
-   glUniform1i(state->DiffuseMap_location, 0);
+   glUniform1i(state_DiffuseMap_location(), 0);
 
    /* 
     * Create and set the NormalMatrix. It's the inverse transpose of the
@@ -47,12 +47,12 @@ static void draw_gearGLES2(int gearid, GLfloat *transform,
    m4x4_copy(normal_matrix, model_view);
    m4x4_invert(normal_matrix);
    m4x4_transpose(normal_matrix);
-   glUniformMatrix4fv(state->NormalMatrix_location, 1, GL_FALSE, normal_matrix);
+   glUniformMatrix4fv(state_NormalMatrix_location(), 1, GL_FALSE, normal_matrix);
 
    // Bind texture surface to current vertices
-   glBindTexture(GL_TEXTURE_2D, state->texId);
+   glBindTexture(GL_TEXTURE_2D, state_texId());
 
-   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), state->MaterialColor_location);
+   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), state_MaterialColor_location());
    
 }
 
@@ -65,15 +65,15 @@ static void draw_sceneGLES2(void)
    m4x4_identity(transform);
 
    /* Translate and rotate the view */
-   m4x4_translate(transform, state->viewX, state->viewY, state->viewDist);
+   m4x4_translate(transform, state_viewX(), state_viewY(), state_viewDist());
    m4x4_rotate(transform, view_rotx, 1, 0, 0);
    m4x4_rotate(transform, view_roty, 0, 1, 0);
    m4x4_rotate(transform, view_rotz, 0, 0, 1);
 
    /* Draw the gears */
-   draw_gearGLES2(state->gear1, transform, -3.0, -2.0, state->angle);
-   draw_gearGLES2(state->gear2, transform, 3.1, -2.0, -2 * state->angle - 9.0);
-   draw_gearGLES2(state->gear3, transform, -3.1, 4.2, -2 * state->angle - 25.0);
+   draw_gearGLES2(state_gear1(), transform, -3.0, -2.0, state_angle());
+   draw_gearGLES2(state_gear2(), transform, 3.1, -2.0, -2 * state_angle() - 9.0);
+   draw_gearGLES2(state_gear3(), transform, -3.1, 4.2, -2 * state_angle() - 25.0);
 }
 
 static void init_scene_GLES2(void)
@@ -115,19 +115,7 @@ static void init_scene_GLES2(void)
    glUseProgram(program);
 
    /* Get the locations of the uniforms so we can access them */
-   state->ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
-   state->ModelViewMatrix_location = glGetUniformLocation(program, "ModelViewMatrix");
-   state->NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-   state->LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
-   state->MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-   state->DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
+   update_uniform_location(program);
 
-}
-
-static void init_model_projGLES2(void)
-{
-   /* Update the projection matrix */
-   m4x4_perspective(state->ProjectionMatrix, 45.0, (float)window_screen_width() / (float)window_screen_height(), 1.0, 100.0);
-	
 }
 

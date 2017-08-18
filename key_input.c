@@ -2,6 +2,9 @@
 /*
  * key_input.c 
  */
+
+// number of frames to draw before checking if a key on the keyboard was hit
+#define FRAMES 30
  
 static struct termios saved_attributes;
 static int initialized = 0;
@@ -41,18 +44,6 @@ static int _kbhit(void) {
   return bytesWaiting;
 }
 
-static void set_key_down_update(UPDATE_KEY_DOWN updatefn, const float direction)
-{
-  state->key_down_update = updatefn;
-  state->rate_direction = direction;  
-}
-
-static void do_key_down_update(void)
-{
-  if (state->key_down_update) {
-    state->key_down_update(state->rate_direction * state->rate_frame);
-  }
-}
 
 static void check_movekey(const int inpkey)
 {

@@ -56,7 +56,7 @@ void m4x4_multiply(GLfloat *m, const GLfloat *n)
  * @param y the y component of the direction to rotate to
  * @param z the z component of the direction to rotate to
  */
-void m4x4_rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
+void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
 {
    float s, c;
    
@@ -83,7 +83,7 @@ void m4x4_rotate(GLfloat *m, GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
  * @param y the y component of the direction to translate to
  * @param z the z component of the direction to translate to
  */
-void m4x4_translate(GLfloat *m, GLfloat x, GLfloat y, GLfloat z)
+void m4x4_translate(GLfloat *m, const GLfloat x, const GLfloat y, const GLfloat z)
 {
    GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
 
@@ -158,7 +158,7 @@ void m4x4_invert(GLfloat *m)
  * @param zNear the near clipping plane
  * @param zFar the far clipping plane
  */
-void m4x4_perspective(GLfloat *m, GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, const GLfloat zNear, const GLfloat zFar)
 {
    GLfloat tmp[16];
    m4x4_identity(tmp);
