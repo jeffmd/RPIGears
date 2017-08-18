@@ -2,6 +2,12 @@
  * tasks.c  
  */ 
 
+#include <stdio.h>
+#include "bcm_host.h"
+
+#include "demo_state.h"
+#include "key_input.h"
+
 typedef enum
 {
   TS_PAUSED,
@@ -17,9 +23,9 @@ typedef struct
   
 } Task_T;
 
-uint current_ms; // current time in milliseconds
+static uint current_ms; // current time in milliseconds
 
-uint getMilliseconds()
+static uint getMilliseconds()
 {
     struct timespec spec;
 
@@ -112,8 +118,9 @@ static void do_KeyScan_task(void)
   }
 }
 
-static void reset_tasks(void)
+void reset_tasks(void)
 {
+  frames = 0;
   reset_task(&FPS_task);
   reset_task(&AngleFrame_task);
   reset_task(&KeyScan_task);
@@ -122,8 +129,14 @@ static void reset_tasks(void)
   update_current_ms();
 }
 
-static void do_tasks(void)
+int run_exit_task(void)
 {
+  return run_task(&Exit_task, 0);
+}
+
+void do_tasks(void)
+{
+  frames++;
   update_current_ms();
   // print out fps stats every 5 secs
   run_task(&FPS_task, do_FPS_task);

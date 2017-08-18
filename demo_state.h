@@ -5,6 +5,7 @@
 #ifndef _demo_state_h_
   #define _demo_state_h_
 
+#include "GLES/gl.h"
  
 // a procedure that takes a value representing the rate change to apply to an update
 typedef void (*UPDATE_KEY_DOWN)(const float);

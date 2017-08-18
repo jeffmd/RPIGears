@@ -64,25 +64,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 // three rotating gears rendered with OpenGL|ES 1.1.
 
-#include <stdio.h>
 #define _GNU_SOURCE
+
+#include <stdio.h>
 #include <math.h>
 #include <assert.h>
-#include <termio.h>
-#include <sys/time.h>
 
 #include "bcm_host.h"
 
-#include "GLES/gl.h"
 #include "GLES2/gl2.h"
 #include "GLES2/gl2ext.h"
-#include "EGL/egl.h"
-#include "EGL/eglext.h"
 
 #include "matrix_math.h"
 #include "user_options.h"
 #include "demo_state.h"
 #include "window.h"
+#include "key_input.h"
+#include "tasks.h"
+#include "gear.h"
 
 #include "RPi_Logo256.c"
 
@@ -126,15 +125,13 @@ static void frameClear(void)
 
 #include "print_info.c"
 
-#include "gear.h"
-
 #include "gles1.c"
 
 #include "gles2.c"
 
 #include "scene.c"
 
-static void toggle_useVSync(void)
+void toggle_useVSync(void)
 {
   const int sync = options_useVSync() ? 0 : 1;
   update_useVSync(sync);
@@ -143,27 +140,17 @@ static void toggle_useVSync(void)
 }
 
 
-#include "key_input.c"
-
-#include "tasks.c"
-
-
-
 static void run_gears(void)
 {
-  frames = 0;
-
   reset_tasks();
   set_key_down_update(0, 0.0f);
   init_window_pos();
   init_window_size();
   
   // keep doing the loop while no exit keys hit and exit timer not finished
-  while ( ! run_task(&Exit_task, 0) )
+  while ( ! run_exit_task() )
   {
-    frames++;
-    do_tasks();
-    
+    do_tasks();   
     do_key_down_update();
     update_Window();
     inc_move_rate();

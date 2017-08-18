@@ -3,6 +3,18 @@
  * key_input.c 
  */
 
+#include <stdio.h>
+#include <termio.h>
+#include "GLES/gl.h"
+#include "EGL/egl.h"
+
+#include "window.h"
+#include "demo_state.h"
+#include "print_info.h"
+#include "user_options.h"
+
+extern void toggle_useVSync(void);
+
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
  
@@ -191,7 +203,7 @@ static int check_key(const int inpkey)
 }
 
 
-static int detect_keypress(void)
+int detect_keypress(void)
 {
   int active = FRAMES;
   int keyswaiting = _kbhit();

@@ -5,12 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GLES/gl.h"
 #include "GLES2/gl2.h"
 
+#include "demo_state.h"
 #include "matrix_math.h"
 #include "gear.h"
-#include "demo_state.h"
 
 typedef struct
 {

@@ -3,8 +3,10 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "GLES/gl.h"
-#include "EGL/egl.h"
 
 typedef struct {
 

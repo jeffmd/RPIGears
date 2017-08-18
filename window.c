@@ -8,9 +8,8 @@
 
 #include "GLES/gl.h"
 #include "EGL/egl.h"
-#include "EGL/eglext.h"
 
-//Attributes changes flag mask
+//  Element Attributes changes flag mask
 #define ELEMENT_CHANGE_LAYER          (1<<0)
 #define ELEMENT_CHANGE_OPACITY        (1<<1)
 #define ELEMENT_CHANGE_DEST_RECT      (1<<2)
