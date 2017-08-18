@@ -19,13 +19,21 @@ RPi_Logo256.c
 
 matrix_math.c
 
+matrix_math.h
+
 key_input.c
 
+key_input.h
+
 tasks.c
+
+tasks.h
 
 shaders.c
 
 print_info.c
+
+print_info.h
 
 gles1.c
 
