@@ -191,7 +191,7 @@ static void exit_func(void)
 } // exit_func()
 
 //==============================================================================
-void init_options(int argc, char *argv[])
+static void init_options(int argc, char *argv[])
 {
   if (! setup_user_options(argc, argv)) {
     print_CLoptions_help();
@@ -208,7 +208,7 @@ int main (int argc, char *argv[])
   init_demo_state();
   init_options(argc, argv);
   // Start OGLES
-  init_window(options_useVSync(), options_useGLES2());
+  init_window(options_useGLES2());
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
 

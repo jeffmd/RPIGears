@@ -17,7 +17,7 @@
   extern void move_window_end(void);
   extern void zoom_window(const float val);
   extern void update_Window(void);
-  extern void init_window(const int useVSync, const int useGLES2);
+  extern void init_window(const int useGLES2);
   extern void init_window_pos(void);
   extern void init_window_size(void);
   extern void window_swap_buffers(void);

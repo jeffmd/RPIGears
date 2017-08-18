@@ -185,7 +185,7 @@ void window_update_VSync(const int sync)
  * Returns: void
  *
  ***********************************************************/
-void init_window(const int useVSync, const int useGLES2)
+void init_window(const int useGLES2)
 {
   int32_t success = 0;
   EGLBoolean result;
