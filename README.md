@@ -47,14 +47,16 @@ No special libraries/packages are required to build if using Raspbian.
 Running
 -------
 
-To run the demo type ./RPIGears.bin.  The demo runs full screen.  To
+To run the demo type `./RPIGears.bin.`  The demo runs full screen.  To
 exit the demo press esc or enter key on the keyboard.
 
 
 Command line Options
 --------------------
 usage: ./RPIGears.bin [options]
+
 options: -vsync | -exit | -info | -vbo | -gles2
+
 
 -vsync : wait for vertical sync before new frame is displayed
 
