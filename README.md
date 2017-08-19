@@ -17,6 +17,8 @@ RPIGears.c
 
 RPi_Logo256.c
 
+image.h
+
 matrix_math.c
 
 matrix_math.h
@@ -60,8 +62,12 @@ window.c
 
 
 In a terminal session, change directory to the build directory where the 
-RPIGears source file is located.  Use make at the commandline to build
-RPIGears.  No special libraries/packages are required to build if using Raspbian.
+RPIGears source files are located.  Use make at the commandline to build
+RPIGears:
+
+make -j4
+
+No special libraries/packages are required to build if using Raspbian.
 
 
 Running
