@@ -7,65 +7,39 @@ Building
 --------
 The following files should be in the build directory:
 
-LICENSE
-
-Makefile
-
-README.md
-
-RPIGears.c
-
-RPi_Logo256.c
-
-image.h
-
-matrix_math.c
-
-matrix_math.h
-
-key_input.c
-
-key_input.h
-
-tasks.c
-
-tasks.h
-
-shaders.c
-
-print_info.c
-
-print_info.h
-
-gles1.c
-
-gles2.c
-
-gear.c
-
-gear.h
-
-scene.c
-
-user_options.c
-
-user_options.h
-
-demo_state.c
-
-demo_state.h
-
-window.h
-
-window.c
-
+* LICENSE
+* Makefile
+* README.md
+* RPIGears.c
+* RPi_Logo256.c
+* image.h
+* matrix_math.c
+* matrix_math.h
+* key_input.c
+* key_input.h
+* tasks.c
+* tasks.h
+* shaders.c
+* print_info.c
+* print_info.h
+* gles1.c
+* gles2.c
+* gear.c
+* gear.h
+* scene.c
+* user_options.c
+* user_options.h
+* demo_state.c
+* demo_state.h
+* window.h
+* window.c
 
 
 In a terminal session, change directory to the build directory where the 
 RPIGears source files are located.  Use make at the commandline to build
 RPIGears:
 
-make -j4
+`make -j4`
 
 No special libraries/packages are required to build if using Raspbian.
 
