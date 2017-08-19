@@ -21,7 +21,7 @@ typedef struct {
 } OPTIONS_T;
 
 
-static OPTIONS_T _options, *options = &_options;
+static OPTIONS_T _options, * const options = &_options;
 
 int options_useVBO(void)
 {

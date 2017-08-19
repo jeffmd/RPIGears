@@ -23,6 +23,9 @@ typedef struct
    GLfloat view_inc;
    GLfloat viewX;
    GLfloat viewY;
+   GLfloat view_rotx;
+   GLfloat view_roty;
+   GLfloat view_rotz;
    
 // The location of the shader uniforms 
    GLuint ModelViewProjectionMatrix_location,
@@ -54,7 +57,7 @@ typedef struct
 } DEMO_STATE_T;
 
 
-static DEMO_STATE_T _state, *state = &_state;
+static DEMO_STATE_T _state, * const state = &_state;
 
 
 uint state_timeToRun(void)
@@ -95,6 +98,21 @@ GLfloat state_viewX(void)
 GLfloat state_viewY(void)
 {
   return state->viewY;
+}
+
+GLfloat state_view_rotx(void)
+{
+  return state->view_rotx;
+}
+
+GLfloat state_view_roty(void)
+{
+  return state->view_roty;
+}
+
+GLfloat state_view_rotz(void)
+{
+  return state->view_rotz;
 }
 
 GLfloat state_angle(void)
@@ -287,6 +305,9 @@ void init_demo_state(void)
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = 70.0f;
+  state->view_rotx = 25.0f;
+  state->view_roty = 30.0f;
+  state->view_rotz = 0.0f;
   
   update_angleFrame();
 }

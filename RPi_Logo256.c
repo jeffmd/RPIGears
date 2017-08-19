@@ -1,11 +1,8 @@
 /* GIMP RGB C-Source image dump (RPi_Logo256.c) */
 
-static const struct {
-  unsigned int 	 width;
-  unsigned int 	 height;
-  unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-  unsigned char	 pixel_data[256 * 256 * 3 + 1];
-} rpi_image = {
+#include "image.h"
+
+const IMAGE_T rpi_image = {
   256, 256, 3,
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"

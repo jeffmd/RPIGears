@@ -66,9 +66,9 @@ static void draw_sceneGLES2(void)
 
    /* Translate and rotate the view */
    m4x4_translate(transform, state_viewX(), state_viewY(), state_viewDist());
-   m4x4_rotate(transform, view_rotx, 1, 0, 0);
-   m4x4_rotate(transform, view_roty, 0, 1, 0);
-   m4x4_rotate(transform, view_rotz, 0, 0, 1);
+   m4x4_rotate(transform, state_view_rotx(), 1, 0, 0);
+   m4x4_rotate(transform, state_view_roty(), 0, 1, 0);
+   m4x4_rotate(transform, state_view_rotz(), 0, 0, 1);
 
    /* Draw the gears */
    draw_gearGLES2(state_gear1(), transform, -3.0, -2.0, state_angle());

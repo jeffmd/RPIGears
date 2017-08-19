@@ -206,7 +206,7 @@ static int check_key(const int inpkey)
 int detect_keypress(void)
 {
   int active = FRAMES;
-  int keyswaiting = _kbhit();
+  const int keyswaiting = _kbhit();
   
   if (keyswaiting) {
     //printf("keys waiting: %i\n", keyswaiting);

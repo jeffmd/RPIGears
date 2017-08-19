@@ -82,14 +82,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "key_input.h"
 #include "tasks.h"
 #include "gear.h"
-
-#include "RPi_Logo256.c"
+#include "image.h"
 
 #include "shaders.c"
 
-
-
-static GLfloat view_rotx = 25.0, view_roty = 30.0, view_rotz = 0.0;
+extern IMAGE_T rpi_image;
 
 static void init_textures(void)
 {

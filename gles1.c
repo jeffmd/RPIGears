@@ -24,9 +24,9 @@ static void draw_sceneGLES1(void)
 
   glTranslatef(state_viewX(), state_viewY(), state_viewDist());
 
-  glRotatef(view_rotx, 1.0, 0.0, 0.0);
-  glRotatef(view_roty, 0.0, 1.0, 0.0);
-  glRotatef(view_rotz, 0.0, 0.0, 1.0);
+  glRotatef(state_view_rotx(), 1.0, 0.0, 0.0);
+  glRotatef(state_view_roty(), 0.0, 1.0, 0.0);
+  glRotatef(state_view_rotz(), 0.0, 0.0, 1.0);
 
   draw_gearGLES1(state_gear1(), -3.0, -2.0, state_angle());
   draw_gearGLES1(state_gear2(), 3.1, -2.0, -2.0 * state_angle() - 9.0);

@@ -42,7 +42,7 @@ typedef  struct {
 } WINDOW_T;
 
 
-static WINDOW_T _window, *window = &_window;
+static WINDOW_T _window, * const window = &_window;
 
 int window_major(void)
 {
@@ -172,7 +172,7 @@ void update_Window(void)
 
 void window_update_VSync(const int sync)
 {
-  EGLBoolean result = eglSwapInterval(window->display, sync );
+  const EGLBoolean result = eglSwapInterval(window->display, sync );
   assert(EGL_FALSE != result);
 }
 
