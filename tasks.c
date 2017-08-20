@@ -3,7 +3,8 @@
  */ 
 
 #include <stdio.h>
-#include "bcm_host.h"
+#include <time.h>
+#include <stdlib.h>
 
 #include "demo_state.h"
 #include "key_input.h"
