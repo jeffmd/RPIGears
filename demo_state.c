@@ -8,7 +8,6 @@
 #include "GLES2/gl2.h"
 
 #include "demo_state.h"
-#include "matrix_math.h"
 #include "gear.h"
 
 typedef struct
@@ -18,14 +17,6 @@ typedef struct
    GLuint texId;
 
    int gear1, gear2, gear3;
-// camera data
-   GLfloat viewDist;
-   GLfloat view_inc;
-   GLfloat viewX;
-   GLfloat viewY;
-   GLfloat view_rotx;
-   GLfloat view_roty;
-   GLfloat view_rotz;
    
 // The location of the shader uniforms 
    GLuint ModelViewProjectionMatrix_location,
@@ -34,8 +25,6 @@ typedef struct
       LightSourcePosition_location,
       MaterialColor_location,
       DiffuseMap_location;
-// The projection matrix
-   GLfloat ProjectionMatrix[16];
    
 // current angle of the gear
    GLfloat angle;
@@ -54,10 +43,12 @@ typedef struct
    int rate_enabled; // if enabled the change_rate will increase each frame
    float rate_direction; // direction and scale for rate change
    float rate_frame; // how much the rate changes each frame
+   
 } DEMO_STATE_T;
 
 
-static DEMO_STATE_T _state, * const state = &_state;
+static DEMO_STATE_T _state;
+static DEMO_STATE_T * const state = &_state;
 
 
 uint state_timeToRun(void)
@@ -85,35 +76,6 @@ int state_gear3(void)
   return state->gear3;
 }
 
-GLfloat state_viewDist(void)
-{
-  return state->viewDist;
-}
-
-GLfloat state_viewX(void)
-{
-  return state->viewX;
-}
-
-GLfloat state_viewY(void)
-{
-  return state->viewY;
-}
-
-GLfloat state_view_rotx(void)
-{
-  return state->view_rotx;
-}
-
-GLfloat state_view_roty(void)
-{
-  return state->view_roty;
-}
-
-GLfloat state_view_rotz(void)
-{
-  return state->view_rotz;
-}
 
 GLfloat state_angle(void)
 {
@@ -129,6 +91,13 @@ void update_angleVel(const GLfloat val)
 {
   state->angleVel = val;
 }
+
+void change_angleVel(const float val)
+{
+  state->angleVel += val;
+}
+
+
 
 void update_avgfps(const float fps)
 {
@@ -186,26 +155,6 @@ GLuint state_DiffuseMap_location(void)
   return state->DiffuseMap_location;
 }
 
-
-void change_angleVel(const float val)
-{
-  state->angleVel += val;
-}
-
-void change_viewDist(const float val)
-{
-  state->viewDist += val;  
-}
-
-void change_viewX(const float val)
-{
-  state->viewX += val;
-}
-
-void change_viewY(const float val)
-{
-  state->viewY += val;  
-}
 
 void update_gear_rotation(void)
 {
@@ -282,42 +231,15 @@ void update_uniform_location(const GLuint program)
    state->DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
 }
 
-void state_ProjectionMatrix(GLfloat *md)
-{
-   m4x4_copy(md, state->ProjectionMatrix);
-}
-
-void init_ProjectionMatrix(const float aspectratio)
-{
-   m4x4_perspective(state->ProjectionMatrix, 45.0, aspectratio, 1.0, 100.0);
-}
-
-void build_view_matrix(GLfloat *view_transform)
-{
-   m4x4_identity(view_transform);
-   /* Translate and rotate the view */
-   m4x4_translate(view_transform, state_viewX(), state_viewY(), state_viewDist());
-   m4x4_rotate(view_transform, state->view_rotx, 1, 0, 0);
-   m4x4_rotate(view_transform, state->view_roty, 0, 1, 0);
-   m4x4_rotate(view_transform, state->view_rotz, 0, 0, 1);
-}
 
 void init_demo_state(void)
 {
-  // Clear application state
   memset( state, 0, sizeof( *state ) );
-// setup some default states
-  state->viewDist = -38.0f;
-  state->viewX = -8.0f;
-  state->viewY = -7.0f;
-  state->view_inc = 0.02f;
+
   state->rate = 1.0f;
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = 70.0f;
-  state->view_rotx = 25.0f;
-  state->view_roty = 30.0f;
-  state->view_rotz = 0.0f;
   
   update_angleFrame();
 }

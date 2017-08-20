@@ -13,6 +13,8 @@ The following files should be in the build directory:
 * RPIGears.c
 * RPi_Logo256.c
 * image.h
+* camera.c
+* camera.h
 * matrix_math.c
 * matrix_math.h
 * key_input.c

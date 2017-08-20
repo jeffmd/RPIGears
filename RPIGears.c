@@ -83,7 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tasks.h"
 #include "gear.h"
 #include "image.h"
-
+#include "camera.h"
 #include "shaders.c"
 
 extern IMAGE_T rpi_image;
@@ -215,6 +215,7 @@ int main (int argc, char *argv[])
   init_textures();
   build_gears(options_useVBO());
   
+  init_camera();
   init_scene();
   
   // animate the gears

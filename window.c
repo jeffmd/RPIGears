@@ -42,7 +42,8 @@ typedef  struct {
 } WINDOW_T;
 
 
-static WINDOW_T _window, * const window = &_window;
+static WINDOW_T _window;
+static WINDOW_T * const window = &_window;
 
 int window_major(void)
 {

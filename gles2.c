@@ -28,7 +28,7 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
    m4x4_rotate(model_view, angle, 0, 0, 1);
 
    /* Create and set the ModelViewProjectionMatrix */
-   state_ProjectionMatrix(model_view_projection);
+   camera_ProjectionMatrix(model_view_projection);
    m4x4_multiply(model_view_projection, model_view);
 
    glUniformMatrix4fv(state_ModelViewProjectionMatrix_location(), 1, GL_FALSE,

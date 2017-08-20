@@ -12,6 +12,7 @@
 #include "demo_state.h"
 #include "print_info.h"
 #include "user_options.h"
+#include "camera.h"
 
 extern void toggle_useVSync(void);
 
