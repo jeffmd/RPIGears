@@ -211,11 +211,10 @@ int detect_keypress(void)
   if (keyswaiting) {
     //printf("keys waiting: %i\n", keyswaiting);
     active = check_key(getchar());
-    // accelerate move rate
     move_rate_on();
   }
   else {
-    // reset window move_rate to 1 pixel since no keys are being pressed
+    // reset move_rate since no keys are being pressed
     move_rate_off();
   }
   

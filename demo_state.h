@@ -55,5 +55,6 @@ extern void update_uniform_location(const GLuint program);
 extern void do_key_down_update(void);
 extern void state_ProjectionMatrix(GLfloat *md);
 extern void init_ProjectionMatrix(const float aspectratio);
+extern void build_view_matrix(GLfloat *view_transform);
 
 #endif

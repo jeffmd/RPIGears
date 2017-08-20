@@ -292,6 +292,16 @@ void init_ProjectionMatrix(const float aspectratio)
    m4x4_perspective(state->ProjectionMatrix, 45.0, aspectratio, 1.0, 100.0);
 }
 
+void build_view_matrix(GLfloat *view_transform)
+{
+   m4x4_identity(view_transform);
+   /* Translate and rotate the view */
+   m4x4_translate(view_transform, state_viewX(), state_viewY(), state_viewDist());
+   m4x4_rotate(view_transform, state->view_rotx, 1, 0, 0);
+   m4x4_rotate(view_transform, state->view_roty, 0, 1, 0);
+   m4x4_rotate(view_transform, state->view_rotz, 0, 0, 1);
+}
+
 void init_demo_state(void)
 {
   // Clear application state

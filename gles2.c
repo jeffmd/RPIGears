@@ -12,7 +12,7 @@
  * @param angle the rotation angle of the gear
  * @param color the color of the gear
  */
-static void draw_gearGLES2(const int gearid, GLfloat *transform,
+static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
       GLfloat x, GLfloat y, GLfloat angle)
 {
    // The direction of the directional light for the scene */
@@ -23,7 +23,7 @@ static void draw_gearGLES2(const int gearid, GLfloat *transform,
    GLfloat model_view_projection[16];
 
    /* Translate and rotate the gear */
-   m4x4_copy(model_view, transform);
+   m4x4_copy(model_view, view_transform);
    m4x4_translate(model_view, x, y, 0);
    m4x4_rotate(model_view, angle, 0, 0, 1);
 
@@ -61,43 +61,40 @@ static void draw_gearGLES2(const int gearid, GLfloat *transform,
  */
 static void draw_sceneGLES2(void)
 {
-   GLfloat transform[16];
-   m4x4_identity(transform);
+  GLfloat view_transform[16];
+  
+  build_view_matrix(view_transform);
+  
+  /* Draw the gears */
+  draw_gearGLES2(state_gear1(), view_transform, -3.0, -2.0, state_angle());
+  draw_gearGLES2(state_gear2(), view_transform, 3.1, -2.0, -2 * state_angle() - 9.0);
+  draw_gearGLES2(state_gear3(), view_transform, -3.1, 4.2, -2 * state_angle() - 25.0);
+}
 
-   /* Translate and rotate the view */
-   m4x4_translate(transform, state_viewX(), state_viewY(), state_viewDist());
-   m4x4_rotate(transform, state_view_rotx(), 1, 0, 0);
-   m4x4_rotate(transform, state_view_roty(), 0, 1, 0);
-   m4x4_rotate(transform, state_view_rotz(), 0, 0, 1);
-
-   /* Draw the gears */
-   draw_gearGLES2(state_gear1(), transform, -3.0, -2.0, state_angle());
-   draw_gearGLES2(state_gear2(), transform, 3.1, -2.0, -2 * state_angle() - 9.0);
-   draw_gearGLES2(state_gear3(), transform, -3.1, 4.2, -2 * state_angle() - 25.0);
+static GLuint make_shader(const char *src, const GLenum shader_type)
+{
+  GLuint shader; 
+  char msg[512];
+  
+  shader = glCreateShader(shader_type);
+  glShaderSource(shader, 1, &src, NULL);
+  glCompileShader(shader);
+  glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
+  printf("shader info: %s\n", msg);
+  
+  return shader;
 }
 
 static void init_scene_GLES2(void)
 {
    GLuint v, f, program;
-   const char *p;
-   char msg[512];
-
+  char msg[512];
 
    /* Compile the vertex shader */
-   p = vertex_shader;
-   v = glCreateShader(GL_VERTEX_SHADER);
-   glShaderSource(v, 1, &p, NULL);
-   glCompileShader(v);
-   glGetShaderInfoLog(v, sizeof msg, NULL, msg);
-   printf("vertex shader info: %s\n", msg);
+   v = make_shader(vertex_shader, GL_VERTEX_SHADER);
 
    /* Compile the fragment shader */
-   p = fragment_shader;
-   f = glCreateShader(GL_FRAGMENT_SHADER);
-   glShaderSource(f, 1, &p, NULL);
-   glCompileShader(f);
-   glGetShaderInfoLog(f, sizeof msg, NULL, msg);
-   printf("fragment shader info: %s\n", msg);
+   f = make_shader(fragment_shader, GL_FRAGMENT_SHADER);
 
    /* Create and link the shader program */
    program = glCreateProgram();
