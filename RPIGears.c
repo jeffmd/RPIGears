@@ -84,7 +84,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gear.h"
 #include "image.h"
 #include "camera.h"
-#include "shaders.c"
 
 extern IMAGE_T rpi_image;
 
@@ -119,6 +118,8 @@ static void frameClear(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   
 }
+
+#include "shaders.c"
 
 #include "print_info.c"
 
