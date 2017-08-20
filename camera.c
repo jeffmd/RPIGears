@@ -77,7 +77,7 @@ void init_ProjectionMatrix(const float aspectratio)
    m4x4_perspective(camera->ProjectionMatrix, 45.0, aspectratio, 1.0, 100.0);
 }
 
-void build_view_matrix(GLfloat *view_transform)
+void camera_view_matrix(GLfloat *view_transform)
 {
    m4x4_identity(view_transform);
    /* Translate and rotate the view */

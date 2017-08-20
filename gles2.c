@@ -63,7 +63,7 @@ static void draw_sceneGLES2(void)
 {
   GLfloat view_transform[16];
   
-  build_view_matrix(view_transform);
+  camera_view_matrix(view_transform);
   
   /* Draw the gears */
   draw_gearGLES2(state_gear1(), view_transform, -3.0, -2.0, state_angle());
