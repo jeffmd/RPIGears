@@ -17,15 +17,15 @@ typedef struct
    GLuint texId;
 
    int gear1, gear2, gear3;
-   
-// The location of the shader uniforms 
+
+// The location of the shader uniforms
    GLuint ModelViewProjectionMatrix_location,
       ModelViewMatrix_location,
       NormalMatrix_location,
       LightSourcePosition_location,
       MaterialColor_location,
       DiffuseMap_location;
-   
+
 // current angle of the gear
    GLfloat angle;
 // the degrees that the angle should change each frame
@@ -36,14 +36,14 @@ typedef struct
    float avgfps;
    // the average time between each frame update = 1/avgfps
    float period_rate;
-   
+
    // keyboard data
    UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
    float rate; // the rate at which a change occurs
    int rate_enabled; // if enabled the change_rate will increase each frame
    float rate_direction; // direction and scale for rate change
    float rate_frame; // how much the rate changes each frame
-   
+
 } DEMO_STATE_T;
 
 
@@ -84,7 +84,7 @@ GLfloat state_angle(void)
 
 void update_timeToRun(const uint val)
 {
-  state->timeToRun = val; 
+  state->timeToRun = val;
 }
 
 void update_angleVel(const GLfloat val)
@@ -193,7 +193,7 @@ void build_gears(const int useVBO)
   state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red);
   state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green);
   state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
-  
+
   // if VBO enabled then set them up for each gear
   if (useVBO) {
     make_gear_vbo(state->gear1);
@@ -201,9 +201,9 @@ void build_gears(const int useVBO)
     make_gear_vbo(state->gear3);
   }
   else {
-    set_gear_va_ptrs(state->gear1);   
-    set_gear_va_ptrs(state->gear2);   
-    set_gear_va_ptrs(state->gear3);   
+    set_gear_va_ptrs(state->gear1);
+    set_gear_va_ptrs(state->gear2);
+    set_gear_va_ptrs(state->gear3);
   }
 
 }
@@ -240,6 +240,6 @@ void init_demo_state(void)
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = 70.0f;
-  
+
   update_angleFrame();
 }

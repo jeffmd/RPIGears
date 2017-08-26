@@ -40,7 +40,7 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
 
    glUniform1i(state_DiffuseMap_location(), 0);
 
-   /* 
+   /*
     * Create and set the NormalMatrix. It's the inverse transpose of the
     * ModelView matrix.
     */
@@ -53,18 +53,18 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
    glBindTexture(GL_TEXTURE_2D, state_texId());
 
    gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), state_MaterialColor_location());
-   
+
 }
 
-/** 
+/**
  * Draws the gears in GLES 2 mode.
  */
 static void draw_sceneGLES2(void)
 {
   GLfloat view_transform[16];
-  
+
   camera_view_matrix(view_transform);
-  
+
   /* Draw the gears */
   draw_gearGLES2(state_gear1(), view_transform, -3.0, -2.0, state_angle());
   draw_gearGLES2(state_gear2(), view_transform, 3.1, -2.0, -2 * state_angle() - 9.0);
@@ -73,15 +73,15 @@ static void draw_sceneGLES2(void)
 
 static GLuint make_shader(const char *src, const GLenum shader_type)
 {
-  GLuint shader; 
+  GLuint shader;
   char msg[512];
-  
+
   shader = glCreateShader(shader_type);
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);
   glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
   printf("shader info: %s\n", msg);
-  
+
   return shader;
 }
 

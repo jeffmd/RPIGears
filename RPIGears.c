@@ -62,7 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Port (cut and paste code monkey dude) by Jeff Doyle 18 Jul 2013
  *
  */
-// three rotating gears rendered with OpenGL|ES 1.1.
+// three rotating gears rendered with OpenGL ES 1.1 or 2.0.
 
 #define _GNU_SOURCE
 
@@ -84,6 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gear.h"
 #include "image.h"
 #include "camera.h"
+#include "xwindow.h"
 
 extern IMAGE_T rpi_image;
 
@@ -102,7 +103,7 @@ static void init_textures(void)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   
+
 }
 
 static void frameClear(void)
@@ -116,7 +117,7 @@ static void frameClear(void)
   glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  
+
 }
 
 #include "shaders.c"
@@ -144,12 +145,13 @@ static void run_gears(void)
   set_key_down_update(0, 0.0f);
   init_window_pos();
   init_window_size();
-  
+
   // keep doing the loop while no exit keys hit and exit timer not finished
   while ( ! run_exit_task() )
   {
-    do_tasks();   
+    do_tasks();
     do_key_down_update();
+    //xwindow_check_events();
     update_Window();
     inc_move_rate();
     update_gear_rotation();
@@ -168,24 +170,24 @@ static void exit_func(void)
    glDisableClientState(GL_NORMAL_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);
   }
-  
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  
+
   // clear screen
   frameClear();
   window_swap_buffers();
-  
+
   // Release OpenGL resources
   window_release();
-  
+
   // release memory used for gear and associated vertex arrays
   free_gear(state_gear1());
   free_gear(state_gear2());
   free_gear(state_gear3());
-  
+
   printf("\nRPIGears finished\n");
-   
+
 } // exit_func()
 
 //==============================================================================
@@ -202,11 +204,12 @@ static void init_options(int argc, char *argv[])
 int main (int argc, char *argv[])
 {
   bcm_host_init();
-  
+
   init_demo_state();
   init_options(argc, argv);
   // Start OGLES
   init_window(options_useGLES2());
+  //init_xwindow(window_screen_width() / 2, window_screen_height() / 2);
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
 
@@ -215,14 +218,14 @@ int main (int argc, char *argv[])
   }
   init_textures();
   build_gears(options_useVBO());
-  
+
   init_camera();
   init_scene();
-  
+
   // animate the gears
   run_gears();
-  
+
   exit_func();
-  
+  //xwindow_close();
   return 0;
 }
