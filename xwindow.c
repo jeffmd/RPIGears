@@ -12,7 +12,7 @@
 static Display *dis;
 static int screen;
 static Window win;
-static GC gc;
+//static GC gc;
 
 void init_xwindow(const uint width, const uint height)
 {
@@ -48,23 +48,23 @@ void init_xwindow(const uint width, const uint height)
 	XSelectInput(dis, win, ExposureMask | ButtonPressMask | KeyPressMask /*| KeyReleaseMask*/);
 
 	/* create the Graphics Context */
-  gc = XCreateGC(dis, win, 0,0);        
+  //gc = XCreateGC(dis, win, 0,0);        
 
 	/* here is another routine to set the foreground and background
 	   colors _currently_ in use in the window.
 	*/
-	XSetBackground(dis, gc, white);
-	XSetForeground(dis, gc, black);
+	//XSetBackground(dis, gc, white);
+	//XSetForeground(dis, gc, black);
 
 	/* clear the window and bring it on top of the other windows */
 	XClearWindow(dis, win);
 	XMapRaised(dis, win);
-  XFlush(dis);
+  //XFlush(dis);
 }
 
 void xwindow_close(void)
 {
-  XFreeGC(dis, gc);
+  //XFreeGC(dis, gc);
   XDestroyWindow(dis,win);
   XCloseDisplay(dis);	
 }
