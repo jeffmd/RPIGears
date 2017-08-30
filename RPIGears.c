@@ -121,13 +121,9 @@ static void frameClear(void)
 }
 
 #include "shaders.c"
-
 #include "print_info.c"
-
 #include "gles1.c"
-
 #include "gles2.c"
-
 #include "scene.c"
 
 void toggle_useVSync(void)
@@ -151,7 +147,7 @@ static void run_gears(void)
   {
     do_tasks();
     do_key_down_update();
-    //xwindow_check_events();
+    xwindow_check_events();
     update_Window();
     inc_move_rate();
     update_gear_rotation();
@@ -209,7 +205,7 @@ int main (int argc, char *argv[])
   init_options(argc, argv);
   // Start OGLES
   init_window(options_useGLES2());
-  //init_xwindow(window_screen_width() / 2, window_screen_height() / 2);
+  init_xwindow(window_screen_width() / 2, window_screen_height() / 2);
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
 
@@ -226,6 +222,6 @@ int main (int argc, char *argv[])
   run_gears();
 
   exit_func();
-  //xwindow_close();
+  xwindow_close();
   return 0;
 }

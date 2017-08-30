@@ -32,8 +32,8 @@ void init_xwindow(const uint width, const uint height)
 	   This window will be have be 200 pixels across and 300 down.
 	   It will have the foreground white and background black
 	*/
-   	win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0,	
-		width, height, 0, white, black);
+  win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0,	
+    width, height, 0, white, black);
 
 	/* here is where some properties of the window can be set.
 	   The third and fourth items indicate the name which appears
@@ -45,18 +45,32 @@ void init_xwindow(const uint width, const uint height)
 	/* this routine determines which types of input are allowed in
 	   the input.  see the appropriate section for details...
 	*/
-	XSelectInput(dis, win, ExposureMask | ButtonPressMask | KeyPressMask /*| KeyReleaseMask*/);
+	XSelectInput(dis, win, 
+      ExposureMask
+    | ButtonPressMask
+    | Button1MotionMask
+    | KeyPressMask
+    /*| SubstructureRedirectMask */
+    /*| FocusChangeMask*/
+    /*| EnterWindowMask*/
+    /*| PointerMotionMask*/
+    /*| KeyReleaseMask*/
+    | StructureNotifyMask);
 
 	/* create the Graphics Context */
   //gc = XCreateGC(dis, win, 0,0);        
 
-	/* here is another routine to set the foreground and background
-	   colors _currently_ in use in the window.
-	*/
 	//XSetBackground(dis, gc, white);
 	//XSetForeground(dis, gc, black);
+  
+  Atom wmprotocols[2] = {
+    // prevent xwindow from closing on its own
+    XInternAtom(dis, "WM_DELETE_WINDOW", False), 
+    XInternAtom(dis, "WM_TAKE_FOCUS", False)
+  };
+  
+  XSetWMProtocols(dis, win, wmprotocols, 2);
 
-	/* clear the window and bring it on top of the other windows */
 	XClearWindow(dis, win);
 	XMapRaised(dis, win);
   //XFlush(dis);
