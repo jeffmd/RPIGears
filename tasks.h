@@ -8,4 +8,5 @@
   extern void do_tasks(void);
   extern void reset_tasks(void);
   extern int run_exit_task(void);
+  extern void enable_exit(void);
 #endif

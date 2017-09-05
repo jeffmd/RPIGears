@@ -101,7 +101,7 @@ static void init_Exit_task(void)
   if (Exit_task.interval_ms > 0.0f) Exit_task.state = TS_RUN;
 }
 
-static void do_Exit_task(void)
+void enable_exit(void)
 {
   Exit_task.state = TS_RUN;
   Exit_task.interval_ms = 0.0f;
@@ -112,7 +112,7 @@ static void do_KeyScan_task(void)
   switch (detect_keypress())
   {
     // stop the program if a special key was hit
-    case 0: do_Exit_task(); break;
+    case 0: enable_exit(); break;
     // speed up key processing if more keys in buffer
     case 2: KeyScan_task.interval_ms = 10.0f; break;
     default: KeyScan_task.interval_ms = 100.0f;

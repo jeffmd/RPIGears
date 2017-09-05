@@ -35,6 +35,10 @@ The following files should be in the build directory:
 * demo_state.h
 * window.h
 * window.c
+* xwindow.h
+* xwindow.c
+* xinput.h
+* xinput.c
 
 
 In a terminal session, change directory to the build directory where the 

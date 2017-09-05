@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <X11/Xos.h>
+//#include <X11/Xos.h>
 #include <assert.h>
+
+#include "xinput.h"
 
 
 static Display *dis;
@@ -40,7 +42,7 @@ void init_xwindow(const uint width, const uint height)
 	   at the top of the window and the name of the minimized window
 	   respectively.
 	*/
-	XSetStandardProperties(dis, win, "RPIGears", "Demo", None, NULL,0, NULL);
+	XSetStandardProperties(dis, win, "RPIGears", "Demo", None, NULL, 0, NULL);
 
 	/* this routine determines which types of input are allowed in
 	   the input.  see the appropriate section for details...
@@ -86,19 +88,23 @@ void xwindow_close(void)
 void xwindow_check_events(void)
 {
   XEvent event;
+  KeySym key;
+    
   int cnt = XPending(dis);
   if (cnt > 0) {
-    printf("xevents pending: %i\n", cnt);
+    //printf("xevents pending: %i\n", cnt);
     XNextEvent(dis, &event);
     /* keyboard events */
     if (event.type == KeyPress)
     {
-        printf( "KeyPress: %x\n", event.xkey.keycode );
+      key = XLookupKeysym(&event.xkey, 0);
+      //printf( "KeyPress: %x\n", (int)key );
+      x_process_keypress(key);
 
     }
     else if (event.type == KeyRelease)
     {
-        printf( "KeyRelease: %x\n", event.xkey.keycode );
+      //printf( "KeyRelease: %x\n", event.xkey.keycode );
     }
   }
 }
