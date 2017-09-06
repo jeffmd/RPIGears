@@ -9,12 +9,14 @@
 #include <assert.h>
 
 #include "xinput.h"
-
+#include "window.h"
+#include "tasks.h"
 
 static Display *dis;
 static int screen;
 static Window win;
 //static GC gc;
+static Atom wmprotocols[3];
 
 void init_xwindow(const uint width, const uint height)
 {
@@ -57,6 +59,7 @@ void init_xwindow(const uint width, const uint height)
     /*| EnterWindowMask*/
     /*| PointerMotionMask*/
     /*| KeyReleaseMask*/
+    | VisibilityChangeMask
     | StructureNotifyMask);
 
 	/* create the Graphics Context */
@@ -65,13 +68,12 @@ void init_xwindow(const uint width, const uint height)
 	//XSetBackground(dis, gc, white);
 	//XSetForeground(dis, gc, black);
   
-  Atom wmprotocols[2] = {
-    // prevent xwindow from closing on its own
-    XInternAtom(dis, "WM_DELETE_WINDOW", False), 
-    XInternAtom(dis, "WM_TAKE_FOCUS", False)
-  };
+  // prevent xwindow from closing on its own
+  wmprotocols[0] = XInternAtom(dis, "WM_PROTOCOLS", False);
+  wmprotocols[1] = XInternAtom(dis, "WM_DELETE_WINDOW", False);
+  wmprotocols[2] = XInternAtom(dis, "WM_TAKE_FOCUS", False);
   
-  XSetWMProtocols(dis, win, wmprotocols, 2);
+  XSetWMProtocols(dis, win, &wmprotocols[1], 2);
 
 	XClearWindow(dis, win);
 	XMapRaised(dis, win);
@@ -92,7 +94,6 @@ void xwindow_check_events(void)
     
   int cnt = XPending(dis);
   if (cnt > 0) {
-    //printf("xevents pending: %i\n", cnt);
     XNextEvent(dis, &event);
     /* keyboard events */
     if (event.type == KeyPress)
@@ -102,9 +103,38 @@ void xwindow_check_events(void)
       x_process_keypress(key);
 
     }
-    else if (event.type == KeyRelease)
-    {
+    //else if (event.type == KeyRelease)
+    //{
       //printf( "KeyRelease: %x\n", event.xkey.keycode );
+    //}
+    else if (event.type == ConfigureNotify)
+    {
+      printf("x:%i y:%i w:%i h:%i\n",
+        event.xconfigure.x,
+        event.xconfigure.y,
+        event.xconfigure.width,
+        event.xconfigure.height
+      );
+      
+      window_pos(event.xconfigure.x, event.xconfigure.y);
     }
+    else if (event.type == ClientMessage)
+    {
+      if (event.xclient.message_type == wmprotocols[0])
+      {
+        if ((Atom)event.xclient.data.l[0] ==  wmprotocols[1])
+        {
+          enable_exit();
+        }
+        else if ((Atom)event.xclient.data.l[0] ==  wmprotocols[2])
+        {
+          move_window_end();
+        }
+      }
+    }
+    //else if (event.type == VisibilityNotify)
+    //{
+    //  printf("visible state: %i\n", event.xvisibility.state);
+    //}
   }
 }

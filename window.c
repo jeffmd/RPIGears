@@ -98,6 +98,13 @@ void move_window_y(const float val)
   window->update = 1;
 }
 
+void window_pos(const int x, const int y)
+{
+  window->dst_rect.y = y;
+  window->dst_rect.x = x;
+  window->update = 1;
+}
+
 void move_window_home(void)
 {
   window->dst_rect.x = window->screen_width/4;

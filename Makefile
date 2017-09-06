@@ -22,7 +22,7 @@ matrix_math.o: matrix_math.c
 tasks.o: demo_state.h key_input.h
 user_options.o:
 window.o:
-xwindow.o: xinput.h
+xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h
 
 

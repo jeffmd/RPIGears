@@ -13,6 +13,7 @@
   extern uint32_t window_screen_height(void);
   extern void move_window_x(const float val);
   extern void move_window_y(const float val);
+  extern void window_pos(const int x, const int y);
   extern void move_window_home(void);
   extern void move_window_end(void);
   extern void zoom_window(const float val);
