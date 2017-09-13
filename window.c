@@ -22,6 +22,7 @@ typedef  struct {
    uint32_t screen_width;
    uint32_t screen_height;
 // OpenGL|ES objects
+   EGLConfig config;
    EGLDisplay display;
    EGLSurface surface;
    EGLContext contextGLES1;
@@ -163,7 +164,7 @@ void update_Window(void)
   
     int result = vc_dispmanx_element_change_attributes(update,
                                             window->dispman_element,
-                                            0,
+                                            ELEMENT_CHANGE_DEST_RECT,
                                             0,
                                             255,
                                             &(window->dst_rect),
@@ -184,71 +185,11 @@ void window_update_VSync(const int sync)
   assert(EGL_FALSE != result);
 }
 
-/***********************************************************
- * Name: init_window
- *
- *
- * Description: Sets the display, OpenGL|ES context and screen stuff
- *
- * Returns: void
- *
- ***********************************************************/
-void init_window(const int useGLES2)
+static void createSurface(void)
 {
-  int32_t success = 0;
-  EGLBoolean result;
-  EGLint num_config;
-  
   DISPMANX_UPDATE_HANDLE_T dispman_update;
-  
-  
-  static const EGLint attribute_list[] =
-  {
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_ALPHA_SIZE, 8,
-    EGL_DEPTH_SIZE, 16,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
-  };
-  
-  static EGLint context_attributes[] = 
-  {
-    EGL_CONTEXT_CLIENT_VERSION, 1,
-    EGL_NONE
-  };
-  
-  EGLConfig config;
-  
-  // get an EGL display connection
-  window->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  assert(window->display!=EGL_NO_DISPLAY);
-  
-  // initialize the EGL display connection
-  result = eglInitialize(window->display, &window->major, &window->minor);
-  assert(EGL_FALSE != result);
-  
-  // get an appropriate EGL frame buffer configuration
-  result = eglChooseConfig(window->display, attribute_list, &config, 1, &num_config);
-  assert(EGL_FALSE != result);
-  
-  // bind the gles api to this thread - this is default so not required
-  result = eglBindAPI(EGL_OPENGL_ES_API);
-  assert(EGL_FALSE != result);
-  
-  // create an EGL rendering context
-  // select es 1.x or 2.x based on user option
-  context_attributes[1] = 1;
-  window->contextGLES1 = eglCreateContext(window->display, config, EGL_NO_CONTEXT, context_attributes);
-  assert(window->contextGLES1 != EGL_NO_CONTEXT);
-  
-  context_attributes[1] = 2;
-  window->contextGLES2 = eglCreateContext(window->display, config, EGL_NO_CONTEXT, context_attributes);
-  assert(window->contextGLES2 != EGL_NO_CONTEXT);
-  
-  // create an EGL window surface based on current screen size
-  success = graphics_get_display_size(0 /* LCD */, &window->screen_width, &window->screen_height);
+
+  int32_t success = graphics_get_display_size(0 /* LCD */, &window->screen_width, &window->screen_height);
   assert( success >= 0 );
   
   window->dst_rect.x = window->screen_width/4;
@@ -274,9 +215,77 @@ void init_window(const int useGLES2)
   window->nativewindow.element = window->dispman_element;
   window->nativewindow.width = window->screen_width;
   window->nativewindow.height = window->screen_height;
-  
-  window->surface = eglCreateWindowSurface( window->display, config, &window->nativewindow, NULL );
+
+  window->surface = eglCreateWindowSurface( window->display, window->config, &window->nativewindow, NULL );
   assert(window->surface != EGL_NO_SURFACE);
+}
+
+static void createContext(void)
+{
+  EGLBoolean result;
+  EGLint num_config;
+  
+  static const EGLint attribute_list[] =
+  {
+    EGL_RED_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_BLUE_SIZE, 8,
+    EGL_ALPHA_SIZE, 8,
+    EGL_DEPTH_SIZE, 16,
+    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+    EGL_NONE
+  };
+  
+  static EGLint context_attributes[] = 
+  {
+    EGL_CONTEXT_CLIENT_VERSION, 1,
+    EGL_NONE
+  };
+  
+  
+  // get an EGL display connection
+  window->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  assert(window->display!=EGL_NO_DISPLAY);
+  
+  // initialize the EGL display connection
+  result = eglInitialize(window->display, &window->major, &window->minor);
+  assert(EGL_FALSE != result);
+  
+  // get an appropriate EGL frame buffer configuration
+  result = eglChooseConfig(window->display, attribute_list, &window->config, 1, &num_config);
+  assert(EGL_FALSE != result);
+  
+  // bind the gles api to this thread - this is default so not required
+  result = eglBindAPI(EGL_OPENGL_ES_API);
+  assert(EGL_FALSE != result);
+  
+  // create an EGL rendering context
+  // select es 1.x or 2.x based on user option
+  context_attributes[1] = 1;
+  window->contextGLES1 = eglCreateContext(window->display, window->config, EGL_NO_CONTEXT, context_attributes);
+  assert(window->contextGLES1 != EGL_NO_CONTEXT);
+  
+  context_attributes[1] = 2;
+  window->contextGLES2 = eglCreateContext(window->display, window->config, EGL_NO_CONTEXT, context_attributes);
+  assert(window->contextGLES2 != EGL_NO_CONTEXT);
+}
+
+/***********************************************************
+ * Name: init_window
+ *
+ *
+ * Description: Sets the display, OpenGL|ES context and screen stuff
+ *
+ * Returns: void
+ *
+ ***********************************************************/
+void init_window(const int useGLES2)
+{
+  EGLBoolean result;
+  
+  createContext();
+  // create an EGL window surface based on current screen size
+  createSurface();
   
   // connect the context to the surface
   result = eglMakeCurrent(window->display, window->surface, window->surface, useGLES2 ? window->contextGLES2 : window->contextGLES1);

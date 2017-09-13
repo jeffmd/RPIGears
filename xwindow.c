@@ -50,11 +50,11 @@ void init_xwindow(const uint width, const uint height)
 	   the input.  see the appropriate section for details...
 	*/
 	XSelectInput(dis, win, 
-      ExposureMask
-    | ButtonPressMask
+    /*  ExposureMask
+    |*/ ButtonPressMask
     | Button1MotionMask
     | KeyPressMask
-    /*| SubstructureRedirectMask */
+    | SubstructureRedirectMask
     /*| FocusChangeMask*/
     /*| EnterWindowMask*/
     /*| PointerMotionMask*/
@@ -130,7 +130,22 @@ void xwindow_check_events(void)
         {
           move_window_end();
         }
+        else {
+          printf("unhandled wmprotocol event \n");
+        }
       }
+      else {
+        printf("unhandled client event \n");
+      }
+    }
+    
+    else if (event.type == ConfigureRequest)
+      {
+        printf("configure request\n");
+      }
+    
+    else {
+      printf("unhandled event: %i\n", event.type);
     }
     //else if (event.type == VisibilityNotify)
     //{
