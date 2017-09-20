@@ -18,7 +18,7 @@ static Window win;
 //static GC gc;
 static Atom wmprotocols[3];
 
-void init_xwindow(const uint width, const uint height)
+void xwindow_init(const uint width, const uint height)
 {
 	/* get the colors black and white (see section for details) */
 	unsigned long black, white;
@@ -128,7 +128,7 @@ void xwindow_check_events(void)
         }
         else if ((Atom)event.xclient.data.l[0] ==  wmprotocols[2])
         {
-          move_window_end();
+          window_hide();
         }
         else {
           printf("unhandled wmprotocol event \n");

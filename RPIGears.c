@@ -139,8 +139,8 @@ static void run_gears(void)
 {
   reset_tasks();
   set_key_down_update(0, 0.0f);
-  init_window_pos();
-  init_window_size();
+  window_init_pos();
+  window_init_size();
 
   // keep doing the loop while no exit keys hit and exit timer not finished
   while ( ! run_exit_task() )
@@ -148,7 +148,7 @@ static void run_gears(void)
     do_tasks();
     do_key_down_update();
     xwindow_check_events();
-    update_Window();
+    Window_update();
     inc_move_rate();
     update_gear_rotation();
 	  frameClear();
@@ -204,8 +204,8 @@ int main (int argc, char *argv[])
   init_demo_state();
   init_options(argc, argv);
   // Start OGLES
-  init_window(options_useGLES2());
-  init_xwindow(window_screen_width() / 2, window_screen_height() / 2);
+  window_init(options_useGLES2());
+  xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
 

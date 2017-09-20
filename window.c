@@ -71,20 +71,20 @@ uint32_t window_screen_height(void)
   return window->screen_height;
 }
 
-void init_window_pos(void)
+void window_init_pos(void)
 {
   window->pos_x = (float)window->dst_rect.x;
   window->pos_y = (float)window->dst_rect.y;
 }
 
-void init_window_size(void)
+void window_init_size(void)
 {
   window->width = (float)window->dst_rect.width;
   window->height = (float)window->dst_rect.height;
 }
 
 
-void move_window_x(const float val)
+void window_move_x(const float val)
 {
   window->pos_x += val;
   window->dst_rect.x = (int)window->pos_x;
@@ -92,7 +92,7 @@ void move_window_x(const float val)
 }
 
 
-void move_window_y(const float val)
+void window_move_y(const float val)
 {
   window->pos_y += val;
   window->dst_rect.y = (int)window->pos_y;
@@ -106,23 +106,30 @@ void window_pos(const int x, const int y)
   window->update = 1;
 }
 
-void move_window_home(void)
+void window_center(void)
 {
   window->dst_rect.x = window->screen_width/4;
   window->dst_rect.y = window->screen_height/4;
-  init_window_pos();
+  window_init_pos();
   window->update = 1;
 }
 
-void move_window_end(void)
+void window_show(void)
 {
+  window->dst_rect.x = window->pos_x;
+  window->dst_rect.y = window->pos_y;
+  window->update = 1;
+}
+
+void window_hide(void)
+{
+  window_init_pos();
   window->dst_rect.x = window->screen_width;
   window->dst_rect.y = window->screen_height;
-  init_window_pos();
   window->update = 1;
 }
 
-void zoom_window(const float val)
+void window_zoom(const float val)
 {
   window->width += val;
   window->height += val;
@@ -154,7 +161,7 @@ static void check_window_offsets(void)
     }
 }
 
-void update_Window(void)
+void Window_update(void)
 {
   if (window->update) {
     check_window_offsets();
@@ -279,7 +286,7 @@ static void createContext(void)
  * Returns: void
  *
  ***********************************************************/
-void init_window(const int useGLES2)
+void window_init(const int useGLES2)
 {
   EGLBoolean result;
   

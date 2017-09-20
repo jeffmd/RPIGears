@@ -65,19 +65,19 @@ static void check_movekey(const int inpkey)
   switch (inpkey)
   {
     case 'A': // move window up
-      set_key_down_update(move_window_y, -10.0f);
+      set_key_down_update(window_move_y, -10.0f);
       break;
       
     case 'B': // move window down
-      set_key_down_update(move_window_y, 10.0f);
+      set_key_down_update(window_move_y, 10.0f);
       break;
       
     case 'C': // move window left
-      set_key_down_update(move_window_x, 10.0f);
+      set_key_down_update(window_move_x, 10.0f);
       break;
       
     case 'D': // move window right
-      set_key_down_update(move_window_x, -10.0f);
+      set_key_down_update(window_move_x, -10.0f);
       break;
 
   }
@@ -92,11 +92,11 @@ static void check_editkey(const int inpkey)
   {
 
     case 'F': // move window off screen
-      move_window_end();
+      window_hide();
       break;
 
     case 'H': // move window to center of screen
-      move_window_home();
+      window_center();
       break;
   }
   
@@ -155,11 +155,11 @@ static int check_key(const int inpkey)
       break;
 
     case 'z':
-      set_key_down_update(zoom_window, 10.0f);
+      set_key_down_update(window_zoom, 10.0f);
       break;
       
     case 'Z':
-      set_key_down_update(zoom_window, -10.0f);
+      set_key_down_update(window_zoom, -10.0f);
       break;
       
     case '<':
