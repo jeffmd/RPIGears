@@ -18,12 +18,16 @@
   extern void window_hide(void);
   extern void window_center(void);
   extern void window_zoom(const float val);
-  extern void Window_update(void);
+  extern void window_size(const int width, const int height);
+  extern void window_update(void);
   extern void window_init(const int useGLES2);
   extern void window_init_pos(void);
   extern void window_init_size(void);
   extern void window_swap_buffers(void);
   extern void window_release(void);
   extern void window_update_VSync(const int sync);
+  extern void window_snapshot(const int width, const int height, void *buffer);
+  extern int window_inFocus(void);
+  extern void window_noupdate(void);
 
 #endif

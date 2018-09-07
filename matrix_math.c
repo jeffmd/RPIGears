@@ -18,7 +18,7 @@
  */
 void m4x4_copy(GLfloat *md, const GLfloat *ms)
 {
-   memcpy (md, ms, sizeof(GLfloat) * 16);
+   memcpy(md, ms, sizeof(GLfloat) * 16);
 }
 
 /** 
@@ -29,22 +29,29 @@ void m4x4_copy(GLfloat *md, const GLfloat *ms)
  * @param m the first matrix to multiply
  * @param n the second matrix to multiply
  */
-void m4x4_multiply(GLfloat *m, const GLfloat *n)
+void m4x4_multiply(GLfloat m0[16], const GLfloat m1[16])
 {
-   GLfloat tmp[16];
-   const GLfloat *row, *column;
-   div_t d;
-   int i, j;
+   GLfloat d[16];
 
-   for (i = 0; i < 16; i++) {
-      tmp[i] = 0;
-      d = div(i, 4);
-      row = n + d.quot * 4;
-      column = m + d.rem;
-      for (j = 0; j < 4; j++)
-         tmp[i] += row[j] * column[j * 4];
-   }
-   m4x4_copy(m, tmp);
+	d[0] = m0[0]*m1[0] + m0[4]*m1[1] + m0[8]*m1[2] + m0[12]*m1[3];
+	d[1] = m0[1]*m1[0] + m0[5]*m1[1] + m0[9]*m1[2] + m0[13]*m1[3];
+	d[2] = m0[2]*m1[0] + m0[6]*m1[1] + m0[10]*m1[2] + m0[14]*m1[3];
+	d[3] = m0[3]*m1[0] + m0[7]*m1[1] + m0[11]*m1[2] + m0[15]*m1[3];
+	d[4] = m0[0]*m1[4] + m0[4]*m1[5] + m0[8]*m1[6] + m0[12]*m1[7];
+	d[5] = m0[1]*m1[4] + m0[5]*m1[5] + m0[9]*m1[6] + m0[13]*m1[7];
+	d[6] = m0[2]*m1[4] + m0[6]*m1[5] + m0[10]*m1[6] + m0[14]*m1[7];
+	d[7] = m0[3]*m1[4] + m0[7]*m1[5] + m0[11]*m1[6] + m0[15]*m1[7];
+	d[8] = m0[0]*m1[8] + m0[4]*m1[9] + m0[8]*m1[10] + m0[12]*m1[11];
+	d[9] = m0[1]*m1[8] + m0[5]*m1[9] + m0[9]*m1[10] + m0[13]*m1[11];
+	d[10] = m0[2]*m1[8] + m0[6]*m1[9] + m0[10]*m1[10] + m0[14]*m1[11];
+	d[11] = m0[3]*m1[8] + m0[7]*m1[9] + m0[11]*m1[10] + m0[15]*m1[11];
+	d[12] = m0[0]*m1[12] + m0[4]*m1[13] + m0[8]*m1[14] + m0[12]*m1[15];
+	d[13] = m0[1]*m1[12] + m0[5]*m1[13] + m0[9]*m1[14] + m0[13]*m1[15];
+	d[14] = m0[2]*m1[12] + m0[6]*m1[13] + m0[10]*m1[14] + m0[14]*m1[15];
+	d[15] = m0[3]*m1[12] + m0[7]*m1[13] + m0[11]*m1[14] + m0[15]*m1[15];
+
+	
+   m4x4_copy(m0, d);
 }
 
 /** 
@@ -85,7 +92,7 @@ void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, co
  */
 void m4x4_translate(GLfloat *m, const GLfloat x, const GLfloat y, const GLfloat z)
 {
-   GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
+   const GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
 
    m4x4_multiply(m, t);
 }
@@ -114,13 +121,23 @@ void m4x4_identity(GLfloat *m)
  */
 void m4x4_transpose(GLfloat *m)
 {
-   const GLfloat t[16] = {
+/*   const GLfloat t[16] = {
       m[0], m[4], m[8],  m[12],
       m[1], m[5], m[9],  m[13],
       m[2], m[6], m[10], m[14],
       m[3], m[7], m[11], m[15]};
 
    m4x4_copy(m, t);
+*/
+#define SWAP(i, j) t = m[i]; m[i] = m[j]; m[j] = t
+  GLfloat t;
+  
+  SWAP(1, 4);
+  SWAP(2, 8);
+  SWAP(3, 12);
+  SWAP(6, 9);
+  SWAP(7, 13);
+  SWAP(11, 14);
 }
 
 /**

@@ -18,6 +18,7 @@ static const char vertex_shader[] =
 "varying lowp vec3 N;\n"
 "varying lowp vec3 H;\n"
 "varying lowp vec2 oUV;\n"
+"//varying float depth;\n"
 "\n"
 "void main(void)\n"
 "{\n"
@@ -36,6 +37,7 @@ static const char vertex_shader[] =
 "    oUV = uv;\n"
 "    // Transform the position to clip coordinates\n"
 "    gl_Position = ModelViewProjectionMatrix * pos;\n"
+"    //depth = 1.0-gl_Position.z/40.0;\n"
 "}";
 
 // fragment shader for gles2
@@ -48,6 +50,7 @@ static const char fragment_shader[] =
 "varying lowp vec3 N;\n"
 "varying lowp vec3 H;\n"
 "varying lowp vec2 oUV;\n"
+"//varying  float depth;\n"
 "\n"
 "void main(void)\n"
 "{\n"
@@ -55,12 +58,14 @@ static const char fragment_shader[] =
 "    lowp vec3 n = normalize(N);\n"
 "    lowp vec3 h = normalize(H);\n"    
 "\n"
-"    lowp float diffuse = max(dot(l, n), 0.0);\n"
+"    vec4 diffuse = vec4(vec3(max(dot(l, n), 0.0)), 1.0);\n"
 "    // get bump map vector, again expand from range-compressed\n"
 "    vec4 diffCol = texture2D(DiffuseMap, oUV);\n"
 "    // modulate diffuseMap with base material color\n"
-"    gl_FragColor = vec4(MaterialColor.xyz * diffuse, 1.0) * diffCol;\n"
+"    gl_FragColor = MaterialColor * diffCol * diffuse;\n"
+"    //gl_FragColor = vec4(depth, depth, depth , 1.0) ;\n"
 " //   add  specular\n"
 "    // materials that have more red in them are shinnier\n"
-"    gl_FragColor += pow(max(0.0, dot(n, h)), 7.0) * diffCol.r;\n"
+"    float grey = 0.21*diffCol.r + 0.72*diffCol.g + 0.07*diffCol.b;\n"
+"    gl_FragColor += pow(max(0.0, dot(n, h)), 7.0 ) * grey;\n"
 "}";

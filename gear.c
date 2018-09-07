@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <math.h> 
 #include <string.h>
+#include <stdio.h>
 
 #include "GLES/gl.h"
-#include "GLES2/gl2.h"
 
+#include "gles3.h"
 
 typedef struct {
   GLfloat pos[3];
@@ -34,6 +35,7 @@ typedef struct {
 
 static int gearID = 0;
 static gear_t* gears[3];
+
 
 /**
  
@@ -254,6 +256,12 @@ void gear_use_vbo(const int gearid)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
 }
 
+void gear_vbo_off(void)
+{
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 
 void free_gear(const int gearid)
 {
@@ -286,9 +294,11 @@ void gear_drawGLES1(const int gearid, const int useVBO,const GLenum drawMode)
     
   glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
                    gear->index_p);
+                   
+  if (useVBO) gear_vbo_off();
 }
 
-void gear_drawGLES2(const int gearid, const int useVBO,const GLenum drawMode, const GLuint MaterialColor_location)
+void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location)
 {
   gear_t* gear = gears[gearid - 1];
   /* Set the gear color */
@@ -298,19 +308,18 @@ void gear_drawGLES2(const int gearid, const int useVBO,const GLenum drawMode, co
   
   /* Set up the position of the attributes in the vertex buffer object */
   // setup where vertex data is
+  glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
        sizeof(vertex_t), gear->vertex_p);
   // setup where normal data is
+  glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
        sizeof(vertex_t), gear->normal_p);
   // setup where uv data is
+  glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
        sizeof(vertex_t), gear->texCoords_p);
   
-  /* Enable the attributes */
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
   
   
   glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
@@ -320,4 +329,5 @@ void gear_drawGLES2(const int gearid, const int useVBO,const GLenum drawMode, co
   glDisableVertexAttribArray(2);
   glDisableVertexAttribArray(1);
   glDisableVertexAttribArray(0);
+  if (useVBO) gear_vbo_off();
 }

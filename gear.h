@@ -14,8 +14,8 @@
   extern void make_gear_vbo(int gearid);
   extern void free_gear(int gearid);
   extern void gear_use_vbo(const int gearid);
-  extern void gear_drawGLES1(const int gearid, const int useVBO,const GLenum drawMode);
-  extern void gear_drawGLES2(const int gearid, const int useVBO,const GLenum drawMode, const GLuint MaterialColor_location);
+  extern void gear_drawGLES1(const int gearid, const int useVBO, const GLenum drawMode);
+  extern void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location);
 
 #endif  
   

@@ -72,8 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bcm_host.h"
 
-#include "GLES2/gl2.h"
-#include "GLES2/gl2ext.h"
+#include "gles3.h"
 
 #include "matrix_math.h"
 #include "user_options.h"
@@ -137,9 +136,9 @@ void toggle_useVSync(void)
 
 static void run_gears(void)
 {
+  
   reset_tasks();
   set_key_down_update(0, 0.0f);
-  window_init_pos();
   window_init_size();
 
   // keep doing the loop while no exit keys hit and exit timer not finished
@@ -148,12 +147,13 @@ static void run_gears(void)
     do_tasks();
     do_key_down_update();
     xwindow_check_events();
-    Window_update();
+    window_update();
     inc_move_rate();
     update_gear_rotation();
-	  frameClear();
+	frameClear();
     draw_scene();
     window_swap_buffers();
+    xwindow_frame_update();
   }
 }
 
@@ -200,7 +200,7 @@ static void init_options(int argc, char *argv[])
 int main (int argc, char *argv[])
 {
   bcm_host_init();
-
+  gles3_init();
   init_demo_state();
   init_options(argc, argv);
   // Start OGLES
@@ -220,8 +220,9 @@ int main (int argc, char *argv[])
 
   // animate the gears
   run_gears();
-
+  
   exit_func();
   xwindow_close();
+  bcm_host_deinit();
   return 0;
 }

@@ -193,7 +193,10 @@ static int check_key(const int inpkey)
     case 's':
       set_key_down_update(change_viewY, 1.0f);
       break;
-          
+      
+    case 'S':
+      window_show();
+      break;    
           
     default: print_keyhelp();
   }
