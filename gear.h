@@ -8,7 +8,8 @@
   
   extern int gear( const GLfloat inner_radius, const GLfloat outer_radius,
                        const GLfloat width, const GLint teeth,
-                       const GLfloat tooth_depth, const GLfloat color[]);
+                       const GLfloat tooth_depth, const GLfloat color[],
+                       const int useVBO);
   
   extern void set_gear_va_ptrs(int gearid);
   extern void make_gear_vbo(int gearid);
@@ -16,6 +17,7 @@
   extern void gear_use_vbo(const int gearid);
   extern void gear_drawGLES1(const int gearid, const int useVBO, const GLenum drawMode);
   extern void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location);
+  extern void gear_setVAO_GLES2(const int gearid, const int useVBO);
 
 #endif  
   

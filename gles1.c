@@ -37,7 +37,7 @@ static void draw_sceneGLES1(void)
 
 static void init_scene_GLES1()
 {
-  const GLfloat light_pos[4] = {5.0, 5.0, 10.0, 1.0};
+  const GLfloat light_pos[4] = {25.0, 25.0, 10.0, 1.0};
 
 
   glLightfv(GL_LIGHT0, GL_POSITION, light_pos);

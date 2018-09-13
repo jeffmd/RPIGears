@@ -56,7 +56,7 @@ typedef struct gl_array_attributes
    GLuint BufferObj;        /**< GL_ARB_vertex_buffer_object */
    GLshort Stride;          /**< Stride as specified with gl*Pointer() */
    GLenum Type;             /**< Datatype: GL_FLOAT, GL_INT, etc */
-   GLboolean Enabled;       /**< Whether the array is enabled */
+   unsigned Enabled:1;       /**< Whether the array is enabled */
    unsigned Size:3;         /**< Components per element (1,2,3,4) */
    unsigned Normalized:1;   /**< Fixed-point values are normalized when converted to floats */
    unsigned Integer:1;      /**< Fixed-point values are not converted to floats */
@@ -70,19 +70,12 @@ typedef struct gl_array_attributes
 typedef struct gl_vao
 {
    /** Name of the VAO as received from glGenVertexArray. */
-   GLuint Name;
-   /**
-    * Has this array object been bound?
-    */
-   GLboolean Bound;
-   /**
-    * is this array object deleted?
-    */
-   GLboolean Deleted;
+   unsigned Name:8;
+   unsigned Deleted:1;
    /** Vertex attribute arrays */
    gl_array_attributes VertexAttrib[VERT_ATTRIB_MAX];
    /** The index buffer (also known as the element array buffer in OpenGL). */
-   GLuint IndexBufferObj;
+   GLuint ElementBuffer;
 } gl_vao;
 
 /**
@@ -116,12 +109,21 @@ typedef struct gl_context
 
 static gl_context ctx;
 
+void glBindBufferMod(GLenum target, GLuint buffer)
+{
+	GLuint *buff = (target == GL_ARRAY_BUFFER) ? &ctx.Buffer : &ctx.ElementBuffer;
+
+	if (*buff != buffer) {
+	    *buff = buffer;
+	    glBindBuffer(target, buffer);
+	    if (target == GL_ELEMENT_ARRAY_BUFFER)
+	       ctx.Array.VAO->ElementBuffer = buffer;
+	}
+}
 
 static void delete_vao(gl_vao *obj)
 {
    obj->Deleted = GL_TRUE;
-   obj->Bound = GL_FALSE;
-
    ctx.Array.NextDeletedVAO = obj->Name;
 }
 
@@ -157,7 +159,7 @@ static gl_vao *init_vao(GLuint name)
    gl_vao *vao = &ctx.Array.Objects[name];
    vao->Name = name;
    vao->Deleted = GL_TRUE;
-   vao->Bound = GL_FALSE;
+   vao->ElementBuffer = 0;
 
    /* Init the individual arrays */
    for (GLuint i = 0; i < VERT_ATTRIB_MAX; i++) {
@@ -244,7 +246,7 @@ void gles3_init()
  * \param n       Number of IDs to generate.
  * \param arrays  Array of \c n locations to store the IDs.
  */
-static void gen_vaos(GLsizei n, GLuint *arrays)
+static inline void gen_vaos(GLsizei n, GLuint *arrays)
 {
    GLint i;
    if (n < 0) {
@@ -256,12 +258,11 @@ static void gen_vaos(GLsizei n, GLuint *arrays)
       return;
 
    /* For the sake of simplicity we create the array objects in both
-    * the Gen* and Create* cases.  The only difference is the value of
-    * EverBound, which is set to true in the Create* case.
+    * the Gen* and Create* cases.
     */
    for (i = 0; i < n; i++) {
       GLuint name = find_deleted_vao();
-
+      printf("new vao: %i\n", name);
       new_vao(name);
       arrays[i] = name;
    }
@@ -290,7 +291,28 @@ GLboolean glIsVertexArray( GLuint id )
 
 static void set_bound_vao(gl_vao *vao)
 {
+   gl_vao *oldVao = ctx.Array.VAO;
+   
    ctx.Array.VAO = vao;
+   
+   glBindBufferMod(GL_ELEMENT_ARRAY_BUFFER, vao->ElementBuffer);
+
+   for (GLuint i = 0; i < VERT_ATTRIB_MAX; i++) {
+	  gl_array_attributes *oldVertexAttrib = &oldVao->VertexAttrib[i];
+	  gl_array_attributes *newVertexAttrib = &vao->VertexAttrib[i];
+	  
+	  if (newVertexAttrib->Enabled) {
+		 glBindBufferMod(GL_ARRAY_BUFFER, newVertexAttrib->BufferObj);
+		 glEnableVertexAttribArray(i);
+		 glVertexAttribPointer(i, newVertexAttrib->Size, newVertexAttrib->Type,
+			newVertexAttrib->Normalized, newVertexAttrib->Stride, newVertexAttrib->Ptr);
+
+	  }
+	  else if (oldVertexAttrib->Enabled) {
+
+		 glDisableVertexAttribArray(i);
+	  }
+   }
    
 }
 
@@ -326,7 +348,6 @@ static inline void bind_vao(GLuint id)
       }
 
    }
-
    set_bound_vao(newObj);
 
 }
@@ -481,17 +502,8 @@ void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index)
     */
    vao = lookup_vao(vaobj);
    if (!vao)
-      return;
+       return;
 
    disable_vertex_array_attrib(vao, index);
 }
 
-void glBindBufferMod(GLenum target, GLuint buffer)
-{
-	if(target == GL_ARRAY_BUFFER)
-	  ctx.Buffer = buffer;
-	else
-	  ctx.ElementBuffer = buffer;
-	  
-	glBindBuffer(target, buffer);
-}

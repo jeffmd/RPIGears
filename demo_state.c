@@ -3,6 +3,7 @@
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "GLES2/gl2.h"
@@ -19,7 +20,7 @@ typedef struct
    int gear1, gear2, gear3;
 
 // The location of the shader uniforms
-   GLuint ModelViewProjectionMatrix_location,
+   GLuint CameraProjectionMatrix_location,
       ModelViewMatrix_location,
       NormalMatrix_location,
       LightSourcePosition_location,
@@ -76,7 +77,6 @@ int state_gear3(void)
   return state->gear3;
 }
 
-
 GLfloat state_angle(void)
 {
   return state->angle;
@@ -97,12 +97,10 @@ void change_angleVel(const float val)
   state->angleVel += val;
 }
 
-
-
 void update_avgfps(const float fps)
 {
-  state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
-  state->period_rate = 1.0f / state->avgfps;
+  //state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
+  state->period_rate = 1.0f / fps;
 }
 
 void update_angleFrame(void)
@@ -125,9 +123,9 @@ GLuint state_textId(void)
   return state->texId;
 }
 
-GLuint state_ModelViewProjectionMatrix_location(void)
+GLuint state_CameraProjectionMatrix_location(void)
 {
-  return state->ModelViewProjectionMatrix_location;
+  return state->CameraProjectionMatrix_location;
 }
 
 GLuint state_ModelViewMatrix_location(void)
@@ -154,7 +152,6 @@ GLuint state_DiffuseMap_location(void)
 {
   return state->DiffuseMap_location;
 }
-
 
 void update_gear_rotation(void)
 {
@@ -190,21 +187,9 @@ void build_gears(const int useVBO)
   const GLfloat blue[4] = {0.3, 0.3, 0.9, 1.0};
 
   /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red);
-  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green);
-  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue);
-
-  // if VBO enabled then set them up for each gear
-  if (useVBO) {
-    make_gear_vbo(state->gear1);
-    make_gear_vbo(state->gear2);
-    make_gear_vbo(state->gear3);
-  }
-  else {
-    set_gear_va_ptrs(state->gear1);
-    set_gear_va_ptrs(state->gear2);
-    set_gear_va_ptrs(state->gear3);
-  }
+  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red, useVBO);
+  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green, useVBO);
+  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue, useVBO);
 
 }
 
@@ -223,12 +208,18 @@ void do_key_down_update(void)
 
 void update_uniform_location(const GLuint program)
 {
-   state->ModelViewProjectionMatrix_location = glGetUniformLocation(program, "ModelViewProjectionMatrix");
+   state->CameraProjectionMatrix_location = glGetUniformLocation(program, "CameraProjectionMatrix");
+   printf("CameraProjectionMatrix_location: %i\n", state->CameraProjectionMatrix_location);
    state->ModelViewMatrix_location = glGetUniformLocation(program, "ModelViewMatrix");
+   printf("ModelViewMatrix_location: %i\n", state->ModelViewMatrix_location);
    state->NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+   printf("NormalMatrix_location: %i\n", state->NormalMatrix_location);
    state->LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
+   printf("LightSourcePosition_location: %i\n", state->LightSourcePosition_location);
    state->MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+   printf("MaterialColor_location: %i\n", state->MaterialColor_location);
    state->DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
+   printf("DiffuseMap_location: %i\n", state->DiffuseMap_location);
 }
 
 

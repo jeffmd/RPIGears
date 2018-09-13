@@ -16,7 +16,7 @@ extern int state_gear1(void);
 extern int state_gear2(void);
 extern int state_gear3(void);
 extern GLfloat state_angle(void);
-extern GLuint state_ModelViewProjectionMatrix_location(void);
+extern GLuint state_CameraProjectionMatrix_location(void);
 extern GLuint state_ModelViewMatrix_location(void);
 extern GLuint state_NormalMatrix_location(void);
 extern GLuint state_LightSourcePosition_location(void);

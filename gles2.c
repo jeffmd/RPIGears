@@ -16,25 +16,22 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
       GLfloat x, GLfloat y, GLfloat angle)
 {
    // The direction of the directional light for the scene */
-   static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 10.0, 1.0};
+   static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 100.0, 1.0};
 
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
-   GLfloat model_view_projection[16];
+
+
+   glUniformMatrix4fv(state_CameraProjectionMatrix_location(), 1, GL_FALSE,
+                      camera_ProjectionMatrixPtr());
 
    /* Translate and rotate the gear */
    m4x4_copy(model_view, view_transform);
    m4x4_translate(model_view, x, y, 0);
    m4x4_rotate(model_view, angle, 0, 0, 1);
-
-   /* Create and set the ModelViewProjectionMatrix */
-   camera_ProjectionMatrix(model_view_projection);
-   m4x4_multiply(model_view_projection, model_view);
-
-   glUniformMatrix4fv(state_ModelViewProjectionMatrix_location(), 1, GL_FALSE,
-                      model_view_projection);
    glUniformMatrix4fv(state_ModelViewMatrix_location(), 1, GL_FALSE,
                       model_view);
+
    /* Set the LightSourcePosition uniform in relation to the object */
    glUniform4fv(state_LightSourcePosition_location(), 1, LightSourcePosition);
 
@@ -113,6 +110,8 @@ static void init_scene_GLES2(void)
 
    /* Get the locations of the uniforms so we can access them */
    update_uniform_location(program);
-
+   gear_setVAO_GLES2(state_gear1(), options_useVBO());
+   gear_setVAO_GLES2(state_gear2(), options_useVBO());
+   gear_setVAO_GLES2(state_gear3(), options_useVBO());
 }
 

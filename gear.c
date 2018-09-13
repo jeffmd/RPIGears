@@ -24,6 +24,7 @@ typedef struct {
   int nvertices, nindices;
   GLuint vboId; // ID for vertex buffer object
   GLuint iboId; // ID for index buffer object
+  GLuint vaoId; // ID for vertex array object
   
   GLuint tricount; // number of triangles to draw
   GLvoid *vertex_p; // offset or pointer to first vertex
@@ -35,6 +36,40 @@ typedef struct {
 
 static int gearID = 0;
 static gear_t* gears[3];
+
+
+// setup pointers/offsets for draw operations
+void set_gear_va_ptrs(const int gearid)
+{
+  gear_t* gear = gears[gearid - 1];
+  // for Vertex Array use pointers to where the buffer starts
+  gear->vertex_p = gear->vertices[0].pos;
+  gear->normal_p = gear->vertices[0].norm;
+  gear->texCoords_p = gear->vertices[0].texCoords;
+  gear->index_p = gear->indices;
+}
+  
+
+void make_gear_vbo(const int gearid)
+{
+  gear_t* gear = gears[gearid - 1];
+  // for VBO use offsets into the buffer object
+  gear->vertex_p = 0;
+  gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
+  gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
+  gear->index_p = 0;
+  
+  // setup the vertex buffer that will hold the vertices and normals 
+  glGenBuffers(1, &gear->vboId);
+  glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
+  
+  // setup the index buffer that will hold the indices
+  glGenBuffers(1, &gear->iboId);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
+   	
+}
 
 
 /**
@@ -52,7 +87,8 @@ static gear_t* gears[3];
  **/
 int gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
-                     const GLfloat tooth_depth, const GLfloat color[])
+                     const GLfloat tooth_depth, const GLfloat color[],
+                     const int useVBO)
 {
   GLint i, j;
   GLfloat r0, r1, r2;
@@ -212,41 +248,17 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   }
 
   gear->tricount = gear->nindices / 3;
+  
+  
+  // if VBO enabled then set them up for each gear
+  if (useVBO) {
+    make_gear_vbo(gearID);
+  }
+  else {
+    set_gear_va_ptrs(gearID);
+  }
 
   return gearID;
-}
-
-// setup pointers/offsets for draw operations
-void set_gear_va_ptrs(const int gearid)
-{
-  gear_t* gear = gears[gearid - 1];
-  // for Vertex Array use pointers to where the buffer starts
-  gear->vertex_p = gear->vertices[0].pos;
-  gear->normal_p = gear->vertices[0].norm;
-  gear->texCoords_p = gear->vertices[0].texCoords;
-  gear->index_p = gear->indices;
-}
-  
-
-void make_gear_vbo(const int gearid)
-{
-  gear_t* gear = gears[gearid - 1];
-  // for VBO use offsets into the buffer object
-  gear->vertex_p = 0;
-  gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
-  gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
-  gear->index_p = 0;
-  
-  // setup the vertex buffer that will hold the vertices and normals 
-  glGenBuffers(1, &gear->vboId);
-  glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
-  
-  // setup the index buffer that will hold the indices
-  glGenBuffers(1, &gear->iboId);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
-   	
 }
 
 void gear_use_vbo(const int gearid)
@@ -304,6 +316,20 @@ void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, c
   /* Set the gear color */
   glUniform4fv(MaterialColor_location, 1, gear->color);
   
+  glBindVertexArray(gear->vaoId);
+  
+  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
+                 gear->index_p);
+  
+}
+
+void gear_setVAO_GLES2(const int gearid, const int useVBO)
+{
+  gear_t* gear = gears[gearid - 1];
+  
+  glGenVertexArrays(1, &gear->vaoId);
+  glBindVertexArray(gear->vaoId);
+  
   if (useVBO) gear_use_vbo(gearid);
   
   /* Set up the position of the attributes in the vertex buffer object */
@@ -319,15 +345,5 @@ void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, c
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
        sizeof(vertex_t), gear->texCoords_p);
-  
-  
-  
-  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
-                 gear->index_p);
-  
-  /* Disable the attributes */
-  glDisableVertexAttribArray(2);
-  glDisableVertexAttribArray(1);
-  glDisableVertexAttribArray(0);
-  if (useVBO) gear_vbo_off();
+	
 }
