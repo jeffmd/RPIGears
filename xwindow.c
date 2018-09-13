@@ -323,7 +323,7 @@ void xwindow_check_events(void)
         
       case FocusOut:
         window_hide();
-        //xwindow_frame_update();
+        xwindow_frame_update();
         break;
         
       case FocusIn:
