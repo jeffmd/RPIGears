@@ -440,6 +440,39 @@ static void createContext(void)
   assert(window->contextGLES2 != EGL_NO_CONTEXT);
 }
 
+static void window_print_GL_Limits(void)
+{
+  GLint num[4];
+  
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, num);
+  printf("MAX_VERTEX_ATTRIBS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VARYING_VECTORS, num);
+  printf("MAX_VARYING_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, num);
+  printf("MAX_FRAGMENT_UNIFORM_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, num);
+  printf("MAX_VERTEX_UNIFORM_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_VERTEX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_COMBINED_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, num);
+  printf("NUM_COMPRESSED_TEXTURE_FORMATS: %i\n", num[0]);
+
+  glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
+  printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
+
+}
+
 /***********************************************************
  * Name: init_window
  *
@@ -473,6 +506,8 @@ void window_init(const int useGLES2)
   //glSampleCoverage(0.85, GL_FALSE);
   
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
+  
+  window_print_GL_Limits();
 
 }
 
