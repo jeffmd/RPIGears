@@ -70,17 +70,21 @@ static void reset_task(Task_T * const task)
 
 
 static int frames; // number of frames drawn since the last frame/sec calculation
+static int lastFrames;
 
-static Task_T AngleFrame_task = { 0, 500, 0, TS_RUN};
+static Task_T AngleFrame_task = { 0, 100, 0, TS_RUN};
 static Task_T FPS_task = {0, 5000, 0, TS_RUN};
 static Task_T KeyScan_task = {0, 40, 0, TS_RUN};
 static Task_T Exit_task = {0, 0, 0, TS_PAUSED};
 
 static void do_AngleFrame_task(void)
 {
-  const float dt = FPS_task.elapsed_ms / 1000.0f;
+  
+  const float dt = AngleFrame_task.elapsed_ms / 1000.0f;
   if (dt > 0.0f) {
-    update_avgfps((float)frames / dt);
+	  
+    update_avgfps((float)(frames - lastFrames) / dt);
+    lastFrames = frames;
     update_angleFrame();
     update_rate_frame();
   }
@@ -91,6 +95,7 @@ static void do_FPS_task(void)
   const float dt = FPS_task.elapsed_ms / 1000.0f;
   const float fps = (float)frames / dt;
   printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
+  lastFrames = lastFrames - frames;
   frames = 0;
 }
 
@@ -121,7 +126,7 @@ static void do_KeyScan_task(void)
 
 void reset_tasks(void)
 {
-  frames = 0;
+  frames = lastFrames = 0;
   reset_task(&FPS_task);
   reset_task(&AngleFrame_task);
   reset_task(&KeyScan_task);
