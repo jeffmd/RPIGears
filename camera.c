@@ -72,6 +72,11 @@ void camera_ProjectionMatrix(GLfloat *md)
    m4x4_copy(md, camera->ProjectionMatrix);
 }
 
+GLfloat *camera_ProjectionMatrixPtr(void)
+{
+   return camera->ProjectionMatrix;
+}
+
 void init_ProjectionMatrix(const float aspectratio)
 {
    m4x4_perspective(camera->ProjectionMatrix, 45.0, aspectratio, 1.0, 100.0);
