@@ -16,7 +16,7 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
       GLfloat x, GLfloat y, GLfloat angle)
 {
    // The direction of the directional light for the scene */
-   static const GLfloat LightSourcePosition[4] = { 5.0, 5.0, 100.0, 1.0};
+   static const GLfloat LightSourcePosition[4] = { 8.0, -20.0, 30.0, 1.0};
 
    GLfloat model_view[16];
    GLfloat normal_matrix[16];
