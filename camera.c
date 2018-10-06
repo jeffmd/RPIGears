@@ -56,6 +56,7 @@ GLfloat camera_view_rotz(void)
 void change_viewDist(const float val)
 {
   camera->viewDist += val;  
+  camera->dirty = GL_TRUE;
 }
 
 void change_viewX(const float val)
