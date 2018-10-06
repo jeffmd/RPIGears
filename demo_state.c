@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "GLES2/gl2.h"
-
 #include "demo_state.h"
 #include "gear.h"
 
@@ -16,14 +14,13 @@ typedef struct
 // number of seconds to run the demo
    uint timeToRun;
    GLuint texId;
-
+   GLfloat LightSourcePosition[4];
+   GLboolean LightDirty;
    int gear1, gear2, gear3;
 
 // The location of the shader uniforms
    GLuint CameraProjectionMatrix_location,
-      ModelViewMatrix_location,
-      NormalMatrix_location,
-      LightSourcePosition_location,
+      UBO_location,
       MaterialColor_location,
       DiffuseMap_location;
 
@@ -123,24 +120,9 @@ GLuint state_textId(void)
   return state->texId;
 }
 
-GLuint state_CameraProjectionMatrix_location(void)
+GLuint state_UBO_location(void)
 {
-  return state->CameraProjectionMatrix_location;
-}
-
-GLuint state_ModelViewMatrix_location(void)
-{
-  return state->ModelViewMatrix_location;
-}
-
-GLuint state_NormalMatrix_location(void)
-{
-  return state->NormalMatrix_location;
-}
-
-GLuint state_LightSourcePosition_location(void)
-{
-  return state->LightSourcePosition_location;
+  return state->UBO_location;
 }
 
 GLuint state_MaterialColor_location(void)
@@ -180,6 +162,35 @@ void inc_move_rate(void)
   if (state->rate_enabled) state->rate += 10 * state->period_rate;
 }
 
+void light_move_y(const float val)
+{
+  state->LightSourcePosition[1] += val;
+  state->LightDirty = GL_TRUE;
+  printf("Light Y= %f\n", state->LightSourcePosition[1]);
+}
+
+void light_move_x(const float val)
+{
+  state->LightSourcePosition[0] += val;
+  state->LightDirty = GL_TRUE;
+  printf("Light X= %f\n", state->LightSourcePosition[0]);
+}
+
+GLboolean light_isDirty(void)
+{
+  return state->LightDirty;
+}
+
+void light_clean(void)
+{
+  state->LightDirty = GL_FALSE;
+}
+
+GLfloat *state_LightSourcePosition(void)
+{
+  return state->LightSourcePosition;
+}
+
 void build_gears(const int useVBO)
 {
   const GLfloat red[4] = {0.9, 0.3, 0.3, 1.0};
@@ -208,14 +219,8 @@ void do_key_down_update(void)
 
 void update_uniform_location(const GLuint program)
 {
-   state->CameraProjectionMatrix_location = glGetUniformLocation(program, "CameraProjectionMatrix");
-   printf("CameraProjectionMatrix_location: %i\n", state->CameraProjectionMatrix_location);
-   state->ModelViewMatrix_location = glGetUniformLocation(program, "ModelViewMatrix");
-   printf("ModelViewMatrix_location: %i\n", state->ModelViewMatrix_location);
-   state->NormalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-   printf("NormalMatrix_location: %i\n", state->NormalMatrix_location);
-   state->LightSourcePosition_location = glGetUniformLocation(program, "LightSourcePosition");
-   printf("LightSourcePosition_location: %i\n", state->LightSourcePosition_location);
+   state->UBO_location = glGetUniformLocation(program, "UBO");
+   printf("UBO_location: %i\n", state->UBO_location);
    state->MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
    printf("MaterialColor_location: %i\n", state->MaterialColor_location);
    state->DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
@@ -231,6 +236,10 @@ void init_demo_state(void)
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = 70.0f;
-
+  state->LightSourcePosition[0] = 20.0;
+  state->LightSourcePosition[1] = -4.0;
+  state->LightSourcePosition[2] = 30.0;
+  state->LightSourcePosition[3] = 1.0;
+  state->LightDirty = GL_TRUE;
   update_angleFrame();
 }

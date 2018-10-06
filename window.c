@@ -6,7 +6,6 @@
 #include <assert.h>
 
 #include "bcm_host.h"
-#include "GLES/gl.h"
 #include "GLES2/gl2.h"
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
@@ -135,7 +134,6 @@ typedef  struct {
    EGLConfig config;
    EGLDisplay display;
    EGLSurface surface;
-   EGLContext contextGLES1;
    EGLContext contextGLES2;
 // EGL info
    int major;
@@ -266,6 +264,8 @@ static void updateSrcSize(void)
 {
 	window->src_rect.width = (window->dst_rect.width) << 16;
 	window->src_rect.height = (window->dst_rect.height) << 16;
+    window->src_rect.x = ((window->nativewindow.width - window->dst_rect.width) / 2) << 16;
+    window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
 
@@ -322,7 +322,7 @@ void window_update(void)
 void window_update_VSync(const int sync)
 {
   const EGLBoolean result = eglSwapInterval(window->display, sync );
-  assert(EGL_FALSE != result);
+  assert(egl_chk(EGL_FALSE != result));
 }
 
 static void createSurface(void)
@@ -355,8 +355,8 @@ static void createSurface(void)
 #if 0
   EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
 
-  pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES_BRCM;
-  pixel_format |= EGL_PIXEL_FORMAT_GLES_TEXTURE_BRCM;
+  pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES2_BRCM;
+  pixel_format |= EGL_PIXEL_FORMAT_GLES2_TEXTURE_BRCM;
         
 	EGLint pixmap[5];
         pixmap[0] = 0;
@@ -372,7 +372,7 @@ static void createSurface(void)
   };        
         
 	eglCreateGlobalImageBRCM(window->nativewindow.width, window->nativewindow.height, pixmap[4], 0, window->nativewindow.width*4, pixmap);
-	window->surface = eglCreatePixmapSurface(window->display, window->config, pixmap, attrs);
+	window->surface = eglCreatePixmapSurface(window->display, window->config, (EGLNativePixmapType)pixmap, attrs);
 #else
 	/*EGLint attribw[5];
         attribw[0] = EGL_HEIGHT;
@@ -407,37 +407,32 @@ static void createContext(void)
   
   static EGLint context_attributes[] = 
   {
-    EGL_CONTEXT_CLIENT_VERSION, 1,
+    EGL_CONTEXT_CLIENT_VERSION, 2,
     EGL_NONE
   };
   
   
   // get an EGL display connection
   window->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  assert(window->display!=EGL_NO_DISPLAY);
+  assert(egl_chk(window->display!=EGL_NO_DISPLAY));
   
   // initialize the EGL display connection
   result = eglInitialize(window->display, &window->major, &window->minor);
-  assert(EGL_FALSE != result);
+  assert(egl_chk(EGL_FALSE != result));
   
   // get an appropriate EGL frame buffer configuration
   result = eglChooseConfig(window->display, attribute_list, &window->config, 1, &num_config);
-  assert(EGL_FALSE != result);
+  assert(egl_chk(EGL_FALSE != result));
   printf("number of configs available: %i\n", num_config);
   
   // bind the gles api to this thread - this is default so not required
   result = eglBindAPI(EGL_OPENGL_ES_API);
-  assert(EGL_FALSE != result);
+  assert(egl_chk(EGL_FALSE != result));
   
   // create an EGL rendering context
-  // select es 1.x or 2.x based on user option
-  context_attributes[1] = 1;
-  window->contextGLES1 = eglCreateContext(window->display, window->config, EGL_NO_CONTEXT, context_attributes);
-  assert(window->contextGLES1 != EGL_NO_CONTEXT);
   
-  context_attributes[1] = 2;
   window->contextGLES2 = eglCreateContext(window->display, window->config, EGL_NO_CONTEXT, context_attributes);
-  assert(window->contextGLES2 != EGL_NO_CONTEXT);
+  assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
 }
 
 static void window_print_GL_Limits(void)
@@ -482,7 +477,7 @@ static void window_print_GL_Limits(void)
  * Returns: void
  *
  ***********************************************************/
-void window_init(const int useGLES2)
+void window_init(void)
 {
   EGLBoolean result;
   
@@ -492,8 +487,8 @@ void window_init(const int useGLES2)
   createSurface();
   
   // connect the context to the surface
-  result = eglMakeCurrent(window->display, window->surface, window->surface, useGLES2 ? window->contextGLES2 : window->contextGLES1);
-  assert(EGL_FALSE != result);
+  result = eglMakeCurrent(window->display, window->surface, window->surface, window->contextGLES2);
+  assert(egl_chk(EGL_FALSE != result));
   
   // Set background color and clear buffers
   glClearColor(0.25f, 0.45f, 0.55f, 1.0f);
@@ -513,14 +508,14 @@ void window_init(const int useGLES2)
 
 void window_swap_buffers(void)
 {
-  eglSwapBuffers(window->display, window->surface);
+  assert(egl_chk(eglSwapBuffers(window->display, window->surface)));
+  //assert(egl_chk(eglCopyBuffers(window->display, window->surface, &window->nativewindow)));
 }
 
 void window_release(void)
 {
   eglMakeCurrent( window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
   eglDestroySurface( window->display, window->surface );
-  eglDestroyContext( window->display, window->contextGLES1 );
   eglDestroyContext( window->display, window->contextGLES2 );
   eglTerminate( window->display );
   
@@ -534,7 +529,9 @@ void window_release(void)
 
 void window_snapshot(const int width, const int height, void * buffer)
 {
-  glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+  const int x = (window->nativewindow.width - width) / 2;
+  const int y = (window->nativewindow.height - height) / 2;
+  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   
 }
 
@@ -542,4 +539,3 @@ int window_inFocus(void)
 {
   return window->inFocus;
 }
-

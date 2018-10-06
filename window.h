@@ -20,7 +20,7 @@
   extern void window_zoom(const float val);
   extern void window_size(const int width, const int height);
   extern void window_update(void);
-  extern void window_init(const int useGLES2);
+  extern void window_init(void);
   extern void window_init_pos(void);
   extern void window_init_size(void);
   extern void window_swap_buffers(void);

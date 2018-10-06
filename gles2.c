@@ -2,6 +2,13 @@
 * gles2.c
 */
 
+static struct {
+   GLfloat model_view[16];
+   GLfloat LightSourcePosition[4];
+   GLfloat normal_matrix[16];
+   GLfloat projection_matrix[16];
+} Data = { .LightSourcePosition = { 0.0, 0.0, 30.0, 1.0}};
+
 /**
  * Draws a gear in GLES 2 mode.
  *
@@ -12,39 +19,16 @@
  * @param angle the rotation angle of the gear
  * @param color the color of the gear
  */
-static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
-      GLfloat x, GLfloat y, GLfloat angle)
+static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 {
-   // The direction of the directional light for the scene */
-   static const GLfloat LightSourcePosition[4] = { 8.0, -20.0, 30.0, 1.0};
-
-   GLfloat model_view[16];
-   GLfloat normal_matrix[16];
-
-
-   glUniformMatrix4fv(state_CameraProjectionMatrix_location(), 1, GL_FALSE,
-                      camera_ProjectionMatrixPtr());
-
    /* Translate and rotate the gear */
-   m4x4_copy(model_view, view_transform);
-   m4x4_translate(model_view, x, y, 0);
-   m4x4_rotate(model_view, angle, 0, 0, 1);
-   glUniformMatrix4fv(state_ModelViewMatrix_location(), 1, GL_FALSE,
-                      model_view);
-
-   /* Set the LightSourcePosition uniform in relation to the object */
-   glUniform4fv(state_LightSourcePosition_location(), 1, LightSourcePosition);
+   m4x4_copy(Data.model_view, camera_view_matrix());
+   m4x4_translate(Data.model_view, x, y, 0);
+   m4x4_rotate(Data.model_view, angle, 0, 0, 1);
 
    glUniform1i(state_DiffuseMap_location(), 0);
-
-   /*
-    * Create and set the NormalMatrix. It's the inverse transpose of the
-    * ModelView matrix.
-    */
-   m4x4_copy(normal_matrix, model_view);
-   m4x4_invert(normal_matrix);
-   m4x4_transpose(normal_matrix);
-   glUniformMatrix4fv(state_NormalMatrix_location(), 1, GL_FALSE, normal_matrix);
+   
+   glUniform4fv(state_UBO_location(), 13, (GLfloat *)&Data);
 
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state_texId());
@@ -58,14 +42,15 @@ static void draw_gearGLES2(const int gearid, GLfloat *view_transform,
  */
 static void draw_sceneGLES2(void)
 {
-  GLfloat view_transform[16];
-
-  camera_view_matrix(view_transform);
-
+  if (light_isDirty() || camera_isDirty()) {
+     m4xv3(Data.LightSourcePosition, camera_view_matrix(), state_LightSourcePosition());
+     printf("Recalc Light Position\n");
+     light_clean();
+  }
   /* Draw the gears */
-  draw_gearGLES2(state_gear1(), view_transform, -3.0, -2.0, state_angle());
-  draw_gearGLES2(state_gear2(), view_transform, 3.1, -2.0, -2 * state_angle() - 9.0);
-  draw_gearGLES2(state_gear3(), view_transform, -3.1, 4.2, -2 * state_angle() - 25.0);
+  draw_gearGLES2(state_gear1(), -3.0, -2.0, state_angle());
+  draw_gearGLES2(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);
+  draw_gearGLES2(state_gear3(), -3.1, 4.2, -2 * state_angle() - 25.0);
 }
 
 static GLuint make_shader(const char *src, const GLenum shader_type)
@@ -77,7 +62,7 @@ static GLuint make_shader(const char *src, const GLenum shader_type)
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);
   glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
-  printf("shader info: %s\n", msg);
+  printf("shader Compile info: %s\n", msg);
 
   return shader;
 }
@@ -101,9 +86,11 @@ static void init_scene_GLES2(void)
    glBindAttribLocation(program, 1, "normal");
    glBindAttribLocation(program, 2, "uv");
 
+   m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
+
    glLinkProgram(program);
    glGetProgramInfoLog(program, sizeof msg, NULL, msg);
-   printf("info: %s\n", msg);
+   printf("Link info: %s\n", msg);
 
    /* Enable the shaders */
    glUseProgram(program);

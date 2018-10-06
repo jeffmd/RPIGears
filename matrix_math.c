@@ -166,6 +166,13 @@ void m4x4_invert(GLfloat *m)
    m4x4_multiply(m, t);
 }
 
+void m4xv3(float r[3], const float mat[16], const float vec[3])
+{
+	r[0] = vec[0] * mat[0] + vec[1] * mat[4] + mat[8] * vec[2] + mat[12];
+	r[1] = vec[0] * mat[1] + vec[1] * mat[5] + mat[9] * vec[2] + mat[13];
+	r[2] = vec[0] * mat[2] + vec[1] * mat[6] + mat[10] * vec[2] + mat[14];
+}
+
 /** 
  * Calculate a perspective projection transformation.
  * 
@@ -177,8 +184,8 @@ void m4x4_invert(GLfloat *m)
  */
 void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, const GLfloat zNear, const GLfloat zFar)
 {
-   GLfloat tmp[16];
-   m4x4_identity(tmp);
+   //GLfloat tmp[16];
+   m4x4_identity(m);
 
    float sine, cosine, cotangent, deltaZ;
    GLfloat radians = fovy / 2.0 * M_PI / 180.0;
@@ -192,12 +199,12 @@ void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, cons
 
    cotangent = cosine / sine;
 
-   tmp[0] = cotangent / aspect;
-   tmp[5] = cotangent;
-   tmp[10] = -(zFar + zNear) / deltaZ;
-   tmp[11] = -1;
-   tmp[14] = -2 * zNear * zFar / deltaZ;
-   tmp[15] = 0;
+   m[0] = cotangent / aspect;
+   m[5] = cotangent;
+   m[10] = -(zFar + zNear) / deltaZ;
+   m[11] = -1.0;
+   m[14] = -2.0 * zNear * zFar / deltaZ;
+   m[15] = 0;
 
-   m4x4_copy(m, tmp);
+   //m4x4_copy(m, tmp);
 }

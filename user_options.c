@@ -11,7 +11,6 @@
 typedef struct {
 
   int useVBO;
-  int useGLES2;
   int useVSync;
   int wantInfo;
   GLenum drawMode;
@@ -27,11 +26,6 @@ static OPTIONS_T * const options = &_options;
 int options_useVBO(void)
 {
   return options->useVBO;  
-}
-
-int options_useGLES2(void)
-{
-  return options->useGLES2;  
 }
 
 int options_useVSync(void)
@@ -112,10 +106,6 @@ int setup_user_options(int argc, char *argv[])
     else if ( strcmp(argv[i], "-vbo")==0) {
 	  // use VBO instead of Vertex Array
 	  options->useVBO = 1;
-	}
-    else if ( strcmp(argv[i], "-gles2")==0) {
-	  // use opengl es 2.0
-	  options->useGLES2 = 1;
 	}
     else if ( strcmp(argv[i], "-line")==0) {
 	  // use line mode draw ie wire mesh

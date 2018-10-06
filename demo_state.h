@@ -5,7 +5,7 @@
 #ifndef _demo_state_h_
   #define _demo_state_h_
 
-#include "GLES/gl.h"
+#include "GLES2/gl2.h"
  
 // a procedure that takes a value representing the rate change to apply to an update
 typedef void (*UPDATE_KEY_DOWN)(const float);
@@ -16,10 +16,7 @@ extern int state_gear1(void);
 extern int state_gear2(void);
 extern int state_gear3(void);
 extern GLfloat state_angle(void);
-extern GLuint state_CameraProjectionMatrix_location(void);
-extern GLuint state_ModelViewMatrix_location(void);
-extern GLuint state_NormalMatrix_location(void);
-extern GLuint state_LightSourcePosition_location(void);
+extern GLuint state_UBO_location(void);
 extern GLuint state_MaterialColor_location(void);
 extern GLuint state_DiffuseMap_location(void);
   
@@ -38,6 +35,11 @@ extern void move_rate_on(void);
 extern void move_rate_off(void);
 extern void inc_move_rate(void);
 extern void init_demo_state(void);
+extern void light_move_y(const float val);
+extern void light_move_x(const float val);
+extern GLfloat *state_LightSourcePosition(void);
+extern GLboolean light_isDirty(void);
+extern void light_clean(void);
 extern void update_texId(const GLuint texId);
 extern GLuint state_texId(void);
 extern void build_gears(const int useVBO);

@@ -121,7 +121,6 @@ static void frameClear(void)
 
 #include "shaders.c"
 #include "print_info.c"
-#include "gles1.c"
 #include "gles2.c"
 #include "scene.c"
 
@@ -162,10 +161,6 @@ static void run_gears(void)
 static void exit_func(void)
 // Function to be passed to atexit().
 {
-  if (!options_useGLES2()) {
-   glDisableClientState(GL_NORMAL_ARRAY);
-   glDisableClientState(GL_VERTEX_ARRAY);
-  }
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -204,7 +199,7 @@ int main (int argc, char *argv[])
   init_demo_state();
   init_options(argc, argv);
   // Start OGLES
-  window_init(options_useGLES2());
+  window_init();
   xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());

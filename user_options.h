@@ -3,7 +3,6 @@
 */
 
 extern int options_useVBO(void);
-extern int options_useGLES2(void);
 extern int options_useVSync(void);
 extern int options_wantInfo(void);
 extern GLenum options_drawMode(void);

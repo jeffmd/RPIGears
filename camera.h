@@ -19,7 +19,8 @@ extern void change_viewY(const float val);
 extern void camera_ProjectionMatrix(GLfloat *md);
 extern GLfloat *camera_ProjectionMatrixPtr(void);
 extern void init_ProjectionMatrix(const float aspectratio);
-extern void camera_view_matrix(GLfloat *view_transform);
+extern GLfloat *camera_view_matrix(void);
+extern GLboolean camera_isDirty(void);
 extern void init_camera(void);
   
   

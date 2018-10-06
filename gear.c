@@ -11,10 +11,12 @@
 
 #include "gles3.h"
 
+#include "fp16.h"
+
 typedef struct {
   GLfloat pos[3];
-  GLfloat norm[3];
-  GLfloat texCoords[2];
+  GLshort norm[3];
+  GLshort texCoords[2];
 } vertex_t;
 
 typedef struct {
@@ -59,7 +61,7 @@ void make_gear_vbo(const int gearid)
   gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
   gear->index_p = 0;
   
-  // setup the vertex buffer that will hold the vertices and normals 
+  // setup the vertex buffer that will hold the vertices , uv, and normals 
   glGenBuffers(1, &gear->vboId);
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
@@ -120,9 +122,9 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   ix = gear->indices;
 
 #define VERTEX(x,y,z) ((vt->pos[0] = x),(vt->pos[1] = y),(vt->pos[2] = z), \
-    (tx->texCoords[0] = x / r2 * 0.8 + 0.5),(tx->texCoords[1] = y / r2 * 0.8 + 0.5), (tx++), \
+    (tx->texCoords[0] = f16(x / r2 * 0.8 + 0.5)),(tx->texCoords[1] = f16(y / r2 * 0.8 + 0.5)), (tx++), \
     (vt++ - gear->vertices))
-#define NORMAL(x,y,z) ((nm->norm[0] = x),(nm->norm[1] = y),(nm->norm[2] = z), \
+#define NORMAL(x,y,z) ((nm->norm[0] = f16(x)),(nm->norm[1] = f16(y)),(nm->norm[2] = f16(z)), \
                        (nm++))
 #define INDEX(a,b,c) ((*ix++ = a),(*ix++ = b),(*ix++ = c))
 
@@ -266,6 +268,8 @@ void gear_use_vbo(const int gearid)
   gear_t* gear = gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
+  //void *ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+  //glUnmapBufferOES(GL_ARRAY_BUFFER);
 }
 
 void gear_vbo_off(void)
@@ -290,24 +294,6 @@ void free_gear(const int gearid)
      free(gear);
      gears[gearid - 1] = 0;
    }
-}
-
-void gear_drawGLES1(const int gearid, const int useVBO,const GLenum drawMode)
-{
-  gear_t* gear = gears[gearid - 1];
-
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gear->color);
-  
-  if (useVBO) gear_use_vbo(gearid);
-  
-  glNormalPointer(GL_FLOAT, sizeof(vertex_t), gear->normal_p);
-  glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), gear->vertex_p);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), gear->texCoords_p);
-    
-  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT,
-                   gear->index_p);
-                   
-  if (useVBO) gear_vbo_off();
 }
 
 void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location)
@@ -339,11 +325,11 @@ void gear_setVAO_GLES2(const int gearid, const int useVBO)
        sizeof(vertex_t), gear->vertex_p);
   // setup where normal data is
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+  glVertexAttribPointer(1, 3, GL_HALF_FLOAT_OES, GL_FALSE,
        sizeof(vertex_t), gear->normal_p);
   // setup where uv data is
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+  glVertexAttribPointer(2, 2, GL_HALF_FLOAT_OES, GL_FALSE,
        sizeof(vertex_t), gear->texCoords_p);
 	
 }

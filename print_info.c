@@ -48,7 +48,6 @@ void print_CLoptions_help(void)
     "-exit: automatically exit RPIGears after 30 seconds\n"
     "-info: display opengl driver info\n"
     "-vbo: use vertex buffer object in GPU memory\n"
-    "-gles2: use opengl es 2.0\n"
     "-line: draw lines only, wire frame mode\n"
     "-nospin: gears don't turn\n"
     );  

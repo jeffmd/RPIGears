@@ -4,12 +4,7 @@
 
 static void draw_scene(void)
 {
-  if (options_useGLES2()) {
-    draw_sceneGLES2();
-  }
-  else {
-    draw_sceneGLES1();
-  }
+  draw_sceneGLES2();
 }
 
 static void init_scene(void)
@@ -17,13 +12,7 @@ static void init_scene(void)
   glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
   
   // setup the scene based on rendering mode
-  if (options_useGLES2()) {
-   init_scene_GLES2();
-   init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
-  }
-  else { // using gles1
-   init_scene_GLES1();
-   init_model_projGLES1();
-  }
+  init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
+  init_scene_GLES2();
 }
 

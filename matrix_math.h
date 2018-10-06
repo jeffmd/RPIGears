@@ -16,4 +16,5 @@
   extern void m4x4_transpose(GLfloat *m);
   extern void m4x4_invert(GLfloat *m);
   extern void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, const GLfloat zNear, const GLfloat zFar);
+  extern void m4xv3(float r[3], const float mat[16], const float vec[3]);
 #endif

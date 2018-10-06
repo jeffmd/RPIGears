@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 #include <termio.h>
-#include "GLES/gl.h"
-#include "EGL/egl.h"
+//#include "GLES2/gl2.h"
+//#include "EGL/egl.h"
 
 #include "window.h"
 #include "demo_state.h"
@@ -64,20 +64,20 @@ static void check_movekey(const int inpkey)
   
   switch (inpkey)
   {
-    case 'A': // move window up
-      set_key_down_update(window_move_y, -10.0f);
+    case 'A': // move light up
+      set_key_down_update(light_move_y, 10.0f);
       break;
       
-    case 'B': // move window down
-      set_key_down_update(window_move_y, 10.0f);
+    case 'B': // move light down
+      set_key_down_update(light_move_y, -10.0f);
       break;
       
-    case 'C': // move window left
-      set_key_down_update(window_move_x, 10.0f);
+    case 'C': // move light left
+      set_key_down_update(light_move_x, 10.0f);
       break;
       
-    case 'D': // move window right
-      set_key_down_update(window_move_x, -10.0f);
+    case 'D': // move light right
+      set_key_down_update(light_move_x, -10.0f);
       break;
 
   }
