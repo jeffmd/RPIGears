@@ -2,10 +2,11 @@
 * camera.c
 */
 
-#include "matrix_math.h"
-#include "string.h"
-
+#include <stdio.h>
 #include "GLES2/gl2.h"
+
+#include "matrix_math.h"
+
 
 typedef struct {
   GLfloat viewDist;
@@ -94,6 +95,7 @@ GLboolean camera_isDirty(void)
 GLfloat *camera_view_matrix(void)
 {
    if (camera->dirty == GL_TRUE) {
+	   printf("camera Recalc\n");
 	   m4x4_identity(camera->ViewMatrix);
 	   /* Translate and rotate the view */
 	   m4x4_translate(camera->ViewMatrix, camera->viewX, camera->viewY, camera->viewDist);

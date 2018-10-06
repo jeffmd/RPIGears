@@ -5,7 +5,6 @@
 static struct {
    GLfloat model_view[16];
    GLfloat LightSourcePosition[4];
-   GLfloat normal_matrix[16];
    GLfloat projection_matrix[16];
 } Data = { .LightSourcePosition = { 0.0, 0.0, 30.0, 1.0}};
 
@@ -28,7 +27,7 @@ static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle
 
    glUniform1i(state_DiffuseMap_location(), 0);
    
-   glUniform4fv(state_UBO_location(), 13, (GLfloat *)&Data);
+   glUniform4fv(state_UBO_location(), 9, (GLfloat *)&Data);
 
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state_texId());
