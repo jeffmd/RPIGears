@@ -6,7 +6,7 @@ static struct {
    GLfloat model_view[16];
    GLfloat LightSourcePosition[4];
    GLfloat projection_matrix[16];
-} Data = { .LightSourcePosition = { 0.0, 0.0, 30.0, 1.0}};
+} Data;
 
 /**
  * Draws a gear in GLES 2 mode.

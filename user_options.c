@@ -89,7 +89,7 @@ int setup_user_options(int argc, char *argv[])
   options->useVBO = 0;
   options->drawMode = GL_TRIANGLES;
   options->timeToRun = 0;
-  options->angleVel = 70.0f;
+  options->angleVel = -50.0f;
 
   for ( i=1; i<argc; i++ ) {
     if (strcmp(argv[i], "-info")==0) {

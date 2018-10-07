@@ -193,9 +193,9 @@ GLfloat *state_LightSourcePosition(void)
 
 void build_gears(const int useVBO)
 {
-  const GLfloat red[4] = {0.9, 0.3, 0.3, 1.0};
-  const GLfloat green[4] = {0.3, 0.9, 0.3, 1.0};
-  const GLfloat blue[4] = {0.3, 0.3, 0.9, 1.0};
+  const GLfloat red[4] = {0.8, 0.2, 0.2, 1.0};
+  const GLfloat green[4] = {0.2, 0.8, 0.2, 1.0};
+  const GLfloat blue[4] = {0.2, 0.2, 0.8, 1.0};
 
   /* make the meshes for the gears */
   state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red, useVBO);
@@ -235,10 +235,10 @@ void init_demo_state(void)
   state->rate = 1.0f;
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
-  state->angleVel = 70.0f;
-  state->LightSourcePosition[0] = 20.0;
-  state->LightSourcePosition[1] = -4.0;
-  state->LightSourcePosition[2] = 30.0;
+  state->angleVel = -30.0f;
+  state->LightSourcePosition[0] = -8.0;
+  state->LightSourcePosition[1] = 5.0;
+  state->LightSourcePosition[2] = 15.0;
   state->LightSourcePosition[3] = 1.0;
   state->LightDirty = GL_TRUE;
   update_angleFrame();

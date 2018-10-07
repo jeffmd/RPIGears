@@ -84,7 +84,7 @@ GLfloat *camera_ProjectionMatrixPtr(void)
 
 void init_ProjectionMatrix(const float aspectratio)
 {
-   m4x4_perspective(camera->ProjectionMatrix, 45.0, aspectratio, 1.0, 100.0);
+   m4x4_perspective(camera->ProjectionMatrix, 35.0, aspectratio, 1.0, 100.0);
 }
 
 GLboolean camera_isDirty(void)
@@ -112,7 +112,7 @@ void init_camera(void)
 {
   //memset( camera, 0, sizeof( *camera ) );
 
-  camera->viewDist = -35.0f;
+  camera->viewDist = -45.0f;
   camera->viewX = 2.0f;
   camera->viewY = 0.0f;
   camera->view_rotx = 15.0f;

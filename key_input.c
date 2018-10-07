@@ -196,7 +196,11 @@ static int check_key(const int inpkey)
       
     case 'S':
       window_show();
-      break;    
+      break;
+      
+    case 'p':
+      update_angleVel(0.0);
+      break;
           
     default: print_keyhelp();
   }

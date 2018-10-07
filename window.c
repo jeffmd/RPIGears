@@ -491,7 +491,7 @@ void window_init(void)
   assert(egl_chk(EGL_FALSE != result));
   
   // Set background color and clear buffers
-  glClearColor(0.25f, 0.45f, 0.55f, 1.0f);
+  glClearColor(0.15f, 0.5f, 0.7f, 1.0f);
   
   // Enable back face culling.
   glEnable(GL_CULL_FACE);
