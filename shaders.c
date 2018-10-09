@@ -3,24 +3,26 @@
  */
 
 #include <stdio.h>
+#include "gles3.h"
 
 #define BUFFSIZE 5000
 
-// vertex shader for gles2
-char vertex_shader[BUFFSIZE];
-// fragment shader for gles2
-char fragment_shader[BUFFSIZE];
+// temp shader source buffer for gles2
+static char shaderBuf[BUFFSIZE];
+static char msg[512];
+
+static GLuint v_shader, f_shader, program;
 
 // load shader from a file
-static int loadShader(const char *name, char *buffer)
+static int loadShaderBufFile(const char *name)
 {
   FILE *fp;
   int result = 0;
   
   fp = fopen(name, "r");
   if (fp) {
-    result = fread(buffer, sizeof(char), BUFFSIZE, fp);
-    buffer[result - 1] = 0;
+    result = fread(shaderBuf, sizeof(char), BUFFSIZE, fp);
+    shaderBuf[result - 1] = 0;
     fclose(fp);
     printf("shader %s loaded\n", name);
   }
@@ -31,9 +33,71 @@ static int loadShader(const char *name, char *buffer)
   return result;
 }
 
-void initShaderSource(void)
+
+static void makeShader(const GLuint shader, const char *src)
 {
-  printf("loading shader sources:\n");
-  loadShader("blinn_phong_vert.glsl", vertex_shader);
-  loadShader("blinn_phong_frag.glsl", fragment_shader);
+  GLint shader_type;
+  
+  //printf("shader source:\n%s\n", src);
+  glShaderSource(shader, 1, &src, NULL);
+  glCompileShader(shader);
+  glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
+
+  glGetShaderiv(shader, GL_SHADER_TYPE, &shader_type);
+  (shader_type == GL_VERTEX_SHADER) ? printf("vertex") : printf("fragment");
+  printf(" shader Compile info: %s\n", msg);
+
+}
+
+static void initShaderObjects(void)
+{
+   /* Create and attach shaders to program */
+  v_shader = glCreateShader(GL_VERTEX_SHADER);
+  f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  program = glCreateProgram();
+  glAttachShader(program, v_shader);
+  glAttachShader(program, f_shader);
+}
+
+static void bindAttribLocations(void)
+{
+  glBindAttribLocation(program, 0, "position");
+  glBindAttribLocation(program, 1, "normal");
+  glBindAttribLocation(program, 2, "uv");
+}
+
+static void loadShaders(void)
+{
+  /* Compile the vertex shader */
+  loadShaderBufFile("blinn_phong_vert.glsl");
+  makeShader(v_shader, shaderBuf);
+   
+  /* Compile the fragment shader */
+  loadShaderBufFile("blinn_phong_frag.glsl");
+  makeShader(f_shader, shaderBuf);
+}
+
+GLuint getShaderProgram(void)
+{
+  return program;
+}
+
+void initShaderSystem(void)
+{
+  initShaderObjects();
+  bindAttribLocations();
+  loadShaders();
+
+}
+
+void enableShaderProgram()
+{
+
+   glLinkProgram(program);
+   glGetProgramInfoLog(program, sizeof msg, NULL, msg);
+   printf("Link info: %s\n", msg);
+
+   /* Enable the shaders */
+   glUseProgram(program);
+
 }

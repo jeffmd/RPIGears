@@ -208,7 +208,6 @@ int main (int argc, char *argv[])
    print_GLInfo();
   }
   init_textures();
-  initShaderSource();
   build_gears(options_useVBO());
 
   init_camera();

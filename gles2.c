@@ -52,52 +52,16 @@ static void draw_sceneGLES2(void)
   draw_gearGLES2(state_gear3(), -3.1, 4.2, -2 * state_angle() - 25.0);
 }
 
-static GLuint make_shader(const char *src, const GLenum shader_type)
-{
-  GLuint shader;
-  char msg[512];
-
-  shader = glCreateShader(shader_type);
-  printf("shader source:\n%s\n", src);
-  glShaderSource(shader, 1, &src, NULL);
-  glCompileShader(shader);
-  glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
-  (shader_type == GL_VERTEX_SHADER) ? printf("vertex") : printf("fragment");
-  printf(" shader Compile info: %s\n", msg);
-
-  return shader;
-}
 
 static void init_scene_GLES2(void)
 {
-   GLuint v, f, program;
-   char msg[512];
-
-   /* Compile the vertex shader */
-   v = make_shader(vertex_shader, GL_VERTEX_SHADER);
-   
-   /* Compile the fragment shader */
-   f = make_shader(fragment_shader, GL_FRAGMENT_SHADER);
-
-   /* Create and link the shader program */
-   program = glCreateProgram();
-   glAttachShader(program, v);
-   glAttachShader(program, f);
-   glBindAttribLocation(program, 0, "position");
-   glBindAttribLocation(program, 1, "normal");
-   glBindAttribLocation(program, 2, "uv");
-
+   initShaderSystem();
+   enableShaderProgram();
    m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
 
-   glLinkProgram(program);
-   glGetProgramInfoLog(program, sizeof msg, NULL, msg);
-   printf("Link info: %s\n", msg);
-
-   /* Enable the shaders */
-   glUseProgram(program);
 
    /* Get the locations of the uniforms so we can access them */
-   update_uniform_location(program);
+   update_uniform_location(getShaderProgram());
    gear_setVAO_GLES2(state_gear1(), options_useVBO());
    gear_setVAO_GLES2(state_gear2(), options_useVBO());
    gear_setVAO_GLES2(state_gear3(), options_useVBO());
