@@ -18,12 +18,6 @@ typedef struct
    GLboolean LightDirty;
    int gear1, gear2, gear3;
 
-// The location of the shader uniforms
-   GLuint CameraProjectionMatrix_location,
-      UBO_location,
-      MaterialColor_location,
-      DiffuseMap_location;
-
 // current angle of the gear
    GLfloat angle;
 // the degrees that the angle should change each frame
@@ -120,21 +114,6 @@ GLuint state_textId(void)
   return state->texId;
 }
 
-GLuint state_UBO_location(void)
-{
-  return state->UBO_location;
-}
-
-GLuint state_MaterialColor_location(void)
-{
-  return state->MaterialColor_location;
-}
-
-GLuint state_DiffuseMap_location(void)
-{
-  return state->DiffuseMap_location;
-}
-
 void update_gear_rotation(void)
 {
     /* advance gear rotation for next frame */
@@ -216,17 +195,6 @@ void do_key_down_update(void)
     state->key_down_update(state->rate_direction * state->rate_frame);
   }
 }
-
-void update_uniform_location(const GLuint program)
-{
-   state->UBO_location = glGetUniformLocation(program, "UBO");
-   printf("UBO_location: %i\n", state->UBO_location);
-   state->MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-   printf("MaterialColor_location: %i\n", state->MaterialColor_location);
-   state->DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
-   printf("DiffuseMap_location: %i\n", state->DiffuseMap_location);
-}
-
 
 void init_demo_state(void)
 {

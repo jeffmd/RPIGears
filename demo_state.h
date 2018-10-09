@@ -16,9 +16,6 @@ extern int state_gear1(void);
 extern int state_gear2(void);
 extern int state_gear3(void);
 extern GLfloat state_angle(void);
-extern GLuint state_UBO_location(void);
-extern GLuint state_MaterialColor_location(void);
-extern GLuint state_DiffuseMap_location(void);
   
 extern void update_timeToRun(const uint val);
 extern void update_angleVel(const GLfloat val);
@@ -44,7 +41,6 @@ extern void update_texId(const GLuint texId);
 extern GLuint state_texId(void);
 extern void build_gears(const int useVBO);
 extern void set_key_down_update(UPDATE_KEY_DOWN fn, float val);
-extern void update_uniform_location(const GLuint program);
 extern void do_key_down_update(void);
 
 #endif

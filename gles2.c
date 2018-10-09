@@ -25,14 +25,14 @@ static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle
    m4x4_translate(Data.model_view, x, y, 0);
    m4x4_rotate(Data.model_view, angle, 0, 0, 1);
 
-   glUniform1i(state_DiffuseMap_location(), 0);
+   glUniform1i(shader_DiffuseMap_location(), 0);
    
-   glUniform4fv(state_UBO_location(), 9, (GLfloat *)&Data);
+   glUniform4fv(shader_UBO_location(), 9, (GLfloat *)&Data);
 
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state_texId());
 
-   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), state_MaterialColor_location());
+   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), shader_MaterialColor_location());
 
 }
 
@@ -55,13 +55,13 @@ static void draw_sceneGLES2(void)
 
 static void init_scene_GLES2(void)
 {
-   initShaderSystem();
-   enableShaderProgram();
+   init_shader_system();
+   enable_shader_program();
    m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
 
 
    /* Get the locations of the uniforms so we can access them */
-   update_uniform_location(getShaderProgram());
+   update_uniform_locations();
    gear_setVAO_GLES2(state_gear1(), options_useVBO());
    gear_setVAO_GLES2(state_gear2(), options_useVBO());
    gear_setVAO_GLES2(state_gear3(), options_useVBO());

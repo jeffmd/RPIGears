@@ -13,8 +13,13 @@ static char msg[512];
 
 static GLuint v_shader, f_shader, program;
 
+// The location of the shader uniforms
+static GLuint UBO_location;
+static GLuint MaterialColor_location;
+static GLuint DiffuseMap_location;
+
 // load shader from a file
-static int loadShaderBufFile(const char *name)
+static int load_shaderBuf_file(const char *name)
 {
   FILE *fp;
   int result = 0;
@@ -34,7 +39,7 @@ static int loadShaderBufFile(const char *name)
 }
 
 
-static void makeShader(const GLuint shader, const char *src)
+static void make_shader(const GLuint shader, const char *src)
 {
   GLint shader_type;
   
@@ -49,7 +54,7 @@ static void makeShader(const GLuint shader, const char *src)
 
 }
 
-static void initShaderObjects(void)
+static void init_shader_objects(void)
 {
    /* Create and attach shaders to program */
   v_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -59,38 +64,33 @@ static void initShaderObjects(void)
   glAttachShader(program, f_shader);
 }
 
-static void bindAttribLocations(void)
+static void bind_attrib_locations(void)
 {
   glBindAttribLocation(program, 0, "position");
   glBindAttribLocation(program, 1, "normal");
   glBindAttribLocation(program, 2, "uv");
 }
 
-static void loadShaders(void)
+static void load_shaders(void)
 {
   /* Compile the vertex shader */
-  loadShaderBufFile("blinn_phong_vert.glsl");
-  makeShader(v_shader, shaderBuf);
+  load_shaderBuf_file("blinn_phong_vert.glsl");
+  make_shader(v_shader, shaderBuf);
    
   /* Compile the fragment shader */
-  loadShaderBufFile("blinn_phong_frag.glsl");
-  makeShader(f_shader, shaderBuf);
+  load_shaderBuf_file("blinn_phong_frag.glsl");
+  make_shader(f_shader, shaderBuf);
 }
 
-GLuint getShaderProgram(void)
+void init_shader_system(void)
 {
-  return program;
-}
-
-void initShaderSystem(void)
-{
-  initShaderObjects();
-  bindAttribLocations();
-  loadShaders();
+  init_shader_objects();
+  bind_attrib_locations();
+  load_shaders();
 
 }
 
-void enableShaderProgram()
+void enable_shader_program()
 {
 
    glLinkProgram(program);
@@ -100,4 +100,29 @@ void enableShaderProgram()
    /* Enable the shaders */
    glUseProgram(program);
 
+}
+
+void update_uniform_locations(void)
+{
+   UBO_location = glGetUniformLocation(program, "UBO");
+   printf("UBO_location: %i\n", UBO_location);
+   MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
+   printf("MaterialColor_location: %i\n", MaterialColor_location);
+   DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
+   printf("DiffuseMap_location: %i\n", DiffuseMap_location);
+}
+
+GLuint shader_UBO_location(void)
+{
+  return UBO_location;
+}
+
+GLuint shader_MaterialColor_location(void)
+{
+  return MaterialColor_location;
+}
+
+GLuint shader_DiffuseMap_location(void)
+{
+  return DiffuseMap_location;
 }
