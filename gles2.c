@@ -56,12 +56,10 @@ static void draw_sceneGLES2(void)
 static void init_scene_GLES2(void)
 {
    init_shader_system();
-   enable_shader_program();
+   reload_shaders();
    m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
 
 
-   /* Get the locations of the uniforms so we can access them */
-   update_uniform_locations();
    gear_setVAO_GLES2(state_gear1(), options_useVBO());
    gear_setVAO_GLES2(state_gear2(), options_useVBO());
    gear_setVAO_GLES2(state_gear3(), options_useVBO());

@@ -5,14 +5,13 @@
 
 #include <stdio.h>
 #include <termio.h>
-//#include "GLES2/gl2.h"
-//#include "EGL/egl.h"
 
 #include "window.h"
 #include "demo_state.h"
 #include "print_info.h"
 #include "user_options.h"
 #include "camera.h"
+#include "shaders.h"
 
 extern void toggle_useVSync(void);
 
@@ -196,6 +195,10 @@ static int check_key(const int inpkey)
       
     case 'S':
       window_show();
+      break;
+      
+    case 'R':
+      reload_shaders();
       break;
       
     case 'p':

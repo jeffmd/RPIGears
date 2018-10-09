@@ -86,8 +86,6 @@ void init_shader_system(void)
 {
   init_shader_objects();
   bind_attrib_locations();
-  load_shaders();
-
 }
 
 void enable_shader_program()
@@ -125,4 +123,12 @@ GLuint shader_MaterialColor_location(void)
 GLuint shader_DiffuseMap_location(void)
 {
   return DiffuseMap_location;
+}
+
+void reload_shaders(void)
+{
+  printf("Reloading shaders...\n");
+  load_shaders();
+  enable_shader_program();
+  update_uniform_locations();
 }
