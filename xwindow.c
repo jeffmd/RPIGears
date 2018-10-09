@@ -22,10 +22,12 @@ static Atom wmprotocols[3];
 
 static GC gc;
 static XImage *img;
+
 static int resized = 1;
 static int useMITSHM = 0;
-static XShmSegmentInfo shmSInfo;
 static int minimized = 0;
+
+static XShmSegmentInfo shmSInfo;
 
 static XWindowAttributes window_attributes;
 
