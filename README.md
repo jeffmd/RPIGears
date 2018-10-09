@@ -15,6 +15,8 @@ The following files should be in the build directory:
 * image.h
 * camera.c
 * camera.h
+* fp16.c
+* fp16.h
 * matrix_math.c
 * matrix_math.h
 * key_input.c
@@ -26,6 +28,8 @@ The following files should be in the build directory:
 * print_info.h
 * gles1.c
 * gles2.c
+* gles3.c
+* gles3.h
 * gear.c
 * gear.h
 * scene.c
@@ -53,7 +57,7 @@ No special libraries/packages are required to build if using Raspbian.
 Running
 -------
 
-To run the demo type `./RPIGears.bin.`  The demo runs full screen.  To
+To run the demo type `./RPIGears.bin.`  The demo runs in a X11 window.  To
 exit the demo press esc or enter key on the keyboard.
 
 
@@ -61,7 +65,7 @@ Command line Options
 --------------------
 usage: ./RPIGears.bin [options]
 
-options: -vsync | -exit | -info | -vbo | -gles2
+options: -vsync | -exit | -info | -vbo
 
 
 -vsync : wait for vertical sync before new frame is displayed
@@ -71,8 +75,6 @@ options: -vsync | -exit | -info | -vbo | -gles2
 -info  : display opengl driver info
 
 -vbo   : use vertex buffer object in GPU memory
-
--gles2 : use opengl es 2.0 rendering path (programable shaders)
 
 -line  : draw lines only, wire frame mode
 
@@ -100,6 +102,8 @@ Z - decrease window size (zoom out)
 
 > - increase gear spin rate
 
+p - stop the gears from rotating
+
 a - move camera left
 
 d - move camera right
@@ -112,13 +116,13 @@ r - move camera away from gears
 
 f - move camera toward gears
 
-up arrow - move window up
+up arrow - move light up
 
-down arrow - move window down
+down arrow - move light down
 
-left arrow - move window left
+left arrow - move light left
 
-right arrow - move window right
+right arrow - move light right
 
 home - move window to centre of screen
 
