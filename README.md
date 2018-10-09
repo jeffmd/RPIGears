@@ -24,9 +24,9 @@ The following files should be in the build directory:
 * tasks.c
 * tasks.h
 * shaders.c
+* shaders.h
 * print_info.c
 * print_info.h
-* gles1.c
 * gles2.c
 * gles3.c
 * gles3.h
@@ -43,6 +43,8 @@ The following files should be in the build directory:
 * xwindow.c
 * xinput.h
 * xinput.c
+* blinn_phong_vert.glsl
+* blinn_phong_frag.glsl
 
 
 In a terminal session, change directory to the build directory where the 
