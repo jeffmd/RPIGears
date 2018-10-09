@@ -84,6 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "image.h"
 #include "camera.h"
 #include "xwindow.h"
+#include "shaders.h"
 
 extern IMAGE_T rpi_image;
 
@@ -119,7 +120,6 @@ static void frameClear(void)
 
 }
 
-#include "shaders.c"
 #include "print_info.c"
 #include "gles2.c"
 #include "scene.c"
@@ -208,6 +208,7 @@ int main (int argc, char *argv[])
    print_GLInfo();
   }
   init_textures();
+  initShaderSource();
   build_gears(options_useVBO());
 
   init_camera();

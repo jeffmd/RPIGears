@@ -58,10 +58,12 @@ static GLuint make_shader(const char *src, const GLenum shader_type)
   char msg[512];
 
   shader = glCreateShader(shader_type);
+  printf("shader source:\n%s\n", src);
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);
   glGetShaderInfoLog(shader, sizeof msg, NULL, msg);
-  printf("shader Compile info: %s\n", msg);
+  (shader_type == GL_VERTEX_SHADER) ? printf("vertex") : printf("fragment");
+  printf(" shader Compile info: %s\n", msg);
 
   return shader;
 }
@@ -69,11 +71,11 @@ static GLuint make_shader(const char *src, const GLenum shader_type)
 static void init_scene_GLES2(void)
 {
    GLuint v, f, program;
-  char msg[512];
+   char msg[512];
 
    /* Compile the vertex shader */
    v = make_shader(vertex_shader, GL_VERTEX_SHADER);
-
+   
    /* Compile the fragment shader */
    f = make_shader(fragment_shader, GL_FRAGMENT_SHADER);
 

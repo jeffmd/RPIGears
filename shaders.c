@@ -2,76 +2,38 @@
  * shaders.c - vertex and pixel shaders used in gles2 mode
  */
 
-// vertex shader for gles2
-static const char vertex_shader[] =
-"attribute vec3 position;\n"
-"attribute vec3 normal;\n"
-"attribute vec2 uv;\n"
-"\n"
-"uniform vec4 UBO[9];\n"
-"\n"
-"varying vec3 N;\n"
-"//varying vec3 V;\n"
-"varying vec3 H;\n"
-"varying vec3 L;\n"
-"varying vec2 oUV;\n"
-"\n"
-"//const mat4 v2 = mat4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);\n"
-"#define UBO_M4(index) mat4(UBO[index], UBO[index+1], UBO[index+2], UBO[index+3])\n"
-"#define ModelViewMatrix UBO_M4(0)\n"
-"#define LightPosition UBO[4]\n"
-"#define CameraProjectionMatrix UBO_M4(5)\n"
-"void main(void)\n"
-"{\n"
-"    vec4 pos = vec4(position, 1.0);\n"
-"   // None of the vectors are normalized until in the fragment shader\n"
-"// Calculate the normal vector for this vertex, in view space (\n"
-"    N = normalize(ModelViewMatrix * vec4(normal, 0.0)).xyz;\n"
-"    // Calculate the view vector\n"
-"    pos = ModelViewMatrix * pos;\n"
-"    vec3 V = -pos.xyz;\n"
-"    // Calculate the light vector for this vertex\n"
-"    L = normalize(LightPosition.xyz + V);\n"
-"//    L = LightPosition.xyz;\n"
-"    // calculate half angle\n"
-"    H = normalize(L + normalize(V));\n"
-"\n"
-"    oUV = uv;\n"
-"    // Transform the position to clip coordinates\n"
-"    gl_Position = CameraProjectionMatrix * pos;\n"
-"}";
+#include <stdio.h>
 
+#define BUFFSIZE 5000
+
+// vertex shader for gles2
+char vertex_shader[BUFFSIZE];
 // fragment shader for gles2
-static const char fragment_shader[] =
-"\n"
-"uniform vec4 MaterialColor;\n"
-"uniform sampler2D DiffuseMap;\n"
-"//#define UBO_M4(index) mat4(UBO[index], UBO[index+1], UBO[index+2], UBO[index+3])\n"
-"//#define MaterialColor UBO[14]\n"
-"\n"
-"varying vec3 N;\n"
-"//varying vec3 V;\n"
-"varying vec3 H;\n"
-"varying vec3 L;\n"
-"varying vec2 oUV;\n"
-"\n"
-"void main(void)\n"
-"{\n"
-"    //discard;\n"
-"    //vec3 l = normalize(L + V);\n"
-"    //vec3 N = normalize(N);\n"
-"\n"
-"    vec4 diffuse = vec4(0.8, 0.7, 0.55, 1.0) * max(dot(L, N), 0.0);\n"
-"    // get bump map vector, again expand from range-compressed\n"
-"    vec4 diffCol = texture2D(DiffuseMap, oUV);\n"
-"    // modulate diffuseMap with base material color\n"
-"    //float depth = (1.0 - gl_FragCoord.z)*40.0;\n"
-"    gl_FragColor = MaterialColor * diffCol * (vec4(0.15, 0.5, 0.7, 1.0) +  diffuse);\n"
-"    //gl_FragColor = vec4(depth, depth, depth, 1.0) ;\n"
-" //   add  specular\n"
-"    // materials that have more red in them are shinnier\n"
-"   //vec3 H = reflect(-l, N);//normalize(l + normalize(V));\n"
-"    float ndoth = max(dot(N, H), 0.0);\n"
-"    //float grey = dot( vec3(0.21, 0.72, 0.07), diffCol.rgb );\n"
-"    gl_FragColor.rgb += vec3(0.8, 0.9, 0.6) * pow(ndoth, 16.0 );\n"
-"}";
+char fragment_shader[BUFFSIZE];
+
+// load shader from a file
+static int loadShader(const char *name, char *buffer)
+{
+  FILE *fp;
+  int result = 0;
+  
+  fp = fopen(name, "r");
+  if (fp) {
+    result = fread(buffer, sizeof(char), BUFFSIZE, fp);
+    buffer[result - 1] = 0;
+    fclose(fp);
+    printf("shader %s loaded\n", name);
+  }
+  else {
+    printf("failed to load %s\n", name);
+  }
+  
+  return result;
+}
+
+void initShaderSource(void)
+{
+  printf("loading shader sources:\n");
+  loadShader("blinn_phong_vert.glsl", vertex_shader);
+  loadShader("blinn_phong_frag.glsl", fragment_shader);
+}
