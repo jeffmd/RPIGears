@@ -6,4 +6,4 @@ void update_uniform_locations(void);
 GLuint shader_UBO_location(void);
 GLuint shader_MaterialColor_location(void);
 GLuint shader_DiffuseMap_location(void);
-void reload_shaders(void);
+void load_shader_program(void);

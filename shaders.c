@@ -11,7 +11,9 @@
 static char shaderBuf[BUFFSIZE];
 static char msg[512];
 
-static GLuint v_shader, f_shader, program;
+static GLuint v_shader = 0;
+static GLuint f_shader = 0;
+static GLuint program = 0;
 
 // The location of the shader uniforms
 static GLuint UBO_location;
@@ -58,8 +60,11 @@ static void init_shader_objects(void)
 {
    /* Create and attach shaders to program */
   v_shader = glCreateShader(GL_VERTEX_SHADER);
+  printf("vertex shader object: %u\n", v_shader);
   f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  printf("fragment shader object: %u\n", f_shader);
   program = glCreateProgram();
+  printf("program object: %u\n", program);
   glAttachShader(program, v_shader);
   glAttachShader(program, f_shader);
 }
@@ -73,6 +78,7 @@ static void bind_attrib_locations(void)
 
 static void load_shaders(void)
 {
+  printf("loading shaders...\n");
   /* Compile the vertex shader */
   load_shaderBuf_file("blinn_phong_vert.glsl");
   make_shader(v_shader, shaderBuf);
@@ -86,6 +92,13 @@ void init_shader_system(void)
 {
   init_shader_objects();
   bind_attrib_locations();
+}
+
+void delete_shader_system(void)
+{
+  glDeleteShader(v_shader);
+  glDeleteShader(f_shader);
+  glDeleteProgram(program);	
 }
 
 void enable_shader_program()
@@ -125,9 +138,10 @@ GLuint shader_DiffuseMap_location(void)
   return DiffuseMap_location;
 }
 
-void reload_shaders(void)
+void load_shader_program(void)
 {
-  printf("Reloading shaders...\n");
+  delete_shader_system();
+  init_shader_system();
   load_shaders();
   enable_shader_program();
   update_uniform_locations();

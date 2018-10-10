@@ -198,7 +198,7 @@ static int check_key(const int inpkey)
       break;
       
     case 'R':
-      reload_shaders();
+      load_shader_program();
       break;
       
     case 'p':

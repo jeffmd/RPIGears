@@ -55,8 +55,8 @@ static void draw_sceneGLES2(void)
 
 static void init_scene_GLES2(void)
 {
-   init_shader_system();
-   reload_shaders();
+   //init_shader_system();
+   load_shader_program();
    m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
 
 
