@@ -96,6 +96,7 @@ void init_shader_system(void)
 
 void delete_shader_system(void)
 {
+  glUseProgram(0);
   glDeleteShader(v_shader);
   glDeleteShader(f_shader);
   glDeleteProgram(program);	
