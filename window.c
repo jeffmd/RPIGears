@@ -10,7 +10,8 @@
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
-//#include "EGL/eglext_brcm.h"
+
+#include "gldebug.h"
 
 
 //  Element Attributes changes flag mask
@@ -20,111 +21,6 @@
 #define ELEMENT_CHANGE_SRC_RECT       (1<<3)
 #define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
 #define ELEMENT_CHANGE_TRANSFORM      (1<<5)
-
-#define CASE_CODE_RETURN_STR(code) case code: return #code;
-
-static const char *get_egl_error_enum_string(EGLenum error)
-{
-	switch (error) {
-		CASE_CODE_RETURN_STR(EGL_SUCCESS)
-		CASE_CODE_RETURN_STR(EGL_NOT_INITIALIZED)
-		CASE_CODE_RETURN_STR(EGL_BAD_ACCESS)
-		CASE_CODE_RETURN_STR(EGL_BAD_ALLOC)
-		CASE_CODE_RETURN_STR(EGL_BAD_ATTRIBUTE)
-		CASE_CODE_RETURN_STR(EGL_BAD_CONTEXT)
-		CASE_CODE_RETURN_STR(EGL_BAD_CONFIG)
-		CASE_CODE_RETURN_STR(EGL_BAD_CURRENT_SURFACE)
-		CASE_CODE_RETURN_STR(EGL_BAD_DISPLAY)
-		CASE_CODE_RETURN_STR(EGL_BAD_SURFACE)
-		CASE_CODE_RETURN_STR(EGL_BAD_MATCH)
-		CASE_CODE_RETURN_STR(EGL_BAD_PARAMETER)
-		CASE_CODE_RETURN_STR(EGL_BAD_NATIVE_PIXMAP)
-		CASE_CODE_RETURN_STR(EGL_BAD_NATIVE_WINDOW)
-		CASE_CODE_RETURN_STR(EGL_CONTEXT_LOST)
-		default:
-			return NULL;
-	}
-}
-
-static const char *get_egl_error_message_string(EGLenum error)
-{
-	switch (error) {
-		case EGL_SUCCESS:
-			return "The last function succeeded without error.";
-
-		case EGL_NOT_INITIALIZED:
-			return ("EGL is not initialized, or could not be initialized, "
-			        "for the specified EGL display connection.");
-
-		case EGL_BAD_ACCESS:
-			return ("EGL cannot access a requested resource "
-			        "(for example a context is bound in another thread).");
-
-		case EGL_BAD_ALLOC:
-			return "EGL failed to allocate resources for the requested operation.";
-
-		case EGL_BAD_ATTRIBUTE:
-			return "An unrecognized attribute or attribute value was passed in the attribute list.";
-
-		case EGL_BAD_CONTEXT:
-			return "An EGLContext argument does not name a valid EGL rendering context.";
-
-		case EGL_BAD_CONFIG:
-			return "An EGLConfig argument does not name a valid EGL frame buffer configuration.";
-
-		case EGL_BAD_CURRENT_SURFACE:
-			return ("The current surface of the calling thread is a window, "
-			        "pixel buffer or pixmap that is no longer valid.");
-
-		case EGL_BAD_DISPLAY:
-			return "An EGLDisplay argument does not name a valid EGL display connection.";
-
-		case EGL_BAD_SURFACE:
-			return ("An EGLSurface argument does not name a valid surface "
-			        "(window, pixel buffer or pixmap) configured for GL rendering.");
-
-		case EGL_BAD_MATCH:
-			return ("Arguments are inconsistent "
-			        "(for example, a valid context requires buffers not supplied by a valid surface).");
-
-		case EGL_BAD_PARAMETER:
-			return "One or more argument values are invalid.";
-
-		case EGL_BAD_NATIVE_PIXMAP:
-			return "A NativePixmapType argument does not refer to a valid native pixmap.";
-
-		case EGL_BAD_NATIVE_WINDOW:
-			return "A NativeWindowType argument does not refer to a valid native window.";
-
-		case EGL_CONTEXT_LOST:
-			return ("A power management event has occurred. "
-			        "The application must destroy all contexts and reinitialise OpenGL ES state "
-			        "and objects to continue rendering.");
-
-		default:
-			return NULL;
-	}
-}
-
-
-static int egl_chk(int result)
-{
-	if (!result) {
-		EGLenum error = eglGetError();
-
-		const char *code = get_egl_error_enum_string(error);
-		const char *msg  = get_egl_error_message_string(error);
-
-		printf(
-		        "EGL Error (0x%04X): %s: %s\n",
-		        error,
-		        code ? code : "<Unknown>",
-		        msg  ? msg  : "<Unknown>");
-	}
-
-	return result;
-}
-
 
 typedef  struct {
    // window data
@@ -262,8 +158,8 @@ void window_size(const int width, const int height)
 
 static void updateSrcSize(void)
 {
-	window->src_rect.width = (window->dst_rect.width) << 16;
-	window->src_rect.height = (window->dst_rect.height) << 16;
+  window->src_rect.width = (window->dst_rect.width) << 16;
+  window->src_rect.height = (window->dst_rect.height) << 16;
     window->src_rect.x = ((window->nativewindow.width - window->dst_rect.width) / 2) << 16;
     window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
@@ -278,13 +174,13 @@ static void check_window_offsets(void)
   else
     if (window->dst_rect.x > (int)window->nativewindow.width) {
       window->dst_rect.x = (int)window->nativewindow.width;
-      window->pos_x = (float)window->dst_rect.x; 
+      window->pos_x = (float)window->dst_rect.x;
     }
-       
+
   if (window->dst_rect.y <= -window->dst_rect.height) {
     window->dst_rect.y = -window->dst_rect.height + 1;
-    window->pos_y = (float)window->dst_rect.y; 
-  }  
+    window->pos_y = (float)window->dst_rect.y;
+  }
   else
     if (window->dst_rect.y > (int)window->nativewindow.height) {
        window->dst_rect.y = (int)window->nativewindow.height;
@@ -296,11 +192,11 @@ void window_update(void)
 {
   if (window->update) {
     check_window_offsets();
-    
+
     DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
     assert(update != 0);
     updateSrcSize();
-    
+
     int result = vc_dispmanx_element_change_attributes(update,
                                             window->nativewindow.element,
                                             ELEMENT_CHANGE_OPACITY,
@@ -311,7 +207,7 @@ void window_update(void)
                                             0,
                                             DISPMANX_ROTATE_90);
       assert(result == 0);
-  
+
       result = vc_dispmanx_update_submit(update, 0, 0);
       assert(result == 0);
       window->update = 0;
@@ -331,50 +227,50 @@ static void createSurface(void)
 
   int32_t success = graphics_get_display_size(0 /* LCD */, (uint32_t *)&window->nativewindow.width, (uint32_t *)&window->nativewindow.height);
   assert( success >= 0 );
-  
+
   window->dst_rect.x = 0;
   window->dst_rect.y = 0;
   window->dst_rect.width = 1;
   window->dst_rect.height = 1;
-  
+
   window->src_rect.x = 0;
   window->src_rect.y = 0;
   window->src_rect.width = 1;
   window->src_rect.height = 1;
-  
+
   window->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
-  
+
   dispman_update = vc_dispmanx_update_start( 0 );
-  
+
   window->nativewindow.element = vc_dispmanx_element_add( dispman_update, window->dispman_display,
     0/*layer*/, &window->dst_rect, 0/*src*/,
     &window->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
-  
+
   vc_dispmanx_update_submit_sync( dispman_update );
-  
+
 #if 0
   EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
 
   pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES2_BRCM;
   pixel_format |= EGL_PIXEL_FORMAT_GLES2_TEXTURE_BRCM;
-        
-	EGLint pixmap[5];
+
+  EGLint pixmap[5];
         pixmap[0] = 0;
         pixmap[1] = 0;
         pixmap[2] = window->nativewindow.width;
         pixmap[3] = window->nativewindow.height;
         pixmap[4] = pixel_format;
-        
+
   EGLint attrs[] = {
     EGL_VG_COLORSPACE, EGL_VG_COLORSPACE_sRGB,
     EGL_VG_ALPHA_FORMAT, pixel_format & EGL_PIXEL_FORMAT_ARGB_8888_PRE_BRCM ? EGL_VG_ALPHA_FORMAT_PRE : EGL_VG_ALPHA_FORMAT_NONPRE,
     EGL_NONE
-  };        
-        
-	eglCreateGlobalImageBRCM(window->nativewindow.width, window->nativewindow.height, pixmap[4], 0, window->nativewindow.width*4, pixmap);
-	window->surface = eglCreatePixmapSurface(window->display, window->config, (EGLNativePixmapType)pixmap, attrs);
+  };
+
+  eglCreateGlobalImageBRCM(window->nativewindow.width, window->nativewindow.height, pixmap[4], 0, window->nativewindow.width*4, pixmap);
+  window->surface = eglCreatePixmapSurface(window->display, window->config, (EGLNativePixmapType)pixmap, attrs);
 #else
-	/*EGLint attribw[5];
+  /*EGLint attribw[5];
         attribw[0] = EGL_HEIGHT;
         attribw[1] = window->nativewindow.height;
         attribw[2] = EGL_WIDTH;
@@ -392,53 +288,165 @@ static void createContext(void)
 {
   EGLBoolean result;
   EGLint num_config;
-  
+
   static const EGLint attribute_list[] =
   {
     EGL_RED_SIZE, 8,
     EGL_GREEN_SIZE, 8,
     EGL_BLUE_SIZE, 8,
     EGL_ALPHA_SIZE, 8,
-    EGL_DEPTH_SIZE, 8,
+    EGL_DEPTH_SIZE, 24,
+    //EGL_STENCIL_SIZE, 8,
     EGL_SAMPLE_BUFFERS, 1,
     EGL_SAMPLES, 4,
     EGL_NONE
   };
-  
-  static EGLint context_attributes[] = 
+
+  static EGLint context_attributes[] =
   {
     EGL_CONTEXT_CLIENT_VERSION, 2,
     EGL_NONE
   };
-  
-  
+
+
   // get an EGL display connection
   window->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   assert(egl_chk(window->display!=EGL_NO_DISPLAY));
-  
+
   // initialize the EGL display connection
   result = eglInitialize(window->display, &window->major, &window->minor);
   assert(egl_chk(EGL_FALSE != result));
-  
+
   // get an appropriate EGL frame buffer configuration
   result = eglChooseConfig(window->display, attribute_list, &window->config, 1, &num_config);
   assert(egl_chk(EGL_FALSE != result));
   printf("number of configs available: %i\n", num_config);
-  
+
   // bind the gles api to this thread - this is default so not required
   result = eglBindAPI(EGL_OPENGL_ES_API);
   assert(egl_chk(EGL_FALSE != result));
-  
+
   // create an EGL rendering context
-  
+
   window->contextGLES2 = eglCreateContext(window->display, window->config, EGL_NO_CONTEXT, context_attributes);
   assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
+}
+
+static void window_setup_frameBufferRenderBuffer(void)
+{
+  GLuint color_renderbuffer;
+  
+  glGenRenderbuffers(1, &color_renderbuffer);
+  glBindRenderbuffer( GL_RENDERBUFFER, (GLuint)color_renderbuffer );
+  glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA8_OES, window->nativewindow.width, window->nativewindow.height );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+  // Build the texture that will serve as the depth attachment for the framebuffer.
+  GLuint depth_renderbuffer;
+  
+  glGenRenderbuffers(1, &depth_renderbuffer);
+  glBindRenderbuffer( GL_RENDERBUFFER, (GLuint)depth_renderbuffer );
+  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+  // Build the framebuffer.
+  GLuint framebuffer;
+  
+  glGenFramebuffers(1, &framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_renderbuffer);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_renderbuffer);
+
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE)
+    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
+
+  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+static void window_setup_frameBufferRenderTexture(void)
+{
+  check_gl_error("starting setup frameBufferRenderTexture");
+  // Build the texture that will serve as the color attachment for the framebuffer.
+  GLuint texture_map;
+  glGenTextures(1, &texture_map);
+  glBindTexture(GL_TEXTURE_2D, texture_map);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->nativewindow.width, window->nativewindow.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  check_gl_error("make color texture buffer");
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  // Build the texture that will serve as the depth attachment for the framebuffer.
+  //GLuint depth_texture;
+  //glGenTextures(1, &depth_texture);
+  //glBindTexture(GL_TEXTURE_2D, depth_texture);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+  //check_gl_error("make depth texture buffer");
+  //glBindTexture(GL_TEXTURE_2D, 0);
+
+  // Build the texture that will serve as the stencil attachment for the framebuffer.
+  GLuint stencil_texture;
+  glGenTextures(1, &stencil_texture);
+  glBindTexture(GL_TEXTURE_2D, stencil_texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+  check_gl_error("make stencil texture buffer");
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  // Build the texture that will serve as the depth attachment for the framebuffer.
+  GLuint depth_renderbuffer;
+  
+  glGenRenderbuffers(1, &depth_renderbuffer);
+  glBindRenderbuffer( GL_RENDERBUFFER, depth_renderbuffer );
+  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+  // Build the texture that will serve as the depth attachment for the framebuffer.
+  GLuint stencil_renderbuffer;
+  
+  glGenRenderbuffers(1, &stencil_renderbuffer);
+  glBindRenderbuffer( GL_RENDERBUFFER, stencil_renderbuffer );
+  glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX8, window->nativewindow.width, window->nativewindow.height );
+  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+  // Build the framebuffer.
+  GLuint framebuffer;
+  glGenFramebuffers(1, &framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_map, 0);
+  check_gl_error("bind color texture buffer to frame buffer");
+  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_renderbuffer);
+  check_gl_error("bind depth texture buffer to frame buffer");
+  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencil_texture, 0);
+  //check_gl_error("bind stencil texture buffer to frame buffer");
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_renderbuffer);
+  check_gl_error("bind depth texture buffer to frame buffer");
+
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE)
+    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
+
+  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 static void window_print_GL_Limits(void)
 {
   GLint num[4];
-  
+
   glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, num);
   printf("MAX_VERTEX_ATTRIBS: %i\n", num[0]);
 
@@ -480,30 +488,31 @@ static void window_print_GL_Limits(void)
 void window_init(void)
 {
   EGLBoolean result;
-  
+
   window->inFocus = 1;
   createContext();
   // create an EGL window surface based on current screen size
   createSurface();
-  
+
   // connect the context to the surface
   result = eglMakeCurrent(window->display, window->surface, window->surface, window->contextGLES2);
   assert(egl_chk(EGL_FALSE != result));
-  
+
   // Set background color and clear buffers
   glClearColor(0.15f, 0.5f, 0.7f, 1.0f);
-  
+
   // Enable back face culling.
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glEnable(GL_DEPTH_TEST);
   //glEnable(GL_SAMPLE_COVERAGE);
   //glSampleCoverage(0.85, GL_FALSE);
-  
-  glPixelStorei(GL_PACK_ALIGNMENT, 4);
-  
-  window_print_GL_Limits();
 
+  glPixelStorei(GL_PACK_ALIGNMENT, 4);
+
+  window_print_GL_Limits();
+  //window_setup_frameBufferRenderBuffer();
+  window_setup_frameBufferRenderTexture();
 }
 
 void window_swap_buffers(void)
@@ -518,13 +527,13 @@ void window_release(void)
   eglDestroySurface( window->display, window->surface );
   eglDestroyContext( window->display, window->contextGLES2 );
   eglTerminate( window->display );
-  
+
   DISPMANX_UPDATE_HANDLE_T dispman_update = vc_dispmanx_update_start(0);
   vc_dispmanx_element_remove( dispman_update, window->nativewindow.element );
   vc_dispmanx_update_submit_sync( dispman_update );
-  
+
   vc_dispmanx_display_close(window->dispman_display);
-  
+
 }
 
 void window_snapshot(const int width, const int height, void * buffer)
@@ -532,7 +541,7 @@ void window_snapshot(const int width, const int height, void * buffer)
   const int x = (window->nativewindow.width - width) / 2;
   const int y = (window->nativewindow.height - height) / 2;
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-  
+
 }
 
 int window_inFocus(void)

@@ -1,4 +1,4 @@
-OBJS=RPIGears.o matrix_math.o gear.o user_options.o window.o demo_state.o key_input.o tasks.o RPi_Logo256.o camera.o xwindow.o xinput.o gles3.o fp16.o shaders.o
+OBJS=RPIGears.o matrix_math.o gear.o user_options.o window.o demo_state.o key_input.o tasks.o RPi_Logo256.o camera.o xwindow.o xinput.o gles3.o fp16.o shaders.o gldebug.o
 BIN=RPIGears.bin
 SRC= gles2.c scene.c print_info.c
 HDR=user_options.h demo_state.h window.h matrix_math.h gear.h key_input.h tasks.h image.h camera.h xwindow.h gles3.h shaders.h
@@ -18,6 +18,7 @@ demo_state.o: demo_state.h gear.h matrix_math.h
 key_input.o: key_input.c window.h demo_state.h print_info.h camera.h
 matrix_math.o: matrix_math.c
 tasks.o: demo_state.h key_input.h
+window.o: gldebug.h
 xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h
 
