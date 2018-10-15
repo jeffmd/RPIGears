@@ -80,11 +80,11 @@ static void load_shaders(void)
 {
   printf("loading shaders...\n");
   /* Compile the vertex shader */
-  load_shaderBuf_file("blinn_phong_vert.glsl");
+  load_shaderBuf_file("shaders/blinn_phong_vert.glsl");
   make_shader(v_shader, shaderBuf);
    
   /* Compile the fragment shader */
-  load_shaderBuf_file("blinn_phong_frag.glsl");
+  load_shaderBuf_file("shaders/blinn_phong_frag.glsl");
   make_shader(f_shader, shaderBuf);
 }
 

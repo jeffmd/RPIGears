@@ -28,7 +28,7 @@ void main(void)
     //gl_FragColor = vec4(depth, depth, depth, 1.0) ;
     //   add  specular
     // materials that have more red in them are shinnier
-   //vec3 H = reflect(-l, N);//normalize(l + normalize(V));
+    //vec3 H = reflect(-l, N);//normalize(l + normalize(V));
     float ndoth = max(dot(N, H), 0.0);
     //float grey = dot( vec3(0.21, 0.72, 0.07), diffCol.rgb );
     gl_FragColor.rgb += vec3(0.8, 0.9, 0.6) * pow(ndoth, 16.0 );
