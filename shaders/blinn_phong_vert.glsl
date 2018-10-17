@@ -20,9 +20,6 @@ varying vec2 oUV;
 void main(void)
 {
     vec4 pos = vec4(position, 1.0);
-    int u = int(uv.x);
-    if (u == 2)
-      pos.x += uv.x;
    // None of the vectors are normalized until in the fragment shader
 // Calculate the normal vector for this vertex, in view space (
     N = normalize(ModelViewMatrix * vec4(normal, 0.0)).xyz;
