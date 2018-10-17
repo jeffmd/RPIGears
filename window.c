@@ -512,7 +512,7 @@ void window_init(void)
 
   window_print_GL_Limits();
   //window_setup_frameBufferRenderBuffer();
-  window_setup_frameBufferRenderTexture();
+  //window_setup_frameBufferRenderTexture();
 }
 
 void window_swap_buffers(void)
