@@ -5,8 +5,8 @@
 #ifndef _TASKS_H_
   #define _TASKS_H_
   
-  extern void do_tasks(void);
-  extern void reset_tasks(void);
-  extern int run_exit_task(void);
-  extern void enable_exit(void);
+  void do_tasks(void);
+  void reset_tasks(void);
+  int run_exit_task(void);
+  void enable_exit(void);
 #endif

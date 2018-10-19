@@ -2,12 +2,12 @@
 * user_options.h
 */
 
-extern int options_useVBO(void);
-extern int options_useVSync(void);
-extern int options_wantInfo(void);
-extern GLenum options_drawMode(void);
-extern GLfloat options_angleVel(void);
-extern uint options_timeToRun(void);
-extern int setup_user_options(int argc, char *argv[]);
-extern void toggle_drawmode(void);
-extern void update_useVSync(const int sync);
+int options_useVBO(void);
+int options_useVSync(void);
+int options_wantInfo(void);
+GLenum options_drawMode(void);
+GLfloat options_angleVel(void);
+uint options_timeToRun(void);
+int setup_user_options(int argc, char *argv[]);
+void toggle_drawmode(void);
+void update_useVSync(const int sync);

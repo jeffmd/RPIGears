@@ -6,19 +6,19 @@
 #include "GLES2/gl2.h"
 #include "GLES2/gl2ext.h"
 
-extern void gles3_init(void);
-extern void glVertexAttribPointerMod(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr);
-extern void glEnableVertexAttribArrayMod(GLuint index);
-extern void glDisableVertexAttribArrayMod(GLuint index);
-extern void glBindBufferMod(GLenum target, GLuint buffer);
-extern void glBindVertexArray(GLuint array);
-extern void glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
-extern void glGenVertexArrays(GLsizei n, GLuint *arrays);
-extern void glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
-extern void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index);
-extern void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index);
+void gles3_init(void);
+void glVertexAttribPointerMod(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr);
+void glEnableVertexAttribArrayMod(GLuint index);
+void glDisableVertexAttribArrayMod(GLuint index);
+void glBindBufferMod(GLenum target, GLuint buffer);
+void glBindVertexArray(GLuint array);
+void glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
+void glGenVertexArrays(GLsizei n, GLuint *arrays);
+void glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
+void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index);
+void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index);
 
-extern void *glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
+void *glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
 
 
 #define glVertexAttribPointer glVertexAttribPointerMod

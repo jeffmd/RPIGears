@@ -1,1 +1,1 @@
-extern unsigned short f16(const float val);
+unsigned short f16(const float val);
