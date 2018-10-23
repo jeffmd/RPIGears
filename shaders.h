@@ -2,14 +2,10 @@
 #ifndef _SHADERS_H_
   #define _SHADERS_H_
 
-typedef enum {
-  BLINN_PHONG_PRG  
-} PROGRAM_ID_T;
+#include "shaderid.h"
 
 void enable_shader_program(PROGRAM_ID_T programID);
-GLuint shader_UBO_location(void);
-GLuint shader_MaterialColor_location(void);
-GLuint shader_DiffuseMap_location(void);
+GLuint get_uniform_location(const UNIFORM_ID_T id);
 void load_shader_programs(void);
 
 #endif

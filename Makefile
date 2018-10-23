@@ -21,7 +21,7 @@ tasks.o: demo_state.h key_input.h
 window.o: gldebug.h
 xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h
-
+gles2.o: shaderid.h
 
 $(BIN): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS) 

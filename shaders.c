@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "gles3.h"
+#include "shaderid.h"
 
 #define BUFFSIZE 5000
 
@@ -14,8 +15,13 @@ static char shaderBuf[BUFFSIZE];
 static char msg[512];
 
 typedef struct {
-  char *fileName;
-  GLuint type;
+  const char *name;
+  GLint location;  
+} UNIFORM_T;
+
+typedef struct {
+  const char *fileName;
+  const GLuint type;
   GLuint glShaderObj;
 } SHADER_T;
 
@@ -25,8 +31,8 @@ typedef enum {
 } SHADER_ID_T;
 
 typedef struct {
-  SHADER_ID_T shader_vertID;
-  SHADER_ID_T shader_fragID;
+  const SHADER_ID_T shader_vertID;
+  const SHADER_ID_T shader_fragID;
   GLuint glProgramObj;
 } SHADER_PROGRAM_T;
 
@@ -36,18 +42,15 @@ SHADER_T shaders[] = {
   [BLINN_PHONG_FS] = {"blinn_phong_frag.glsl", GL_FRAGMENT_SHADER, 0}
 };
 
-typedef enum {
-  BLINN_PHONG_PRG  
-} PROGRAM_ID_T;
-
 SHADER_PROGRAM_T shaderPrograms[] = {
   [BLINN_PHONG_PRG] = {BLINN_PHONG_VS, BLINN_PHONG_FS, 0}
 };
 
-// The location of the shader uniforms
-static GLuint UBO_location;
-static GLuint MaterialColor_location;
-static GLuint DiffuseMap_location;
+UNIFORM_T uniforms[] = {
+  [U_UBO] = {"UBO", -1},
+  [U_MATERIALCOLOR] = {"MaterialColor", -1},
+  [U_DIFFUSEMAP] = {"DiffuseMap", -1}
+};
 
 static inline GLuint get_shader_obj(SHADER_ID_T shaderID)
 {
@@ -170,31 +173,26 @@ void enable_shader_program(PROGRAM_ID_T programID)
 
 }
 
+static void update_uniform_location(const GLuint program,  UNIFORM_ID_T id)
+{
+  UNIFORM_T *uniform = &uniforms[id];
+  
+  uniform->location = glGetUniformLocation(program, uniform->name);
+  printf("Uniform: %s location: %i\n", uniform->name, uniform->location);
+}
+
 void update_uniform_locations(void)
 {
   const GLuint program = get_shader_program_obj(BLINN_PHONG_PRG);
   
-  UBO_location = glGetUniformLocation(program, "UBO");
-  printf("UBO_location: %i\n", UBO_location);
-  MaterialColor_location = glGetUniformLocation(program, "MaterialColor");
-  printf("MaterialColor_location: %i\n", MaterialColor_location);
-  DiffuseMap_location = glGetUniformLocation(program, "DiffuseMap");
-  printf("DiffuseMap_location: %i\n", DiffuseMap_location);
+  update_uniform_location(program, U_UBO);
+  update_uniform_location(program, U_MATERIALCOLOR);
+  update_uniform_location(program, U_DIFFUSEMAP);
 }
 
-GLuint shader_UBO_location(void)
+GLint get_uniform_location(const UNIFORM_ID_T id)
 {
-  return UBO_location;
-}
-
-GLuint shader_MaterialColor_location(void)
-{
-  return MaterialColor_location;
-}
-
-GLuint shader_DiffuseMap_location(void)
-{
-  return DiffuseMap_location;
+  return uniforms[id].location;
 }
 
 void load_shader_programs(void)
