@@ -5,7 +5,8 @@
 #include "shaderid.h"
 
 void enable_shader_program(PROGRAM_ID_T programID);
-GLuint get_uniform_location(const UNIFORM_ID_T id);
+GLint get_active_uniform_location(const char *name);
+GLint get_active_attribute_location(const char *name);
 void load_shader_programs(void);
 
 #endif

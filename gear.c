@@ -12,6 +12,7 @@
 #include "gles3.h"
 
 #include "fp16.h"
+#include "shaders.h"
 
 typedef struct {
   GLfloat pos[3];
@@ -321,15 +322,15 @@ void gear_setVAO_GLES2(const int gearid, const int useVBO)
   /* Set up the position of the attributes in the vertex buffer object */
   // setup where vertex data is
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+  glVertexAttribPointer(get_active_attribute_location("position"), 3, GL_FLOAT, GL_FALSE,
        sizeof(vertex_t), gear->vertex_p);
   // setup where normal data is
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_HALF_FLOAT_OES, GL_FALSE,
+  glVertexAttribPointer(get_active_attribute_location("normal"), 3, GL_HALF_FLOAT_OES, GL_FALSE,
        sizeof(vertex_t), gear->normal_p);
   // setup where uv data is
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_HALF_FLOAT_OES, GL_FALSE,
+  glVertexAttribPointer(get_active_attribute_location("uv"), 2, GL_HALF_FLOAT_OES, GL_FALSE,
        sizeof(vertex_t), gear->texCoords_p);
 	
 }

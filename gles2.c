@@ -25,14 +25,14 @@ static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle
    m4x4_translate(Data.model_view, x, y, 0);
    m4x4_rotate(Data.model_view, angle, 0, 0, 1);
 
-   glUniform1i(get_uniform_location(U_DIFFUSEMAP), 0);
+   glUniform1i(get_active_uniform_location("DiffuseMap"), 0);
    
-   glUniform4fv(get_uniform_location(U_UBO), 9, (GLfloat *)&Data);
+   glUniform4fv(get_active_uniform_location("UBO"), 9, (GLfloat *)&Data);
 
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state_texId());
 
-   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), get_uniform_location(U_MATERIALCOLOR));
+   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), get_active_uniform_location("MaterialColor"));
 
 }
 
