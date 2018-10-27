@@ -36,7 +36,7 @@ typedef struct {
 
 static GPUShaderInterface shaderInterfaces[50];
 
-static GPUShaderInput shader_inputs[50];
+static GPUShaderInput shader_inputs[500];
 static unsigned int shader_inputs_count = 0;
 
 static GLuint active_programID = 0;
@@ -122,7 +122,7 @@ void enable_shader_program(PROGRAM_ID_T programID)
 static GPUShaderInput *get_shader_input(const ShaderInputArrayTracker* input_tracker, const char *name)
 {
   const GLint end = input_tracker->start + input_tracker->count;
-	for (GLuint i = input_tracker->start; i < end; ++i) {
+  for (GLuint i = input_tracker->start; i < end; ++i) {
     if (strcmp(shader_inputs[i].name, name) == 0) {
       //printf("location: %i\n", shader_inputs[i].location);
       return &shader_inputs[i];
