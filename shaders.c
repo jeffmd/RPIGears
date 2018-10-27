@@ -164,54 +164,50 @@ void delete_shader_programs(void)
   delete_shader_program(BLINN_PHONG_PRG);
 }
 
-static void build_uniform_list(const GLuint programID)
+static void update_array_tracker(const GLuint programID, GLboolean is_uniform)
 {
   SHADER_PROGRAM_T *program = &shaderPrograms[programID];
-  GLint old_uniform_count = program->uniform_array.count;
-  
-  glGetProgramiv(program->glProgramObj, GL_ACTIVE_UNIFORMS, &program->uniform_array.count);
-  printf("uniform count: %i\n", program->uniform_array.count);
+  ShaderInputArrayTracker *tracker = is_uniform ? &program->uniform_array : &program->attribute_array;
+  GLint old_count = tracker->count;
 
-  glGetProgramiv(program->glProgramObj, GL_ACTIVE_UNIFORM_MAX_LENGTH, &program->uniform_array.name_max_length);
+  glGetProgramiv(program->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORMS : GL_ACTIVE_ATTRIBUTES, &tracker->count);
+  glGetProgramiv(program->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORM_MAX_LENGTH : GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &tracker->name_max_length);
   
-  if (program->uniform_array.count > old_uniform_count) {
-    program->uniform_array.start = shader_inputs_count;
-    shader_inputs_count += program->uniform_array.count;
+  if (tracker->count > old_count) {
+    tracker->start = shader_inputs_count;
+    shader_inputs_count += tracker->count;
   }
+  printf("%s count: %i\n", is_uniform ? "uniform" : "attribute", tracker->count);
+}
+
+static void build_input_list(const GLuint programID, GLboolean is_uniform)
+{
+  SHADER_PROGRAM_T *program = &shaderPrograms[programID];
+  ShaderInputArrayTracker *tracker = is_uniform ? &program->uniform_array : &program->attribute_array;
   
-  const GLuint end = program->uniform_array.count;
+ 
+  const GLuint end = tracker->count;
 	for (GLuint i = 0; i < end; ++i) {
-    GPUShaderInput *input = &shader_inputs[program->uniform_array.start + i];
-		glGetActiveUniform(program->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name);
+    GPUShaderInput *input = &shader_inputs[tracker->start + i];
+		is_uniform ? glGetActiveUniform(program->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name) :
+                 glGetActiveAttrib(program->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name);
 
-		input->location = glGetUniformLocation(program->glProgramObj, input->name);
-    printf("added uniform: %s, location: %i\n", input->name, input->location);
+		input->location = is_uniform ? glGetUniformLocation(program->glProgramObj, input->name) :
+                                   glGetAttribLocation(program->glProgramObj, input->name);
+    printf("added %s: %s, location: %i\n", is_uniform ? "uniform" : "attribute", input->name, input->location);
   }
+}
+
+static void build_uniform_list(const GLuint programID)
+{
+  update_array_tracker(programID, GL_TRUE);
+  build_input_list(programID, GL_TRUE);
 }
 
 static void build_attribute_list(const GLuint programID)
 {
-  SHADER_PROGRAM_T *program = &shaderPrograms[programID];
-  GLint old_attribute_count = program->attribute_array.count;
-  
-  glGetProgramiv(program->glProgramObj, GL_ACTIVE_ATTRIBUTES, &program->attribute_array.count);
-  printf("attribute count: %i\n", program->attribute_array.count);
-
-  glGetProgramiv(program->glProgramObj, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &program->attribute_array.name_max_length);
-  
-  if (program->attribute_array.count > old_attribute_count) {
-    program->attribute_array.start = shader_inputs_count;
-    shader_inputs_count += program->attribute_array.count;
-  }
-  
-  const GLuint end = program->attribute_array.count;
-	for (GLuint i = 0; i < end; ++i) {
-    GPUShaderInput *input = &shader_inputs[program->attribute_array.start + i];
-		glGetActiveAttrib(program->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name);
-
-		input->location = glGetAttribLocation(program->glProgramObj, input->name);
-    printf("added attribute: %s, location: %i\n", input->name, input->location);
-  }
+  update_array_tracker(programID, GL_FALSE);
+  build_input_list(programID, GL_FALSE);
 }
 
 void enable_shader_program(PROGRAM_ID_T programID)
