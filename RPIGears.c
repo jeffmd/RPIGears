@@ -85,6 +85,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "camera.h"
 #include "xwindow.h"
 #include "shaders.h"
+#include "gpu_shader_interface.h"
 
 extern IMAGE_T rpi_image;
 

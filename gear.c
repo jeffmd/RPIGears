@@ -12,7 +12,7 @@
 #include "gles3.h"
 
 #include "fp16.h"
-#include "shaders.h"
+#include "gpu_shader_interface.h"
 
 typedef struct {
   GLfloat pos[3];
