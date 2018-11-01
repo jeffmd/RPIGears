@@ -116,7 +116,7 @@ static void load_shaders(void)
   init_shader_program(BLINN_PHONG_PRG);
 }
 
-static void delete_shader_program(PROGRAM_ID_T programID)
+static void delete_shader_program(const PROGRAM_ID_T programID)
 {
   glUseProgram(0);
 
