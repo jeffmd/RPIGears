@@ -8,6 +8,10 @@ static struct {
    GLfloat projection_matrix[16];
 } Data;
 
+static GLuint DiffuseMap_loc;
+static GLuint UBO_loc;
+static GLuint MaterialColor_loc;
+
 /**
  * Draws a gear in GLES 2 mode.
  *
@@ -25,14 +29,14 @@ static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle
    m4x4_translate(Data.model_view, x, y, 0);
    m4x4_rotate(Data.model_view, angle, 0, 0, 1);
 
-   glUniform1i(get_active_uniform_location("DiffuseMap"), 0);
+   glUniform1i(DiffuseMap_loc, 0);
    
-   glUniform4fv(get_active_uniform_location("UBO"), 9, (GLfloat *)&Data);
+   glUniform4fv(UBO_loc, 9, (GLfloat *)&Data);
 
    // Bind texture surface to current vertices
    glBindTexture(GL_TEXTURE_2D, state_texId());
 
-   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), get_active_uniform_location("MaterialColor"));
+   gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), MaterialColor_loc);
 
 }
 
@@ -59,7 +63,10 @@ static void init_scene_GLES2(void)
    load_shader_programs();
    m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
 
-
+   DiffuseMap_loc = get_active_uniform_location("DiffuseMap");
+   UBO_loc = get_active_uniform_location("UBO")   ;
+   MaterialColor_loc = get_active_uniform_location("MaterialColor");
+   
    gear_setVAO_GLES2(state_gear1(), options_useVBO());
    gear_setVAO_GLES2(state_gear2(), options_useVBO());
    gear_setVAO_GLES2(state_gear3(), options_useVBO());
