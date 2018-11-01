@@ -41,7 +41,7 @@ static unsigned int shader_inputs_count = 0;
 
 static GLuint active_programID = 0;
 
-GLuint get_shader_program_obj(PROGRAM_ID_T programID)
+GLuint get_shader_program_obj(const PROGRAM_ID_T programID)
 {
   return shaderInterfaces[programID].glProgramObj;
 }
@@ -56,7 +56,7 @@ GLuint init_shader_interface(const PROGRAM_ID_T programID)
   return prg_interface->glProgramObj;
 }
 
-static void update_array_tracker(const GLuint programID, GLboolean is_uniform)
+static void update_array_tracker(const GLuint programID, const GLboolean is_uniform)
 {
   GPUShaderInterface *prg_interface = &shaderInterfaces[programID];
   ShaderInputArrayTracker *tracker = is_uniform ? &prg_interface->uniform_array : &prg_interface->attribute_array;
@@ -72,7 +72,7 @@ static void update_array_tracker(const GLuint programID, GLboolean is_uniform)
   printf("%s count: %i\n", is_uniform ? "uniform" : "attribute", tracker->count);
 }
 
-static void build_input_list(const GLuint programID, GLboolean is_uniform)
+static void build_input_list(const GLuint programID, const GLboolean is_uniform)
 {
   GPUShaderInterface *prg_interface = &shaderInterfaces[programID];
   ShaderInputArrayTracker *tracker = is_uniform ? &prg_interface->uniform_array : &prg_interface->attribute_array;
@@ -102,7 +102,7 @@ static void build_attribute_list(const GLuint programID)
   build_input_list(programID, GL_FALSE);
 }
 
-void enable_shader_program(PROGRAM_ID_T programID)
+void enable_shader_program(const PROGRAM_ID_T programID)
 {
   const GLuint program = get_shader_program_obj(programID); 
 
