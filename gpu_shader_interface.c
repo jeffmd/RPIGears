@@ -7,15 +7,18 @@
 #include "shaderid.h"
 
 #define NAME_BUFFER_SIZE 100
+#define SHADER_INTERFACES_MAX_COUNT 5
+#define SHADER_INPUTS_MAX_COUNT SHADER_INTERFACES_MAX_COUNT * 10
+#define INPUT_NAME_LENGTH 16
 
 extern char msg[512];
 
-static char nameBuffer[NAME_BUFFER_SIZE];
-static GLuint nameCount = 0;
+//static char nameBuffer[NAME_BUFFER_SIZE];
+//static GLuint nameCount = 0;
 
 typedef struct {
   //GLuint name_offset;
-  char name[16];
+  char name[INPUT_NAME_LENGTH];
   GLint location;
   GLint size;
   GLenum type;
@@ -25,7 +28,7 @@ typedef struct {
   GLint count;
   GLint start;
   GLint name_max_length;
-  GLint name_start;
+//  GLint name_start;
 } ShaderInputArrayTracker;
 
 typedef struct {
@@ -34,9 +37,9 @@ typedef struct {
   ShaderInputArrayTracker attribute_array;
 } GPUShaderInterface;
 
-static GPUShaderInterface shaderInterfaces[50];
+static GPUShaderInterface shaderInterfaces[SHADER_INTERFACES_MAX_COUNT];
 
-static GPUShaderInput shader_inputs[500];
+static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
 static unsigned int shader_inputs_count = 0;
 
 static GLuint active_programID = 0;
@@ -81,8 +84,8 @@ static void build_input_list(const GLuint programID, const GLboolean is_uniform)
   const GLuint end = tracker->count;
 	for (GLuint i = 0; i < end; ++i) {
     GPUShaderInput *input = &shader_inputs[tracker->start + i];
-		is_uniform ? glGetActiveUniform(prg_interface->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name) :
-                 glGetActiveAttrib(prg_interface->glProgramObj, i, 16, NULL, &input->size, &input->type, input->name);
+		is_uniform ? glGetActiveUniform(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &input->size, &input->type, input->name) :
+                 glGetActiveAttrib(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &input->size, &input->type, input->name);
 
 		input->location = is_uniform ? glGetUniformLocation(prg_interface->glProgramObj, input->name) :
                                    glGetAttribLocation(prg_interface->glProgramObj, input->name);
@@ -123,7 +126,7 @@ static GPUShaderInput *get_shader_input(const ShaderInputArrayTracker* input_tra
 {
   const GLint end = input_tracker->start + input_tracker->count;
   for (GLuint i = input_tracker->start; i < end; ++i) {
-    if (strcmp(shader_inputs[i].name, name) == 0) {
+    if (strncmp(shader_inputs[i].name, name, INPUT_NAME_LENGTH) == 0) {
       //printf("location: %i\n", shader_inputs[i].location);
       return &shader_inputs[i];
     }
