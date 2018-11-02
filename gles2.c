@@ -30,11 +30,11 @@ static void draw_gearGLES2(const int gearid, GLfloat x, GLfloat y, GLfloat angle
    m4x4_rotate(Data.model_view, angle, 0, 0, 1);
 
    glUniform1i(DiffuseMap_loc, 0);
+   // Bind texture surface to current vertices
+   GPU_texture_bind(state_texId(), 0);
    
    glUniform4fv(UBO_loc, 9, (GLfloat *)&Data);
 
-   // Bind texture surface to current vertices
-   glBindTexture(GL_TEXTURE_2D, state_texId());
 
    gear_drawGLES2(gearid, options_useVBO(), options_drawMode(), MaterialColor_loc);
 

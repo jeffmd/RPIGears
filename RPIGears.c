@@ -86,25 +86,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xwindow.h"
 #include "shaders.h"
 #include "gpu_shader_interface.h"
+#include "gpu_texture.h"
 
 extern IMAGE_T rpi_image;
 
 static void init_textures(void)
 {
-   // load a texture buffer but use them on six OGL|ES texture surfaces
-   GLuint texId;
-   glGenTextures(1, &texId);
+   // load a texture buffer
+   printf("creating Textures\n");
+   const GLuint texId = GPU_texture_create_2D(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    update_texId(texId);
-
-   // setup texture
-   glBindTexture(GL_TEXTURE_2D, state_texId());
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rpi_image.width, rpi_image.height, 0,
-                GL_RGB, GL_UNSIGNED_BYTE, rpi_image.pixel_data);
-   //glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 static void frameClear(void)
