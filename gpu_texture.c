@@ -45,6 +45,33 @@ static GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
 
 }
 
+/* ------ Memory Management ------- */
+/* Records every texture allocation / free
+ * to estimate the Texture Pool Memory consumption */
+static GLuint memory_usage;
+
+static GLuint gpu_texture_memory_footprint_compute(const GLuint texID)
+{
+
+  GPUTexture *tex = &textures[texID];
+  
+  GLuint size = tex->format * tex->width * tex->height;
+  if (tex->target == GL_TEXTURE_CUBE_MAP) size *= 6; 
+  
+  return size;
+}
+
+static void gpu_texture_memory_footprint_add(const GLuint texID)
+{
+	memory_usage += gpu_texture_memory_footprint_compute(texID);
+  printf("Texture Memory: %i\n", memory_usage);
+}
+
+static void gpu_texture_memory_footprint_remove(const GLuint texID)
+{
+	memory_usage -= gpu_texture_memory_footprint_compute(texID);
+}
+
 static GLuint find_deleted_texture(void)
 {
   
@@ -75,7 +102,7 @@ GLuint GPU_texture_create_2D( const int w, const int h,
   tex->target = GL_TEXTURE_2D;
 
 
-  //gpu_texture_memory_footprint_add(tex);
+  gpu_texture_memory_footprint_add(texID);
 
   /* Generate Texture object */
   glGenTextures(1, &tex->bindcode);//GPU_tex_alloc();
@@ -156,7 +183,7 @@ void GPU_texture_free(const GLuint texID)
 		if (tex->bindcode)
 			glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
 
-		//gpu_texture_memory_footprint_remove(tex);
+		gpu_texture_memory_footprint_remove(texID);
 
 	}
 }
