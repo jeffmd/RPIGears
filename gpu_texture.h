@@ -16,6 +16,8 @@ GLuint GPU_texture_create_2D(const int w, const int h,
 
 void GPU_texture_bind(const GLuint texID, const int slot);
 void GPU_texture_unbind(const GLuint texID);
+void GPU_texture_free(const GLuint texID);
+int GPU_texture_bound_slot(const GLuint texID);
 void GPU_texture_ref(const GLuint texID);
 int GPU_texture_target(const GLuint texID);
 int GPU_texture_width(const GLuint texID);

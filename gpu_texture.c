@@ -18,7 +18,6 @@ typedef struct {
   
   unsigned refcount:5;  /* reference count */
   signed slot:4;      /* number for multitexture binding */
-  unsigned active:1;
   
   GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP use it for bind/unbind */
   GLuint bindcode;    /* opengl identifier for texture */
@@ -48,16 +47,16 @@ static GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
 
 static GLuint find_deleted_texture(void)
 {
-	GLuint id;
   
-	for (id = next_deleted_texture; id < GPU_TEXTURE_MAX_COUNT; id++) {
-	  if (textures[id].active == GL_FALSE) {
+	for (GLuint id = next_deleted_texture; id < GPU_TEXTURE_MAX_COUNT; id++) {
+	  if (textures[id].refcount == 0) {
 		  next_deleted_texture = id + 1;
 	    return id;
 	  }
 	}
   
-	return id - 1;
+  printf("WARNING: No Textures available\n");
+	return GPU_TEXTURE_MAX_COUNT - 1;
 }
 
 GLuint GPU_texture_create_2D( const int w, const int h,
@@ -67,7 +66,6 @@ GLuint GPU_texture_create_2D( const int w, const int h,
   
   GPUTexture *tex = &textures[texID];
 
-  tex->active = GL_TRUE;
   tex->width = w;
   tex->height = h;
   tex->slot = -1;
@@ -137,6 +135,35 @@ void GPU_texture_unbind(const GLuint texID)
 	glBindTexture(tex->target, 0);
 
 	tex->slot = -1;
+}
+
+void GPU_texture_free(const GLuint texID)
+{
+  GPUTexture *tex = &textures[texID];
+
+	tex->refcount--;
+
+	if (tex->refcount < 0)
+		fprintf(stderr, "GPUTexture: negative refcount\n");
+
+	if (tex->refcount == 0) {
+		//for (int i = 0; i < GPU_TEX_MAX_FBO_ATTACHED; ++i) {
+		//	if (tex->fb[i] != NULL) {
+		//		GPU_framebuffer_texture_detach_slot(tex->fb[i], tex, tex->fb_attachment[i]);
+		//	}
+    //}
+    
+		if (tex->bindcode)
+			glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
+
+		//gpu_texture_memory_footprint_remove(tex);
+
+	}
+}
+
+int GPU_texture_bound_slot(const GLuint texID)
+{
+	return textures[texID].slot;
 }
 
 
