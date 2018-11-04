@@ -68,7 +68,7 @@ static void update_array_tracker(const GLuint programID, const GLboolean is_unif
 
   GLint val;
   glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORMS : GL_ACTIVE_ATTRIBUTES, &val);
-  tracker->count = tracker->count;
+  tracker->count = val;
   glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORM_MAX_LENGTH : GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &val);
   tracker->name_max_length = val;
 
