@@ -2,6 +2,7 @@
  * shaders.c - vertex and pixel shaders used in gles2 mode
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -17,7 +18,7 @@ char msg[512];
 typedef struct {
   const char *fileName;
   const GLuint type;
-  GLuint glShaderObj;
+  uint16_t glShaderObj;
 } SHADER_T;
 
 typedef enum {
@@ -26,8 +27,8 @@ typedef enum {
 } SHADER_ID_T;
 
 typedef struct {
-  const SHADER_ID_T shader_vertID;
-  const SHADER_ID_T shader_fragID;
+  const uint16_t shader_vertID;
+  const uint16_t shader_fragID;
 } SHADER_PROGRAM_T;
 
 SHADER_T shaders[] = {

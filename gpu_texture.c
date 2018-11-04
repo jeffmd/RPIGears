@@ -18,11 +18,10 @@ typedef struct {
   
   unsigned refcount:5;  /* reference count */
   signed slot:4;      /* number for multitexture binding */
-  
-  GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP use it for bind/unbind */
-  GLuint bindcode;    /* opengl identifier for texture */
+  unsigned format:3;
 
-  GPUTextureFormat format;
+  GLuint bindcode;    /* opengl identifier for texture */
+  GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP use it for bind/unbind */
 
   //int fb_attachment[GPU_TEX_MAX_FBO_ATTACHED];
   //GPUFrameBuffer *fb[GPU_TEX_MAX_FBO_ATTACHED];
@@ -171,7 +170,7 @@ void GPU_texture_free(const GLuint texID)
 	tex->refcount--;
 
 	if (tex->refcount < 0)
-		fprintf(stderr, "GPUTexture: negative refcount\n");
+		printf("GPUTexture: negative refcount\n");
 
 	if (tex->refcount == 0) {
 		//for (int i = 0; i < GPU_TEX_MAX_FBO_ATTACHED; ++i) {

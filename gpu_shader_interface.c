@@ -1,5 +1,6 @@
 // gpu_shader_interface.c
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -19,20 +20,20 @@ extern char msg[512];
 typedef struct {
   //GLuint name_offset;
   char name[INPUT_NAME_LENGTH];
-  GLint location;
-  GLint size;
+  uint8_t location;
+  uint8_t size;
   GLenum type;
 } GPUShaderInput;
 
 typedef struct {
-  GLint count;
-  GLint start;
-  GLint name_max_length;
+  uint16_t count;
+  uint16_t start;
+  uint8_t name_max_length;
 //  GLint name_start;
 } ShaderInputArrayTracker;
 
 typedef struct {
-  GLuint glProgramObj;
+  uint16_t glProgramObj;
   ShaderInputArrayTracker uniform_array;
   ShaderInputArrayTracker attribute_array;
 } GPUShaderInterface;
@@ -40,9 +41,9 @@ typedef struct {
 static GPUShaderInterface shaderInterfaces[SHADER_INTERFACES_MAX_COUNT];
 
 static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
-static unsigned int shader_inputs_count = 0;
+static uint16_t shader_inputs_count = 0;
 
-static GLuint active_programID = 0;
+static uint16_t active_programID = 0;
 
 GLuint get_shader_program_obj(const PROGRAM_ID_T programID)
 {
@@ -65,9 +66,12 @@ static void update_array_tracker(const GLuint programID, const GLboolean is_unif
   ShaderInputArrayTracker *tracker = is_uniform ? &prg_interface->uniform_array : &prg_interface->attribute_array;
   GLint old_count = tracker->count;
 
-  glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORMS : GL_ACTIVE_ATTRIBUTES, &tracker->count);
-  glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORM_MAX_LENGTH : GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &tracker->name_max_length);
-  
+  GLint val;
+  glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORMS : GL_ACTIVE_ATTRIBUTES, &val);
+  tracker->count = tracker->count;
+  glGetProgramiv(prg_interface->glProgramObj, is_uniform ? GL_ACTIVE_UNIFORM_MAX_LENGTH : GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &val);
+  tracker->name_max_length = val;
+
   if (tracker->count > old_count) {
     tracker->start = shader_inputs_count;
     shader_inputs_count += tracker->count;
@@ -79,15 +83,16 @@ static void build_input_list(const GLuint programID, const GLboolean is_uniform)
 {
   GPUShaderInterface *prg_interface = &shaderInterfaces[programID];
   ShaderInputArrayTracker *tracker = is_uniform ? &prg_interface->uniform_array : &prg_interface->attribute_array;
-  
- 
-  const GLuint end = tracker->count;
-	for (GLuint i = 0; i < end; ++i) {
-    GPUShaderInput *input = &shader_inputs[tracker->start + i];
-		is_uniform ? glGetActiveUniform(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &input->size, &input->type, input->name) :
-                 glGetActiveAttrib(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &input->size, &input->type, input->name);
 
-		input->location = is_uniform ? glGetUniformLocation(prg_interface->glProgramObj, input->name) :
+
+  const GLuint end = tracker->count;
+  for (GLuint i = 0; i < end; ++i) {
+    GPUShaderInput *input = &shader_inputs[tracker->start + i];
+    GLint size;
+    is_uniform ? glGetActiveUniform(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &size, &input->type, input->name) :
+                 glGetActiveAttrib(prg_interface->glProgramObj, i, INPUT_NAME_LENGTH, NULL, &size, &input->type, input->name);
+    input->size = size;
+    input->location = is_uniform ? glGetUniformLocation(prg_interface->glProgramObj, input->name) :
                                    glGetAttribLocation(prg_interface->glProgramObj, input->name);
     printf("added %s: %s, location: %i\n", is_uniform ? "uniform" : "attribute", input->name, input->location);
   }
@@ -107,7 +112,7 @@ static void build_attribute_list(const GLuint programID)
 
 void enable_shader_program(const PROGRAM_ID_T programID)
 {
-  const GLuint program = get_shader_program_obj(programID); 
+  const GLuint program = get_shader_program_obj(programID);
 
   glLinkProgram(program);
   glGetProgramInfoLog(program, sizeof msg, NULL, msg);
@@ -115,7 +120,7 @@ void enable_shader_program(const PROGRAM_ID_T programID)
 
   build_uniform_list(programID);
   build_attribute_list(programID);
-  
+
   /* Enable the shaders */
   glUseProgram(program);
   active_programID = programID;
@@ -124,7 +129,7 @@ void enable_shader_program(const PROGRAM_ID_T programID)
 
 static GPUShaderInput *get_shader_input(const ShaderInputArrayTracker* input_tracker, const char *name)
 {
-  const GLint end = input_tracker->start + input_tracker->count;
+  const GLuint end = input_tracker->start + input_tracker->count;
   for (GLuint i = input_tracker->start; i < end; ++i) {
     if (strncmp(shader_inputs[i].name, name, INPUT_NAME_LENGTH) == 0) {
       //printf("location: %i\n", shader_inputs[i].location);
