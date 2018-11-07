@@ -1,7 +1,7 @@
 OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o \
 	demo_state.o key_input.o tasks.o RPi_Logo256.o camera.o xwindow.o \
 	xinput.o gles3.o fp16.o shaders.o gldebug.o gpu_shader_interface.o \
-	gpu_texture.o \ gpu_framebuffer.o
+	gpu_texture.o gpu_framebuffer.o
 	
 BIN=RPIGears.bin
 SRC = gles2.c scene.c print_info.c
