@@ -7,8 +7,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "GLES/gl.h"
-
 #include "gles3.h"
 
 #include "fp16.h"
@@ -38,13 +36,13 @@ typedef struct {
 
 
 static int gearID = 0;
-static gear_t* gears[3];
+static gear_t gears[3];
 
 
 // setup pointers/offsets for draw operations
 void set_gear_va_ptrs(const int gearid)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t *gear = &gears[gearid - 1];
   // for Vertex Array use pointers to where the buffer starts
   gear->vertex_p = gear->vertices[0].pos;
   gear->normal_p = gear->vertices[0].norm;
@@ -55,7 +53,7 @@ void set_gear_va_ptrs(const int gearid)
 
 void make_gear_vbo(const int gearid)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t* gear = &gears[gearid - 1];
   // for VBO use offsets into the buffer object
   gear->vertex_p = 0;
   gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
@@ -103,8 +101,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   vertex_t *vt, *nm, *tx;
   GLshort *ix;
   
-  gear_t *gear = calloc(1, sizeof(gear_t));
-  gears[gearID++] = gear;
+  gear_t *gear = &gears[gearID++];
   
   gear->nvertices = teeth * 38;
   gear->nindices = teeth * 64 * 3;
@@ -266,7 +263,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
 void gear_use_vbo(const int gearid)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t* gear = &gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
   //void *ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
@@ -282,7 +279,7 @@ void gear_vbo_off(void)
 
 void free_gear(const int gearid)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t* gear = &gears[gearid - 1];
    if (gear) {
 	   if (gear->vboId) {
 	     glDeleteBuffers(1, &gear->vboId);
@@ -292,14 +289,12 @@ void free_gear(const int gearid)
 	   }
      free(gear->vertices);
      free(gear->indices);
-     free(gear);
-     gears[gearid - 1] = 0;
    }
 }
 
 void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t* gear = &gears[gearid - 1];
   /* Set the gear color */
   glUniform4fv(MaterialColor_location, 1, gear->color);
   
@@ -312,7 +307,7 @@ void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, c
 
 void gear_setVAO_GLES2(const int gearid, const int useVBO)
 {
-  gear_t* gear = gears[gearid - 1];
+  gear_t* gear = &gears[gearid - 1];
   
   glGenVertexArrays(1, &gear->vaoId);
   glBindVertexArray(gear->vaoId);
