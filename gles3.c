@@ -69,9 +69,7 @@ typedef struct gl_array_attributes
  */
 typedef struct gl_vao
 {
-   /** Name of the VAO as received from glGenVertexArray. */
-   unsigned Name:8;
-   unsigned Deleted:1;
+   unsigned char Active;
    /** Vertex attribute arrays */
    gl_array_attributes VertexAttrib[VERT_ATTRIB_MAX];
    /** The index buffer (also known as the element array buffer in OpenGL). */
@@ -84,8 +82,7 @@ typedef struct gl_vao
 typedef struct gl_vao_manager
 {
    /** Currently bound array object. */
-   gl_vao *VAO;
-   gl_vao *DefaultVAO;
+   GLuint VAO;
    GLuint NextDeletedVAO;
    /** Array objects (GL_ARB_vertex_array_object) */
    gl_vao Objects[ARRAY_OBJECT_MAX];
@@ -117,14 +114,15 @@ void glBindBufferMod(GLenum target, GLuint buffer)
 	    *buff = buffer;
 	    glBindBuffer(target, buffer);
 	    if (target == GL_ELEMENT_ARRAY_BUFFER)
-	       ctx.Array.VAO->ElementBuffer = buffer;
+	       ctx.Array.Objects[ctx.Array.VAO].ElementBuffer = buffer;
 	}
 }
 
-static void delete_vao(gl_vao *obj)
+static void delete_vao(GLuint name)
 {
-   obj->Deleted = GL_TRUE;
-   ctx.Array.NextDeletedVAO = obj->Name;
+   gl_vao *obj = &ctx.Array.Objects[name];
+   obj->Active = GL_FALSE;
+   ctx.Array.NextDeletedVAO = name;
 }
 
 
@@ -157,8 +155,6 @@ static void init_array_attributes(gl_vao *vao,
 static gl_vao *init_vao(GLuint name)
 {
    gl_vao *vao = &ctx.Array.Objects[name];
-   vao->Name = name;
-   vao->Deleted = GL_TRUE;
    vao->ElementBuffer = 0;
 
    /* Init the individual arrays */
@@ -170,30 +166,12 @@ static gl_vao *init_vao(GLuint name)
 
 
 /**
- * Look up the array object for the given ID.
- *
- * \returns
- * Either a pointer to the array object with the specified ID or \c NULL for
- * a non-existent ID.  The spec defines ID 0 as being technically
- * non-existent.
- */
-
-static gl_vao *lookup_vao(GLuint id)
-{
-   if (id == 0) {
-      return NULL;
-   } else {
-      return &ctx.Array.Objects[id];
-   }
-}
-
-/**
  * Allocate and initialize a new vertex array object.
  */
 static gl_vao *new_vao(GLuint name)
 {
    gl_vao *vao = init_vao(name);
-   vao->Deleted = GL_FALSE;
+   vao->Active = GL_TRUE;
    return vao;
 }
 
@@ -204,7 +182,7 @@ static GLint find_deleted_vao()
 {
 	GLint id;
 	for (id = ctx.Array.NextDeletedVAO; id < ARRAY_OBJECT_MAX; id++) {
-	  if (ctx.Array.Objects[id].Deleted == GL_TRUE) {
+	  if (ctx.Array.Objects[id].Active == GL_FALSE) {
 		ctx.Array.NextDeletedVAO = id + 1;
 	    return id;
 	  }
@@ -212,21 +190,13 @@ static GLint find_deleted_vao()
 	return id;
 }
 
-static void init_all_vao(void)
-{
-   for(GLuint i = 0; i < VERT_ATTRIB_MAX; i++) {
-	   init_vao(i);
-   }	
-}
-
 /**
  * Initialize vertex array state for given context.
  */
 static void init_vao_manager(void)
 {
-   init_all_vao();
-   ctx.Array.DefaultVAO = new_vao(0);
-   ctx.Array.VAO = ctx.Array.DefaultVAO;
+   new_vao(0);
+   ctx.Array.VAO = 0;
    ctx.Array.NextDeletedVAO = 1;
 }
 
@@ -286,14 +256,21 @@ void glGenVertexArrays(GLsizei n, GLuint *arrays)
  */
 GLboolean glIsVertexArray( GLuint id )
 {
-   return lookup_vao(id) != NULL ;
+   return ((0 < id) && (id < ARRAY_OBJECT_MAX)) ;
 }
 
-static void set_bound_vao(gl_vao *vao)
+/**
+ * ARB version of glBindVertexArray()
+ */
+void glBindVertexArray(GLuint id)
 {
-   gl_vao *oldVao = ctx.Array.VAO;
+   if (ctx.Array.VAO == id)
+      return;   /* rebinding the same array object- no change */
+
+   gl_vao *oldVao =  &ctx.Array.Objects[ctx.Array.VAO];
+   gl_vao *vao =  &ctx.Array.Objects[id];
+   ctx.Array.VAO = id;
    
-   ctx.Array.VAO = vao;
    
    glBindBufferMod(GL_ELEMENT_ARRAY_BUFFER, vao->ElementBuffer);
 
@@ -313,48 +290,6 @@ static void set_bound_vao(gl_vao *vao)
 		 glDisableVertexAttribArray(i);
 	  }
    }
-   
-}
-
-
-/**
- * ARB version of glBindVertexArray()
- */
-static inline void bind_vao(GLuint id)
-{
-   gl_vao *const oldObj = ctx.Array.VAO;
-   gl_vao *newObj = NULL;
-
-   assert(oldObj != NULL);
-
-   if (oldObj->Name == id)
-      return;   /* rebinding the same array object- no change */
-
-   /*
-    * Get pointer to new array object (newObj)
-    */
-   if (id == 0) {
-      /* The spec says there is no array object named 0, but we use
-       * one internally because it simplifies things.
-       */
-      newObj = ctx.Array.DefaultVAO;
-   }
-   else {
-      /* non-default array object */
-      newObj = lookup_vao(id);
-      if (!newObj) {
-         printf("GL_INVALID_OPERATION: glBindVertexArray()\n");
-         return;
-      }
-
-   }
-   set_bound_vao(newObj);
-
-}
-
-void glBindVertexArray(GLuint id)
-{
-   bind_vao(id);
 }
 
 /**
@@ -368,10 +303,9 @@ static void delete_vaos(GLsizei n, const GLuint *ids)
    GLsizei i;
 
    for (i = 0; i < n; i++) {
-      gl_vao *obj = lookup_vao(ids[i]);
+      GLuint obj = ids[i];
 
       if (obj) {
-         assert(obj->Name == ids[i]);
 
          /* If the array object is currently bound, the spec says "the binding
           * for that object reverts to zero and the default vertex array
@@ -410,7 +344,7 @@ static void update_array(GLuint attrib, GLint size, GLenum type,
              GLsizei stride, GLboolean normalized, GLboolean integer,
              const GLvoid *ptr)
 {
-   gl_array_attributes *const array = &ctx.Array.VAO->VertexAttrib[attrib];
+   gl_array_attributes *const array = &ctx.Array.Objects[ctx.Array.VAO].VertexAttrib[attrib];
 
    array->Size = size;
    array->Type = type;
@@ -444,10 +378,10 @@ void glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
    update_array(index, size, type, stride, GL_FALSE, GL_TRUE, ptr);
 }
 
-static inline void enable_vertex_array_attrib(gl_vao *vao, GLuint attrib)
+static inline void enable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
    assert(attrib < VERT_ATTRIB_MAX);
-
+   gl_vao *vao =  &ctx.Array.Objects[id];
    vao->VertexAttrib[attrib].Enabled = GL_TRUE;
 }
 
@@ -459,7 +393,6 @@ void glEnableVertexAttribArrayMod(GLuint index)
 
 void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index)
 {
-   gl_vao *vao;
 
    /* The ARB_direct_state_access specification says:
     *
@@ -468,18 +401,17 @@ void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index)
     *    [compatibility profile: zero or] the name of an existing vertex
     *    array object."
     */
-   vao = lookup_vao(vaobj);
-   if (!vao)
+   if (!vaobj)
       return;
 
-   enable_vertex_array_attrib(vao, index);
+   enable_vertex_array_attrib(vaobj, index);
 }
 
-static inline void disable_vertex_array_attrib(gl_vao *vao, GLuint attrib)
+static inline void disable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
    assert(attrib < VERT_ATTRIB_MAX);
 
-   vao->VertexAttrib[attrib].Enabled = GL_FALSE;
+   ctx.Array.Objects[id].VertexAttrib[attrib].Enabled = GL_FALSE;
 
 }
 
@@ -491,8 +423,6 @@ void glDisableVertexAttribArrayMod(GLuint index)
 
 void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index)
 {
-   gl_vao *vao;
-
    /* The ARB_direct_state_access specification says:
     *
     *   "An INVALID_OPERATION error is generated by EnableVertexArrayAttrib
@@ -500,10 +430,9 @@ void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index)
     *    [compatibility profile: zero or] the name of an existing vertex
     *    array object."
     */
-   vao = lookup_vao(vaobj);
-   if (!vao)
+   if (!vaobj)
        return;
 
-   disable_vertex_array_attrib(vao, index);
+   disable_vertex_array_attrib(vaobj, index);
 }
 
