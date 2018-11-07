@@ -170,6 +170,7 @@ static gl_vao *init_vao(GLuint name)
  */
 static gl_vao *new_vao(GLuint name)
 {
+   assert(name < ARRAY_OBJECT_MAX);
    gl_vao *vao = init_vao(name);
    vao->Active = GL_TRUE;
    return vao;
@@ -267,10 +268,11 @@ void glBindVertexArray(GLuint id)
    if (ctx.Array.VAO == id)
       return;   /* rebinding the same array object- no change */
 
+   assert(id < ARRAY_OBJECT_MAX);
+
    gl_vao *oldVao =  &ctx.Array.Objects[ctx.Array.VAO];
    gl_vao *vao =  &ctx.Array.Objects[id];
    ctx.Array.VAO = id;
-   
    
    glBindBufferMod(GL_ELEMENT_ARRAY_BUFFER, vao->ElementBuffer);
 
@@ -306,6 +308,7 @@ static void delete_vaos(GLsizei n, const GLuint *ids)
       GLuint obj = ids[i];
 
       if (obj) {
+         assert(obj < ARRAY_OBJECT_MAX);
 
          /* If the array object is currently bound, the spec says "the binding
           * for that object reverts to zero and the default vertex array
@@ -380,6 +383,7 @@ void glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
 
 static inline void enable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
+   assert(id < ARRAY_OBJECT_MAX);
    assert(attrib < VERT_ATTRIB_MAX);
    gl_vao *vao =  &ctx.Array.Objects[id];
    vao->VertexAttrib[attrib].Enabled = GL_TRUE;
@@ -409,6 +413,7 @@ void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index)
 
 static inline void disable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
+   assert(id < ARRAY_OBJECT_MAX);
    assert(attrib < VERT_ATTRIB_MAX);
 
    ctx.Array.Objects[id].VertexAttrib[attrib].Enabled = GL_FALSE;
