@@ -18,7 +18,8 @@ typedef struct {
   
   unsigned refcount:5;  /* reference count */
   signed slot:4;      /* number for multitexture binding */
-  unsigned format:3;
+  unsigned format:4;
+  unsigned is_texture:1;
 
   GLuint bindcode;    /* opengl identifier for texture */
   GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP use it for bind/unbind */
@@ -29,7 +30,7 @@ typedef struct {
 
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
-static GLuint next_deleted_texture = 0;
+static uint16_t next_deleted_texture = 0;
 
 static GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
 {
@@ -38,8 +39,12 @@ static GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
     case GPU_RG8: return GL_LUMINANCE_ALPHA; break;
     case GPU_RGB8: return GL_RGB; break;
     case GPU_RGBA8: return GL_RGBA; break;
+    case GPU_DEPTH16: return GL_DEPTH_COMPONENT16; break;
+    case GPU_DEPTH24: return GL_DEPTH_COMPONENT24_OES; break;
+    case GPU_DEPTH32: return GL_DEPTH_COMPONENT32_OES; break;
+    case GPU_STENCIL8: return GL_STENCIL_INDEX8; break;
     default:
-            return GL_RGBA;
+      return GL_RGBA;
   }
 
 }
@@ -85,6 +90,44 @@ static GLuint find_deleted_texture(void)
 	return GPU_TEXTURE_MAX_COUNT - 1;
 }
 
+static void create_renderbuffer( GPUTexture *tex)
+{
+  tex->is_texture = 0;
+  glGenRenderbuffers(1, &tex->bindcode);
+  glBindRenderbuffer(GL_RENDERBUFFER, tex->bindcode);
+  const GLenum data_format = gpu_get_gl_dataformat(tex->format);
+  glRenderbufferStorage(GL_RENDERBUFFER, data_format, tex->width, tex->height);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+static void create_texture( GPUTexture *tex, const void *pixels)
+{
+  tex->is_texture = 1;
+  /* Generate Texture object */
+  glGenTextures(1, &tex->bindcode);//GPU_tex_alloc();
+
+  //if (!tex->bindcode) {
+    //printf("GPUTexture: texture create failed\n");
+    //GPU_texture_free(tex);
+    //return NULL;
+  //}
+
+  glBindTexture(GL_TEXTURE_2D, tex->bindcode);
+
+  const GLenum data_format = gpu_get_gl_dataformat(tex->format);
+  /* Upload Texture */
+  glTexImage2D(GL_TEXTURE_2D, 0, data_format, tex->width, tex->height, 0, data_format, GL_UNSIGNED_BYTE, pixels);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
 GLuint GPU_texture_create_2D( const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
@@ -97,35 +140,27 @@ GLuint GPU_texture_create_2D( const int w, const int h,
   tex->slot = -1;
   tex->refcount = 1;
   tex->format = tex_format;
-
   tex->target = GL_TEXTURE_2D;
 
-
+  switch(tex_format) {
+    case GPU_TF_NONE:
+    case GPU_R8:
+    case GPU_RG8:
+    case GPU_RGB8:
+    case GPU_RGBA8:
+      create_texture(tex, pixels);
+      break;
+    case GPU_DEPTH16:
+	  case GPU_DEPTH24:
+	  case GPU_DEPTH32:
+	  case GPU_STENCIL8:
+      create_renderbuffer(tex);
+      break;
+  }
+  
   gpu_texture_memory_footprint_add(texID);
 
-  /* Generate Texture object */
-  glGenTextures(1, &tex->bindcode);//GPU_tex_alloc();
   printf("New Texture ID:%i glObjID: %i\n", texID, tex->bindcode);
-
-  //if (!tex->bindcode) {
-    //printf("GPUTexture: texture create failed\n");
-    //GPU_texture_free(tex);
-    //return NULL;
-  //}
-
-  glBindTexture(GL_TEXTURE_2D, tex->bindcode);
-
-  const GLenum data_format = gpu_get_gl_dataformat(tex_format);
-  /* Upload Texture */
-  glTexImage2D(GL_TEXTURE_2D, 0, data_format, tex->width, tex->height, 0, data_format, GL_UNSIGNED_BYTE, pixels);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
 
   return texID;
 }

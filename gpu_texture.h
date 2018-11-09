@@ -9,6 +9,10 @@ typedef enum GPUTextureFormat {
 	GPU_RG8,
 	GPU_RGB8,
 	GPU_RGBA8,
+	GPU_DEPTH16,
+	GPU_DEPTH24,
+	GPU_DEPTH32,
+	GPU_STENCIL8
 } GPUTextureFormat;
 
 GLuint GPU_texture_create_2D(const int w, const int h,
