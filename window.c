@@ -200,20 +200,21 @@ void window_update(void)
 
     int result = vc_dispmanx_element_change_attributes(update,
                                             window->nativewindow.element,
-                                            /*ELEMENT_CHANGE_OPACITY |*/ ELEMENT_CHANGE_TRANSFORM,
+                                            0/*ELEMENT_CHANGE_OPACITY | ELEMENT_CHANGE_TRANSFORM*/,
                                             0,
                                             255,
                                             &window->dst_rect,
                                             &window->src_rect,
                                             0,
-                                            DISPMANX_ROTATE_90);
-      assert(result == 0);
+                                            0);
+    
+    assert(result == 0);
 
-      result = vc_dispmanx_update_submit(update, 0, 0);
-      assert(result == 0);
-      window->update = 0;
-      //window_init_pos();
-    }
+    result = vc_dispmanx_update_submit(update, 0, 0);
+    assert(result == 0);
+    window->update = 0;
+    //window_init_pos();
+  }
 }
 
 void window_update_VSync(const int sync)
@@ -253,7 +254,7 @@ static void createSurface(void)
     0/*layer*/, &window->dst_rect, 0/*src*/,
     &window->src_rect, DISPMANX_PROTECTION_NONE, &alphadata /*alpha*/, 0/*clamp*/, DISPMANX_ROTATE_90/*transform*/);
 
-  vc_dispmanx_update_submit_sync( dispman_update );
+  vc_dispmanx_update_submit(dispman_update, 0, 0);
 
 #if 0
   EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
