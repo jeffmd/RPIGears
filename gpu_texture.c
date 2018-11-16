@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "gpu_framebuffer.h"
 #include "gpu_texture.h"
 
 
@@ -22,7 +23,7 @@ typedef struct {
   unsigned is_texture:1;
 
   GLuint bindcode;    /* opengl identifier for texture */
-  GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP use it for bind/unbind */
+  GLenum target;      /* GL_TEXTURE_2D/GL_TEXTURE_CUBE_MAP_xx/ use it for bind/unbind */
 
   //int fb_attachment[GPU_TEX_MAX_FBO_ATTACHED];
   //GPUFrameBuffer *fb[GPU_TEX_MAX_FBO_ATTACHED];
@@ -90,9 +91,10 @@ static GLuint find_deleted_texture(void)
 	return GPU_TEXTURE_MAX_COUNT - 1;
 }
 
-static void create_renderbuffer( GPUTexture *tex)
+static void init_renderbuffer( GPUTexture *tex)
 {
   tex->is_texture = 0;
+  tex->target = GL_RENDERBUFFER;
   glGenRenderbuffers(1, &tex->bindcode);
   glBindRenderbuffer(GL_RENDERBUFFER, tex->bindcode);
   const GLenum data_format = gpu_get_gl_dataformat(tex->format);
@@ -100,9 +102,10 @@ static void create_renderbuffer( GPUTexture *tex)
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-static void create_texture( GPUTexture *tex, const void *pixels)
+static void init_texture( GPUTexture *tex, const void *pixels)
 {
   tex->is_texture = 1;
+  tex->target = GL_TEXTURE_2D;
   /* Generate Texture object */
   glGenTextures(1, &tex->bindcode);//GPU_tex_alloc();
 
@@ -140,7 +143,6 @@ GLuint GPU_texture_create_2D( const int w, const int h,
   tex->slot = -1;
   tex->refcount = 1;
   tex->format = tex_format;
-  tex->target = GL_TEXTURE_2D;
 
   switch(tex_format) {
     case GPU_TF_NONE:
@@ -148,13 +150,13 @@ GLuint GPU_texture_create_2D( const int w, const int h,
     case GPU_RG8:
     case GPU_RGB8:
     case GPU_RGBA8:
-      create_texture(tex, pixels);
+      init_texture(tex, pixels);
       break;
     case GPU_DEPTH16:
 	  case GPU_DEPTH24:
 	  case GPU_DEPTH32:
 	  case GPU_STENCIL8:
-      create_renderbuffer(tex);
+      init_renderbuffer(tex);
       break;
   }
   
@@ -208,14 +210,9 @@ void GPU_texture_free(const GLuint texID)
 		printf("GPUTexture: negative refcount\n");
 
 	if (tex->refcount == 0) {
-		//for (int i = 0; i < GPU_TEX_MAX_FBO_ATTACHED; ++i) {
-		//	if (tex->fb[i] != NULL) {
-		//		GPU_framebuffer_texture_detach_slot(tex->fb[i], tex, tex->fb_attachment[i]);
-		//	}
-    //}
+		GPU_framebuffer_texture_detach_all(texID);
     
-		if (tex->bindcode)
-			glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
+		glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
 
 		gpu_texture_memory_footprint_remove(texID);
 
