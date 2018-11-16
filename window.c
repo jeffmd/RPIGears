@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include "bcm_host.h"
+#include "vc_vchi_dispmanx.h"
 #include "GLES2/gl2.h"
 #include "GLES2/gl2ext.h"
 #include "EGL/egl.h"
@@ -15,12 +16,12 @@
 
 
 //  Element Attributes changes flag mask
-#define ELEMENT_CHANGE_LAYER          (1<<0)
-#define ELEMENT_CHANGE_OPACITY        (1<<1)
-#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
-#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
-#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
-#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
+//#define ELEMENT_CHANGE_LAYER          (1<<0)
+//#define ELEMENT_CHANGE_OPACITY        (1<<1)
+//#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
+//#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
+//#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
+//#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
 
 typedef  struct {
    // window data
@@ -160,8 +161,8 @@ static void updateSrcSize(void)
 {
   window->src_rect.width = (window->dst_rect.width) << 16;
   window->src_rect.height = (window->dst_rect.height) << 16;
-    window->src_rect.x = ((window->nativewindow.width - window->dst_rect.width) / 2) << 16;
-    window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
+  window->src_rect.x = ((window->nativewindow.width - window->dst_rect.width) / 2) << 16;
+  window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
 
@@ -199,11 +200,11 @@ void window_update(void)
 
     int result = vc_dispmanx_element_change_attributes(update,
                                             window->nativewindow.element,
-                                            ELEMENT_CHANGE_OPACITY,
+                                            /*ELEMENT_CHANGE_OPACITY |*/ ELEMENT_CHANGE_TRANSFORM,
                                             0,
-                                            128,
-                                            &(window->dst_rect),
-                                            &(window->src_rect),
+                                            255,
+                                            &window->dst_rect,
+                                            &window->src_rect,
                                             0,
                                             DISPMANX_ROTATE_90);
       assert(result == 0);
@@ -241,10 +242,16 @@ static void createSurface(void)
   window->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
 
   dispman_update = vc_dispmanx_update_start( 0 );
-
+  
+  VC_DISPMANX_ALPHA_T alphadata = {
+    DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS | DISPMANX_FLAGS_ALPHA_MIX | DISPMANX_FLAGS_ALPHA_PREMULT,
+    0,
+    0
+  };
+  
   window->nativewindow.element = vc_dispmanx_element_add( dispman_update, window->dispman_display,
     0/*layer*/, &window->dst_rect, 0/*src*/,
-    &window->src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
+    &window->src_rect, DISPMANX_PROTECTION_NONE, &alphadata /*alpha*/, 0/*clamp*/, DISPMANX_ROTATE_90/*transform*/);
 
   vc_dispmanx_update_submit_sync( dispman_update );
 
@@ -297,8 +304,8 @@ static void createContext(void)
     EGL_ALPHA_SIZE, 8,
     EGL_DEPTH_SIZE, 24,
     //EGL_STENCIL_SIZE, 8,
-    EGL_SAMPLE_BUFFERS, 1,
-    EGL_SAMPLES, 4,
+    //EGL_SAMPLE_BUFFERS, 1,
+    //EGL_SAMPLES, 4,
     EGL_NONE
   };
 
@@ -395,32 +402,33 @@ static void window_setup_frameBufferRenderTexture(void)
   //glBindTexture(GL_TEXTURE_2D, 0);
 
   // Build the texture that will serve as the stencil attachment for the framebuffer.
-  GLuint stencil_texture;
-  glGenTextures(1, &stencil_texture);
-  glBindTexture(GL_TEXTURE_2D, stencil_texture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
-  check_gl_error("make stencil texture buffer");
-  glBindTexture(GL_TEXTURE_2D, 0);
+  //GLuint stencil_texture;
+  //glGenTextures(1, &stencil_texture);
+  //glBindTexture(GL_TEXTURE_2D, stencil_texture);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+  //check_gl_error("make stencil texture buffer");
+  //glBindTexture(GL_TEXTURE_2D, 0);
 
   // Build the texture that will serve as the depth attachment for the framebuffer.
   GLuint depth_renderbuffer;
   
   glGenRenderbuffers(1, &depth_renderbuffer);
   glBindRenderbuffer( GL_RENDERBUFFER, depth_renderbuffer );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
+  //glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
+  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT32_OES, window->nativewindow.width, window->nativewindow.height );
   glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 
   // Build the texture that will serve as the depth attachment for the framebuffer.
-  GLuint stencil_renderbuffer;
+  //GLuint stencil_renderbuffer;
   
-  glGenRenderbuffers(1, &stencil_renderbuffer);
-  glBindRenderbuffer( GL_RENDERBUFFER, stencil_renderbuffer );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX8, window->nativewindow.width, window->nativewindow.height );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+  //glGenRenderbuffers(1, &stencil_renderbuffer);
+  //glBindRenderbuffer( GL_RENDERBUFFER, stencil_renderbuffer );
+  //glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX8, window->nativewindow.width, window->nativewindow.height );
+  //glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 
   // Build the framebuffer.
   GLuint framebuffer;
@@ -433,8 +441,8 @@ static void window_setup_frameBufferRenderTexture(void)
   check_gl_error("bind depth texture buffer to frame buffer");
   //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencil_texture, 0);
   //check_gl_error("bind stencil texture buffer to frame buffer");
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_renderbuffer);
-  check_gl_error("bind depth texture buffer to frame buffer");
+  //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_renderbuffer);
+  //check_gl_error("bind depth texture buffer to frame buffer");
 
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE)
