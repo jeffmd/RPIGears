@@ -7,26 +7,15 @@
 
 #include "bcm_host.h"
 #include "vc_vchi_dispmanx.h"
-#include "GLES2/gl2.h"
-#include "GLES2/gl2ext.h"
+#include "gles3.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
+#include "gpu_texture.h"
+#include "gpu_framebuffer.h"
 
 #include "gldebug.h"
 
-
-//  Element Attributes changes flag mask
-//#define ELEMENT_CHANGE_LAYER          (1<<0)
-//#define ELEMENT_CHANGE_OPACITY        (1<<1)
-//#define ELEMENT_CHANGE_DEST_RECT      (1<<2)
-//#define ELEMENT_CHANGE_SRC_RECT       (1<<3)
-//#define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
-//#define ELEMENT_CHANGE_TRANSFORM      (1<<5)
-
 typedef  struct {
-   // window data
-   //uint32_t screen_width;
-   //uint32_t screen_height;
 // OpenGL|ES objects
    EGLConfig config;
    EGLDisplay display;
@@ -340,116 +329,26 @@ static void createContext(void)
   assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
 }
 
-static void window_setup_frameBufferRenderBuffer(void)
-{
-  GLuint color_renderbuffer;
-  
-  glGenRenderbuffers(1, &color_renderbuffer);
-  glBindRenderbuffer( GL_RENDERBUFFER, (GLuint)color_renderbuffer );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_RGBA8_OES, window->nativewindow.width, window->nativewindow.height );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-
-  // Build the texture that will serve as the depth attachment for the framebuffer.
-  GLuint depth_renderbuffer;
-  
-  glGenRenderbuffers(1, &depth_renderbuffer);
-  glBindRenderbuffer( GL_RENDERBUFFER, (GLuint)depth_renderbuffer );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-
-  // Build the framebuffer.
-  GLuint framebuffer;
-  
-  glGenFramebuffers(1, &framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_renderbuffer);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_renderbuffer);
-
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (status != GL_FRAMEBUFFER_COMPLETE)
-    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
-
-  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 static void window_setup_frameBufferRenderTexture(void)
 {
   check_gl_error("starting setup frameBufferRenderTexture");
   // Build the texture that will serve as the color attachment for the framebuffer.
-  GLuint texture_map;
-  glGenTextures(1, &texture_map);
-  glBindTexture(GL_TEXTURE_2D, texture_map);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->nativewindow.width, window->nativewindow.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  const GLuint texID = GPU_texture_create_2D(window->nativewindow.width, window->nativewindow.height, GPU_RGBA8, NULL);
   check_gl_error("make color texture buffer");
 
-  glBindTexture(GL_TEXTURE_2D, 0);
-
   // Build the texture that will serve as the depth attachment for the framebuffer.
-  //GLuint depth_texture;
-  //glGenTextures(1, &depth_texture);
-  //glBindTexture(GL_TEXTURE_2D, depth_texture);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  //glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
-  //check_gl_error("make depth texture buffer");
-  //glBindTexture(GL_TEXTURE_2D, 0);
-
-  // Build the texture that will serve as the stencil attachment for the framebuffer.
-  //GLuint stencil_texture;
-  //glGenTextures(1, &stencil_texture);
-  //glBindTexture(GL_TEXTURE_2D, stencil_texture);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  //glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, window->nativewindow.width, window->nativewindow.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
-  //check_gl_error("make stencil texture buffer");
-  //glBindTexture(GL_TEXTURE_2D, 0);
-
-  // Build the texture that will serve as the depth attachment for the framebuffer.
-  GLuint depth_renderbuffer;
+  const GLuint depthID = GPU_texture_create_2D(window->nativewindow.width, window->nativewindow.height, GPU_DEPTH24, NULL);
   
-  glGenRenderbuffers(1, &depth_renderbuffer);
-  glBindRenderbuffer( GL_RENDERBUFFER, depth_renderbuffer );
-  //glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, window->nativewindow.width, window->nativewindow.height );
-  glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT32_OES, window->nativewindow.width, window->nativewindow.height );
-  glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-
-  // Build the texture that will serve as the depth attachment for the framebuffer.
-  //GLuint stencil_renderbuffer;
-  
-  //glGenRenderbuffers(1, &stencil_renderbuffer);
-  //glBindRenderbuffer( GL_RENDERBUFFER, stencil_renderbuffer );
-  //glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX8, window->nativewindow.width, window->nativewindow.height );
-  //glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-
   // Build the framebuffer.
-  GLuint framebuffer;
-  glGenFramebuffers(1, &framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_map, 0);
-  check_gl_error("bind color texture buffer to frame buffer");
-  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture, 0);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_renderbuffer);
-  check_gl_error("bind depth texture buffer to frame buffer");
-  //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencil_texture, 0);
-  //check_gl_error("bind stencil texture buffer to frame buffer");
-  //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_renderbuffer);
-  //check_gl_error("bind depth texture buffer to frame buffer");
-
+  const GLuint framebufferID = GPU_framebuffer_create();
+  GPU_framebuffer_texture_attach(framebufferID, texID);
+  GPU_framebuffer_texture_attach(framebufferID, depthID);
+  GPU_framebuffer_bind(framebufferID);
+  
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE)
     printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
 
-  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 static void window_print_GL_Limits(void)
@@ -520,7 +419,7 @@ void window_init(void)
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
   window_print_GL_Limits();
-  //window_setup_frameBufferRenderBuffer();
+
   //window_setup_frameBufferRenderTexture();
 }
 

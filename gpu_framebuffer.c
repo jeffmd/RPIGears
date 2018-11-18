@@ -31,9 +31,11 @@ typedef struct {
 
 static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
 static uint16_t next_deleted_framebuffer = 0;
+static uint16_t active_framebuffer;
 
 static GLuint find_deleted_framebuffer(void)
 {
+  if(next_deleted_framebuffer == 0) next_deleted_framebuffer = 1;
   
 	for (GLuint id = next_deleted_framebuffer; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
 	  if (framebuffers[id].refcount == 0) {
@@ -71,6 +73,16 @@ static GPUAttachmentType attachment_type_from_tex(GLuint texID)
 	}
 }
 
+GLuint GPU_framebuffer_active_get(void)
+{
+	return active_framebuffer;
+}
+
+static void gpu_framebuffer_current_set(GLuint fbID)
+{
+	active_framebuffer = fbID;
+}
+
 GLuint GPU_framebuffer_create(void)
 {
 	/* We generate the FB object later at first use in order to
@@ -79,11 +91,14 @@ GLuint GPU_framebuffer_create(void)
   GPUFrameBuffer *fb = &framebuffers[framebufferID];
   fb->refcount = 1;
   
+  return framebufferID;
+}
+
+static void gpu_framebuffer_init(GPUFrameBuffer *fb)
+{
   GLuint obj;
   glGenFramebuffers(1, &obj);
   fb->object = obj;
-  
-  return framebufferID;
 }
 
 void GPU_framebuffer_free(GLuint framebufferID)
@@ -100,9 +115,12 @@ void GPU_framebuffer_free(GLuint framebufferID)
       fb->attachments[type] = 0;
     }
 
+    if (GPU_framebuffer_active_get() == framebufferID) {
+      gpu_framebuffer_current_set(0);
+    }
     /* This restores the framebuffer if it was bound */
-    GLuint obj = fb->object;
-    glDeleteFramebuffers(1, &obj);
+    //GLuint obj = fb->object;
+    //glDeleteFramebuffers(1, &obj);
 
   }
 }
@@ -127,7 +145,7 @@ void GPU_framebuffer_texture_detach_all(GLuint texID)
   
 }
 
-static void gpu_framebuffer_texture_attach(GLuint fbID, GLuint texID)
+void GPU_framebuffer_texture_attach(GLuint fbID, GLuint texID)
 {
 
 	const GPUAttachmentType type = attachment_type_from_tex(texID);
@@ -168,10 +186,9 @@ static void gpu_framebuffer_attachment_detach(GPUAttachmentType attach_type)
   }
 }
 
-static void gpu_framebuffer_update_attachments(GLuint fbID)
+static void gpu_framebuffer_update_attachments(GPUFrameBuffer *fb)
 {
 
-  GPUFrameBuffer *fb = &framebuffers[fbID];
 	//BLI_assert(GPU_framebuffer_active_get() == fb);
 
 	/* Update attachments */
@@ -199,17 +216,16 @@ void GPU_framebuffer_bind(GLuint fbID)
 {
   GPUFrameBuffer *fb = &framebuffers[fbID];
 
-	//if (fb->object == 0)
-	//	gpu_framebuffer_init(fbID);
+	if (fb->object == 0)
+		gpu_framebuffer_init(fb);
 
-	//if (GPU_framebuffer_active_get() != fb)
+	//if (GPU_framebuffer_active_get() != fbID)
 		glBindFramebuffer(GL_FRAMEBUFFER, fb->object);
 
-	//gpu_framebuffer_current_set(fb);
+	gpu_framebuffer_current_set(fbID);
 
-	if (fb->dirty_flag != 0)
-		gpu_framebuffer_update_attachments(fbID);
-
+	if (fb->dirty_flag)
+		gpu_framebuffer_update_attachments(fb);
 
 	glViewport(0, 0, fb->width, fb->height);
 }
