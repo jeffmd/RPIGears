@@ -122,7 +122,8 @@ static void delete_vao(GLuint name)
 {
    gl_vao *obj = &ctx.Array.Objects[name];
    obj->Active = GL_FALSE;
-   ctx.Array.NextDeletedVAO = name;
+   if (name < ctx.Array.NextDeletedVAO)
+		ctx.Array.NextDeletedVAO = name;
 }
 
 
