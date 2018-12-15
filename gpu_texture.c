@@ -9,11 +9,6 @@
 
 #define GPU_TEXTURE_MAX_COUNT 5
 
-typedef enum {
-  GPU_FORMAT_2D,
-  GPU_FORMAT_CUBE
-} GPUTextureType;
-
 typedef struct {
   int width, height;
   
@@ -28,7 +23,6 @@ typedef struct {
   //int fb_attachment[GPU_TEX_MAX_FBO_ATTACHED];
   //GPUFrameBuffer *fb[GPU_TEX_MAX_FBO_ATTACHED];
 } GPUTexture;
-
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
 static uint16_t next_deleted_texture = 0;
