@@ -176,7 +176,7 @@ static void gpu_framebuffer_attachment_attach(GLuint texID, GPUAttachmentType at
 
 static void gpu_framebuffer_attachment_detach(GPUAttachmentType attach_type)
 {
-	GLenum gl_attachment = convert_attachment_type_to_gl(attach_type);
+	const GLenum gl_attachment = convert_attachment_type_to_gl(attach_type);
   
   if (gl_attachment == GL_COLOR_ATTACHMENT0) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, gl_attachment, 0, 0, 0);
