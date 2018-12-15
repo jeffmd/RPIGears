@@ -191,7 +191,7 @@ void window_update(void)
                                             window->nativewindow.element,
                                             0/*ELEMENT_CHANGE_OPACITY | ELEMENT_CHANGE_TRANSFORM*/,
                                             0,
-                                            255,
+                                            0,
                                             &window->dst_rect,
                                             &window->src_rect,
                                             0,
@@ -418,9 +418,12 @@ void window_init(void)
 
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
+  glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
+
   window_print_GL_Limits();
 
   //window_setup_frameBufferRenderTexture();
+  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void window_swap_buffers(void)
