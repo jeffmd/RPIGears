@@ -186,9 +186,10 @@ static GLint find_deleted_vao()
 	for (id = ctx.Array.NextDeletedVAO; id < ARRAY_OBJECT_MAX; id++) {
 	  if (ctx.Array.Objects[id].Active == GL_FALSE) {
 		ctx.Array.NextDeletedVAO = id + 1;
-	    return id;
+	    break;
 	  }
 	}
+    assert(id < ARRAY_OBJECT_MAX);
 	return id;
 }
 
