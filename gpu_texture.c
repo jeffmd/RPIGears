@@ -7,7 +7,7 @@
 #include "gpu_texture.h"
 
 
-#define GPU_TEXTURE_MAX_COUNT 5
+#define GPU_TEXTURE_MAX_COUNT 200
 
 typedef struct {
   int width, height;
@@ -83,7 +83,7 @@ static GLuint find_deleted_texture(void)
 	}
   
   printf("WARNING: No Textures available\n");
-	return GPU_TEXTURE_MAX_COUNT;
+	return GPU_TEXTURE_MAX_COUNT - 1;
 }
 
 static void init_renderbuffer(GPUTexture *tex)
