@@ -15,8 +15,8 @@
   void make_gear_vbo(int gearid);
   void free_gear(int gearid);
   void gear_use_vbo(const int gearid);
-  void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location);
-  void gear_setVAO_GLES2(const int gearid, const int useVBO);
+  void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location);
+  void gear_setVAO(const int gearid, const int useVBO);
 
 #endif  
   

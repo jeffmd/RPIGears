@@ -113,7 +113,6 @@ static void frameClear(void)
 }
 
 #include "print_info.c"
-#include "gles2.c"
 #include "scene.c"
 
 void toggle_useVSync(void)

@@ -266,8 +266,8 @@ void gear_use_vbo(const int gearid)
   gear_t* gear = &gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-  //void *ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-  //glUnmapBufferOES(GL_ARRAY_BUFFER);
+  //void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+  //glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 void gear_vbo_off(void)
@@ -292,7 +292,7 @@ void free_gear(const int gearid)
    }
 }
 
-void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, const GLuint MaterialColor_location)
+void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location)
 {
   gear_t* gear = &gears[gearid - 1];
   /* Set the gear color */
@@ -305,7 +305,7 @@ void gear_drawGLES2(const int gearid, const int useVBO, const GLenum drawMode, c
   
 }
 
-void gear_setVAO_GLES2(const int gearid, const int useVBO)
+void gear_setVAO(const int gearid, const int useVBO)
 {
   gear_t* gear = &gears[gearid - 1];
   

@@ -3,8 +3,8 @@ OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o \
 	xinput.o gles3.o fp16.o shaders.o gldebug.o gpu_shader_interface.o \
 	gpu_texture.o gpu_framebuffer.o
 	
-BIN=RPIGears.bin
-SRC = gles2.c scene.c print_info.c
+BIN = RPIGears.bin
+SRC = scene.c print_info.c
 HDR = user_options.h demo_state.h window.h matrix_math.h gear.h \
 	key_input.h tasks.h image.h camera.h xwindow.h gles3.h shaders.h \
 	gpu_shader_interface.h gpu_texture.h
