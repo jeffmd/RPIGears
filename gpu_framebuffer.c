@@ -6,7 +6,7 @@
 #include "gles3.h"
 #include "gpu_texture.h"
 
-#define GPU_FRAMEBUFFER_MAX_COUNT 5
+#define GPU_FRAMEBUFFER_MAX_COUNT 200
 
 typedef enum {
 	GPU_FB_DEPTH_ATTACHMENT = 0,
