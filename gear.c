@@ -257,10 +257,12 @@ static void gear_bind_buffer(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
+  if (gear->vboId)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
+  if (gear->iboId)
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
 
   //void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
   //glUnmapBuffer(GL_ARRAY_BUFFER);
