@@ -69,7 +69,7 @@ static void init_scene(void)
    UBO_loc = get_active_uniform_location("UBO")   ;
    MaterialColor_loc = get_active_uniform_location("MaterialColor");
    
-   gear_setVAO(state_gear1(), options_useVBO());
-   gear_setVAO(state_gear2(), options_useVBO());
-   gear_setVAO(state_gear3(), options_useVBO());
+   gear_setVAO(state_gear1());
+   gear_setVAO(state_gear2());
+   gear_setVAO(state_gear3());
 }
