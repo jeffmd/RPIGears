@@ -34,9 +34,10 @@ typedef struct {
   GLvoid *texCoords_p;  // offset or pointer to first texcoord
 } gear_t;
 
+#define GEARS_MAX_COUNT 3
 
 static int gearID = 0;
-static gear_t gears[3];
+static gear_t gears[GEARS_MAX_COUNT];
 
 
 // setup pointers for vertex array
