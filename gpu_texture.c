@@ -27,21 +27,21 @@ typedef struct {
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
 static uint16_t next_deleted_texture = 0;
 
-static GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
-{
-  switch (data_type) {
-    case GPU_R8: return GL_LUMINANCE; break;
-    case GPU_RG8: return GL_LUMINANCE_ALPHA; break;
-    case GPU_RGB8: return GL_RGB; break;
-    case GPU_RGBA8: return GL_RGBA; break;
-    case GPU_STENCIL8: return GL_STENCIL_INDEX8; break;
-    case GPU_DEPTH16: return GL_DEPTH_COMPONENT16; break;
-    case GPU_DEPTH24: return GL_DEPTH_COMPONENT24_OES; break;
-    case GPU_DEPTH32: return GL_DEPTH_COMPONENT32_OES; break;
-    default:
-      return GL_RGBA;
-  }
+static const GLenum data_format[] = {
+  0,
+  GL_LUMINANCE,
+  GL_LUMINANCE_ALPHA,
+  GL_RGB,
+  GL_RGBA,
+  GL_STENCIL_INDEX8,
+  GL_DEPTH_COMPONENT16,
+  GL_DEPTH_COMPONENT24_OES,
+  GL_DEPTH_COMPONENT32_OES
+};
 
+static inline GLenum gpu_get_gl_dataformat(GPUTextureFormat data_type)
+{
+  return data_format[data_type];
 }
 
 /* ------ Memory Management ------- */
@@ -122,7 +122,7 @@ static void init_texture(GPUTexture *tex, const void *pixels)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 
@@ -139,21 +139,10 @@ GLuint GPU_texture_create_2D(const int w, const int h,
   tex->refcount = 1;
   tex->format = tex_format;
 
-  switch(tex_format) {
-    case GPU_TF_NONE:
-    case GPU_R8:
-    case GPU_RG8:
-    case GPU_RGB8:
-    case GPU_RGBA8:
-      init_texture(tex, pixels);
-      break;
-    case GPU_DEPTH16:
-	  case GPU_DEPTH24:
-	  case GPU_DEPTH32:
-	  case GPU_STENCIL8:
-      init_renderbuffer(tex);
-      break;
-  }
+  if (tex_format < GPU_STENCIL8)
+    init_texture(tex, pixels);
+  else
+    init_renderbuffer(tex);
   
   gpu_texture_memory_footprint_add(texID);
 
