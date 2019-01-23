@@ -9,6 +9,8 @@
 #include "gles3.h"
 #include "gpu_shader_interface.h"
 
+#define SHADER_MAX_COUNT 20
+#define PROGRAM_MAX_COUNT 10
 #define BUFFSIZE 5000
 
 // temp shader source buffer for gles2
@@ -16,8 +18,8 @@ static char shaderBuf[BUFFSIZE];
 char msg[512];
 
 typedef struct {
-  const char *fileName;
-  const GLuint type;
+  const char *fileName; // if null then represents deleted object
+  GLuint type;
   uint16_t glShaderObj;
 } SHADER_T;
 
@@ -31,14 +33,43 @@ typedef struct {
   const uint16_t shader_fragID;
 } SHADER_PROGRAM_T;
 
-SHADER_T shaders[] = {
-  [BLINN_PHONG_VS] = {"blinn_phong_vert.glsl", GL_VERTEX_SHADER, 0},
-  [BLINN_PHONG_FS] = {"blinn_phong_frag.glsl", GL_FRAGMENT_SHADER, 0}
+const  char blinn_phong_vert[] = "blinn_phong_vert.glsl";
+const  char blinn_phong_frag[] = "blinn_phong_frag.glsl";
+
+SHADER_T shaders[SHADER_MAX_COUNT] = {
+  [BLINN_PHONG_VS] = {blinn_phong_vert, GL_VERTEX_SHADER, 0},
+  [BLINN_PHONG_FS] = {blinn_phong_frag, GL_FRAGMENT_SHADER, 0}
 };
+
+static uint16_t next_deleted_shader = 0;
 
 static SHADER_PROGRAM_T shaderPrograms[] = {
   [BLINN_PHONG_PRG] = {BLINN_PHONG_VS, BLINN_PHONG_FS}
 };
+
+static GLuint find_deleted_shader(void)
+{
+  GLuint id = next_deleted_shader;
+  
+  if (id >= SHADER_MAX_COUNT) {
+    id = 0;
+  }
+  
+  for (id = next_deleted_shader; id < SHADER_MAX_COUNT; id++) {
+    if (shaders[id].fileName == 0) {
+      next_deleted_shader = id + 1;
+      break;
+    }
+  }
+  
+  if (id == SHADER_MAX_COUNT) {
+    printf("WARNING: No shaders available\n");
+    --id;
+  }
+  
+	return id;
+}
+
 
 static inline GLuint get_shader_obj(SHADER_ID_T shaderID)
 {
