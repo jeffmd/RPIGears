@@ -10,7 +10,7 @@
 #include "gpu_shader_interface.h"
 
 #define SHADER_MAX_COUNT 20
-#define PROGRAM_MAX_COUNT 10
+#define SHADER_PROGRAM_MAX_COUNT 10
 #define BUFFSIZE 5000
 
 // temp shader source buffer for gles2
@@ -24,38 +24,36 @@ typedef struct {
 } SHADER_T;
 
 typedef enum {
-  BLINN_PHONG_VS,
+  BLINN_PHONG_VS = 1,
   BLINN_PHONG_FS
 } SHADER_ID_T;
 
 typedef struct {
-  const uint16_t shader_vertID;
-  const uint16_t shader_fragID;
+  uint16_t shader_vertID;
+  uint16_t shader_fragID;
 } SHADER_PROGRAM_T;
 
-const  char blinn_phong_vert[] = "blinn_phong_vert.glsl";
-const  char blinn_phong_frag[] = "blinn_phong_frag.glsl";
+static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
+static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
 
-SHADER_T shaders[SHADER_MAX_COUNT] = {
-  [BLINN_PHONG_VS] = {blinn_phong_vert, GL_VERTEX_SHADER, 0},
-  [BLINN_PHONG_FS] = {blinn_phong_frag, GL_FRAGMENT_SHADER, 0}
-};
+SHADER_T shaders[SHADER_MAX_COUNT];
 
 static uint16_t next_deleted_shader = 0;
+static uint16_t next_deleted_shader_program = 0;
 
-static SHADER_PROGRAM_T shaderPrograms[] = {
-  [BLINN_PHONG_PRG] = {BLINN_PHONG_VS, BLINN_PHONG_FS}
-};
+static SHADER_PROGRAM_T shaderPrograms[SHADER_PROGRAM_MAX_COUNT];
+
+static GLuint blinn_phong_prg = 0;
 
 static GLuint find_deleted_shader(void)
 {
   GLuint id = next_deleted_shader;
   
-  if (id >= SHADER_MAX_COUNT) {
-    id = 0;
+  if ((id == 0) | (id >= SHADER_MAX_COUNT)) {
+    id = 1;
   }
   
-  for (id = next_deleted_shader; id < SHADER_MAX_COUNT; id++) {
+  for (; id < SHADER_MAX_COUNT; id++) {
     if (shaders[id].fileName == 0) {
       next_deleted_shader = id + 1;
       break;
@@ -64,7 +62,30 @@ static GLuint find_deleted_shader(void)
   
   if (id == SHADER_MAX_COUNT) {
     printf("WARNING: No shaders available\n");
-    --id;
+    id = 0;
+  }
+  
+	return id;
+}
+
+static GLuint find_deleted_shader_program(void)
+{
+  GLuint id = next_deleted_shader_program;
+  
+  if ((id == 0) | (id >= SHADER_PROGRAM_MAX_COUNT)) {
+    id = 1;
+  }
+  
+  for (; id < SHADER_PROGRAM_MAX_COUNT; id++) {
+    if (shaderPrograms[id].shader_vertID == 0) {
+      next_deleted_shader_program = id + 1;
+      break;
+    }
+  }
+  
+  if (id == SHADER_PROGRAM_MAX_COUNT) {
+    printf("WARNING: No shader programs available\n");
+    id = 0;
   }
   
 	return id;
@@ -109,6 +130,15 @@ static int load_shaderBuf_file(const char *name)
   return result;
 }
 
+static GLuint shader_create(const char *file_name, const GLuint type)
+{
+  const GLuint shaderID = find_deleted_shader();
+  SHADER_T *shader = &shaders[shaderID];
+  shader->fileName = file_name;
+  shader->type = type;
+    
+  return shaderID;
+}
 
 static void init_shader(const SHADER_ID_T shaderID)
 {
@@ -142,13 +172,25 @@ static void init_shader_program(const PROGRAM_ID_T programID)
   glAttachShader(gl_program, get_shader_obj(program->shader_fragID));
 }
 
+GLuint shader_program_create(const char *vertex_file_name, const char *fragment_file_name)
+{
+  const GLuint programID = find_deleted_shader_program();
+  
+  SHADER_PROGRAM_T *program = &shaderPrograms[programID];
+  
+  program->shader_vertID = shader_create(vertex_file_name, GL_VERTEX_SHADER);
+  program->shader_fragID = shader_create(fragment_file_name, GL_FRAGMENT_SHADER);
+  
+  return programID;
+}
+
 static void load_shaders(void)
 {
   printf("loading shaders...\n");
-  init_shader_program(BLINN_PHONG_PRG);
+  init_shader_program(blinn_phong_prg);
 }
 
-static void delete_shader_program(const PROGRAM_ID_T programID)
+static void reset_shader_program(const PROGRAM_ID_T programID)
 {
   glUseProgram(0);
 
@@ -161,12 +203,16 @@ static void delete_shader_program(const PROGRAM_ID_T programID)
 
 void delete_shader_programs(void)
 {
-  delete_shader_program(BLINN_PHONG_PRG);
+  reset_shader_program(blinn_phong_prg);
 }
 
 void load_shader_programs(void)
 {
+  if (!blinn_phong_prg)
+    blinn_phong_prg = shader_program_create(blinn_phong_vert, blinn_phong_frag);
+    
   delete_shader_programs();
   load_shaders();
-  enable_shader_program(BLINN_PHONG_PRG);
+  enable_shader_program(blinn_phong_prg);
 }
+
