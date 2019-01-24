@@ -49,7 +49,7 @@ static GLuint find_deleted_framebuffer(void)
 
   if (id == GPU_FRAMEBUFFER_MAX_COUNT) {
     printf("WARNING: No Frame Buffers available\n");
-    --id;
+    id = 0;
   }
     
   return id;
