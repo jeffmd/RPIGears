@@ -94,7 +94,7 @@ static void build_input_list(const GLuint programID, const GLboolean is_uniform)
     input->size = size;
     input->location = is_uniform ? glGetUniformLocation(prg_interface->glProgramObj, input->name) :
                                    glGetAttribLocation(prg_interface->glProgramObj, input->name);
-    printf("added %s: %s, location: %i, size: %i\n", is_uniform ? "uniform" : "attribute", input->name, input->location, input->size);
+    printf("added %s: %s, location: %i, array size: %i\n", is_uniform ? "uniform" : "attribute", input->name, input->location, input->size);
   }
 }
 
