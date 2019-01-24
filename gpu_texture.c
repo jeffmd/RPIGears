@@ -11,7 +11,7 @@
 
 typedef struct {
   int width, height;
-  
+
   unsigned refcount:5;  /* reference count */
   signed slot:4;      /* number for multitexture binding */
   unsigned format:4;
@@ -55,35 +55,42 @@ static GLuint gpu_texture_memory_footprint_compute(const GLuint texID)
   GPUTexture *tex = &textures[texID];
   const GLuint bytes = (tex->format < GPU_STENCIL8) ? tex->format : tex->format - GPU_RGBA8;
   GLuint size = bytes * tex->width * tex->height;
-  if (tex->target == GL_TEXTURE_CUBE_MAP) size *= 6; 
-  
+  if (tex->target == GL_TEXTURE_CUBE_MAP) size *= 6;
+
   return size;
 }
 
 static void gpu_texture_memory_footprint_add(const GLuint texID)
 {
-	memory_usage += gpu_texture_memory_footprint_compute(texID);
+  memory_usage += gpu_texture_memory_footprint_compute(texID);
   printf("Texture Memory: %i\n", memory_usage);
 }
 
 static void gpu_texture_memory_footprint_remove(const GLuint texID)
 {
-	memory_usage -= gpu_texture_memory_footprint_compute(texID);
+  memory_usage -= gpu_texture_memory_footprint_compute(texID);
 }
 
 static GLuint find_deleted_texture(void)
 {
-  if(next_deleted_texture == 0) next_deleted_texture = 1;
+  GLuint id = next_deleted_texture;
   
-	for (GLuint id = next_deleted_texture; id < GPU_TEXTURE_MAX_COUNT; id++) {
-	  if (textures[id].refcount == 0) {
-		  next_deleted_texture = id + 1;
-	    return id;
-	  }
-	}
-  
-  printf("WARNING: No Textures available\n");
-	return GPU_TEXTURE_MAX_COUNT - 1;
+  if((id == 0) | (id >= GPU_TEXTURE_MAX_COUNT))
+    id = 1;
+
+  for ( ; id < GPU_TEXTURE_MAX_COUNT; id++) {
+    if (textures[id].refcount == 0) {
+      next_deleted_texture = id + 1;
+      break;
+    }
+  }
+
+  if (id == GPU_TEXTURE_MAX_COUNT) {
+    printf("WARNING: No Textures available\n");
+    id = 0;
+  }
+
+  return id;
 }
 
 static void init_renderbuffer(GPUTexture *tex)
@@ -130,7 +137,7 @@ GLuint GPU_texture_create_2D(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
   const GLuint texID = find_deleted_texture();
-  
+
   GPUTexture *tex = &textures[texID];
 
   tex->width = w;
@@ -143,7 +150,7 @@ GLuint GPU_texture_create_2D(const int w, const int h,
     init_texture(tex, pixels);
   else
     init_renderbuffer(tex);
-  
+
   gpu_texture_memory_footprint_add(texID);
 
   printf("New Texture ID:%i glObjID: %i\n", texID, tex->bindcode);
@@ -154,58 +161,58 @@ GLuint GPU_texture_create_2D(const int w, const int h,
 void GPU_texture_bind(const GLuint texID, const int slot)
 {
 
-	if (slot >= 8) {
-		printf("Not enough texture slots.\n");
-		return;
-	}
+  if (slot >= 8) {
+    printf("Not enough texture slots.\n");
+    return;
+  }
 
-	glActiveTexture(GL_TEXTURE0 + slot);
+  glActiveTexture(GL_TEXTURE0 + slot);
 
   GPUTexture *tex = &textures[texID];
 
-	if (tex->bindcode != 0)
-		glBindTexture(tex->target, tex->bindcode);
-	//else
-	//	GPU_invalid_tex_bind(tex->target_base);
+  if (tex->bindcode != 0)
+    glBindTexture(tex->target, tex->bindcode);
+  //else
+  //  GPU_invalid_tex_bind(tex->target_base);
   //printf("bind texture: %i\n", tex->bindcode);
-	tex->slot = slot;
+  tex->slot = slot;
 }
 
 void GPU_texture_unbind(const GLuint texID)
 {
   GPUTexture *tex = &textures[texID];
 
-	if (tex->slot == -1)
-		return;
+  if (tex->slot == -1)
+    return;
 
-	glActiveTexture(GL_TEXTURE0 + tex->slot);
-	glBindTexture(tex->target, 0);
+  glActiveTexture(GL_TEXTURE0 + tex->slot);
+  glBindTexture(tex->target, 0);
 
-	tex->slot = -1;
+  tex->slot = -1;
 }
 
 void GPU_texture_free(const GLuint texID)
 {
   GPUTexture *tex = &textures[texID];
 
-	tex->refcount--;
+  tex->refcount--;
 
-	if (tex->refcount < 0)
-		printf("GPUTexture: negative refcount\n");
+  if (tex->refcount < 0)
+    printf("GPUTexture: negative refcount\n");
 
-	if (tex->refcount == 0) {
-		GPU_framebuffer_texture_detach_all(texID);
-    
-		//glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
+  if (tex->refcount == 0) {
+    GPU_framebuffer_texture_detach_all(texID);
 
-		gpu_texture_memory_footprint_remove(texID);
+    //glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
 
-	}
+    gpu_texture_memory_footprint_remove(texID);
+
+  }
 }
 
 int GPU_texture_bound_slot(const GLuint texID)
 {
-	return textures[texID].slot;
+  return textures[texID].slot;
 }
 
 
