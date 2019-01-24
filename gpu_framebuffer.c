@@ -35,17 +35,24 @@ static uint16_t active_framebuffer;
 
 static GLuint find_deleted_framebuffer(void)
 {
-  if(next_deleted_framebuffer == 0) next_deleted_framebuffer = 1;
+  GLuint id = next_deleted_framebuffer;
+  
+  if((id == 0) | (id >= GPU_FRAMEBUFFER_MAX_COUNT))
+    id = 1;
 
-  for (GLuint id = next_deleted_framebuffer; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
+  for ( ; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
     if (framebuffers[id].refcount == 0) {
       next_deleted_framebuffer = id + 1;
-      return id;
+      break;
     }
-}
+  }
 
-  printf("WARNING: No Frame Buffers available\n");
-  return GPU_FRAMEBUFFER_MAX_COUNT - 1;
+  if (id == GPU_FRAMEBUFFER_MAX_COUNT) {
+    printf("WARNING: No Frame Buffers available\n");
+    --id;
+  }
+    
+  return id;
 }
 
 static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)
