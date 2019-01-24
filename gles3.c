@@ -196,7 +196,7 @@ static GLint find_deleted_vao()
     
     if (id == ARRAY_OBJECT_MAX) {
 	  printf("WARNING: No VAO available\n");
-	  --id;
+	  id = 0;
     }
     
 	return id;
