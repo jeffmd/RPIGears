@@ -2,13 +2,50 @@
  * print_info.c
  */
 
+#include <stdio.h>
+
+#include "gles3.h"
+
 void print_GLInfo(void)
 {
   printf("\nGL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
   printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
   printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
   printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-  printf("EGL version   = %i.%i\n", window_major(), window_minor());
+//  printf("EGL version   = %i.%i\n", window_major(), window_minor());
+}
+
+void print_GL_Limits(void)
+{
+  GLint num[4];
+
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, num);
+  printf("MAX_VERTEX_ATTRIBS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VARYING_VECTORS, num);
+  printf("MAX_VARYING_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, num);
+  printf("MAX_FRAGMENT_UNIFORM_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, num);
+  printf("MAX_VERTEX_UNIFORM_VECTORS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_VERTEX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, num);
+  printf("MAX_COMBINED_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
+
+  glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, num);
+  printf("NUM_COMPRESSED_TEXTURE_FORMATS: %i\n", num[0]);
+
+  glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
+  printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
+
 }
 
 void print_keyhelp(void)

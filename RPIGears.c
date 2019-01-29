@@ -84,6 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "image.h"
 #include "camera.h"
 #include "xwindow.h"
+#include "print_info.h"
 #include "shaders.h"
 #include "gpu_shader_interface.h"
 #include "gpu_texture.h"
@@ -112,7 +113,6 @@ static void frameClear(void)
 
 }
 
-#include "print_info.c"
 #include "scene.c"
 
 void toggle_useVSync(void)
