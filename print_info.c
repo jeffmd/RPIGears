@@ -52,14 +52,9 @@ void print_EGL_info(void)
 {
   const EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   
-  char const *info_str = eglQueryString(display, EGL_VERSION);
-  printf("EGL version : %s\n", info_str);
-
-  info_str = eglQueryString(display, EGL_VENDOR);
-  printf("EGL Vendor : %s\n", info_str);
-
-  info_str = eglQueryString(display, EGL_EXTENSIONS);
-  printf("EGL extensions : %s\n", info_str);
+  printf("EGL version : %s\n", eglQueryString(display, EGL_VERSION));
+  printf("EGL Vendor : %s\n", eglQueryString(display, EGL_VENDOR));
+  printf("EGL extensions : %s\n", eglQueryString(display, EGL_EXTENSIONS));
 }
 
 void print_keyhelp(void)
