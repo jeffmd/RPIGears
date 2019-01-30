@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "EGL/egl.h"
 
 void print_GLInfo(void)
 {
@@ -12,7 +13,6 @@ void print_GLInfo(void)
   printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
   printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
   printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-//  printf("EGL version   = %i.%i\n", window_major(), window_minor());
 }
 
 void print_GL_Limits(void)
@@ -46,6 +46,20 @@ void print_GL_Limits(void)
   glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
   printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
 
+}
+
+void print_EGL_info(void)
+{
+  const EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  
+  char const *info_str = eglQueryString(display, EGL_VERSION);
+  printf("EGL version : %s\n", info_str);
+
+  info_str = eglQueryString(display, EGL_VENDOR);
+  printf("EGL Vendor : %s\n", info_str);
+
+  info_str = eglQueryString(display, EGL_EXTENSIONS);
+  printf("EGL extensions : %s\n", info_str);
 }
 
 void print_keyhelp(void)
@@ -87,6 +101,6 @@ void print_CLoptions_help(void)
     "-vbo: use vertex buffer object in GPU memory\n"
     "-line: draw lines only, wire frame mode\n"
     "-nospin: gears don't turn\n"
-    );  
+    );
 }
 

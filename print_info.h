@@ -9,5 +9,6 @@ void print_GLInfo(void);
 void print_GL_Limits(void);
 void print_keyhelp(void);
 void print_CLoptions_help(void);  
+void print_EGL_info(void);
   
 #endif
