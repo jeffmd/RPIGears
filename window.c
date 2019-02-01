@@ -10,6 +10,7 @@
 #include "gles3.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
+#include "print_info.h"
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
 
@@ -329,15 +330,18 @@ static void createContext(void)
   assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
 }
 
+#define TESTIT 1
+#define WSCALE 1
 static void window_setup_frameBufferRenderTexture(void)
 {
   check_gl_error("starting setup frameBufferRenderTexture");
   // Build the texture that will serve as the color attachment for the framebuffer.
-  const GLuint texID = GPU_texture_create_2D(window->nativewindow.width, window->nativewindow.height, GPU_RGBA8, NULL);
+  const GLuint texID = GPU_texture_create_2D(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_RGB8, NULL);
   check_gl_error("make color texture buffer");
 
   // Build the texture that will serve as the depth attachment for the framebuffer.
-  const GLuint depthID = GPU_texture_create_2D(window->nativewindow.width, window->nativewindow.height, GPU_DEPTH24, NULL);
+  const GLuint depthID = GPU_texture_create_2D(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_DEPTH24, NULL);
+  check_gl_error("make depth texture buffer");
   
   // Build the framebuffer.
   const GLuint framebufferID = GPU_framebuffer_create();
@@ -351,38 +355,6 @@ static void window_setup_frameBufferRenderTexture(void)
 
 }
 
-static void window_print_GL_Limits(void)
-{
-  GLint num[4];
-
-  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, num);
-  printf("MAX_VERTEX_ATTRIBS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_VARYING_VECTORS, num);
-  printf("MAX_VARYING_VECTORS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, num);
-  printf("MAX_FRAGMENT_UNIFORM_VECTORS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, num);
-  printf("MAX_VERTEX_UNIFORM_VECTORS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, num);
-  printf("MAX_VERTEX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, num);
-  printf("MAX_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
-
-  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, num);
-  printf("MAX_COMBINED_TEXTURE_IMAGE_UNITS: %i\n", num[0]);
-
-  glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, num);
-  printf("NUM_COMPRESSED_TEXTURE_FORMATS: %i\n", num[0]);
-
-  glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
-  printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
-
-}
 
 /***********************************************************
  * Name: init_window
@@ -420,10 +392,11 @@ void window_init(void)
 
   glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
 
-  window_print_GL_Limits();
+  print_EGL_info();
+  print_GL_Limits();
 
-  //window_setup_frameBufferRenderTexture();
-  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  for(int x=0; x<TESTIT; x++) window_setup_frameBufferRenderTexture();
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void window_swap_buffers(void)

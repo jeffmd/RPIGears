@@ -12,7 +12,7 @@
 typedef struct
 {
 // number of seconds to run the demo
-   uint timeToRun;
+   GLuint timeToRun;
    GLuint texId;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
@@ -43,7 +43,7 @@ static DEMO_STATE_T _state;
 static DEMO_STATE_T * const state = &_state;
 
 
-uint state_timeToRun(void)
+GLuint state_timeToRun(void)
 {
   return state->timeToRun;
 }
@@ -73,7 +73,7 @@ GLfloat state_angle(void)
   return state->angle;
 }
 
-void update_timeToRun(const uint val)
+void update_timeToRun(const GLuint val)
 {
   state->timeToRun = val;
 }

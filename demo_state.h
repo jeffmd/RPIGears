@@ -10,14 +10,14 @@
 // a procedure that takes a value representing the rate change to apply to an update
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
-uint state_timeToRun(void);
+GLuint state_timeToRun(void);
 GLuint state_texId(void);
 int state_gear1(void);
 int state_gear2(void);
 int state_gear3(void);
 GLfloat state_angle(void);
   
-void update_timeToRun(const uint val);
+void update_timeToRun(const GLuint val);
 void update_angleVel(const GLfloat val);
 void update_avgfps(const float fps);
 void update_angleFrame(void);

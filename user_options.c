@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GLES/gl.h"
+#include "gles3.h"
 
 typedef struct {
 
@@ -14,7 +14,7 @@ typedef struct {
   int useVSync;
   int wantInfo;
   GLenum drawMode;
-  uint timeToRun;
+  GLuint timeToRun;
   GLfloat angleVel;
   
 } OPTIONS_T;
@@ -48,7 +48,7 @@ GLfloat options_angleVel(void)
   return options->angleVel;
 }
 
-uint options_timeToRun(void)
+GLuint options_timeToRun(void)
 {
   return options->timeToRun;
 }

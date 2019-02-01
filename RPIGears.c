@@ -62,31 +62,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Port (cut and paste code monkey dude) by Jeff Doyle 18 Jul 2013
  *
  */
-// three rotating gears rendered with OpenGL ES 1.1 or 2.0.
+// three rotating gears rendered with OpenGL ES 2.0.
 
 #define _GNU_SOURCE
 
 #include <stdio.h>
-#include <math.h>
-#include <assert.h>
 
 #include "bcm_host.h"
 
 #include "gles3.h"
 
-#include "matrix_math.h"
 #include "user_options.h"
 #include "demo_state.h"
 #include "window.h"
-#include "key_input.h"
 #include "tasks.h"
 #include "gear.h"
 #include "image.h"
 #include "camera.h"
 #include "xwindow.h"
 #include "print_info.h"
-#include "shaders.h"
-#include "gpu_shader_interface.h"
+#include "scene.h"
 #include "gpu_texture.h"
 
 extern IMAGE_T rpi_image;
@@ -113,8 +108,6 @@ static void frameClear(void)
 
 }
 
-#include "scene.c"
-
 void toggle_useVSync(void)
 {
   const int sync = options_useVSync() ? 0 : 1;
@@ -122,7 +115,6 @@ void toggle_useVSync(void)
   window_update_VSync(sync);
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
-
 
 static void run_gears(void)
 {

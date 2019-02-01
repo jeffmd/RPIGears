@@ -2,11 +2,24 @@
 * scene.c
 */
 
+#include <stdio.h>
+
+#include "gles3.h"
+#include "gear.h"
+#include "matrix_math.h"
+#include "camera.h"
+#include "gpu_texture.h"
+#include "demo_state.h"
+#include "user_options.h"
+#include "window.h"
+#include "shaders.h"
+#include "gpu_shader_interface.h"
+
 static struct {
    GLfloat model_view[16];
    GLfloat LightSourcePosition[4];
    GLfloat projection_matrix[16];
-} Data;
+} UBO_Data;
 
 static GLuint DiffuseMap_loc;
 static GLuint UBO_loc;
@@ -25,15 +38,15 @@ static GLuint MaterialColor_loc;
 static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 {
    /* Translate and rotate the gear */
-   m4x4_copy(Data.model_view, camera_view_matrix());
-   m4x4_translate(Data.model_view, x, y, 0);
-   m4x4_rotate(Data.model_view, angle, 0, 0, 1);
+   m4x4_copy(UBO_Data.model_view, camera_view_matrix());
+   m4x4_translate(UBO_Data.model_view, x, y, 0);
+   m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
    glUniform1i(DiffuseMap_loc, 0);
    // Bind texture surface to current vertices
    GPU_texture_bind(state_texId(), 0);
    
-   glUniform4fv(UBO_loc, 9, (GLfloat *)&Data);
+   glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
 
 
    gear_draw(gearid, options_drawMode(), MaterialColor_loc);
@@ -43,10 +56,10 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 /**
  * Draws the gears in GLES 2 mode.
  */
-static void draw_scene(void)
+void draw_scene(void)
 {
   if (light_isDirty() || camera_isDirty()) {
-     m4xv3(Data.LightSourcePosition, camera_view_matrix(), state_LightSourcePosition());
+     m4xv3(UBO_Data.LightSourcePosition, camera_view_matrix(), state_LightSourcePosition());
      printf("Recalc Light Position\n");
      light_clean();
   }
@@ -57,13 +70,13 @@ static void draw_scene(void)
 }
 
 
-static void init_scene(void)
+void init_scene(void)
 {
    // setup the scene based on rendering mode
    init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
    //init_shader_system();
    load_shader_programs();
-   m4x4_copy(Data.projection_matrix, camera_ProjectionMatrixPtr());
+   m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
    DiffuseMap_loc = get_active_uniform_location("DiffuseMap");
    UBO_loc = get_active_uniform_location("UBO")   ;

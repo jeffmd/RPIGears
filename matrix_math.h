@@ -5,9 +5,6 @@
 #ifndef _matrix_math_h_
   #define _matrix_math_h_
   
-  #include "GLES/gl.h"
-
-  
   void m4x4_copy(GLfloat *md, const GLfloat *ms);
   void m4x4_multiply(GLfloat *m, const GLfloat *n);
   void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z);
