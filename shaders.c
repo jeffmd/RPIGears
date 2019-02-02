@@ -23,26 +23,19 @@ typedef struct {
   uint16_t glShaderObj;
 } SHADER_T;
 
-typedef enum {
-  BLINN_PHONG_VS = 1,
-  BLINN_PHONG_FS
-} SHADER_ID_T;
-
 typedef struct {
   uint16_t shader_vertID;
   uint16_t shader_fragID;
 } SHADER_PROGRAM_T;
 
-static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
-static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
-
-SHADER_T shaders[SHADER_MAX_COUNT];
-
+static SHADER_T shaders[SHADER_MAX_COUNT];
 static uint16_t next_deleted_shader = 0;
-static uint16_t next_deleted_shader_program = 0;
 
 static SHADER_PROGRAM_T shaderPrograms[SHADER_PROGRAM_MAX_COUNT];
+static uint16_t next_deleted_shader_program = 0;
 
+static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
+static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
 static GLuint blinn_phong_prg = 0;
 
 static GLuint find_deleted_shader(void)
@@ -92,17 +85,17 @@ static GLuint find_deleted_shader_program(void)
 }
 
 
-static inline GLuint get_shader_obj(SHADER_ID_T shaderID)
+static inline GLuint get_shader_obj(const GLuint shaderID)
 {
   return shaders[shaderID].glShaderObj;
 }
 
-static inline GLuint get_shader_program_vert_obj(PROGRAM_ID_T programID)
+static inline GLuint get_shader_program_vert_obj(const GLuint programID)
 {
   return get_shader_obj(shaderPrograms[programID].shader_vertID);
 }
 
-static inline GLuint get_shader_program_frag_obj(PROGRAM_ID_T programID)
+static inline GLuint get_shader_program_frag_obj(const GLuint programID)
 {
   return get_shader_obj(shaderPrograms[programID].shader_fragID);
 }
@@ -140,7 +133,7 @@ static GLuint shader_create(const char *file_name, const GLuint type)
   return shaderID;
 }
 
-static void init_shader(const SHADER_ID_T shaderID)
+static void init_shader(const GLuint shaderID)
 {
   SHADER_T *shader = &shaders[shaderID];
   const GLchar *src = shaderBuf;
@@ -159,7 +152,7 @@ static void init_shader(const SHADER_ID_T shaderID)
 
 }
 
-static void init_shader_program(const PROGRAM_ID_T programID)
+static void init_shader_program(const GLuint programID)
 {
   SHADER_PROGRAM_T *program = &shaderPrograms[programID];
   
@@ -190,7 +183,7 @@ static void load_shaders(void)
   init_shader_program(blinn_phong_prg);
 }
 
-static void reset_shader_program(const PROGRAM_ID_T programID)
+static void reset_shader_program(const GLuint programID)
 {
   glUseProgram(0);
 
