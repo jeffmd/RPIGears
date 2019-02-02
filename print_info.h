@@ -10,5 +10,6 @@ void print_GL_Limits(void);
 void print_keyhelp(void);
 void print_CLoptions_help(void);  
 void print_EGL_info(void);
+void print_EGLSurface_info(void *surface);
   
 #endif

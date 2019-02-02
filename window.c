@@ -278,7 +278,6 @@ static void createSurface(void)
   */
   window->surface = eglCreateWindowSurface( window->display, window->config, &window->nativewindow, NULL );
 #endif
-
   assert(egl_chk(window->surface != EGL_NO_SURFACE));
 }
 
@@ -393,6 +392,7 @@ void window_init(void)
   glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
 
   print_EGL_info();
+  print_EGLSurface_info(window->surface);
   print_GL_Limits();
 
   for(int x=0; x<TESTIT; x++) window_setup_frameBufferRenderTexture();

@@ -57,6 +57,20 @@ void print_EGL_info(void)
   printf("EGL extensions : %s\n", eglQueryString(display, EGL_EXTENSIONS));
 }
 
+void print_EGLSurface_info(void *surface)
+{
+  const EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  int value;
+  
+  if (eglQuerySurface(display, surface, EGL_SWAP_BEHAVIOR, &value)) {
+    printf("EGL_SWAP_BEHAVIOR: ");  
+	  if (value == EGL_BUFFER_PRESERVED)
+      printf("EGL_BUFFER_PRESERVED\n");
+    else
+      printf("EGL_BUFFER_DESTROYED\n");
+  }
+}
+
 void print_keyhelp(void)
 {
   printf(
