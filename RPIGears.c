@@ -130,9 +130,9 @@ static void run_gears(void)
     do_key_down_update();
     xwindow_check_events();
     window_update();
+	frameClear();
     inc_move_rate();
     update_gear_rotation();
-	frameClear();
     draw_scene();
     window_swap_buffers();
     xwindow_frame_update();
