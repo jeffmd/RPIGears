@@ -28,12 +28,10 @@ static GLuint MaterialColor_loc;
 /**
  * Draws a gear in GLES 2 mode.
  *
- * @param gear the gear to draw
- * @param transform the current transformation matrix
+ * @param gearid the gear to draw
  * @param x the x position to draw the gear at
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
- * @param color the color of the gear
  */
 static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 {
@@ -42,9 +40,6 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
    m4x4_translate(UBO_Data.model_view, x, y, 0);
    m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
-   glUniform1i(DiffuseMap_loc, 0);
-   // Bind texture surface to current vertices
-   GPU_texture_bind(state_texId(), 0);
    
    glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
 
@@ -54,7 +49,7 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 }
 
 /**
- * Draws the gears in GLES 2 mode.
+ * Draws the gears in the scene.
  */
 void draw_scene(void)
 {
@@ -63,6 +58,9 @@ void draw_scene(void)
      printf("Recalc Light Position\n");
      light_clean();
   }
+   glUniform1i(DiffuseMap_loc, 0);
+   // Bind texture surface to current vertices
+   GPU_texture_bind(state_texId(), 0);
   /* Draw the gears */
   draw_gear(state_gear1(), -3.0, -2.0, state_angle());
   draw_gear(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);
