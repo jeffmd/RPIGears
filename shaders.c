@@ -19,7 +19,7 @@ static void load_shaders(void)
 }
 
 
-void delete_shader_programs(void)
+static void delete_shader_programs(void)
 {
   reset_shader_program(blinn_phong_prg);
 }
