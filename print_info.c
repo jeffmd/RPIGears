@@ -13,6 +13,7 @@ void print_GLInfo(void)
   printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
   printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
   printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
+  printf("GLSL VERSION  = %s\n", (char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void print_GL_Limits(void)
