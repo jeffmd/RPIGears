@@ -2,7 +2,7 @@
 #ifndef _GPU_TEXTURE_H_
 #define _GPU_TEXTURE_H_
 
-typedef enum GPUTextureFormat {
+typedef enum {
 	/* Formats texture & renderbuffer */
 	GPU_TF_NONE = 0,
 	GPU_R8,
