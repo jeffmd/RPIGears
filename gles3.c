@@ -49,15 +49,15 @@
  * and VERTEX_BINDING_STRIDE to the same value, while
  * glBindVertexBuffer() will only set VERTEX_BINDING_STRIDE.
  */
-typedef struct gl_array_attributes
+typedef struct 
 {
-   const GLubyte *Ptr;      /**< pointer or offset to first element*/
-   GLuint BufferObj;        /**< GL_ARB_vertex_buffer_object */
-   GLshort Stride;          /**< Stride as specified with gl*Pointer() */
-   GLenum Type;             /**< Datatype: GL_FLOAT, GL_INT, etc */
-   unsigned Enabled:1;      /**< Whether the array is enabled */
-   unsigned Size:3;         /**< Components per element (1,2,3,4) */
-   unsigned Normalized:1;   /**< Fixed-point values are normalized when converted to floats */
+   const GLubyte *Ptr;      // pointer or offset to first element
+   GLuint BufferObj;        // GL_ARB_vertex_buffer_object
+   GLshort Stride;          // Stride as specified with gl*Pointer()
+   GLenum Type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
+   uint8_t Enabled;         /**< Whether the array is enabled */
+   uint8_t Size;            /**< Components per element (1,2,3,4) */
+   uint8_t Normalized;      /**< Fixed-point values are normalized when converted to floats */
 
 } gl_array_attributes;
 
@@ -65,7 +65,7 @@ typedef struct gl_array_attributes
  * A representation of "Vertex Array Objects" (VAOs) from OpenGL 3.1+ /
  * the GL_ARB_vertex_array_object extension.
  */
-typedef struct gl_vao
+typedef struct 
 {
    unsigned char Active;
    /** Vertex attribute arrays */
@@ -77,7 +77,7 @@ typedef struct gl_vao
 /**
  * Vertex array state
  */
-typedef struct gl_vao_manager
+typedef struct
 {
    /** Currently bound array object. */
    GLuint VAO;
@@ -92,7 +92,7 @@ typedef struct gl_vao_manager
  *
  * OpenGL ES 3.x state is contained in this structure.
  */
-typedef struct gl_context
+typedef struct
 {
 
    gl_vao_manager Array;	    /**< Vertex arrays */
@@ -350,7 +350,7 @@ void glDeleteVertexArrays(GLsizei n, const GLuint *ids)
  * \param ptr  the address (or offset inside VBO) of the array data
  */
 static void update_array(GLuint attrib, GLint size, GLenum type,
-             GLsizei stride, GLboolean normalized, const GLvoid *ptr)
+             GLboolean normalized, GLsizei stride, const GLvoid *ptr)
 {
   gl_array_attributes *const array = &ctx.Array.Objects[ctx.Array.VAO].VertexAttrib[attrib];
 
@@ -373,16 +373,7 @@ void glVertexAttribPointerMod(GLuint index, GLint size, GLenum type,
 {
   glVertexAttribPointer(index, size, type, normalized, stride, ptr);
 
-  update_array(index, size, type, stride, normalized, ptr);
-}
-
-void glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
-                           GLsizei stride, const GLvoid *ptr)
-{
-
-  glVertexAttribPointer(index, size, type, GL_FALSE, stride, ptr);
-
-  update_array(index, size, type, stride, GL_FALSE, ptr);
+  update_array(index, size, type, normalized, stride, ptr);
 }
 
 static inline void enable_vertex_array_attrib(GLuint id, GLuint attrib)

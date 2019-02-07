@@ -14,7 +14,6 @@ void glBindBufferMod(GLenum target, GLuint buffer);
 void glBindVertexArray(GLuint array);
 void glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
 void glGenVertexArrays(GLsizei n, GLuint *arrays);
-void glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index);
 void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index);
 
