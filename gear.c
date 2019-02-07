@@ -11,6 +11,7 @@
 
 #include "fp16.h"
 #include "gpu_shader_interface.h"
+#include "gpu_vertex_buffer.h"
 
 typedef struct {
   GLfloat pos[3];

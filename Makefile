@@ -1,7 +1,8 @@
 OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
 	xwindow.o xinput.o gles3.o fp16.o shaders.o gldebug.o \
-	gpu_shader_interface.o gpu_texture.o gpu_framebuffer.o gpu_shader.o
+	gpu_shader_interface.o gpu_texture.o gpu_framebuffer.o gpu_shader.o \
+	gpu_vertex_buffer.o
 	
 BIN = RPIGears.bin
 	
@@ -17,7 +18,7 @@ all: $(BIN)
 RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
 	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h
 RPi_Logo256.o: image.h
-gear.o: gles3.h fp16.h gpu_shader_interface.h
+gear.o: gles3.h fp16.h gpu_shader_interface.h gpu_vertex_buffer.h
 demo_state.o: demo_state.h gear.h matrix_math.h
 key_input.o: key_input.c window.h demo_state.h print_info.h camera.h
 matrix_math.o: matrix_math.c
