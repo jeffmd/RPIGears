@@ -58,7 +58,6 @@ typedef struct gl_array_attributes
    unsigned Enabled:1;      /**< Whether the array is enabled */
    unsigned Size:3;         /**< Components per element (1,2,3,4) */
    unsigned Normalized:1;   /**< Fixed-point values are normalized when converted to floats */
-   unsigned Integer:1;      /**< Fixed-point values are not converted to floats */
 
 } gl_array_attributes;
 
@@ -145,7 +144,6 @@ static void init_array_attributes(gl_vao *vao,
    array->Ptr = NULL;
    array->Enabled = GL_FALSE;
    array->Normalized = GL_FALSE;
-   array->Integer = GL_FALSE;
    array->BufferObj = 0;
 }
 
@@ -349,19 +347,16 @@ void glDeleteVertexArrays(GLsizei n, const GLuint *ids)
  * \param type  datatype of each component (GL_FLOAT, GL_INT, etc)
  * \param stride  stride between elements, in elements
  * \param normalized  are integer types converted to floats in [-1, 1]?
- * \param integer  integer-valued values (will not be normalized to [-1,1])
  * \param ptr  the address (or offset inside VBO) of the array data
  */
 static void update_array(GLuint attrib, GLint size, GLenum type,
-             GLsizei stride, GLboolean normalized, GLboolean integer,
-             const GLvoid *ptr)
+             GLsizei stride, GLboolean normalized, const GLvoid *ptr)
 {
   gl_array_attributes *const array = &ctx.Array.Objects[ctx.Array.VAO].VertexAttrib[attrib];
 
   array->Size = size;
   array->Type = type;
   array->Normalized = normalized;
-  array->Integer = integer;
   array->Stride = stride;
   array->Ptr = ptr;
   array->BufferObj = ctx.Buffer;
@@ -378,7 +373,7 @@ void glVertexAttribPointerMod(GLuint index, GLint size, GLenum type,
 {
   glVertexAttribPointer(index, size, type, normalized, stride, ptr);
 
-  update_array(index, size, type, stride, normalized, GL_FALSE, ptr);
+  update_array(index, size, type, stride, normalized, ptr);
 }
 
 void glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
@@ -387,7 +382,7 @@ void glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
 
   glVertexAttribPointer(index, size, type, GL_FALSE, stride, ptr);
 
-  update_array(index, size, type, stride, GL_FALSE, GL_TRUE, ptr);
+  update_array(index, size, type, stride, GL_FALSE, ptr);
 }
 
 static inline void enable_vertex_array_attrib(GLuint id, GLuint attrib)
