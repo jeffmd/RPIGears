@@ -260,7 +260,7 @@ static void gear_bind_buffer(const int gearid)
   gear_t* gear = &gears[gearid - 1];
   glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
   if (gear->vboId)
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
   if (gear->iboId)
