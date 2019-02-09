@@ -47,6 +47,11 @@ void print_GL_Limits(void)
   glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
   printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
 
+  glGetIntegerv(GL_ALIASED_LINE_WIDTH_RANGE, num);
+  printf("GL_ALIASED_LINE_WIDTH_RANGE: %i, %i\n", num[0], num[1]);
+
+  glGetIntegerv(GL_ALIASED_POINT_SIZE_RANGE, num);
+  printf("GL_ALIASED_POINT_SIZE_RANGE: %i, %i\n", num[0], num[1]);
 }
 
 void print_EGL_info(void)
