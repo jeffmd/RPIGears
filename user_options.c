@@ -64,11 +64,11 @@ void toggle_drawmode(void)
   
   switch (options->drawMode) {
     case GL_TRIANGLES:
-      options->drawMode = GL_LINES;
-      modestr = "GL_LINES";
+      options->drawMode = GL_LINE_STRIP;
+      modestr = "GL_LINE_STRIP";
       break;
       
-    case GL_LINES:
+    case GL_LINE_STRIP:
       options->drawMode = GL_POINTS;
       modestr = "GL_POINTS";
       break;
