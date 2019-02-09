@@ -27,6 +27,7 @@ typedef struct {
   GLuint vboId; // ID for vertex buffer object
   GLuint iboId; // ID for index buffer object
   GLuint vaoId; // ID for vertex array object
+  GLuint vbuffId; // ID for vert buffer
   
   GLvoid *vertex_p; // offset or pointer to first vertex
   GLvoid *normal_p; // offset or pointer to first normal
@@ -101,7 +102,13 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   gear->vertices = calloc(gear->nvertices, sizeof(vertex_t));
   gear->indices = calloc(gear->nindices, sizeof(GLshort));
   memcpy(&gear->color[0], &color[0], sizeof(GLfloat) * 4);
-
+  
+  gear->vbuffId = GPU_vertbuf_create();
+  GPU_vertbuf_add_attribute(gear->vbuffId, "position", 3, GL_FLOAT);
+  GPU_vertbuf_add_attribute(gear->vbuffId, "normal", 3, GL_HALF_FLOAT_OES);
+  GPU_vertbuf_add_attribute(gear->vbuffId, "uv", 2, GL_HALF_FLOAT_OES);
+  GPU_vertbuf_begin_update(gear->vbuffId, gear->nvertices);
+  
   r0 = inner_radius;
   r1 = outer_radius - tooth_depth / 2.0;
   r2 = outer_radius + tooth_depth / 2.0;

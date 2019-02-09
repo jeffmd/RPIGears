@@ -54,7 +54,7 @@ static GLuint find_deleted_vert_buffer(void)
   return id;
 }
 
-void GPU_vertbuf_init(const GLuint vbuff_id, const GLenum usage)
+void GPU_vertbuf_init(const GLuint vbuff_id)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
   
@@ -63,16 +63,17 @@ void GPU_vertbuf_init(const GLuint vbuff_id, const GLenum usage)
   vbuff->draw_count = 0;
   vbuff->max_count = 0;
   vbuff->vbo_id = 0;
-	vbuff->usage = usage;
+	vbuff->usage = GL_STATIC_DRAW;
 	vbuff->ready = 0;
   
 }
 
 // create new vertbuffer
-GLuint GPU_vertbuf_create(const GLenum usage)
+GLuint GPU_vertbuf_create(void)
 {
   const GLuint vbuff_id = find_deleted_vert_buffer();
-	GPU_vertbuf_init(vbuff_id, usage);
+	GPU_vertbuf_init(vbuff_id);
+  printf("New vertbuf ID:%i\n", vbuff_id);
 
 	return vbuff_id;
 }
@@ -88,14 +89,20 @@ void GPU_vertbuf_add_attribute(const GLuint vbuff_id, const char *name, const GL
   
   vattr->type = type;
   vattr->size = size;
-  vattr->normalized;
+  vattr->normalized = GL_FALSE;
   vattr->name = name;
                                
 }
 
-// get vertex data size
+// begin data update ( vertex max count ) - no more attributes can be added
+void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
+{
+  VertBuffer *vbuff = &vert_buffers[vbuff_id];
+  vbuff->max_count = max_count;
+  
+}
 
-// init data buffer ( vertex max count )
+// get vertex data size
 
 // add vertex attribute data ( attribute_id, float, float, float )
 
@@ -105,4 +112,3 @@ void GPU_vertbuf_add_attribute(const GLuint vbuff_id, const char *name, const GL
 
 // set VAO
 
-// set ready - no more attributes can be added
