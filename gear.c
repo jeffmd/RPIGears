@@ -28,7 +28,6 @@ typedef struct {
   GLuint iboId; // ID for index buffer object
   GLuint vaoId; // ID for vertex array object
   
-  GLuint tricount; // number of triangles to draw
   GLvoid *vertex_p; // offset or pointer to first vertex
   GLvoid *normal_p; // offset or pointer to first normal
   GLvoid *index_p;  // offset or pointer to first index
@@ -241,9 +240,6 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix1, ix3, ix2);
   }
 
-  gear->tricount = gear->nindices / 3;
-  
-  
   // if VBO enabled then set them up for each gear
   if (useVBO) {
     make_gear_vbo(gearID);
@@ -300,7 +296,11 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   
   glBindVertexArray(gear->vaoId);
   
-  glDrawElements(drawMode, gear->tricount, GL_UNSIGNED_SHORT, gear->index_p);
+  if (drawMode == GL_POINTS)
+    glDrawArrays(drawMode, 0, gear->nvertices);
+  else
+    glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, gear->index_p);
+  
   
 }
 
