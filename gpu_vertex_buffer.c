@@ -11,7 +11,7 @@ typedef struct {
   uint8_t size;            // Components per element (1,2,3,4)
   uint8_t normalized;      // Fixed-point values are normalized when converted to floats
   const char *name;        // attribute name in vertex shader
-  unsigned char *data      // pointer to current location in data buffer for writing
+  unsigned char *data;     // pointer to current location in data buffer for writing
 } VertAttribute;
 
 typedef struct {
@@ -54,17 +54,22 @@ static GLuint find_deleted_vert_buffer(void)
   return id;
 }
 
-void GPU_vertbuf_init(GLuint vbuff_id, GLenum usage)
+void GPU_vertbuf_init(const GLuint vbuff_id, const GLenum usage)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
   
   vbuff->active = 1;
+  vbuff->attribute_count = 0;
+  vbuff->draw_count = 0;
+  vbuff->max_count = 0;
+  vbuff->vbo_id = 0;
 	vbuff->usage = usage;
 	vbuff->ready = 0;
+  
 }
 
 // create new vertbuffer
-GLuint GPU_vertbuf_create(GLenum usage)
+GLuint GPU_vertbuf_create(const GLenum usage)
 {
   const GLuint vbuff_id = find_deleted_vert_buffer();
 	GPU_vertbuf_init(vbuff_id, usage);
@@ -74,6 +79,19 @@ GLuint GPU_vertbuf_create(GLenum usage)
 
 
 // add attribute to vertbuffer
+void GPU_vertbuf_add_attribute(const GLuint vbuff_id, const char *name, const GLint size, const GLenum type,
+                             const GLboolean normalized)
+{
+  VertBuffer *vbuff = &vert_buffers[vbuff_id];
+  VertAttribute *vattr =&vbuff->vertex_attributes[vbuff->attribute_count];
+  vbuff->attribute_count++;
+  
+  vattr->type = type;
+  vattr->size = size;
+  vattr->normalized;
+  vattr->name = name;
+                               
+}
 
 // get vertex data size
 
