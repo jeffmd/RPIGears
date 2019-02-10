@@ -91,7 +91,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat u1, v1, u2, v2, len;
   GLfloat cos_ta, cos_ta_1da, cos_ta_2da, cos_ta_3da, cos_ta_4da;
   GLfloat sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
-  GLshort ix0, ix1, ix2, ix3, ix4;
+  GLshort ix0, ix1, ix2, ix3, ix4, idx;
   vertex_t *vt, *nm, *tx;
   GLshort *ix;
   
@@ -118,10 +118,11 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   nm = gear->vertices;
   tx = gear->vertices;
   ix = gear->indices;
-
+  idx = 0;
+  
 #define VERTEX(x,y,z) ((vt->pos[0] = x),(vt->pos[1] = y),(vt->pos[2] = z), \
     (tx->texCoords[0] = f16(x / r2 * 0.8 + 0.5)),(tx->texCoords[1] = f16(y / r2 * 0.8 + 0.5)), (tx++), \
-    (vt++ - gear->vertices))
+    (vt++), idx++)
 #define NORMAL(x,y,z) ((nm->norm[0] = f16(x)),(nm->norm[1] = f16(y)),(nm->norm[2] = f16(z)), \
                        (nm++))
 #define INDEX(a,b,c) ((*ix++ = a),(*ix++ = b),(*ix++ = c))
@@ -283,16 +284,21 @@ void gear_vbo_off(void)
 void free_gear(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
-   if (gear) {
-	   if (gear->vboId) {
-	     glDeleteBuffers(1, &gear->vboId);
-	   }
-	   if (gear->iboId) {
-	     glDeleteBuffers(1, &gear->iboId);
-	   }
-     free(gear->vertices);
-     free(gear->indices);
-   }
+	if (gear) {
+	  GPU_vertbuf_delete(gear->vbuffId);
+    gear->vbuffId = 0;
+    
+	  if (gear->vboId) {
+		  glDeleteBuffers(1, &gear->vboId);
+      gear->vboId = 0;
+	  }
+	  if (gear->iboId) {
+		  glDeleteBuffers(1, &gear->iboId);
+      gear->iboId = 0;
+	  }
+	  free(gear->vertices);
+	  free(gear->indices);
+	}
 }
 
 void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location)

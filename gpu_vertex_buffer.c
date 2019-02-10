@@ -1,6 +1,7 @@
 // gpu_vertex_buffer.c
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "gles3.h"
 
@@ -11,6 +12,7 @@ typedef struct {
   uint8_t size;            // Components per element (1,2,3,4)
   uint8_t normalized;      // Fixed-point values are normalized when converted to floats
   const char *name;        // attribute name in vertex shader
+  GLuint offset;           // offset from start of data
   unsigned char *data;     // pointer to current location in data buffer for writing
 } VertAttribute;
 
@@ -62,6 +64,7 @@ void GPU_vertbuf_init(const GLuint vbuff_id)
   vbuff->attribute_count = 0;
   vbuff->draw_count = 0;
   vbuff->max_count = 0;
+  vbuff->data = 0;
   vbuff->vbo_id = 0;
 	vbuff->usage = GL_STATIC_DRAW;
 	vbuff->ready = 0;
@@ -76,6 +79,26 @@ GLuint GPU_vertbuf_create(void)
   printf("New vertbuf ID:%i\n", vbuff_id);
 
 	return vbuff_id;
+}
+
+void GPU_vertbuf_delete(const GLuint vbuff_id)
+{
+  VertBuffer *vbuff = &vert_buffers[vbuff_id];
+
+  if (vbuff->data) {
+    free(vbuff->data);
+    vbuff->data = 0;
+  }
+  
+  if (vbuff->vbo_id) {
+    glDeleteBuffers(1, &vbuff->vbo_id);
+    vbuff->vbo_id = 0;
+  }
+  
+  vbuff->active = 0;
+  
+  if (vbuff_id < next_deleted_vert_buffer)
+    next_deleted_vert_buffer = vbuff_id; 
 }
 
 
@@ -94,18 +117,49 @@ void GPU_vertbuf_add_attribute(const GLuint vbuff_id, const char *name, const GL
                                
 }
 
+static GLuint get_type_byte_size(const GLenum type)
+{
+  switch(type) {
+    case GL_BYTE:
+    case GL_UNSIGNED_BYTE:
+      return 1;
+    case GL_SHORT:
+    case GL_UNSIGNED_SHORT:
+      return 2;
+    default:
+      return 4;
+  }
+}
+
 // begin data update ( vertex max count ) - no more attributes can be added
 void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
   vbuff->max_count = max_count;
+
+  vbuff->stride = 0;
+  GLuint max_Idx = vbuff->attribute_count;
+  // calculate stride
+  for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
+    vbuff->vertex_attributes[Idx].offset = vbuff->stride;
+    vbuff->stride += get_type_byte_size(vbuff->vertex_attributes[Idx].type);
+  }
+
+  if (vbuff->stride > 0) {
+    // allocate heap storage for data
+    vbuff->data = calloc(max_count, vbuff->stride);
+  
+    // ready to receive data updates in buffer storage
+    vbuff->ready = 1;
+  }
   
 }
 
-// get vertex data size
-
 // add vertex attribute data ( attribute_id, float, float, float )
-
+void GPU_vertbuf_add_vertex_3f(const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3)
+{
+  
+}
 // add vertex attribute data ( attribute_id, float, float );
 
 // add vertex attribute data ( attribute_id, float );
