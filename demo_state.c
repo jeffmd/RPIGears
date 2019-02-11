@@ -177,9 +177,9 @@ void build_gears(const int useVBO)
   const GLfloat blue[4] = {0.2, 0.2, 0.8, 1.0};
 
   /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 2.5, 20, 0.7, red, useVBO);
-  state->gear2 = gear(0.5, 2.0, 3.0, 10, 0.7, green, useVBO);
-  state->gear3 = gear(1.3, 2.0, 1.5, 10, 0.7, blue, useVBO);
+  state->gear1 = gear(1.0, 4.0, 1.25, 20, 0.7, red, useVBO);
+  state->gear2 = gear(0.5, 2.0, 1.50, 10, 0.7, green, useVBO);
+  state->gear3 = gear(1.3, 2.0, 0.75, 10, 0.7, blue, useVBO);
 
 }
 

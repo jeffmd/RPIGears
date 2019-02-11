@@ -40,12 +40,9 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
    m4x4_translate(UBO_Data.model_view, x, y, 0);
    m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
-   
    glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
 
-
    gear_draw(gearid, options_drawMode(), MaterialColor_loc);
-
 }
 
 /**
