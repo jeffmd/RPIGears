@@ -11,18 +11,14 @@
 
 #include "fp16.h"
 #include "gpu_vertex_buffer.h"
+#include "gpu_index_buffer.h"
 
 typedef struct {
-  GLshort *indices;
-  GLuint nindices;
-  GLuint iboId; // ID for index buffer object
-  
-  GLuint nvertices;
+  GLuint nvertices, nindices;
   GLfloat color[4];
   GLuint vaoId; // ID for vertex array object
   GLuint vbuffId; // ID for vert buffer
-  
-  GLvoid *index_p; // offset or pointer to first index
+  GLuint ibuffId; // ID for index buffer
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
@@ -35,26 +31,6 @@ enum {
   
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
-
-
-// setup pointers for vertex array
-static void make_gear_vertexarray(const int gearid)
-{
-  gear_t *gear = &gears[gearid - 1];
-  gear->index_p = gear->indices;
-  gear->iboId = 0;
-}
-
-static void make_gear_vbo(const int gearid)
-{
-  gear_t* gear = &gears[gearid - 1];
-  
-  gear->index_p = 0;
-  glGenBuffers(1, &gear->iboId);
-  
-  GPU_vertbuf_use_VBO(gear->vbuffId);
-
-}
 
 /**
  
@@ -81,15 +57,16 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat cos_ta, cos_ta_1da, cos_ta_2da, cos_ta_3da, cos_ta_4da;
   GLfloat sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
-  GLshort *ix;
   
   gear_t *gear = &gears[gearID++];
   
   gear->nvertices = teeth * 38;
   gear->nindices = teeth * 64 * 3;
 
-  gear->indices = calloc(gear->nindices, sizeof(GLshort));
   memcpy(&gear->color[0], &color[0], sizeof(GLfloat) * 4);
+
+  gear->ibuffId = GPU_indexbuf_create();
+  GPU_indexbuf_begin_update(gear->ibuffId, gear->nindices);
   
   gear->vbuffId = GPU_vertbuf_create();
   GPU_vertbuf_add_attribute(gear->vbuffId, "position", 3, GL_FLOAT);
@@ -102,14 +79,13 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   r2 = outer_radius + tooth_depth / 2.0;
   da = 2.0 * M_PI / teeth / 4.0;
 
-  ix = gear->indices;
   idx = 0;
   
 #define VERTEX(x,y,z) (GPU_vertbuf_add_3(gear->vbuffId, ATTR_POSITION, x, y, z), \
     GPU_vertbuf_add_2(gear->vbuffId, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
     idx++)
 #define NORMAL(x,y,z) GPU_vertbuf_add_3(gear->vbuffId, ATTR_NORMAL, x, y, z)
-#define INDEX(a,b,c) ((*ix++ = a),(*ix++ = b),(*ix++ = c))
+#define INDEX(a,b,c) GPU_indexbuf_add_3(gear->ibuffId, a, b, c)
 
   for (i = 0; i < teeth; i++) {
     ta = i * 2.0 * M_PI / teeth;
@@ -234,25 +210,11 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   // if VBO enabled then set them up for each gear
   if (useVBO) {
-    make_gear_vbo(gearID);
-  }
-  else {
-    make_gear_vertexarray(gearID);
+    GPU_indexbuf_use_VBO(gear->ibuffId);
+    GPU_vertbuf_use_VBO(gear->vbuffId);
   }
   
   return gearID;
-}
-
-static void gear_bind_buffer(const int gearid)
-{
-  gear_t* gear = &gears[gearid - 1];
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
-  if (gear->iboId)
-	  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
-
-  //void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-  //glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 void gear_vbo_off(void)
@@ -269,12 +231,8 @@ void free_gear(const int gearid)
 	  GPU_vertbuf_delete(gear->vbuffId);
     gear->vbuffId = 0;
     
-	  if (gear->iboId) {
-		  glDeleteBuffers(1, &gear->iboId);
-      gear->iboId = 0;
-	  }
-
-	  free(gear->indices);
+	  GPU_indexbuf_delete(gear->ibuffId);
+    gear->ibuffId = 0;
 	}
 }
 
@@ -289,9 +247,7 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   if (drawMode == GL_POINTS)
     glDrawArrays(drawMode, 0, gear->nvertices);
   else
-    glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, gear->index_p);
-  
-  
+    glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId));
 }
 
 void gear_setVAO(const int gearid)
@@ -301,7 +257,6 @@ void gear_setVAO(const int gearid)
   glGenVertexArrays(1, &gear->vaoId);
   glBindVertexArray(gear->vaoId);
   
-  gear_bind_buffer(gearid);
-  
+  GPU_indexbuf_set_VAO(gear->ibuffId);
   GPU_vertbuf_set_VAO(gear->vbuffId);
 }
