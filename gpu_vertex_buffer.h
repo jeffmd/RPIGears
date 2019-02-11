@@ -8,6 +8,11 @@
   void GPU_vertbuf_add_attribute(const GLuint vbuff_id, const char *name,
     const GLint size, const GLenum type);
   void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count);
-  void GPU_vertbuf_add_vertex_3f(const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3);
+  void GPU_vertbuf_add_4(const GLuint vbuff_id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4);
+  void GPU_vertbuf_use_VBO(const GLuint vbuff_id);
+  void GPU_vertbuf_set_VAO(const GLuint vbuff_id);
+  
+  #define GPU_vertbuf_add_3(vbuff_id, attr_id, val1, val2, val3) GPU_vertbuf_add_4(vbuff_id, attr_id, val1, val2, val3, 0)
+  #define GPU_vertbuf_add_2(vbuff_id, attr_id, val1, val2) GPU_vertbuf_add_4(vbuff_id, attr_id, val1, val2, 0, 0)
 
 #endif

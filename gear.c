@@ -10,33 +10,29 @@
 #include "gles3.h"
 
 #include "fp16.h"
-#include "gpu_shader_interface.h"
 #include "gpu_vertex_buffer.h"
 
 typedef struct {
-  GLfloat pos[3];
-  GLshort norm[3];
-  GLshort texCoords[2];
-} vertex_t;
-
-typedef struct {
-  vertex_t *vertices;
   GLshort *indices;
-  GLfloat color[4];
-  int nvertices, nindices;
-  GLuint vboId; // ID for vertex buffer object
+  GLuint nindices;
   GLuint iboId; // ID for index buffer object
+  
+  GLuint nvertices;
+  GLfloat color[4];
   GLuint vaoId; // ID for vertex array object
   GLuint vbuffId; // ID for vert buffer
   
-  GLvoid *vertex_p; // offset or pointer to first vertex
-  GLvoid *normal_p; // offset or pointer to first normal
-  GLvoid *index_p;  // offset or pointer to first index
-  GLvoid *texCoords_p;  // offset or pointer to first texcoord
+  GLvoid *index_p; // offset or pointer to first index
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
 
+enum {
+  ATTR_POSITION,
+  ATTR_NORMAL,
+  ATTR_UV,
+};
+  
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
 
@@ -45,26 +41,19 @@ static gear_t gears[GEARS_MAX_COUNT];
 static void make_gear_vertexarray(const int gearid)
 {
   gear_t *gear = &gears[gearid - 1];
-  // for Vertex Array use pointers to where the buffer starts
-  gear->vertex_p = gear->vertices[0].pos;
-  gear->normal_p = gear->vertices[0].norm;
-  gear->texCoords_p = gear->vertices[0].texCoords;
   gear->index_p = gear->indices;
-  gear->vboId = 0;
   gear->iboId = 0;
 }
 
-//  
 static void make_gear_vbo(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
-  // for VBO use offsets into the buffer object
-  gear->vertex_p = 0;
-  gear->normal_p = (GLvoid *)sizeof(gear->vertices[0].pos);
-  gear->texCoords_p = (GLvoid *)(sizeof(gear->vertices[0].pos) + sizeof(gear->vertices[0].norm));
+  
   gear->index_p = 0;
-  glGenBuffers(1, &gear->vboId);
   glGenBuffers(1, &gear->iboId);
+  
+  GPU_vertbuf_use_VBO(gear->vbuffId);
+
 }
 
 /**
@@ -92,14 +81,13 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat cos_ta, cos_ta_1da, cos_ta_2da, cos_ta_3da, cos_ta_4da;
   GLfloat sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
-  vertex_t *vt, *nm, *tx;
   GLshort *ix;
   
   gear_t *gear = &gears[gearID++];
   
   gear->nvertices = teeth * 38;
   gear->nindices = teeth * 64 * 3;
-  gear->vertices = calloc(gear->nvertices, sizeof(vertex_t));
+
   gear->indices = calloc(gear->nindices, sizeof(GLshort));
   memcpy(&gear->color[0], &color[0], sizeof(GLfloat) * 4);
   
@@ -114,17 +102,13 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   r2 = outer_radius + tooth_depth / 2.0;
   da = 2.0 * M_PI / teeth / 4.0;
 
-  vt = gear->vertices;
-  nm = gear->vertices;
-  tx = gear->vertices;
   ix = gear->indices;
   idx = 0;
   
-#define VERTEX(x,y,z) ((vt->pos[0] = x),(vt->pos[1] = y),(vt->pos[2] = z), \
-    (tx->texCoords[0] = f16(x / r2 * 0.8 + 0.5)),(tx->texCoords[1] = f16(y / r2 * 0.8 + 0.5)), (tx++), \
-    (vt++), idx++)
-#define NORMAL(x,y,z) ((nm->norm[0] = f16(x)),(nm->norm[1] = f16(y)),(nm->norm[2] = f16(z)), \
-                       (nm++))
+#define VERTEX(x,y,z) (GPU_vertbuf_add_3(gear->vbuffId, ATTR_POSITION, x, y, z), \
+    GPU_vertbuf_add_2(gear->vbuffId, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
+    idx++)
+#define NORMAL(x,y,z) GPU_vertbuf_add_3(gear->vbuffId, ATTR_NORMAL, x, y, z)
 #define INDEX(a,b,c) ((*ix++ = a),(*ix++ = b),(*ix++ = c))
 
   for (i = 0; i < teeth; i++) {
@@ -262,13 +246,10 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 static void gear_bind_buffer(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
-  glBindBuffer(GL_ARRAY_BUFFER, gear->vboId);
-  if (gear->vboId)
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * gear->nvertices, gear->vertices, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gear->iboId);
   if (gear->iboId)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
+	  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * gear->nindices, gear->indices, GL_STATIC_DRAW);
 
   //void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
   //glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -288,15 +269,11 @@ void free_gear(const int gearid)
 	  GPU_vertbuf_delete(gear->vbuffId);
     gear->vbuffId = 0;
     
-	  if (gear->vboId) {
-		  glDeleteBuffers(1, &gear->vboId);
-      gear->vboId = 0;
-	  }
 	  if (gear->iboId) {
 		  glDeleteBuffers(1, &gear->iboId);
       gear->iboId = 0;
 	  }
-	  free(gear->vertices);
+
 	  free(gear->indices);
 	}
 }
@@ -326,18 +303,5 @@ void gear_setVAO(const int gearid)
   
   gear_bind_buffer(gearid);
   
-  /* Set up the position of the attributes in the vertex buffer object */
-  // setup where vertex data is
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(get_active_attribute_location("position"), 3, GL_FLOAT, GL_FALSE,
-       sizeof(vertex_t), gear->vertex_p);
-  // setup where normal data is
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(get_active_attribute_location("normal"), 3, GL_HALF_FLOAT_OES, GL_FALSE,
-       sizeof(vertex_t), gear->normal_p);
-  // setup where uv data is
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(get_active_attribute_location("uv"), 2, GL_HALF_FLOAT_OES, GL_FALSE,
-       sizeof(vertex_t), gear->texCoords_p);
-	
+  GPU_vertbuf_set_VAO(gear->vbuffId);
 }
