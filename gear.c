@@ -16,7 +16,7 @@
 typedef struct {
   GLuint nvertices, nindices;
   GLfloat color[4];
-  GLuint vaoId; // ID for vertex array object
+  GLuint vaoId;   // ID for vertex array object
   GLuint vbuffId; // ID for vert buffer
   GLuint ibuffId; // ID for index buffer
 } gear_t;

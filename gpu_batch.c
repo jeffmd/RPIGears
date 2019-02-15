@@ -1,10 +1,15 @@
 // gpu_batch.c
 
+#include <stdio.h>
+
+#include "gles3.h"
+
 typedef struct {
   uint8_t active;
   GLuint vaoId;   // ID for vertex array object
   GLuint vbuffId; // ID for vert buffer
   GLuint ibuffId; // ID for index buffer
+  GLuint progId;  // shader program ID
 } GPUBatch;
 
 #define BATCH_MAX_COUNT 10
@@ -19,7 +24,7 @@ static GLuint find_deleted_batch(void)
   if((id == 0) | (id >= BATCH_MAX_COUNT))
     id = 1;
 
-  for ( ; id < INDEX_BUFFER_MAX_COUNT; id++) {
+  for ( ; id < BATCH_MAX_COUNT; id++) {
     if (batches[id].active == 0) {
       next_deleted_batch = id + 1;
       break;
@@ -39,6 +44,9 @@ void GPU_batch_init(const GLuint batch_id)
   GPUBatch *batch = &batches[batch_id];
   
   batch->active = 1;
+  batch->vaoId = 0;
+  batch->vbuffId = 0;
+  batch->ibuffId = 0;
   
 }
 

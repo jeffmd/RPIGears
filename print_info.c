@@ -9,16 +9,16 @@
 
 void print_GLInfo(void)
 {
-  printf("\nGL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
-  printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
-  printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
-  printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-  printf("GLSL VERSION  = %s\n", (char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
+  printf("\nGL_RENDERER   = %s\n", glGetString(GL_RENDERER));
+  printf("GL_VERSION    = %s\n", glGetString(GL_VERSION));
+  printf("GL_VENDOR     = %s\n", glGetString(GL_VENDOR));
+  printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
+  printf("GLSL VERSION  = %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void print_GL_Limits(void)
 {
-  GLint num[4];
+  GLint num[20];
 
   glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, num);
   printf("MAX_VERTEX_ATTRIBS: %i\n", num[0]);
@@ -43,6 +43,13 @@ void print_GL_Limits(void)
 
   glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, num);
   printf("NUM_COMPRESSED_TEXTURE_FORMATS: %i\n", num[0]);
+  const GLint text_cnt = num[0];
+  glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, num);
+  printf("compressed texture formats: ");
+  for (int i = 0; i < text_cnt; i++) {
+    printf("0x%X, ", num[i]);
+  }
+  printf("\n");
 
   glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
   printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
