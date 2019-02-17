@@ -95,15 +95,17 @@ typedef struct
 typedef struct
 {
 
-   gl_vao_manager Array;	    /**< Vertex arrays */
+  gl_vao_manager Array;	    /**< Vertex arrays */
 
-   GLuint InstanceID;
-   GLuint InstanceID_loc;
-   // currently active program
-   GLuint program;
-   /** bound buffers */
-   GLuint Buffer;
-   GLuint ElementBuffer;
+  uint8_t instanced_attributes[VERT_ATTRIB_MAX];
+  uint8_t instanced_count;
+  uint8_t instanceID_loc;
+
+  // currently active program
+  GLuint program;
+  /** bound buffers */
+  GLuint Buffer;
+  GLuint ElementBuffer;
 } gl_context;
 
 static gl_context ctx;
@@ -433,48 +435,45 @@ void glVertexAttribDivisor(GLuint index, GLuint divisor)
 
 }
 
-static uint8_t instanced_attributes[VERT_ATTRIB_MAX];
-static uint8_t instanced_count;
-static uint8_t instanceID_loc;
 
 static void setup_instanced_attributes(void)
 {
-  instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
-  instanced_count = 0;
+  ctx.instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  ctx.instanced_count = 0;
 
   gl_array_attributes *vertex_attribs = ctx.Array.Objects[ctx.Array.VAO].VertexAttrib;
   for (GLuint idx = 0; idx < VERT_ATTRIB_MAX; idx++) {
     if ((vertex_attribs->Enabled) && (vertex_attribs->BufferObj == 0) && (vertex_attribs->divisor > 0)) {
       // will be passing instanced data through generic vertex attribute
       glDisableVertexAttribArray(idx);
-      instanced_attributes[instanced_count] = idx;
-      instanced_count++;
+      ctx.instanced_attributes[ctx.instanced_count] = idx;
+      ctx.instanced_count++;
       vertex_attribs++;
     }
   }
 }
 
 // update generic vertex attributes that are per instance
-static void update_instanced_attributes(GLuint instanceID)
+static void update_instanced_attributes(const GLuint instanceID)
 {
-  glUniform1f(instanceID_loc, instanceID);
+  glUniform1f(ctx.instanceID_loc, instanceID);
 
   gl_array_attributes *vertex_attribs = ctx.Array.Objects[ctx.Array.VAO].VertexAttrib;
   
-  for (GLuint idx = 0; idx < instanced_count; idx++) {
+  for (GLuint idx = 0; idx < ctx.instanced_count; idx++) {
     GLfloat *data = (GLfloat *)(vertex_attribs[idx].Ptr + (instanceID/vertex_attribs[idx].divisor) * vertex_attribs[idx].Stride);
     switch(vertex_attribs[idx].Size) {
       case 1:
-        glVertexAttrib1fv(instanced_attributes[idx], data);
+        glVertexAttrib1fv(ctx.instanced_attributes[idx], data);
         break;
       case 2:
-        glVertexAttrib2fv(instanced_attributes[idx], data);
+        glVertexAttrib2fv(ctx.instanced_attributes[idx], data);
         break;
       case 3:
-        glVertexAttrib3fv(instanced_attributes[idx], data);
+        glVertexAttrib3fv(ctx.instanced_attributes[idx], data);
         break;
       default:
-        glVertexAttrib4fv(instanced_attributes[idx], data);
+        glVertexAttrib4fv(ctx.instanced_attributes[idx], data);
     }
   }
 }
