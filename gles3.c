@@ -58,7 +58,7 @@ typedef struct
    uint8_t Enabled;         /**< Whether the array is enabled */
    uint8_t Size;            /**< Components per element (1,2,3,4) */
    uint8_t Normalized;      /**< Fixed-point values are normalized when converted to floats */
-
+   GLuint divisor;          // divisor used in instancing
 } gl_array_attributes;
 
 /**
@@ -97,6 +97,10 @@ typedef struct
 
    gl_vao_manager Array;	    /**< Vertex arrays */
 
+   GLuint InstanceID;
+   GLuint InstanceID_loc;
+   // currently active program
+   GLuint program;
    /** bound buffers */
    GLuint Buffer;
    GLuint ElementBuffer;
@@ -129,8 +133,6 @@ static void delete_vao(GLuint name)
  * Initialize attributes of a vertex array within a vertex array object.
  * \param vao  the container vertex array object
  * \param index  which array in the VAO to initialize
- * \param size  number of components (1, 2, 3 or 4) per attribute
- * \param type  datatype of the attribute (GL_FLOAT, GL_INT, etc).
  */
 static void init_array_attributes(gl_vao *vao,
            GLuint index)
@@ -145,6 +147,7 @@ static void init_array_attributes(gl_vao *vao,
    array->Enabled = GL_FALSE;
    array->Normalized = GL_FALSE;
    array->BufferObj = 0;
+   array->divisor = 0;
 }
 
 /**
@@ -413,5 +416,50 @@ void glDisableVertexAttribArrayMod(GLuint index)
 void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index)
 {
   disable_vertex_array_attrib(vaobj, index);
+}
+
+void glUseProgramMod(GLuint program)
+{
+  ctx.program = program;
+  
+  glUseProgram(program);
+}
+
+void glVertexAttribDivisor(GLuint index, GLuint divisor)
+{
+  assert(index < VERT_ATTRIB_MAX);
+
+  ctx.Array.Objects[ctx.Array.VAO].VertexAttrib[index].divisor = divisor;
+
+}
+
+void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primCount)
+{
+  const GLuint instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  for (GLuint instanceID = 0; instanceID < primCount; instanceID++) {
+    // update generic vertex attributes that are per instance
+    glUniform1f(instanceID_loc, instanceID);    
+    glDrawArrays(mode, first, count);
+  }
+}
+
+void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei primCount)
+{
+  const GLuint instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  for (GLuint instanceID = 0; instanceID < primCount; instanceID++) {
+    // update generic vertex attributes that are per instance
+    glUniform1f(instanceID_loc, instanceID);
+    glDrawElements(mode, count, type, indices);
+  }
+}
+
+void glDrawArraysInstancedBaseInstance(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount, GLuint baseInstance)
+{
+  
+}
+
+void glDrawElementsInstancedBaseInstance(GLenum mode, GLsizei count, GLenum type, const GLvoid * indices, GLsizei instanceCount, GLuint baseInstance)
+{
+  
 }
 

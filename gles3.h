@@ -16,13 +16,21 @@ void glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
 void glGenVertexArrays(GLsizei n, GLuint *arrays);
 void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index);
 void glDisableVertexArrayAttrib(GLuint vaobj, GLuint index);
+void glUseProgramMod(GLuint program);
 
 void *glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
+
+void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primCount);
+void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei primCount);
+void glDrawArraysInstancedBaseInstance(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount, GLuint baseInstance);
+void glDrawElementsInstancedBaseInstance(GLenum mode, GLsizei count, GLenum type, const GLvoid * indices, GLsizei instanceCount, GLuint baseInstance);
+void glVertexAttribDivisor(GLuint index, GLuint divisor);
 
 
 #define glVertexAttribPointer glVertexAttribPointerMod
 #define glEnableVertexAttribArray glEnableVertexAttribArrayMod
 #define glDisableVertexAttribArray glDisableVertexAttribArrayMod
+#define glUseProgram glUseProgramMod
 #define glUnmapBuffer glUnmapBufferOES
 #define glMapBuffer glMapBufferOES
 #define glBindBuffer glBindBufferMod

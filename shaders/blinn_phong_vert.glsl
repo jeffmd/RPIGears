@@ -5,6 +5,7 @@ attribute vec3 normal;
 attribute vec2 uv;
 
 uniform vec4 UBO[9];
+uniform float _gl_InstanceID;
 
 varying vec3 N;
 //varying vec3 V;
@@ -35,6 +36,7 @@ void main(void)
     oUV = uv;
     // Transform the position to clip coordinates
     gl_Position = CameraProjectionMatrix * pos;
+    gl_Position.x += _gl_InstanceID/10.0;
     gl_PointSize = 2.0;
 }
  
