@@ -433,22 +433,68 @@ void glVertexAttribDivisor(GLuint index, GLuint divisor)
 
 }
 
+static uint8_t instanced_attributes[VERT_ATTRIB_MAX];
+static uint8_t instanced_count;
+static uint8_t instanceID_loc;
+
+static void setup_instanced_attributes(void)
+{
+  instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  instanced_count = 0;
+
+  gl_array_attributes *vertex_attribs = ctx.Array.Objects[ctx.Array.VAO].VertexAttrib;
+  for (GLuint idx = 0; idx < VERT_ATTRIB_MAX; idx++) {
+    if ((vertex_attribs->Enabled) && (vertex_attribs->BufferObj == 0) && (vertex_attribs->divisor > 0)) {
+      // will be passing instanced data through generic vertex attribute
+      glDisableVertexAttribArray(idx);
+      instanced_attributes[instanced_count] = idx;
+      instanced_count++;
+      vertex_attribs++;
+    }
+  }
+}
+
+// update generic vertex attributes that are per instance
+static void update_instanced_attributes(GLuint instanceID)
+{
+  glUniform1f(instanceID_loc, instanceID);
+
+  gl_array_attributes *vertex_attribs = ctx.Array.Objects[ctx.Array.VAO].VertexAttrib;
+  
+  for (GLuint idx = 0; idx < instanced_count; idx++) {
+    GLfloat *data = (GLfloat *)(vertex_attribs[idx].Ptr + (instanceID/vertex_attribs[idx].divisor) * vertex_attribs[idx].Stride);
+    switch(vertex_attribs[idx].Size) {
+      case 1:
+        glVertexAttrib1fv(instanced_attributes[idx], data);
+        break;
+      case 2:
+        glVertexAttrib2fv(instanced_attributes[idx], data);
+        break;
+      case 3:
+        glVertexAttrib3fv(instanced_attributes[idx], data);
+        break;
+      default:
+        glVertexAttrib4fv(instanced_attributes[idx], data);
+    }
+  }
+}
+
 void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primCount)
 {
-  const GLuint instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  setup_instanced_attributes();
+  
   for (GLuint instanceID = 0; instanceID < primCount; instanceID++) {
-    // update generic vertex attributes that are per instance
-    glUniform1f(instanceID_loc, instanceID);    
+    update_instanced_attributes(instanceID);
     glDrawArrays(mode, first, count);
   }
 }
 
 void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei primCount)
 {
-  const GLuint instanceID_loc = glGetUniformLocation(ctx.program, "_gl_InstanceID");
+  setup_instanced_attributes();
+  
   for (GLuint instanceID = 0; instanceID < primCount; instanceID++) {
-    // update generic vertex attributes that are per instance
-    glUniform1f(instanceID_loc, instanceID);
+    update_instanced_attributes(instanceID);
     glDrawElements(mode, count, type, indices);
   }
 }
