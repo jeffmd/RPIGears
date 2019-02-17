@@ -23,7 +23,7 @@ void main(void)
     vec4 diffuse = vec4(0.8, 0.7, 0.55, 1.0) * max(dot(L, N), 0.0);
     // get bump map vector, again expand from range-compressed
     vec4 diffCol = texture2D(DiffuseMap, oUV);
-    diffCol.r += _gl_InstanceID/10.0;
+    diffCol.rgb -= vec3(_gl_InstanceID/10.0);
     // modulate diffuseMap with base material color
     //float depth = (1.0 - gl_FragCoord.z)*40.0;
     gl_FragColor = MaterialColor * diffCol * (vec4(0.15, 0.5, 0.7, 1.0) +  diffuse);

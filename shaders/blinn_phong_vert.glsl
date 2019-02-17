@@ -21,6 +21,7 @@ varying vec2 oUV;
 void main(void)
 {
     vec4 pos = vec4(position, 1.0);
+    pos.z -= _gl_InstanceID*4.0;
    // None of the vectors are normalized until in the fragment shader
 // Calculate the normal vector for this vertex, in view space (
     N = normalize(ModelViewMatrix * vec4(normal, 0.0)).xyz;
@@ -36,7 +37,6 @@ void main(void)
     oUV = uv;
     // Transform the position to clip coordinates
     gl_Position = CameraProjectionMatrix * pos;
-    gl_Position.x += _gl_InstanceID/10.0;
     gl_PointSize = 2.0;
 }
  

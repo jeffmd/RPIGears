@@ -28,6 +28,7 @@ typedef struct
    float avgfps;
    // the average time between each frame update = 1/avgfps
    float period_rate;
+   int instances;
 
    // keyboard data
    UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
@@ -112,6 +113,23 @@ void update_texId(const GLuint texId)
 GLuint state_textId(void)
 {
   return state->texId;
+}
+
+GLuint state_instances(void)
+{
+  return state->instances;
+}
+
+void inc_instances(void)
+{
+  state->instances++;
+}
+
+void dec_instances(void)
+{
+  state->instances--;
+  if (state->instances < 1) 
+    state->instances = 1;	
 }
 
 void update_gear_rotation(void)
@@ -209,5 +227,6 @@ void init_demo_state(void)
   state->LightSourcePosition[2] = 15.0;
   state->LightSourcePosition[3] = 1.0;
   state->LightDirty = GL_TRUE;
+  state->instances = 1;
   update_angleFrame();
 }

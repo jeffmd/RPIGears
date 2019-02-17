@@ -204,6 +204,14 @@ static int check_key(const int inpkey)
     case 'p':
       update_angleVel(0.0);
       break;
+      
+    case 'I':
+      inc_instances();
+      break;
+      
+    case 'O':
+      dec_instances();
+      break; 
           
     default: print_keyhelp();
   }

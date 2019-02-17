@@ -16,6 +16,7 @@ int state_gear1(void);
 int state_gear2(void);
 int state_gear3(void);
 GLfloat state_angle(void);
+GLuint state_instances(void);
   
 void update_timeToRun(const GLuint val);
 void update_angleVel(const GLfloat val);
@@ -31,6 +32,8 @@ void update_gear_rotation(void);
 void move_rate_on(void);
 void move_rate_off(void);
 void inc_move_rate(void);
+void inc_instances(void);
+void dec_instances(void);
 void init_demo_state(void);
 void light_move_y(const float val);
 void light_move_x(const float val);

@@ -42,7 +42,7 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 
    glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
 
-   gear_draw(gearid, options_drawMode(), MaterialColor_loc);
+   gear_draw(gearid, options_drawMode(), MaterialColor_loc, state_instances());
 }
 
 /**

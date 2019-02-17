@@ -236,7 +236,7 @@ void free_gear(const int gearid)
 	}
 }
 
-void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location)
+void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances)
 {
   gear_t* gear = &gears[gearid - 1];
   /* Set the gear color */
@@ -245,9 +245,9 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   glBindVertexArray(gear->vaoId);
   
   if (drawMode == GL_POINTS)
-    glDrawArrays(drawMode, 0, gear->nvertices);
+    glDrawArraysInstanced(drawMode, 0, gear->nvertices, instances);
   else
-    glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId));
+    glDrawElementsInstanced(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId), instances);
 }
 
 void gear_setVAO(const int gearid)
