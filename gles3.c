@@ -496,6 +496,8 @@ void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void
     update_instanced_attributes(instanceID);
     glDrawElements(mode, count, type, indices);
   }
+
+  glUniform1f(ctx.instanceID_loc, 0);
 }
 
 void glDrawArraysInstancedBaseInstance(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount, GLuint baseInstance)
