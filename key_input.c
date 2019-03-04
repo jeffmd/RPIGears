@@ -119,7 +119,7 @@ static void check_esckey(const int inpkey)
   
 }
 
-static int check_key(const int inpkey)
+int check_key(const int inpkey)
 {
   // value returned to indicate if more keys to be processed or terminate program
   int result = FRAMES;
