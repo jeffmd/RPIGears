@@ -4,6 +4,7 @@
 
 #ifndef _XINPUT_H_
   #define _XINPUT_H_
+
+  void xinput_check_keys(XEvent *event);
   
-  void x_process_keypress(KeySym key);
 #endif

@@ -129,12 +129,12 @@ int check_key(const int inpkey)
   switch(inpkey)
   {
     case 10:
+    case 13:
       result = 0;
       break;
       
     case 27: // check escape sequence
-      if (_kbhit()) check_esckey(getchar());
-      else result = 0; // user pressed esc key to exit program
+      result = 0; // user pressed esc key to exit program
       break;
       
     case 'i': 
@@ -216,8 +216,6 @@ int check_key(const int inpkey)
     default: print_keyhelp();
   }
   
-  // if falling behind in key processing then speed it up
-  if (_kbhit()) result = 2; 
   return result;
 }
 
@@ -229,7 +227,16 @@ int detect_keypress(void)
   
   if (keyswaiting) {
     //printf("keys waiting: %i\n", keyswaiting);
-    active = check_key(getchar());
+    int key = getchar();
+    if (key == 27) {
+      if (_kbhit()) check_esckey(getchar());
+      else active = 0;
+    }
+    else {
+      active = check_key(key);
+    }
+    // if falling behind in key processing then speed it up
+    if (_kbhit()) active = 2; 
     move_rate_on();
   }
   else {
@@ -239,3 +246,4 @@ int detect_keypress(void)
   
   return active;  
 }
+

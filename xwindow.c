@@ -107,7 +107,7 @@ void xwindow_init(const uint width, const uint height)
     | FocusChangeMask
     /*| EnterWindowMask*/
     /*| PointerMotionMask*/
-    /*| KeyReleaseMask*/
+    | KeyReleaseMask
     | VisibilityChangeMask
     | StructureNotifyMask);
 
@@ -300,7 +300,6 @@ void xwindow_frame_update(void)
 void xwindow_check_events(void)
 {
   XEvent event;
-  KeySym key;
 
   int cnt = XPending(dis);
   if (cnt > 0) {
@@ -308,10 +307,9 @@ void xwindow_check_events(void)
     /* keyboard events */
     switch(event.type)
     {
+	    case KeyRelease:
       case KeyPress:
-        key = XLookupKeysym(&event.xkey, 0);
-        //printf( "KeyPress: %x\n", (int)key );
-        x_process_keypress(key);
+        xinput_check_keys(&event);
         break;
 
       //case KeyRelease:
