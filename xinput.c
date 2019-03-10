@@ -3,8 +3,6 @@
 */
 
 #include <X11/Xutil.h>
-//#include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <stdio.h>
 
 #include "tasks.h"
@@ -12,7 +10,6 @@
 
 static void xinput_keypress(const char key)
 {
-  //move_rate_on();
   if (!check_key(key))
     enable_exit();
 }
