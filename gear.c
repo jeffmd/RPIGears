@@ -16,9 +16,10 @@
 typedef struct {
   GLuint nvertices, nindices;
   GLfloat color[4];
-  GLuint vaoId;   // ID for vertex array object
-  GLuint vbuffId; // ID for vert buffer
-  GLuint ibuffId; // ID for index buffer
+  GLuint  vaoId;   // ID for vertex array object
+  uint8_t vbuffId; // ID for vert buffer
+  uint8_t ibuffId; // ID for index buffer
+  uint8_t ubuffId; // ID for uniform buffer
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
@@ -245,9 +246,15 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   glBindVertexArray(gear->vaoId);
   
   if (drawMode == GL_POINTS)
-    glDrawArraysInstanced(drawMode, 0, gear->nvertices, instances);
+    if (instances > 1 )
+      glDrawArraysInstanced(drawMode, 0, gear->nvertices, instances);
+    else
+      glDrawArrays(drawMode, 0, gear->nvertices);
   else
-    glDrawElementsInstanced(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId), instances);
+    if (instances > 1)
+      glDrawElementsInstanced(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId), instances);
+    else
+      glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId));
 }
 
 void gear_setVAO(const int gearid)
