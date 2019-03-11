@@ -29,7 +29,8 @@ typedef struct
    // the average time between each frame update = 1/avgfps
    float period_rate;
    int instances;
-
+   GLboolean use_VBO;
+   
    // keyboard data
    UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
    float rate; // the rate at which a change occurs

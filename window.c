@@ -384,6 +384,7 @@ void window_init(void)
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glEnable(GL_DEPTH_TEST);
+  //glLineWidth(1.0);
   //glEnable(GL_SAMPLE_COVERAGE);
   //glSampleCoverage(0.85, GL_FALSE);
 

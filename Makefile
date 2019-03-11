@@ -2,7 +2,7 @@ OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
 	xwindow.o xinput.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_shader_interface.o gpu_texture.o gpu_framebuffer.o gpu_shader.o \
-	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o
+	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o
 	
 BIN = RPIGears.bin
 	
