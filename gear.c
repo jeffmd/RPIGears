@@ -12,14 +12,13 @@
 #include "fp16.h"
 #include "gpu_vertex_buffer.h"
 #include "gpu_index_buffer.h"
+#include "gpu_batch.h"
 
 typedef struct {
   GLuint nvertices, nindices;
   GLfloat color[4];
-  GLuint  vaoId;   // ID for vertex array object
-  uint8_t vbuffId; // ID for vert buffer
-  uint8_t ibuffId; // ID for index buffer
   uint8_t ubuffId; // ID for uniform buffer
+  uint8_t batch_id; 
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
@@ -61,19 +60,25 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear_t *gear = &gears[gearID++];
   
-  gear->nvertices = teeth * 38;
-  gear->nindices = teeth * 64 * 3;
+  const int nvertices = teeth * 38;
+  const int nindices = teeth * 64 * 3;
 
   memcpy(&gear->color[0], &color[0], sizeof(GLfloat) * 4);
-
-  gear->ibuffId = GPU_indexbuf_create();
-  GPU_indexbuf_begin_update(gear->ibuffId, gear->nindices);
   
-  gear->vbuffId = GPU_vertbuf_create();
-  GPU_vertbuf_add_attribute(gear->vbuffId, "position", 3, GL_FLOAT);
-  GPU_vertbuf_add_attribute(gear->vbuffId, "normal", 3, GL_HALF_FLOAT_OES);
-  GPU_vertbuf_add_attribute(gear->vbuffId, "uv", 2, GL_HALF_FLOAT_OES);
-  GPU_vertbuf_begin_update(gear->vbuffId, gear->nvertices);
+  gear->batch_id = GPU_batch_create();
+
+  const GLuint ibuffId = GPU_indexbuf_create();
+  GPU_batch_set_index_buffer(gear->batch_id, ibuffId);
+  GPU_batch_set_indices_draw_count(gear->batch_id, nindices);
+  GPU_indexbuf_begin_update(ibuffId, nindices);
+  
+  const GLuint vbuffId = GPU_vertbuf_create();
+  GPU_batch_set_vertex_buffer(gear->batch_id, vbuffId);
+  GPU_batch_set_vertices_draw_count(gear->batch_id, nvertices);
+  GPU_vertbuf_add_attribute(vbuffId, "position", 3, GL_FLOAT);
+  GPU_vertbuf_add_attribute(vbuffId, "normal", 3, GL_HALF_FLOAT_OES);
+  GPU_vertbuf_add_attribute(vbuffId, "uv", 2, GL_HALF_FLOAT_OES);
+  GPU_vertbuf_begin_update(vbuffId, nvertices);
   
   r0 = inner_radius;
   r1 = outer_radius - tooth_depth / 2.0;
@@ -82,11 +87,11 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   idx = 0;
   
-#define VERTEX(x,y,z) (GPU_vertbuf_add_3(gear->vbuffId, ATTR_POSITION, x, y, z), \
-    GPU_vertbuf_add_2(gear->vbuffId, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
+#define VERTEX(x,y,z) (GPU_vertbuf_add_3(vbuffId, ATTR_POSITION, x, y, z), \
+    GPU_vertbuf_add_2(vbuffId, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
     idx++)
-#define NORMAL(x,y,z) GPU_vertbuf_add_3(gear->vbuffId, ATTR_NORMAL, x, y, z)
-#define INDEX(a,b,c) GPU_indexbuf_add_3(gear->ibuffId, a, b, c)
+#define NORMAL(x,y,z) GPU_vertbuf_add_3(vbuffId, ATTR_NORMAL, x, y, z)
+#define INDEX(a,b,c) GPU_indexbuf_add_3(ibuffId, a, b, c)
 
   for (i = 0; i < teeth; i++) {
     ta = i * 2.0 * M_PI / teeth;
@@ -211,8 +216,8 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   // if VBO enabled then set them up for each gear
   if (useVBO) {
-    GPU_indexbuf_use_VBO(gear->ibuffId);
-    GPU_vertbuf_use_VBO(gear->vbuffId);
+    GPU_indexbuf_use_VBO(ibuffId);
+    GPU_vertbuf_use_VBO(vbuffId);
   }
   
   return gearID;
@@ -228,13 +233,8 @@ void gear_vbo_off(void)
 void free_gear(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
-	if (gear) {
-	  GPU_vertbuf_delete(gear->vbuffId);
-    gear->vbuffId = 0;
-    
-	  GPU_indexbuf_delete(gear->ibuffId);
-    gear->ibuffId = 0;
-	}
+
+  GPU_batch_delete(gear->batch_id, 1);
 }
 
 void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances)
@@ -243,27 +243,12 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   /* Set the gear color */
   glUniform4fv(MaterialColor_location, 1, gear->color);
   
-  glBindVertexArray(gear->vaoId);
-  
-  if (drawMode == GL_POINTS)
-    if (instances > 1 )
-      glDrawArraysInstanced(drawMode, 0, gear->nvertices, instances);
-    else
-      glDrawArrays(drawMode, 0, gear->nvertices);
-  else
-    if (instances > 1)
-      glDrawElementsInstanced(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId), instances);
-    else
-      glDrawElements(drawMode, gear->nindices, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(gear->ibuffId));
+  GPU_batch_draw(gear->batch_id, drawMode, instances);
 }
 
 void gear_setVAO(const int gearid)
 {
   gear_t* gear = &gears[gearid - 1];
   
-  glGenVertexArrays(1, &gear->vaoId);
-  glBindVertexArray(gear->vaoId);
-  
-  GPU_indexbuf_set_VAO(gear->ibuffId);
-  GPU_vertbuf_set_VAO(gear->vbuffId);
+  GPU_batch_set_VAO(gear->batch_id);
 }
