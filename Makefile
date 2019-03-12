@@ -29,6 +29,7 @@ xinput.o: tasks.h
 gles2.o: shaderid.h
 shaders.o: gpu_shader.h gpu_shader_interface.h
 gpu_shader.o: gles3.h gpu_shader_interface.h
+gpu_batch.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader_interface.h
 
 
