@@ -13,7 +13,5 @@
   
   void free_gear(int gearid);
   void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances);
-  void gear_setVAO(const int gearid);
-
 #endif  
   

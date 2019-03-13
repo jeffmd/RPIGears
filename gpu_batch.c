@@ -105,24 +105,6 @@ void GPU_batch_set_vertices_draw_count(const GLuint batch_id, const int count)
   batch->vertices_draw_count = count;
 }
 
-void GPU_batch_draw(const GLuint batch_id, const GLenum drawMode, const GLuint instances)
-{
-  GPUBatch *batch = &batches[batch_id];
- 
-  glBindVertexArray(batch->vaoId);
-  
-  if (drawMode == GL_POINTS)
-    if (instances > 1 )
-      glDrawArraysInstanced(drawMode, 0, batch->vertices_draw_count, instances);
-    else
-      glDrawArrays(drawMode, 0, batch->vertices_draw_count);
-  else
-    if (instances > 1)
-      glDrawElementsInstanced(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuffId), instances);
-    else
-      glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuffId));
-}
-
 void GPU_batch_set_index_buffer(const GLuint batch_id, const GLuint ibuffId)
 {
   GPUBatch *batch = &batches[batch_id];
@@ -137,13 +119,33 @@ void GPU_batch_set_vertex_buffer(const GLuint batch_id, const GLuint vbuffId)
   batch->vbuffId = vbuffId;  
 }
 
-void GPU_batch_set_VAO(const GLuint batch_id)
+static void batch_set_VAO(GPUBatch *batch)
 {
-  GPUBatch *batch = &batches[batch_id];
-
   glGenVertexArrays(1, &batch->vaoId);
   glBindVertexArray(batch->vaoId);
   
   GPU_indexbuf_set_VAO(batch->ibuffId);
   GPU_vertbuf_set_VAO(batch->vbuffId);
 }  
+
+void GPU_batch_draw(const GLuint batch_id, const GLenum drawMode, const GLuint instances)
+{
+  GPUBatch *batch = &batches[batch_id];
+ 
+  if (!batch->vaoId)
+    batch_set_VAO(batch);
+    
+  glBindVertexArray(batch->vaoId);
+  
+  if (drawMode == GL_POINTS)
+    if (instances > 1 )
+      glDrawArraysInstanced(drawMode, 0, batch->vertices_draw_count, instances);
+    else
+      glDrawArrays(drawMode, 0, batch->vertices_draw_count);
+  else
+    if (instances > 1)
+      glDrawElementsInstanced(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuffId), instances);
+    else
+      glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuffId));
+}
+

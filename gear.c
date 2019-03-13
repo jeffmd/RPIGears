@@ -245,10 +245,3 @@ void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialCol
   
   GPU_batch_draw(gear->batch_id, drawMode, instances);
 }
-
-void gear_setVAO(const int gearid)
-{
-  gear_t* gear = &gears[gearid - 1];
-  
-  GPU_batch_set_VAO(gear->batch_id);
-}

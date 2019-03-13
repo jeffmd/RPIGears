@@ -76,8 +76,4 @@ void init_scene(void)
    DiffuseMap_loc = get_active_uniform_location("DiffuseMap");
    UBO_loc = get_active_uniform_location("UBO")   ;
    MaterialColor_loc = get_active_uniform_location("MaterialColor");
-   
-   gear_setVAO(state_gear1());
-   gear_setVAO(state_gear2());
-   gear_setVAO(state_gear3());
 }
