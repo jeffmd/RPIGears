@@ -11,6 +11,7 @@
 
 #include "fp16.h"
 #include "gpu_vertex_buffer.h"
+#include "gpu_vertex_format.h"
 #include "gpu_index_buffer.h"
 #include "gpu_batch.h"
 
@@ -31,7 +32,7 @@ enum {
   
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
-
+static uint8_t vformat_id = 0;
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -71,13 +72,18 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GPU_batch_set_index_buffer(gear->batch_id, ibuffId);
   GPU_batch_set_indices_draw_count(gear->batch_id, nindices);
   GPU_indexbuf_begin_update(ibuffId, nindices);
+    
+  if (!vformat_id) {
+    vformat_id = GPU_vertex_format_create();
+    GPU_vertex_format_add_attribute(vformat_id, "position", 3, GL_FLOAT);
+    GPU_vertex_format_add_attribute(vformat_id, "normal", 3, GL_HALF_FLOAT_OES);
+    GPU_vertex_format_add_attribute(vformat_id, "uv", 2, GL_HALF_FLOAT_OES);
+  }
   
   const GLuint vbuffId = GPU_vertbuf_create();
   GPU_batch_set_vertex_buffer(gear->batch_id, vbuffId);
   GPU_batch_set_vertices_draw_count(gear->batch_id, nvertices);
-  GPU_vertbuf_add_attribute(vbuffId, "position", 3, GL_FLOAT);
-  GPU_vertbuf_add_attribute(vbuffId, "normal", 3, GL_HALF_FLOAT_OES);
-  GPU_vertbuf_add_attribute(vbuffId, "uv", 2, GL_HALF_FLOAT_OES);
+  GPU_vertbuf_set_vertex_format(vbuffId, vformat_id);
   GPU_vertbuf_begin_update(vbuffId, nvertices);
   
   r0 = inner_radius;

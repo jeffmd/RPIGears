@@ -35,4 +35,6 @@ void glVertexAttribDivisor(GLuint index, GLuint divisor);
 #define glMapBuffer glMapBufferOES
 #define glBindBuffer glBindBufferMod
 
+#define  VERT_ATTRIB_MAX 8
+
 #endif
