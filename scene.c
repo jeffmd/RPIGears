@@ -55,9 +55,10 @@ void draw_scene(void)
      printf("Recalc Light Position\n");
      light_clean();
   }
-   glUniform1i(DiffuseMap_loc, 0);
-   // Bind texture surface to current vertices
-   GPU_texture_bind(state_texId(), 0);
+  
+  glUniform1i(DiffuseMap_loc, 0);
+  // Bind texture surface to current vertices
+  GPU_texture_bind(state_texId(), 0);
   /* Draw the gears */
   draw_gear(state_gear1(), -3.0, -2.0, state_angle());
   draw_gear(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);
