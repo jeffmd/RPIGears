@@ -209,8 +209,7 @@ void GPU_vertbuf_use_VBO(const GLuint vbuff_id)
   }
 }
 
-// set VAO
-void GPU_vertbuf_set_VAO(const GLuint vbuff_id)
+void GPU_vertbuf_bind(const GLuint vbuff_id)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
 

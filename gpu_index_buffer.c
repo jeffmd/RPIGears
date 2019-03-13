@@ -128,7 +128,7 @@ void GPU_indexbuf_use_VBO(const GLuint ibuff_id)
 }
 
 // set VAO
-void GPU_indexbuf_set_VAO(const GLuint ibuff_id)
+void GPU_indexbuf_bind(const GLuint ibuff_id)
 {
   IndexBuffer *ibuff = &index_buffers[ibuff_id];
 

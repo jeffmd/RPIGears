@@ -119,13 +119,13 @@ void GPU_batch_set_vertex_buffer(const GLuint batch_id, const GLuint vbuffId)
   batch->vbuffId = vbuffId;  
 }
 
-static void batch_set_VAO(GPUBatch *batch)
+static void batch_bind(GPUBatch *batch)
 {
   glGenVertexArrays(1, &batch->vaoId);
   glBindVertexArray(batch->vaoId);
   
-  GPU_indexbuf_set_VAO(batch->ibuffId);
-  GPU_vertbuf_set_VAO(batch->vbuffId);
+  GPU_indexbuf_bind(batch->ibuffId);
+  GPU_vertbuf_bind(batch->vbuffId);
 }  
 
 void GPU_batch_draw(const GLuint batch_id, const GLenum drawMode, const GLuint instances)
@@ -133,9 +133,9 @@ void GPU_batch_draw(const GLuint batch_id, const GLenum drawMode, const GLuint i
   GPUBatch *batch = &batches[batch_id];
  
   if (!batch->vaoId)
-    batch_set_VAO(batch);
-    
-  glBindVertexArray(batch->vaoId);
+    batch_bind(batch);
+  else
+    glBindVertexArray(batch->vaoId);
   
   if (drawMode == GL_POINTS)
     if (instances > 1 )
