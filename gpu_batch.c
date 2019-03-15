@@ -20,55 +20,51 @@ typedef struct {
 #define BATCH_MAX_COUNT 10
 
 static GPUBatch batches[BATCH_MAX_COUNT];
-static uint16_t next_deleted_batch = 0;
+static GPUBatch *next_deleted_batch = 0;
 
-static GLuint find_deleted_batch(void)
+static GPUBatch *find_deleted_batch(void)
 {
-  GLuint id = next_deleted_batch;
+  GPUBatch *batch = next_deleted_batch;
+  const GPUBatch *max_batch = batches + BATCH_MAX_COUNT;
   
-  if((id == 0) | (id >= BATCH_MAX_COUNT))
-    id = 1;
+  if((batch <= batches) | (batch >= max_batch))
+    batch = batches + 1;
 
-  for ( ; id < BATCH_MAX_COUNT; id++) {
-    if (batches[id].active == 0) {
-      next_deleted_batch = id + 1;
+  for ( ; batch < max_batch; batch++) {
+    if (batch->active == 0) {
+      next_deleted_batch = batch + 1;
       break;
     }
   }
 
-  if (id == BATCH_MAX_COUNT) {
+  if (batch >= max_batch) {
     printf("WARNING: No batches available\n");
-    id = 0;
+    batch = batches;
   }
-
-  return id;
+  printf("batch ID: %i ", batch - batches);
+  return batch;
 }
 
-void GPU_batch_init(const GLuint batch_id)
+void GPU_batch_init(GPUBatch *batch)
 {
-  GPUBatch *batch = &batches[batch_id];
-  
   batch->active = 1;
   batch->vaoId = 0;
   batch->vbuffId = 0;
   batch->ibuffId = 0;
-  
 }
 
 // create new batch
-GLuint GPU_batch_create(void)
+GPUBatch *GPU_batch_create(void)
 {
-  const GLuint batch_id = find_deleted_batch();
-  GPU_batch_init(batch_id);
-  printf("New batch ID:%i\n", batch_id);
+  GPUBatch *batch = find_deleted_batch();
+  GPU_batch_init(batch);
+  printf("New batch ID:%p\n", batch);
 
-  return batch_id;
+  return batch;
 }
 
-void GPU_batch_delete(const GLuint batch_id, const int delete_buffers)
+void GPU_batch_delete(GPUBatch *batch, const int delete_buffers)
 {
-  GPUBatch *batch = &batches[batch_id];
-
   if (batch->vaoId) {
     glDeleteVertexArrays(1, &batch->vaoId);
     batch->vaoId = 0;
@@ -86,36 +82,28 @@ void GPU_batch_delete(const GLuint batch_id, const int delete_buffers)
     }
   }
   
-  if (batch_id < next_deleted_batch)
-    next_deleted_batch = batch_id; 
+  batch->active = 0;
+  if (batch < next_deleted_batch)
+    next_deleted_batch = batch; 
 }
 
-void GPU_batch_set_indices_draw_count(const GLuint batch_id, const int count)
+void GPU_batch_set_indices_draw_count(GPUBatch *batch, const int count)
 {
-  GPUBatch *batch = &batches[batch_id];
-  
   batch->indices_draw_count = count;
-  
 }
 
-void GPU_batch_set_vertices_draw_count(const GLuint batch_id, const int count)
+void GPU_batch_set_vertices_draw_count(GPUBatch *batch, const int count)
 {
-  GPUBatch *batch = &batches[batch_id];
-  
   batch->vertices_draw_count = count;
 }
 
-void GPU_batch_set_index_buffer(const GLuint batch_id, const GLuint ibuffId)
+void GPU_batch_set_index_buffer(GPUBatch *batch, const GLuint ibuffId)
 {
-  GPUBatch *batch = &batches[batch_id];
-
   batch->ibuffId = ibuffId;  
 }
 
-void GPU_batch_set_vertex_buffer(const GLuint batch_id, const GLuint vbuffId) 
+void GPU_batch_set_vertex_buffer(GPUBatch *batch, const GLuint vbuffId) 
 {
-  GPUBatch *batch = &batches[batch_id];
-  
   batch->vbuffId = vbuffId;  
 }
 
@@ -128,9 +116,8 @@ static void batch_bind(GPUBatch *batch)
   GPU_vertbuf_bind(batch->vbuffId);
 }  
 
-void GPU_batch_draw(const GLuint batch_id, const GLenum drawMode, const GLuint instances)
+void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances)
 {
-  GPUBatch *batch = &batches[batch_id];
  
   if (!batch->vaoId)
     batch_bind(batch);

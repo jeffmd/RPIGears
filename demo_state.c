@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "demo_state.h"
+#include "gles3.h"
 #include "gear.h"
+#include "demo_state.h"
 
 typedef struct
 {
@@ -16,7 +17,7 @@ typedef struct
    GLuint texId;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
-   int gear1, gear2, gear3;
+   gear_t *gear1, *gear2, *gear3;
 
 // current angle of the gear
    GLfloat angle;
@@ -55,17 +56,17 @@ GLuint state_texId(void)
   return state->texId;
 }
 
-int state_gear1(void)
+gear_t *state_gear1(void)
 {
   return state->gear1;
 }
 
-int state_gear2(void)
+gear_t *state_gear2(void)
 {
   return state->gear2;
 }
 
-int state_gear3(void)
+gear_t *state_gear3(void)
 {
   return state->gear3;
 }

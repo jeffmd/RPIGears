@@ -33,7 +33,7 @@ static GLuint MaterialColor_loc;
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
  */
-static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
+static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
 {
    /* Translate and rotate the gear */
    m4x4_copy(UBO_Data.model_view, camera_view_matrix());
@@ -42,7 +42,7 @@ static void draw_gear(const int gearid, GLfloat x, GLfloat y, GLfloat angle)
 
    glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
 
-   gear_draw(gearid, options_drawMode(), MaterialColor_loc, state_instances());
+   gear_draw(gear, options_drawMode(), MaterialColor_loc, state_instances());
 }
 
 /**

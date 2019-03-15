@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <termio.h>
 
+#include "gles3.h"
 #include "window.h"
+#include "gear.h"
 #include "demo_state.h"
 #include "print_info.h"
 #include "user_options.h"

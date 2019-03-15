@@ -5,16 +5,14 @@
 #ifndef _demo_state_h_
   #define _demo_state_h_
 
-#include "GLES2/gl2.h"
- 
 // a procedure that takes a value representing the rate change to apply to an update
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
 GLuint state_timeToRun(void);
 GLuint state_texId(void);
-int state_gear1(void);
-int state_gear2(void);
-int state_gear3(void);
+gear_t *state_gear1(void);
+gear_t *state_gear2(void);
+gear_t *state_gear3(void);
 GLfloat state_angle(void);
 GLuint state_instances(void);
   

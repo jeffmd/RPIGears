@@ -72,11 +72,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gles3.h"
 
+#include "gear.h"
 #include "user_options.h"
 #include "demo_state.h"
 #include "window.h"
 #include "tasks.h"
-#include "gear.h"
 #include "image.h"
 #include "camera.h"
 #include "xwindow.h"

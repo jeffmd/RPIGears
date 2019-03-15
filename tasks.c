@@ -6,6 +6,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "gles3.h"
+#include "gear.h"
 #include "demo_state.h"
 #include "key_input.h"
 

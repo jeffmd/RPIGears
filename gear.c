@@ -19,7 +19,7 @@ typedef struct {
   GLuint nvertices, nindices;
   GLfloat color[4];
   uint8_t ubuffId; // ID for uniform buffer
-  uint8_t batch_id; 
+  GPUBatch *batch; 
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
@@ -46,7 +46,7 @@ static uint8_t vformat_id = 0;
           tooth_depth - depth of tooth
  
  **/
-int gear( const GLfloat inner_radius, const GLfloat outer_radius,
+gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
                      const GLfloat tooth_depth, const GLfloat color[],
                      const int useVBO)
@@ -66,11 +66,11 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   memcpy(&gear->color[0], &color[0], sizeof(GLfloat) * 4);
   
-  gear->batch_id = GPU_batch_create();
+  gear->batch = GPU_batch_create();
 
   const GLuint ibuffId = GPU_indexbuf_create();
-  GPU_batch_set_index_buffer(gear->batch_id, ibuffId);
-  GPU_batch_set_indices_draw_count(gear->batch_id, nindices);
+  GPU_batch_set_index_buffer(gear->batch, ibuffId);
+  GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_begin_update(ibuffId, nindices);
     
   if (!vformat_id) {
@@ -81,8 +81,8 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   }
   
   const GLuint vbuffId = GPU_vertbuf_create();
-  GPU_batch_set_vertex_buffer(gear->batch_id, vbuffId);
-  GPU_batch_set_vertices_draw_count(gear->batch_id, nvertices);
+  GPU_batch_set_vertex_buffer(gear->batch, vbuffId);
+  GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuffId, vformat_id);
   GPU_vertbuf_begin_update(vbuffId, nvertices);
   
@@ -226,7 +226,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertbuf_use_VBO(vbuffId);
   }
   
-  return gearID;
+  return gear;
 }
 
 void gear_vbo_off(void)
@@ -236,18 +236,15 @@ void gear_vbo_off(void)
 }
 
 
-void free_gear(const int gearid)
+void free_gear(gear_t* gear)
 {
-  gear_t* gear = &gears[gearid - 1];
-
-  GPU_batch_delete(gear->batch_id, 1);
+  GPU_batch_delete(gear->batch, 1);
 }
 
-void gear_draw(const int gearid, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances)
+void gear_draw(gear_t* gear, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances)
 {
-  gear_t* gear = &gears[gearid - 1];
   /* Set the gear color */
   glUniform4fv(MaterialColor_location, 1, gear->color);
   
-  GPU_batch_draw(gear->batch_id, drawMode, instances);
+  GPU_batch_draw(gear->batch, drawMode, instances);
 }
