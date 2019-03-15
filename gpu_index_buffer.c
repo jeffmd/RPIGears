@@ -7,7 +7,6 @@
 
 typedef struct {
   uint8_t active;           // not zero if vertex buffer is not deleted
-  GLuint draw_count;        // number of verts to draw
   GLuint max_count;         // max number of verts in data buffer
   GLuint idx;               // index into data during update
   GLshort *data;            // pointer to data buffer in cpu ram
@@ -49,7 +48,6 @@ void GPU_indexbuf_init(const GLuint ibuff_id)
   IndexBuffer *ibuff = &index_buffers[ibuff_id];
   
   ibuff->active = 1;
-  ibuff->draw_count = 0;
   ibuff->max_count = 0;
   ibuff->data = 0;
   ibuff->index = 0;
