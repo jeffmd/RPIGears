@@ -11,7 +11,7 @@
 typedef struct {
   uint8_t active;
   GLuint vaoId;     // ID for vertex array object
-  GLuint vbuffId;   // ID for vert buffer
+  VertBuffer *vbuff;   // ID for vert buffer
   GLuint ibuffId;   // ID for index buffer
   GLuint progId;    // shader program ID
   GLuint vertices_draw_count; // number of vertices to draw
@@ -50,7 +50,7 @@ void GPU_batch_init(GPUBatch *batch)
 {
   batch->active = 1;
   batch->vaoId = 0;
-  batch->vbuffId = 0;
+  batch->vbuff = 0;
   batch->ibuffId = 0;
 }
 
@@ -72,9 +72,9 @@ void GPU_batch_delete(GPUBatch *batch, const int delete_buffers)
   }
   
   if (delete_buffers) {
-    if (batch->vbuffId) {
-      GPU_vertbuf_delete(batch->vbuffId);
-      batch->vbuffId = 0;
+    if (batch->vbuff) {
+      GPU_vertbuf_delete(batch->vbuff);
+      batch->vbuff = 0;
     }
     
     if (batch->ibuffId) {
@@ -103,9 +103,9 @@ void GPU_batch_set_index_buffer(GPUBatch *batch, const GLuint ibuffId)
   batch->ibuffId = ibuffId;  
 }
 
-void GPU_batch_set_vertex_buffer(GPUBatch *batch, const GLuint vbuffId) 
+void GPU_batch_set_vertex_buffer(GPUBatch *batch, VertBuffer *vbuff) 
 {
-  batch->vbuffId = vbuffId;  
+  batch->vbuff = vbuff;  
 }
 
 static void batch_bind(GPUBatch *batch)
@@ -114,7 +114,7 @@ static void batch_bind(GPUBatch *batch)
   glBindVertexArray(batch->vaoId);
   
   GPU_indexbuf_bind(batch->ibuffId);
-  GPU_vertbuf_bind(batch->vbuffId);
+  GPU_vertbuf_bind(batch->vbuff);
 }  
 
 void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances)

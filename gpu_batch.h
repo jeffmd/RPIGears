@@ -11,7 +11,7 @@
   void GPU_batch_set_indices_draw_count(GPUBatch *batch, const int count);
   void GPU_batch_set_vertices_draw_count(GPUBatch *batch, const int count);
   void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances);
-  void GPU_batch_set_vertex_buffer(GPUBatch *batch, const GLuint vbuffId);
+  void GPU_batch_set_vertex_buffer(GPUBatch *batch, VertBuffer *vbuff);
   void GPU_batch_set_index_buffer(GPUBatch *batch, const GLuint ibuffId);
   
 #endif

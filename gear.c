@@ -80,11 +80,11 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
   
-  const GLuint vbuffId = GPU_vertbuf_create();
-  GPU_batch_set_vertex_buffer(gear->batch, vbuffId);
+  VertBuffer *vbuff = GPU_vertbuf_create();
+  GPU_batch_set_vertex_buffer(gear->batch, vbuff);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
-  GPU_vertbuf_set_vertex_format(vbuffId, vformat);
-  GPU_vertbuf_begin_update(vbuffId, nvertices);
+  GPU_vertbuf_set_vertex_format(vbuff, vformat);
+  GPU_vertbuf_begin_update(vbuff, nvertices);
   
   r0 = inner_radius;
   r1 = outer_radius - tooth_depth / 2.0;
@@ -93,10 +93,10 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   idx = 0;
   
-#define VERTEX(x,y,z) (GPU_vertbuf_add_3(vbuffId, ATTR_POSITION, x, y, z), \
-    GPU_vertbuf_add_2(vbuffId, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
+#define VERTEX(x,y,z) (GPU_vertbuf_add_3(vbuff, ATTR_POSITION, x, y, z), \
+    GPU_vertbuf_add_2(vbuff, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
     idx++)
-#define NORMAL(x,y,z) GPU_vertbuf_add_3(vbuffId, ATTR_NORMAL, x, y, z)
+#define NORMAL(x,y,z) GPU_vertbuf_add_3(vbuff, ATTR_NORMAL, x, y, z)
 #define INDEX(a,b,c) GPU_indexbuf_add_3(ibuffId, a, b, c)
 
   for (i = 0; i < teeth; i++) {
@@ -223,7 +223,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   // if VBO enabled then set them up for each gear
   if (useVBO) {
     GPU_indexbuf_use_VBO(ibuffId);
-    GPU_vertbuf_use_VBO(vbuffId);
+    GPU_vertbuf_use_VBO(vbuff);
   }
   
   return gear;

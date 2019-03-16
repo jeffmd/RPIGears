@@ -17,38 +17,36 @@ typedef struct {
   uint8_t ready;            // not zero if ready for adding data to buffer
 } VertBuffer;
 
-
 #define VERT_BUFFER_MAX_COUNT 10
 
 static VertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
-static uint16_t next_deleted_vert_buffer = 0;
+static VertBuffer *next_deleted_vert_buffer = 0;
 
-static GLuint find_deleted_vert_buffer(void)
+static VertBuffer *find_deleted_vert_buffer(void)
 {
-  GLuint id = next_deleted_vert_buffer;
+  VertBuffer *vbuff = next_deleted_vert_buffer;
+  const VertBuffer *max_vbuff = vert_buffers + VERT_BUFFER_MAX_COUNT;
   
-  if((id == 0) | (id >= VERT_BUFFER_MAX_COUNT))
-    id = 1;
+  if((vbuff <= vert_buffers) | (vbuff >= max_vbuff))
+    vbuff = vert_buffers + 1;
 
-  for ( ; id < VERT_BUFFER_MAX_COUNT; id++) {
-    if (vert_buffers[id].active == 0) {
-      next_deleted_vert_buffer = id + 1;
+  for ( ; vbuff < max_vbuff; vbuff++) {
+    if (vbuff->active == 0) {
+      next_deleted_vert_buffer = vbuff + 1;
       break;
     }
   }
 
-  if (id == VERT_BUFFER_MAX_COUNT) {
+  if (vbuff == max_vbuff) {
     printf("WARNING: No vertex buffers available\n");
-    id = 0;
+    vbuff = 0;
   }
 
-  return id;
+  return vbuff;
 }
 
-void GPU_vertbuf_init(const GLuint vbuff_id)
+void GPU_vertbuf_init(VertBuffer *vbuff)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-  
   vbuff->active = 1;
   vbuff->max_count = 0;
   vbuff->data = 0;
@@ -60,19 +58,17 @@ void GPU_vertbuf_init(const GLuint vbuff_id)
 }
 
 // create new vertbuffer
-GLuint GPU_vertbuf_create(void)
+VertBuffer *GPU_vertbuf_create(void)
 {
-  const GLuint vbuff_id = find_deleted_vert_buffer();
-	GPU_vertbuf_init(vbuff_id);
-  printf("New vertbuf ID:%i\n", vbuff_id);
+  VertBuffer *vbuff = find_deleted_vert_buffer();
+	GPU_vertbuf_init(vbuff);
+  printf("New vertbuf ID:%p\n", vbuff);
 
-	return vbuff_id;
+	return vbuff;
 }
 
-void GPU_vertbuf_delete(const GLuint vbuff_id)
+void GPU_vertbuf_delete(VertBuffer *vbuff)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-
   if (vbuff->data) {
     free(vbuff->data);
     vbuff->data = 0;
@@ -85,22 +81,18 @@ void GPU_vertbuf_delete(const GLuint vbuff_id)
   
   vbuff->active = 0;
   
-  if (vbuff_id < next_deleted_vert_buffer)
-    next_deleted_vert_buffer = vbuff_id; 
+  if (vbuff < next_deleted_vert_buffer)
+    next_deleted_vert_buffer = vbuff; 
 }
 
-void GPU_vertbuf_set_vertex_format(const GLuint vbuff_id, VertFormat *vformat)
+void GPU_vertbuf_set_vertex_format(VertBuffer *vbuff, VertFormat *vformat)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-
   vbuff->vformat = vformat;  
 }
 
 // begin data update ( vertex max count ) - no more attributes can be added
-void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
+void GPU_vertbuf_begin_update(VertBuffer *vbuff, const GLuint max_count)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-
   const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat);
 
   if (stride > 0) {
@@ -125,29 +117,23 @@ void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
 }
 
 // add vertex attribute data ( attribute_id, float, float, float )
-void GPU_vertbuf_add_4(const GLuint vbuff_id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertbuf_add_4(VertBuffer *vbuff, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-
   if (vbuff->ready) {
     GPU_vertex_format_add_4(vbuff->vformat, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
     vbuff->vertex_data[attribute_id] += GPU_vertex_format_stride(vbuff->vformat);
   }  
 }
 
-void GPU_vertbuf_use_VBO(const GLuint vbuff_id)
+void GPU_vertbuf_use_VBO(VertBuffer *vbuff)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-  
   if (!vbuff->vbo_id) {
     glGenBuffers(1, &vbuff->vbo_id);
   }
 }
 
-void GPU_vertbuf_bind(const GLuint vbuff_id)
+void GPU_vertbuf_bind(VertBuffer *vbuff)
 {
-  VertBuffer *vbuff = &vert_buffers[vbuff_id];
-
   if (vbuff->ready) {
     glBindBuffer(GL_ARRAY_BUFFER, vbuff->vbo_id);
     GLvoid *data = vbuff->data;
