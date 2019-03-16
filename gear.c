@@ -68,10 +68,10 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  const GLuint ibuffId = GPU_indexbuf_create();
-  GPU_batch_set_index_buffer(gear->batch, ibuffId);
+  IndexBuffer *ibuff = GPU_indexbuf_create();
+  GPU_batch_set_index_buffer(gear->batch, ibuff);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
-  GPU_indexbuf_begin_update(ibuffId, nindices);
+  GPU_indexbuf_begin_update(ibuff, nindices);
     
   if (!vformat) {
     vformat = GPU_vertex_format_create();
@@ -97,7 +97,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertbuf_add_2(vbuff, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
     idx++)
 #define NORMAL(x,y,z) GPU_vertbuf_add_3(vbuff, ATTR_NORMAL, x, y, z)
-#define INDEX(a,b,c) GPU_indexbuf_add_3(ibuffId, a, b, c)
+#define INDEX(a,b,c) GPU_indexbuf_add_3(ibuff, a, b, c)
 
   for (i = 0; i < teeth; i++) {
     ta = i * 2.0 * M_PI / teeth;
@@ -222,7 +222,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
 
   // if VBO enabled then set them up for each gear
   if (useVBO) {
-    GPU_indexbuf_use_VBO(ibuffId);
+    GPU_indexbuf_use_VBO(ibuff);
     GPU_vertbuf_use_VBO(vbuff);
   }
   
