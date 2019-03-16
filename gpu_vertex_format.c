@@ -24,54 +24,51 @@ typedef struct {
 #define VERT_FORMAT_MAX_COUNT 5
 
 static VertFormat vert_formats[VERT_FORMAT_MAX_COUNT];
-static uint16_t next_deleted_vert_format = 0;
+static VertFormat *next_deleted_vert_format = 0;
 
-static GLuint find_deleted_vert_format(void)
+static VertFormat *find_deleted_vert_format(void)
 {
-  GLuint id = next_deleted_vert_format;
+  VertFormat *vformat = next_deleted_vert_format;
+  const VertFormat *max_vformat = vert_formats + VERT_FORMAT_MAX_COUNT;
   
-  if((id == 0) | (id >= VERT_FORMAT_MAX_COUNT))
-    id = 1;
+  if((vformat <= vert_formats) | (vformat >= max_vformat))
+    vformat = vert_formats + 1;
 
-  for ( ; id < VERT_FORMAT_MAX_COUNT; id++) {
-    if (vert_formats[id].active == 0) {
-      next_deleted_vert_format = id + 1;
+  for ( ; vformat < max_vformat; vformat++) {
+    if (vformat->active == 0) {
+      next_deleted_vert_format = vformat + 1;
       break;
     }
   }
 
-  if (id == VERT_FORMAT_MAX_COUNT) {
+  if (vformat == max_vformat) {
     printf("WARNING: No vertex formats available\n");
-    id = 0;
+    vformat = vert_formats;
   }
 
-  return id;
+  return vformat;
 }
 
-void GPU_vertex_format_init(const GLuint vformat_id)
+void GPU_vertex_format_init(VertFormat *vformat)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-  
   vformat->active = 1;
   vformat->attribute_count = 0;
   vformat->stride = 0;
-  
 }
 
-GLuint GPU_vertex_format_create(void)
+VertFormat *GPU_vertex_format_create(void)
 {
-  const GLuint vformat_id = find_deleted_vert_format();
-	GPU_vertex_format_init(vformat_id);
-  printf("New vertex format ID:%i\n", vformat_id);
+  VertFormat *vformat = find_deleted_vert_format();
+	GPU_vertex_format_init(vformat);
+  printf("New vertex format ID:%p\n", vformat);
 
-	return vformat_id;
+	return vformat;
 }
 
 
 // add attribute to vertex format
-void GPU_vertex_format_add_attribute(const GLuint vformat_id, const char *name, const GLint size, const GLenum type)
+void GPU_vertex_format_add_attribute(VertFormat *vformat, const char *name, const GLint size, const GLenum type)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
   VertAttribute *vattr = &vformat->vertex_attributes[vformat->attribute_count];
   
   vattr->type = type;
@@ -83,14 +80,12 @@ void GPU_vertex_format_add_attribute(const GLuint vformat_id, const char *name, 
   vformat->stride = 0;
 }
 
-void GPU_vertex_format_delete(const GLuint vformat_id)
+void GPU_vertex_format_delete(VertFormat *vformat)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-
   vformat->active = 0;
   
-  if (vformat_id < next_deleted_vert_format)
-    next_deleted_vert_format = vformat_id; 
+  if (vformat < next_deleted_vert_format)
+    next_deleted_vert_format = vformat; 
 }
 
 static GLuint get_type_byte_size(const GLenum type)
@@ -107,10 +102,8 @@ static GLuint get_type_byte_size(const GLenum type)
   }
 }
 
-GLuint GPU_vertex_format_stride(const GLuint vformat_id)
+GLuint GPU_vertex_format_stride(VertFormat *vformat)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-  
   if (!vformat->stride) {
     const GLuint max_Idx = vformat->attribute_count;
     // calculate stride
@@ -123,24 +116,18 @@ GLuint GPU_vertex_format_stride(const GLuint vformat_id)
   return vformat->stride;
 }
 
-GLuint GPU_vertex_format_offset(const GLuint vformat_id, const GLuint idx)
+GLuint GPU_vertex_format_offset(VertFormat *vformat, const GLuint idx)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-  
   return vformat->vertex_attributes[idx].offset;
 }
 
-GLuint GPU_vertex_format_attribute_count(const GLuint vformat_id)
+GLuint GPU_vertex_format_attribute_count(VertFormat *vformat)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-  
   return vformat->attribute_count;
 }
 
-void GPU_vertex_format_add_4(const GLuint vformat_id, const GLuint attribute_id, GLvoid *attr_data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertex_format_add_4(VertFormat *vformat, const GLuint attribute_id, GLvoid *attr_data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-
   VertAttribute *vattr = &vformat->vertex_attributes[attribute_id];
   const GLuint size = vattr->size;
   
@@ -169,10 +156,8 @@ void GPU_vertex_format_add_4(const GLuint vformat_id, const GLuint attribute_id,
 }
 
 
-void GPU_vertex_format_bind(const GLuint vformat_id, GLvoid *data)
+void GPU_vertex_format_bind(VertFormat *vformat, GLvoid *data)
 {
-  VertFormat *vformat = &vert_formats[vformat_id];
-
   const GLuint max_Idx = vformat->attribute_count;
   // enable active genaric attributes 
   for (GLuint Idx = 0; Idx < max_Idx; Idx++) {

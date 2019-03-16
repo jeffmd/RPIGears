@@ -5,6 +5,7 @@
 #include "gles3.h"
 
 #include "gpu_index_buffer.h"
+#include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
 
 typedef struct {

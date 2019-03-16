@@ -11,7 +11,7 @@ typedef struct {
   void *vertex_data[VERT_ATTRIB_MAX];     // pointer to current location in data buffer for writing
   GLuint max_count;         // max number of verts in data buffer
   void *data;               // pointer to data buffer in cpu ram
-  uint8_t vformat_id;       // vertex format ID
+  VertFormat *vformat;      // vertex format ID
   GLuint vbo_id;            // 0 indicates using client ram or not allocated yet
   GLenum usage;             // usage hint for GL optimisation
   uint8_t ready;            // not zero if ready for adding data to buffer
@@ -53,7 +53,7 @@ void GPU_vertbuf_init(const GLuint vbuff_id)
   vbuff->max_count = 0;
   vbuff->data = 0;
   vbuff->vbo_id = 0;
-  vbuff->vformat_id = 0;
+  vbuff->vformat = 0;
 	vbuff->usage = GL_STATIC_DRAW;
 	vbuff->ready = 0;
   
@@ -89,11 +89,11 @@ void GPU_vertbuf_delete(const GLuint vbuff_id)
     next_deleted_vert_buffer = vbuff_id; 
 }
 
-void GPU_vertbuf_set_vertex_format(const GLuint vbuff_id, const GLuint vformat_id)
+void GPU_vertbuf_set_vertex_format(const GLuint vbuff_id, VertFormat *vformat)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
 
-  vbuff->vformat_id = vformat_id;  
+  vbuff->vformat = vformat;  
 }
 
 // begin data update ( vertex max count ) - no more attributes can be added
@@ -101,7 +101,7 @@ void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
 {
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
 
-  const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat_id);
+  const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat);
 
   if (stride > 0) {
     // allocate heap storage for data
@@ -113,9 +113,9 @@ void GPU_vertbuf_begin_update(const GLuint vbuff_id, const GLuint max_count)
 
     vbuff->max_count = max_count;
     
-    const GLuint max_Idx = GPU_vertex_format_attribute_count(vbuff->vformat_id);
+    const GLuint max_Idx = GPU_vertex_format_attribute_count(vbuff->vformat);
     for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
-      vbuff->vertex_data[Idx] = vbuff->data + GPU_vertex_format_offset(vbuff->vformat_id, Idx);
+      vbuff->vertex_data[Idx] = vbuff->data + GPU_vertex_format_offset(vbuff->vformat, Idx);
     }
 
     // ready to receive data updates in buffer storage
@@ -130,8 +130,8 @@ void GPU_vertbuf_add_4(const GLuint vbuff_id, const GLuint attribute_id, const G
   VertBuffer *vbuff = &vert_buffers[vbuff_id];
 
   if (vbuff->ready) {
-    GPU_vertex_format_add_4(vbuff->vformat_id, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
-    vbuff->vertex_data[attribute_id] += GPU_vertex_format_stride(vbuff->vformat_id);
+    GPU_vertex_format_add_4(vbuff->vformat, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
+    vbuff->vertex_data[attribute_id] += GPU_vertex_format_stride(vbuff->vformat);
   }  
 }
 
@@ -152,10 +152,10 @@ void GPU_vertbuf_bind(const GLuint vbuff_id)
     glBindBuffer(GL_ARRAY_BUFFER, vbuff->vbo_id);
     GLvoid *data = vbuff->data;
     if (vbuff->vbo_id) {
-      glBufferData(GL_ARRAY_BUFFER, GPU_vertex_format_stride(vbuff->vformat_id) * vbuff->max_count, vbuff->data, vbuff->usage);
+      glBufferData(GL_ARRAY_BUFFER, GPU_vertex_format_stride(vbuff->vformat) * vbuff->max_count, vbuff->data, vbuff->usage);
       data = 0;
     }
 
-    GPU_vertex_format_bind(vbuff->vformat_id, data);
+    GPU_vertex_format_bind(vbuff->vformat, data);
   }
 }
