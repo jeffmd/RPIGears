@@ -8,13 +8,14 @@
 
 #include "gles3.h"
 #include "gear.h"
+#include "gpu_texture.h"
 #include "demo_state.h"
 
 typedef struct
 {
 // number of seconds to run the demo
    GLuint timeToRun;
-   GLuint texId;
+   GPUTexture *tex;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
    gear_t *gear1, *gear2, *gear3;
@@ -51,9 +52,9 @@ GLuint state_timeToRun(void)
   return state->timeToRun;
 }
 
-GLuint state_texId(void)
+GPUTexture *state_tex(void)
 {
-  return state->texId;
+  return state->tex;
 }
 
 gear_t *state_gear1(void)
@@ -107,14 +108,9 @@ void update_rate_frame(void)
   state->rate_frame = state->rate * state->period_rate;
 }
 
-void update_texId(const GLuint texId)
+void update_tex(GPUTexture *tex)
 {
-  state->texId = texId;
-}
-
-GLuint state_textId(void)
-{
-  return state->texId;
+  state->tex = tex;
 }
 
 GLuint state_instances(void)

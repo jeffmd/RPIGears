@@ -9,7 +9,7 @@
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
 GLuint state_timeToRun(void);
-GLuint state_texId(void);
+GPUTexture *state_tex(void);
 gear_t *state_gear1(void);
 gear_t *state_gear2(void);
 gear_t *state_gear3(void);
@@ -38,8 +38,7 @@ void light_move_x(const float val);
 GLfloat *state_LightSourcePosition(void);
 GLboolean light_isDirty(void);
 void light_clean(void);
-void update_texId(const GLuint texId);
-GLuint state_texId(void);
+void update_tex(GPUTexture *tex);
 void build_gears(const int useVBO);
 void set_key_down_update(UPDATE_KEY_DOWN fn, float val);
 void do_key_down_update(void);

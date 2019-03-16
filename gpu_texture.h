@@ -15,20 +15,22 @@ typedef enum {
 	GPU_DEPTH32
 } GPUTextureFormat;
 
-GLuint GPU_texture_create_2D(const int w, const int h,
+typedef struct GPUTexture GPUTexture;
+
+GPUTexture *GPU_texture_create_2D(const int w, const int h,
         const GPUTextureFormat tex_format, const void *pixels);
 
-void GPU_texture_bind(const GLuint texID, const int slot);
-void GPU_texture_unbind(const GLuint texID);
-void GPU_texture_free(const GLuint texID);
-int GPU_texture_bound_slot(const GLuint texID);
-void GPU_texture_ref(const GLuint texID);
-int GPU_texture_target(const GLuint texID);
-int GPU_texture_width(const GLuint texID);
-int GPU_texture_height(const GLuint texID);
-GPUTextureFormat GPU_texture_format(const GLuint texID);
-GLboolean GPU_texture_cube(const GLuint texID);
-GLuint GPU_texture_opengl_bindcode(const GLuint texID);
+void GPU_texture_bind(GPUTexture *tex, const int slot);
+void GPU_texture_unbind(GPUTexture *tex);
+void GPU_texture_free(GPUTexture *tex);
+int GPU_texture_bound_slot(GPUTexture *tex);
+void GPU_texture_ref(GPUTexture *tex);
+int GPU_texture_target(GPUTexture *tex);
+int GPU_texture_width(GPUTexture *tex);
+int GPU_texture_height(GPUTexture *tex);
+GPUTextureFormat GPU_texture_format(GPUTexture *tex);
+GLboolean GPU_texture_cube(GPUTexture *tex);
+GLuint GPU_texture_opengl_bindcode(GPUTexture *tex);
 
 
 #endif // _GPU_TEXTURE_H_

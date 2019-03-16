@@ -8,6 +8,7 @@
 
 #include "gles3.h"
 #include "gear.h"
+#include "gpu_texture.h"
 #include "demo_state.h"
 #include "key_input.h"
 

@@ -74,6 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gear.h"
 #include "user_options.h"
+#include "gpu_texture.h"
 #include "demo_state.h"
 #include "window.h"
 #include "tasks.h"
@@ -82,7 +83,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xwindow.h"
 #include "print_info.h"
 #include "scene.h"
-#include "gpu_texture.h"
 
 extern IMAGE_T rpi_image;
 
@@ -90,8 +90,8 @@ static void init_textures(void)
 {
    // load a texture buffer
    printf("creating Textures\n");
-   const GLuint texId = GPU_texture_create_2D(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
-   update_texId(texId);
+   GPUTexture *tex = GPU_texture_create_2D(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
+   update_tex(tex);
 }
 
 static void frameClear(void)

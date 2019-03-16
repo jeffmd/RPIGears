@@ -9,6 +9,7 @@
 #include "gles3.h"
 #include "window.h"
 #include "gear.h"
+#include "gpu_texture.h"
 #include "demo_state.h"
 #include "print_info.h"
 #include "user_options.h"
