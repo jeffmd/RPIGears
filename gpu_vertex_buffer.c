@@ -11,21 +11,21 @@ typedef struct {
   void *vertex_data[VERT_ATTRIB_MAX];     // pointer to current location in data buffer for writing
   GLuint max_count;         // max number of verts in data buffer
   void *data;               // pointer to data buffer in cpu ram
-  VertFormat *vformat;      // vertex format ID
+  GPUVertFormat *vformat;      // vertex format ID
   GLuint vbo_id;            // 0 indicates using client ram or not allocated yet
   GLenum usage;             // usage hint for GL optimisation
   uint8_t ready;            // not zero if ready for adding data to buffer
-} VertBuffer;
+} GPUVertBuffer;
 
 #define VERT_BUFFER_MAX_COUNT 10
 
-static VertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
-static VertBuffer *next_deleted_vert_buffer = 0;
+static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
+static GPUVertBuffer *next_deleted_vert_buffer = 0;
 
-static VertBuffer *find_deleted_vert_buffer(void)
+static GPUVertBuffer *find_deleted_vert_buffer(void)
 {
-  VertBuffer *vbuff = next_deleted_vert_buffer;
-  const VertBuffer *max_vbuff = vert_buffers + VERT_BUFFER_MAX_COUNT;
+  GPUVertBuffer *vbuff = next_deleted_vert_buffer;
+  const GPUVertBuffer *max_vbuff = vert_buffers + VERT_BUFFER_MAX_COUNT;
   
   if((vbuff <= vert_buffers) | (vbuff >= max_vbuff))
     vbuff = vert_buffers + 1;
@@ -45,7 +45,7 @@ static VertBuffer *find_deleted_vert_buffer(void)
   return vbuff;
 }
 
-void GPU_vertbuf_init(VertBuffer *vbuff)
+void GPU_vertbuf_init(GPUVertBuffer *vbuff)
 {
   vbuff->active = 1;
   vbuff->max_count = 0;
@@ -57,17 +57,17 @@ void GPU_vertbuf_init(VertBuffer *vbuff)
   
 }
 
-// create new vertbuffer
-VertBuffer *GPU_vertbuf_create(void)
+// create new GPUVertBuffer
+GPUVertBuffer *GPU_vertbuf_create(void)
 {
-  VertBuffer *vbuff = find_deleted_vert_buffer();
+  GPUVertBuffer *vbuff = find_deleted_vert_buffer();
 	GPU_vertbuf_init(vbuff);
   printf("New vertbuf ID:%p\n", vbuff);
 
 	return vbuff;
 }
 
-void GPU_vertbuf_delete(VertBuffer *vbuff)
+void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
 {
   if (vbuff->data) {
     free(vbuff->data);
@@ -85,13 +85,13 @@ void GPU_vertbuf_delete(VertBuffer *vbuff)
     next_deleted_vert_buffer = vbuff; 
 }
 
-void GPU_vertbuf_set_vertex_format(VertBuffer *vbuff, VertFormat *vformat)
+void GPU_vertbuf_set_vertex_format(GPUVertBuffer *vbuff, GPUVertFormat *vformat)
 {
   vbuff->vformat = vformat;  
 }
 
 // begin data update ( vertex max count ) - no more attributes can be added
-void GPU_vertbuf_begin_update(VertBuffer *vbuff, const GLuint max_count)
+void GPU_vertbuf_begin_update(GPUVertBuffer *vbuff, const GLuint max_count)
 {
   const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat);
 
@@ -117,7 +117,7 @@ void GPU_vertbuf_begin_update(VertBuffer *vbuff, const GLuint max_count)
 }
 
 // add vertex attribute data ( attribute_id, float, float, float )
-void GPU_vertbuf_add_4(VertBuffer *vbuff, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
   if (vbuff->ready) {
     GPU_vertex_format_add_4(vbuff->vformat, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
@@ -125,14 +125,14 @@ void GPU_vertbuf_add_4(VertBuffer *vbuff, const GLuint attribute_id, const GLflo
   }  
 }
 
-void GPU_vertbuf_use_VBO(VertBuffer *vbuff)
+void GPU_vertbuf_use_VBO(GPUVertBuffer *vbuff)
 {
   if (!vbuff->vbo_id) {
     glGenBuffers(1, &vbuff->vbo_id);
   }
 }
 
-void GPU_vertbuf_bind(VertBuffer *vbuff)
+void GPU_vertbuf_bind(GPUVertBuffer *vbuff)
 {
   if (vbuff->ready) {
     glBindBuffer(GL_ARRAY_BUFFER, vbuff->vbo_id);

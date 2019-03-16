@@ -14,17 +14,17 @@ typedef struct {
   GLuint ibo_id;            // 0 indicates using client ram or not allocated yet
   GLenum usage;             // usage hint for GL optimisation
   uint8_t ready;            // not zero if ready for adding data to buffer
-} IndexBuffer;
+} GPUIndexBuffer;
 
 #define INDEX_BUFFER_MAX_COUNT 10
 
-static IndexBuffer index_buffers[INDEX_BUFFER_MAX_COUNT];
-static IndexBuffer *next_deleted_index_buffer = 0;
+static GPUIndexBuffer index_buffers[INDEX_BUFFER_MAX_COUNT];
+static GPUIndexBuffer *next_deleted_index_buffer = 0;
 
-static IndexBuffer *find_deleted_index_buffer(void)
+static GPUIndexBuffer *find_deleted_index_buffer(void)
 {
-  IndexBuffer *ibuff = next_deleted_index_buffer;
-  const IndexBuffer *max_ibuff = index_buffers + INDEX_BUFFER_MAX_COUNT;
+  GPUIndexBuffer *ibuff = next_deleted_index_buffer;
+  const GPUIndexBuffer *max_ibuff = index_buffers + INDEX_BUFFER_MAX_COUNT;
   
   if((ibuff <= index_buffers) | (ibuff >= max_ibuff))
     ibuff = index_buffers + 1;
@@ -44,7 +44,7 @@ static IndexBuffer *find_deleted_index_buffer(void)
   return ibuff;
 }
 
-void GPU_indexbuf_init(IndexBuffer *ibuff)
+void GPU_indexbuf_init(GPUIndexBuffer *ibuff)
 {
   ibuff->active = 1;
   ibuff->max_count = 0;
@@ -56,17 +56,17 @@ void GPU_indexbuf_init(IndexBuffer *ibuff)
   
 }
 
-// create new indexbuffer
-IndexBuffer *GPU_indexbuf_create(void)
+// create new GPUIndexBuffer
+GPUIndexBuffer *GPU_indexbuf_create(void)
 {
-  IndexBuffer *ibuff = find_deleted_index_buffer();
+  GPUIndexBuffer *ibuff = find_deleted_index_buffer();
   GPU_indexbuf_init(ibuff);
   printf("New indexbuf ID:%p\n", ibuff);
 
   return ibuff;
 }
 
-void GPU_indexbuf_delete(IndexBuffer *ibuff)
+void GPU_indexbuf_delete(GPUIndexBuffer *ibuff)
 {
   if (ibuff->data) {
     free(ibuff->data);
@@ -85,7 +85,7 @@ void GPU_indexbuf_delete(IndexBuffer *ibuff)
 }
 
 // begin data update ( index max count )
-void GPU_indexbuf_begin_update(IndexBuffer *ibuff, const GLuint max_count)
+void GPU_indexbuf_begin_update(GPUIndexBuffer *ibuff, const GLuint max_count)
 {
   // allocate heap storage for data
   if (!ibuff->data)
@@ -100,7 +100,7 @@ void GPU_indexbuf_begin_update(IndexBuffer *ibuff, const GLuint max_count)
   ibuff->ready = 1;
 }
 
-void GPU_indexbuf_add_3(IndexBuffer *ibuff, const GLshort val1, const GLshort val2, const GLshort val3)
+void GPU_indexbuf_add_3(GPUIndexBuffer *ibuff, const GLshort val1, const GLshort val2, const GLshort val3)
 {
   if (ibuff->ready) {
     ibuff->data[ibuff->idx++] = val1;
@@ -109,7 +109,7 @@ void GPU_indexbuf_add_3(IndexBuffer *ibuff, const GLshort val1, const GLshort va
   }
 }
 
-void GPU_indexbuf_use_VBO(IndexBuffer *ibuff)
+void GPU_indexbuf_use_VBO(GPUIndexBuffer *ibuff)
 {
   if (!ibuff->ibo_id) {
     glGenBuffers(1, &ibuff->ibo_id);
@@ -117,7 +117,7 @@ void GPU_indexbuf_use_VBO(IndexBuffer *ibuff)
 }
 
 // set VAO
-void GPU_indexbuf_bind(IndexBuffer *ibuff)
+void GPU_indexbuf_bind(GPUIndexBuffer *ibuff)
 {
   if (ibuff->ready) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuff->ibo_id);
@@ -129,7 +129,7 @@ void GPU_indexbuf_bind(IndexBuffer *ibuff)
   }
 }
 
-GLvoid *GPU_indexbuf_get_index(IndexBuffer *ibuff)
+GLvoid *GPU_indexbuf_get_index(GPUIndexBuffer *ibuff)
 {
   return ibuff->index;
 }

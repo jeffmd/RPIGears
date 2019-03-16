@@ -11,8 +11,8 @@
 typedef struct {
   uint8_t active;
   GLuint vaoId;       // ID for vertex array object
-  VertBuffer *vbuff;  // ID for vert buffer
-  IndexBuffer *ibuff; // ID for index buffer
+  GPUVertBuffer *vbuff;  // ID for vert buffer
+  GPUIndexBuffer *ibuff; // ID for index buffer
   GLuint progId;      // shader program ID
   GLuint vertices_draw_count; // number of vertices to draw
   GLuint indices_draw_count;  // number of indices to draw
@@ -98,12 +98,12 @@ void GPU_batch_set_vertices_draw_count(GPUBatch *batch, const int count)
   batch->vertices_draw_count = count;
 }
 
-void GPU_batch_set_index_buffer(GPUBatch *batch, IndexBuffer *ibuff)
+void GPU_batch_set_index_buffer(GPUBatch *batch, GPUIndexBuffer *ibuff)
 {
   batch->ibuff = ibuff;  
 }
 
-void GPU_batch_set_vertex_buffer(GPUBatch *batch, VertBuffer *vbuff) 
+void GPU_batch_set_vertex_buffer(GPUBatch *batch, GPUVertBuffer *vbuff) 
 {
   batch->vbuff = vbuff;  
 }

@@ -32,7 +32,7 @@ enum {
   
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
-static VertFormat *vformat = 0;
+static GPUVertFormat *vformat = 0;
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -68,7 +68,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  IndexBuffer *ibuff = GPU_indexbuf_create();
+  GPUIndexBuffer *ibuff = GPU_indexbuf_create();
   GPU_batch_set_index_buffer(gear->batch, ibuff);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_begin_update(ibuff, nindices);
@@ -80,7 +80,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
   
-  VertBuffer *vbuff = GPU_vertbuf_create();
+  GPUVertBuffer *vbuff = GPU_vertbuf_create();
   GPU_batch_set_vertex_buffer(gear->batch, vbuff);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);

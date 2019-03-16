@@ -6,7 +6,7 @@
 
 #include "gles3.h"
 
-#define  UNIFORM_ATTRIB_MAX 8
+#define UNIFORM_ATTRIB_MAX 8
 
 typedef struct {
   GLenum type;             // storage type in buffer: GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, or GL_FLOAT
