@@ -4,7 +4,7 @@
 
 #include "gles3.h"
 #include "fp16.h"
-#include "gpu_shader_interface.h"
+#include "gpu_shader.h"
 
 typedef struct {
   GLenum type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
@@ -163,7 +163,7 @@ void GPU_vertex_format_bind(GPUVertFormat *vformat, GLvoid *data)
   for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
     VertAttribute *vattr = &vformat->vertex_attributes[Idx];
 
-    GLuint loc = get_active_attribute_location(vattr->name);
+    GLuint loc = GPU_get_active_attribute_location(vattr->name);
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, vattr->size, vattr->type, GL_FALSE, vformat->stride, data + vattr->offset);
   }

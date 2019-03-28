@@ -13,7 +13,7 @@
 #include "user_options.h"
 #include "window.h"
 #include "shaders.h"
-#include "gpu_shader_interface.h"
+#include "gpu_shader.h"
 
 static struct {
    GLfloat model_view[16];
@@ -74,7 +74,7 @@ void init_scene(void)
    load_shader_programs();
    m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
-   DiffuseMap_loc = get_active_uniform_location("DiffuseMap");
-   UBO_loc = get_active_uniform_location("UBO")   ;
-   MaterialColor_loc = get_active_uniform_location("MaterialColor");
+   DiffuseMap_loc = GPU_get_active_uniform_location("DiffuseMap");
+   UBO_loc = GPU_get_active_uniform_location("UBO")   ;
+   MaterialColor_loc = GPU_get_active_uniform_location("MaterialColor");
 }
