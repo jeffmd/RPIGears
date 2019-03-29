@@ -14,12 +14,12 @@ typedef struct {
   const char *name;        // uniform name in shader
   GLuint stride;           // number of bytes to next instance of uniform
   void *data;              // pointer to current location in data buffer for writing/reading
-} UniformAttribute;
+} GPUUniformAttribute;
 
 typedef struct {
   uint8_t active;           // not zero if uniform buffer is not deleted
-  UniformAttribute uniform_attributes[UNIFORM_ATTRIB_MAX];
+  GPUUniformAttribute uniform_attributes[UNIFORM_ATTRIB_MAX];
   uint8_t uniform_count;    // count of active attributes in vertex_attributes array
-} UniformBuffer;
+} GPUUniformBuffer;
 
 #define UNIFORM_BUFFER_MAX_COUNT 10

@@ -3,11 +3,11 @@
 #ifndef _GPU_UNIFORM_BUFFER_H_
   #define _GPU_UNIFORM_BUFFER_H_
   
-  typedef struct UniformBuffer UniformBuffer;
+  typedef struct GPUUniformBuffer GPUUniformBuffer;
 
-  UniformBuffer *GPU_uniformbuffer_create(void);
-  void GPU_uniformbuffer_delete(UniformBuffer *ubuff);
-  void GPU_uniformbuffer_add_uniform(UniformBuffer *ubuff, const char *name,
+  GPUUniformBuffer *GPU_uniformbuffer_create(void);
+  void GPU_uniformbuffer_delete(GPUUniformBuffer *ubuff);
+  void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
     const GLint size, const GLenum type);
 
 #endif
