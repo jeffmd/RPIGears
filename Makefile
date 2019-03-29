@@ -27,8 +27,8 @@ tasks.o: demo_state.h key_input.h
 window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
 xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h key_input.h
-gles2.o: shaderid.h
-shaders.o: gpu_shader.h
+shaders.o: gles3.h gpu_shader.h
+gpu_shader_unit.o: gles3.h
 gpu_shader.o: gles3.h gpu_shader_unit.h
 gpu_batch.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h
 gpu_vertex_buffer.o: gles3.h gpu_vertex_format.h
