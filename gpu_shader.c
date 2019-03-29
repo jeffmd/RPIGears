@@ -194,6 +194,16 @@ static inline GLint get_shader_input_location(const ShaderInputArrayTracker* inp
   return (input) ? input->location : -1;
 }
 
+GLint GPU_shader_uniform_location(GPUShader *shader, const char *name)
+{
+  return get_shader_input_location(&shader->uniform_array, name);
+}
+
+GLint GPU_shader_attribute_location(GPUShader *shader, const char *name)
+{
+  return get_shader_input_location(&shader->attribute_array, name);
+}
+
 GLint GPU_get_active_uniform_location(const char *name)
 {
   return get_shader_input_location(&active_shader->uniform_array, name);
