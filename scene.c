@@ -14,6 +14,7 @@
 #include "window.h"
 #include "shaders.h"
 #include "gpu_shader.h"
+#include "gpu_uniform_buffer.h"
 
 static struct {
    GLfloat model_view[16];
@@ -21,9 +22,9 @@ static struct {
    GLfloat projection_matrix[16];
 } UBO_Data;
 
-static GLuint DiffuseMap_loc;
-static GLuint UBO_loc;
+static int diffuseMap_Data = 0;
 static GLuint MaterialColor_loc;
+static GPUUniformBuffer *uniform_buffer;
 
 /**
  * Draws a gear in GLES 2 mode.
@@ -40,8 +41,7 @@ static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
    m4x4_translate(UBO_Data.model_view, x, y, 0);
    m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
-   glUniform4fv(UBO_loc, 9, (GLfloat *)&UBO_Data);
-
+   GPU_uniformbuffer_update(uniform_buffer);
    gear_draw(gear, options_drawMode(), MaterialColor_loc, state_instances());
 }
 
@@ -56,7 +56,6 @@ void draw_scene(void)
      light_clean();
   }
   
-  glUniform1i(DiffuseMap_loc, 0);
   // Bind texture surface to current vertices
   GPU_texture_bind(state_tex(), 0);
   /* Draw the gears */
@@ -70,11 +69,13 @@ void init_scene(void)
 {
    // setup the scene based on rendering mode
    init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
-   //init_shader_system();
    load_shader_programs();
    m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
-   DiffuseMap_loc = GPU_get_active_uniform_location("DiffuseMap");
-   UBO_loc = GPU_get_active_uniform_location("UBO")   ;
    MaterialColor_loc = GPU_get_active_uniform_location("MaterialColor");
+   
+   uniform_buffer = GPU_uniformbuffer_create();
+   GPU_uniformbuffer_add_uniform(uniform_buffer, "UBO", sizeof(UBO_Data)/4, GL_FLOAT_VEC4, &UBO_Data);
+   GPU_uniformbuffer_add_uniform(uniform_buffer, "DiffuseMap", 1, GL_INT, &diffuseMap_Data);
+   GPU_uniformbuffer_bind(uniform_buffer);
 }
