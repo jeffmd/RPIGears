@@ -39,7 +39,7 @@ static GPUVertBuffer *find_deleted_vert_buffer(void)
 
   if (vbuff == max_vbuff) {
     printf("WARNING: No vertex buffers available\n");
-    vbuff = 0;
+    vbuff = vert_buffers;
   }
 
   return vbuff;
