@@ -95,6 +95,7 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
   uniform->data = data;
   uniform->location = -1;
   
+  // force rebinding to active shader
   ubuff->shader = 0;                             
   ubuff->uniform_count++;
 
@@ -102,51 +103,54 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
 
 void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
 {
-  ubuff->shader = GPU_shader_get_active();
-  
-  for (int idx=0; idx < ubuff->uniform_count; idx++) {
-    GPUUniformAttribute *uniform = &ubuff->uniforms[idx];
-    uniform->location = GPU_get_active_uniform_location(uniform->name);
+  GPUShader *shader = GPU_shader_get_active();
+  if (ubuff->shader != shader) {
+    ubuff->shader = shader;
+    for (int idx=0; idx < ubuff->uniform_count; idx++) {
+      GPUUniformAttribute *uniform = &ubuff->uniforms[idx];
+      uniform->location = GPU_get_active_uniform_location(uniform->name);
+    }
   }
 }
 
 void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff)
 {
-  if (ubuff->shader == 0)
-    GPU_uniformbuffer_bind(ubuff);
-    
+  GPU_uniformbuffer_bind(ubuff);
+  
   for (int idx = 0; idx < ubuff->uniform_count; idx++) {
     GPUUniformAttribute *uniform = &ubuff->uniforms[idx];
-    switch(uniform->type) {
-      case GL_FLOAT:
-        glUniform1fv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_FLOAT_VEC2:
-        glUniform2fv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_FLOAT_VEC3:
-        glUniform3fv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_FLOAT_VEC4:
-        glUniform4fv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_SAMPLER_2D:
-      case GL_INT:
-        glUniform1iv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_INT_VEC2:
-        glUniform2iv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_INT_VEC3:
-        glUniform3iv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_INT_VEC4:
-        glUniform4iv(uniform->location, uniform->size, uniform->data);
-        break;
-      case GL_FLOAT_MAT4:
-        glUniformMatrix4fv(uniform->location, uniform->size, GL_FALSE, uniform->data);
-        break;
-        
+    if (uniform->location >= 0) {
+      switch(uniform->type) {
+        case GL_FLOAT:
+          glUniform1fv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_FLOAT_VEC2:
+          glUniform2fv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_FLOAT_VEC3:
+          glUniform3fv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_FLOAT_VEC4:
+          glUniform4fv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_SAMPLER_2D:
+        case GL_INT:
+          glUniform1iv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_INT_VEC2:
+          glUniform2iv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_INT_VEC3:
+          glUniform3iv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_INT_VEC4:
+          glUniform4iv(uniform->location, uniform->size, uniform->data);
+          break;
+        case GL_FLOAT_MAT4:
+          glUniformMatrix4fv(uniform->location, uniform->size, GL_FALSE, uniform->data);
+          break;
+          
+      }
     }
   }
 }
