@@ -9,6 +9,7 @@
   void GPU_shader_init(GPUShader *shader);
   void GPU_shader_gldelete(GPUShader *shader);
 
+	GPUShader *GPU_shader_get_active(void);
 	GLuint GPU_shader_glprogram_obj(GPUShader *shader);
 	void GPU_shader_bind(GPUShader *shader);
 	GLint GPU_shader_uniform_location(GPUShader *shader, const char *name);

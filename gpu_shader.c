@@ -176,6 +176,11 @@ GLuint GPU_shader_glprogram_obj(GPUShader* shader)
   return shader->glProgramObj;
 }
 
+GPUShader *GPU_shader_get_active(void)
+{
+  return active_shader;
+}
+
 static GPUShaderInput *get_shader_input(const ShaderInputArrayTracker* input_tracker, const char *name)
 {
   const GLuint end = input_tracker->start + input_tracker->count;

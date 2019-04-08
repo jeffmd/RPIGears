@@ -26,6 +26,7 @@ typedef struct {
   uint8_t active;           // not zero if uniform buffer is not deleted
   GPUUniformAttribute uniforms[UNIFORM_MAX_COUNT];
   uint8_t uniform_count;    // count of active attributes in vertex_attributes array
+  GPUShader *shader;        // the shader used for binding
 } GPUUniformBuffer;
 
 #define UNIFORM_BUFFER_MAX_COUNT 10
@@ -60,6 +61,7 @@ void GPU_uniformbuffer_init(GPUUniformBuffer *ubuff)
 {
   ubuff->active = 1;
   ubuff->uniform_count = 0;
+  ubuff->shader = 0;
 
 }
 
@@ -91,13 +93,17 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
   uniform->size = size;
   uniform->name = name;
   uniform->data = data;
-                               
+  uniform->location = -1;
+  
+  ubuff->shader = 0;                             
   ubuff->uniform_count++;
 
 }
 
 void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
 {
+  ubuff->shader = GPU_shader_get_active();
+  
   for (int idx=0; idx < ubuff->uniform_count; idx++) {
     GPUUniformAttribute *uniform = &ubuff->uniforms[idx];
     uniform->location = GPU_get_active_uniform_location(uniform->name);
@@ -106,6 +112,9 @@ void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
 
 void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff)
 {
+  if (ubuff->shader == 0)
+    GPU_uniformbuffer_bind(ubuff);
+    
   for (int idx = 0; idx < ubuff->uniform_count; idx++) {
     GPUUniformAttribute *uniform = &ubuff->uniforms[idx];
     switch(uniform->type) {

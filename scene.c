@@ -77,5 +77,4 @@ void init_scene(void)
    uniform_buffer = GPU_uniformbuffer_create();
    GPU_uniformbuffer_add_uniform(uniform_buffer, "UBO", sizeof(UBO_Data)/4, GL_FLOAT_VEC4, &UBO_Data);
    GPU_uniformbuffer_add_uniform(uniform_buffer, "DiffuseMap", 1, GL_INT, &diffuseMap_Data);
-   GPU_uniformbuffer_bind(uniform_buffer);
 }
