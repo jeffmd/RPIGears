@@ -33,6 +33,7 @@ gpu_shader.o: gles3.h gpu_shader_unit.h
 gpu_batch.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h
 gpu_vertex_buffer.o: gles3.h gpu_vertex_format.h
 gpu_vertex_format.o: gles3.h fp16.h gpu_shader.h
+gpu_uniform_buffer.o: gles3.h gpu_shader.h
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h
 
 
