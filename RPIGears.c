@@ -193,7 +193,7 @@ int main (int argc, char *argv[])
   init_textures();
   build_gears(options_useVBO());
 
-  init_camera();
+  camera_init();
   init_scene();
 
   // animate the gears

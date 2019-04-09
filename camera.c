@@ -3,7 +3,7 @@
 */
 
 #include <stdio.h>
-#include "GLES2/gl2.h"
+#include "gles3.h"
 
 #include "matrix_math.h"
 
@@ -54,19 +54,19 @@ GLfloat camera_view_rotz(void)
   return camera->view_rotz;
 }
 
-void change_viewDist(const float val)
+void camera_change_viewDist(const float val)
 {
   camera->viewDist += val;  
   camera->dirty = GL_TRUE;
 }
 
-void change_viewX(const float val)
+void camera_change_viewX(const float val)
 {
   camera->viewX += val;
   camera->dirty = GL_TRUE;
 }
 
-void change_viewY(const float val)
+void camera_change_viewY(const float val)
 {
   camera->viewY += val;  
   camera->dirty = GL_TRUE;
@@ -82,7 +82,7 @@ GLfloat *camera_ProjectionMatrixPtr(void)
    return camera->ProjectionMatrix;
 }
 
-void init_ProjectionMatrix(const float aspectratio)
+void camera_init_ProjectionMatrix(const float aspectratio)
 {
    m4x4_perspective(camera->ProjectionMatrix, 35.0, aspectratio, 1.0, 100.0);
 }
@@ -108,7 +108,7 @@ GLfloat *camera_view_matrix(void)
 	return camera->ViewMatrix;
 }
 
-void init_camera(void)
+void camera_init(void)
 {
   //memset( camera, 0, sizeof( *camera ) );
 

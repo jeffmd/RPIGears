@@ -173,27 +173,27 @@ int check_key(const int inpkey)
       break;
       
     case 'r':
-      set_key_down_update(change_viewDist, -1.0f);
+      set_key_down_update(camera_change_viewDist, -1.0f);
       break;
           
     case 'f':
-      set_key_down_update(change_viewDist, 1.0f);
+      set_key_down_update(camera_change_viewDist, 1.0f);
       break;
       
     case 'a':
-      set_key_down_update(change_viewX, 1.0f);
+      set_key_down_update(camera_change_viewX, 1.0f);
       break;
           
     case 'd':
-      set_key_down_update(change_viewX, -1.0f);
+      set_key_down_update(camera_change_viewX, -1.0f);
       break;
           
     case 'w':
-      set_key_down_update(change_viewY, -1.0f);
+      set_key_down_update(camera_change_viewY, -1.0f);
       break;
 
     case 's':
-      set_key_down_update(change_viewY, 1.0f);
+      set_key_down_update(camera_change_viewY, 1.0f);
       break;
       
     case 'S':
