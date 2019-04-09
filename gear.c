@@ -68,8 +68,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  GPUIndexBuffer *ibuff = GPU_indexbuf_create();
-  GPU_batch_set_index_buffer(gear->batch, ibuff);
+  GPUIndexBuffer *ibuff = GPU_batch_index_buffer(gear->batch);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_begin_update(ibuff, nindices);
     
@@ -80,12 +79,10 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
   
-  GPUUniformBuffer *ubuff = GPU_uniformbuffer_create();
+  GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(gear->batch);
   GPU_uniformbuffer_add_uniform(ubuff, "MaterialColor", 1, GL_FLOAT_VEC4, gear->color);
-  GPU_batch_set_uniform_buffer(gear->batch, ubuff);
   
-  GPUVertBuffer *vbuff = GPU_vertbuf_create();
-  GPU_batch_set_vertex_buffer(gear->batch, vbuff);
+  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
   GPU_vertbuf_begin_update(vbuff, nvertices);

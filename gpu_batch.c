@@ -123,6 +123,30 @@ void GPU_batch_set_uniform_buffer(GPUBatch *batch, GPUUniformBuffer *ubuff)
   batch->ubuff = ubuff;
 }
 
+GPUVertBuffer *GPU_batch_vertex_buffer(GPUBatch *batch)
+{
+  if (!batch->vbuff)
+    batch->vbuff = GPU_vertbuf_create();
+    
+  return batch->vbuff;
+}
+
+GPUIndexBuffer *GPU_batch_index_buffer(GPUBatch *batch)
+{
+  if (!batch->ibuff)
+    batch->ibuff = GPU_indexbuf_create();
+    
+  return batch->ibuff;
+}
+
+GPUUniformBuffer *GPU_batch_uniform_buffer(GPUBatch *batch)
+{
+  if (!batch->ubuff)
+    batch->ubuff = GPU_uniformbuffer_create();
+    
+  return batch->ubuff;
+}
+
 static void batch_bind(GPUBatch *batch)
 {
   glGenVertexArrays(1, &batch->vaoId);
