@@ -23,7 +23,6 @@ static struct {
 } UBO_Data;
 
 static int diffuseMap_Data = 0;
-static GLuint MaterialColor_loc;
 static GPUUniformBuffer *uniform_buffer;
 
 /**
@@ -42,7 +41,7 @@ static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
    m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
    GPU_uniformbuffer_update(uniform_buffer);
-   gear_draw(gear, options_drawMode(), MaterialColor_loc, state_instances());
+   gear_draw(gear, options_drawMode(), state_instances());
 }
 
 /**
@@ -68,12 +67,10 @@ void draw_scene(void)
 void init_scene(void)
 {
    // setup the scene based on rendering mode
-   init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
+   camera_init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
    load_shader_programs();
    m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
-   MaterialColor_loc = GPU_get_active_uniform_location("MaterialColor");
-   
    uniform_buffer = GPU_uniformbuffer_create();
    GPU_uniformbuffer_add_uniform(uniform_buffer, "UBO", sizeof(UBO_Data)/4, GL_FLOAT_VEC4, &UBO_Data);
    GPU_uniformbuffer_add_uniform(uniform_buffer, "DiffuseMap", 1, GL_INT, &diffuseMap_Data);

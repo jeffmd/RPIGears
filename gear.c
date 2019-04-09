@@ -13,12 +13,12 @@
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
 #include "gpu_index_buffer.h"
+#include "gpu_uniform_buffer.h"
 #include "gpu_batch.h"
 
 typedef struct {
   GLuint nvertices, nindices;
   GLfloat color[4];
-  uint8_t ubuffId; // ID for uniform buffer
   GPUBatch *batch; 
 } gear_t;
 
@@ -79,6 +79,10 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertex_format_add_attribute(vformat, "normal", 3, GL_HALF_FLOAT_OES);
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
+  
+  GPUUniformBuffer *ubuff = GPU_uniformbuffer_create();
+  GPU_uniformbuffer_add_uniform(ubuff, "MaterialColor", 1, GL_FLOAT_VEC4, gear->color);
+  GPU_batch_set_uniform_buffer(gear->batch, ubuff);
   
   GPUVertBuffer *vbuff = GPU_vertbuf_create();
   GPU_batch_set_vertex_buffer(gear->batch, vbuff);
@@ -241,10 +245,8 @@ void free_gear(gear_t* gear)
   GPU_batch_delete(gear->batch, 1);
 }
 
-void gear_draw(gear_t* gear, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances)
+void gear_draw(gear_t* gear, const GLenum drawMode, const GLuint instances)
 {
-  /* Set the gear color */
-  glUniform4fv(MaterialColor_location, 1, gear->color);
   
   GPU_batch_draw(gear->batch, drawMode, instances);
 }

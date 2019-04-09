@@ -12,6 +12,6 @@
                        const int useVBO);
   
   void free_gear(gear_t *gear);
-  void gear_draw(gear_t *gear, const GLenum drawMode, const GLuint MaterialColor_location, const GLuint instances);
+  void gear_draw(gear_t *gear, const GLenum drawMode, const GLuint instances);
 #endif  
   
