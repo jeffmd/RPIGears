@@ -25,9 +25,9 @@ static int resized = 1;
 static int useMITSHM = 0;
 static int minimized = 0;
 
+static XWindowAttributes window_attributes;
 static XShmSegmentInfo shmSInfo;
 
-static XWindowAttributes window_attributes;
 
 static int checkShmSupport(void)
 {
@@ -51,7 +51,7 @@ static void init_XShmImageBuffer(int width, int height, int depth)
   shmSInfo.shmid = shmget(IPC_PRIVATE, img->bytes_per_line * img->height, IPC_CREAT|0777);
   shmSInfo.shmaddr = img->data = shmat(shmSInfo.shmid, 0, 0);
   assert(img->data != 0);
-  shmSInfo.readOnly = True; //False;
+  shmSInfo.readOnly = True; // False; faster rendering if readOnly = True
   XShmAttach(dis, &shmSInfo);
 }
 
@@ -169,6 +169,7 @@ static void do_ConfigureNotify(const XConfigureEvent* event)
     printf("resizing Window\n");
   }
   printf("window: %lu\n", event->above);
+  
 }
 
 static void do_ClientMessage(const XClientMessageEvent* event)
@@ -242,6 +243,7 @@ static void buffer_flip_vertical(const int stride, const int height, char *buffe
   }
 }
 
+#if 0
 static void init_XimageBuffer(int width, int height, int depth)
 {
   img = XCreateImage(dis, CopyFromParent, depth, ZPixmap, 0, NULL, width, height, 32, 0);
@@ -249,15 +251,18 @@ static void init_XimageBuffer(int width, int height, int depth)
   assert(img->data != 0);
   resized = 1;
 }
+#endif
 
 void xwindow_frame_update(void)
 {
   static int dirty = 0;
+  
   if(window_inFocus() | minimized) {
     if(dirty) {
       XClearWindow(dis, win);
       dirty = 0;
     }
+    
     return;
   }
   
@@ -266,9 +271,9 @@ void xwindow_frame_update(void)
   XGetWindowAttributes(dis, win, &window_attributes);
   const int width = window_attributes.width;
   const int height = window_attributes.height;
-  const int depth = window_attributes.depth;
+  //const int depth = window_attributes.depth;
 
-  if(useMITSHM) {
+  //if(useMITSHM) {
     if(resized) {
       img->width = width;
       img->height = height;
@@ -278,7 +283,8 @@ void xwindow_frame_update(void)
     window_snapshot(width, height, img->data);
     buffer_flip_vertical(img->bytes_per_line, height, img->data);
     XShmPutImage(dis, win, gc, img, 0, 0, 0, 0, width, height, False);
-  }
+  //}
+#if 0
   else {
     if(resized) {
       init_XimageBuffer(width, height, depth);
@@ -287,14 +293,17 @@ void xwindow_frame_update(void)
     buffer_flip_vertical(width * BYTESPIXEL, height, img->data);
     XPutImage(dis, win, gc, img, 0, 0, 0, 0, width, height);
   }
+#endif
 
-  //printf("depth: %i bpl: %i bpp: %i xoffset %i\n", img->depth, img->bytes_per_line, img->bits_per_pixel, img->xoffset);
-  //printf("byte order: %i bitmap unit: %i bit order: %i bitmap_pad: %i \n", img->byte_order, img->bitmap_unit, img->bitmap_bit_order, img->bitmap_pad);
-  //printf("red_mask: %lu green_mask: %lu blue_mask: %lu \n", img->red_mask, img->green_mask, img->blue_mask);
-  //img->bits_per_pixel = 24;
-  //img->byte_order = MSBFirst;
-  //img->bitmap_bit_order = MSBFirst;
-  //img->bytes_per_line = window_attributes.width * BYTESPIXEL;
+#if 0
+  printf("depth: %i bpl: %i bpp: %i xoffset %i\n", img->depth, img->bytes_per_line, img->bits_per_pixel, img->xoffset);
+  printf("byte order: %i bitmap unit: %i bit order: %i bitmap_pad: %i \n", img->byte_order, img->bitmap_unit, img->bitmap_bit_order, img->bitmap_pad);
+  printf("red_mask: %lu green_mask: %lu blue_mask: %lu \n", img->red_mask, img->green_mask, img->blue_mask);
+  img->bits_per_pixel = 24;
+  img->byte_order = MSBFirst;
+  img->bitmap_bit_order = MSBFirst;
+  img->bytes_per_line = window_attributes.width * BYTESPIXEL;
+#endif
 }
 
 void xwindow_check_events(void)
