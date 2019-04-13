@@ -9,9 +9,9 @@
 
 
 typedef struct {
-  GLfloat viewDist;
-  GLfloat viewX;
-  GLfloat viewY;
+  GLfloat z;
+  GLfloat x;
+  GLfloat y;
   GLfloat view_rotx;
   GLfloat view_roty;
   GLfloat view_rotz;
@@ -24,19 +24,19 @@ typedef struct {
 static CAMERA_T _camera;
 static CAMERA_T * const camera = &_camera; 
 
-GLfloat camera_viewDist(void)
+GLfloat camera_z(void)
 {
-  return camera->viewDist;
+  return camera->z;
 }
 
-GLfloat camera_viewX(void)
+GLfloat camera_x(void)
 {
-  return camera->viewX;
+  return camera->x;
 }
 
-GLfloat camera_viewY(void)
+GLfloat camera_y(void)
 {
-  return camera->viewY;
+  return camera->y;
 }
 
 GLfloat camera_view_rotx(void)
@@ -54,21 +54,21 @@ GLfloat camera_view_rotz(void)
   return camera->view_rotz;
 }
 
-void camera_change_viewDist(const float val)
+void camera_change_z(const float val)
 {
-  camera->viewDist += val;  
+  camera->z += val;  
   camera->dirty = GL_TRUE;
 }
 
-void camera_change_viewX(const float val)
+void camera_change_x(const float val)
 {
-  camera->viewX += val;
+  camera->x += val;
   camera->dirty = GL_TRUE;
 }
 
-void camera_change_viewY(const float val)
+void camera_change_y(const float val)
 {
-  camera->viewY += val;  
+  camera->y += val;  
   camera->dirty = GL_TRUE;
 }
 
@@ -98,7 +98,7 @@ GLfloat *camera_view_matrix(void)
 	   printf("camera Recalc\n");
 	   m4x4_identity(camera->ViewMatrix);
 	   /* Translate and rotate the view */
-	   m4x4_translate(camera->ViewMatrix, camera->viewX, camera->viewY, camera->viewDist);
+	   m4x4_translate(camera->ViewMatrix, camera->x, camera->y, camera->z);
 	   m4x4_rotate(camera->ViewMatrix, camera->view_rotx, 1, 0, 0);
 	   m4x4_rotate(camera->ViewMatrix, camera->view_roty, 0, 1, 0);
 	   m4x4_rotate(camera->ViewMatrix, camera->view_rotz, 0, 0, 1);
@@ -112,9 +112,9 @@ void camera_init(void)
 {
   //memset( camera, 0, sizeof( *camera ) );
 
-  camera->viewDist = -45.0f;
-  camera->viewX = 2.0f;
-  camera->viewY = 0.0f;
+  camera->z = -45.0f;
+  camera->x = 2.0f;
+  camera->y = 0.0f;
   camera->view_rotx = 15.0f;
   camera->view_roty = 25.0f;
   camera->view_rotz = 0.0f;
