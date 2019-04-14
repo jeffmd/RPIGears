@@ -5,6 +5,7 @@
 
 #include "gles3.h"
 #include "gpu_vertex_format.h"
+#include "static_array.h"
 
 typedef struct {
   uint8_t active;           // not zero if vertex buffer is not deleted
@@ -22,27 +23,10 @@ typedef struct {
 static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
 static GPUVertBuffer *next_deleted_vert_buffer = 0;
 
-static GPUVertBuffer *find_deleted_vert_buffer(void)
+static inline GPUVertBuffer *find_deleted_vert_buffer(void)
 {
-  GPUVertBuffer *vbuff = next_deleted_vert_buffer;
-  const GPUVertBuffer *max_vbuff = vert_buffers + VERT_BUFFER_MAX_COUNT;
-  
-  if((vbuff <= vert_buffers) | (vbuff >= max_vbuff))
-    vbuff = vert_buffers + 1;
-
-  for ( ; vbuff < max_vbuff; vbuff++) {
-    if (vbuff->active == 0) {
-      next_deleted_vert_buffer = vbuff + 1;
-      break;
-    }
-  }
-
-  if (vbuff == max_vbuff) {
-    printf("WARNING: No vertex buffers available\n");
-    vbuff = vert_buffers;
-  }
-
-  return vbuff;
+  return ARRAY_FIND_DELETED(next_deleted_vert_buffer, vert_buffers,
+                            VERT_BUFFER_MAX_COUNT, "vertex buffer");
 }
 
 void GPU_vertbuf_init(GPUVertBuffer *vbuff)
@@ -52,19 +36,19 @@ void GPU_vertbuf_init(GPUVertBuffer *vbuff)
   vbuff->data = 0;
   vbuff->vbo_id = 0;
   vbuff->vformat = 0;
-	vbuff->usage = GL_STATIC_DRAW;
-	vbuff->ready = 0;
-  
+  vbuff->usage = GL_STATIC_DRAW;
+  vbuff->ready = 0;
+
 }
 
 // create new GPUVertBuffer
 GPUVertBuffer *GPU_vertbuf_create(void)
 {
   GPUVertBuffer *vbuff = find_deleted_vert_buffer();
-	GPU_vertbuf_init(vbuff);
+  GPU_vertbuf_init(vbuff);
   printf("New vertbuf ID:%p\n", vbuff);
 
-	return vbuff;
+  return vbuff;
 }
 
 void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
@@ -73,21 +57,21 @@ void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
     free(vbuff->data);
     vbuff->data = 0;
   }
-  
+
   if (vbuff->vbo_id) {
     glDeleteBuffers(1, &vbuff->vbo_id);
     vbuff->vbo_id = 0;
   }
-  
+
   vbuff->active = 0;
-  
+
   if (vbuff < next_deleted_vert_buffer)
-    next_deleted_vert_buffer = vbuff; 
+    next_deleted_vert_buffer = vbuff;
 }
 
 void GPU_vertbuf_set_vertex_format(GPUVertBuffer *vbuff, GPUVertFormat *vformat)
 {
-  vbuff->vformat = vformat;  
+  vbuff->vformat = vformat;
 }
 
 // begin data update ( vertex max count ) - no more attributes can be added
@@ -104,7 +88,7 @@ void GPU_vertbuf_begin_update(GPUVertBuffer *vbuff, const GLuint max_count)
     }
 
     vbuff->max_count = max_count;
-    
+
     const GLuint max_Idx = GPU_vertex_format_attribute_count(vbuff->vformat);
     for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
       vbuff->vertex_data[Idx] = vbuff->data + GPU_vertex_format_offset(vbuff->vformat, Idx);
@@ -113,7 +97,7 @@ void GPU_vertbuf_begin_update(GPUVertBuffer *vbuff, const GLuint max_count)
     // ready to receive data updates in buffer storage
     vbuff->ready = 1;
   }
-  
+
 }
 
 // add vertex attribute data ( attribute_id, float, float, float )
@@ -122,7 +106,7 @@ void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GL
   if (vbuff->ready) {
     GPU_vertex_format_add_4(vbuff->vformat, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
     vbuff->vertex_data[attribute_id] += GPU_vertex_format_stride(vbuff->vformat);
-  }  
+  }
 }
 
 void GPU_vertbuf_use_VBO(GPUVertBuffer *vbuff)

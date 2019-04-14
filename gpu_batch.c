@@ -4,6 +4,7 @@
 
 #include "gles3.h"
 
+#include "static_array.h"
 #include "gpu_index_buffer.h"
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
@@ -26,27 +27,9 @@ typedef struct {
 static GPUBatch batches[BATCH_MAX_COUNT];
 static GPUBatch *next_deleted_batch = 0;
 
-static GPUBatch *find_deleted_batch(void)
+static inline GPUBatch *find_deleted_batch(void)
 {
-  GPUBatch *batch = next_deleted_batch;
-  const GPUBatch *max_batch = batches + BATCH_MAX_COUNT;
-
-  if((batch <= batches) | (batch >= max_batch))
-    batch = batches + 1;
-
-  for ( ; batch < max_batch; batch++) {
-    if (batch->active == 0) {
-      next_deleted_batch = batch + 1;
-      break;
-    }
-  }
-
-  if (batch >= max_batch) {
-    printf("WARNING: No batches available\n");
-    batch = batches;
-  }
-  printf("batch ID: %i ", batch - batches);
-  return batch;
+  return ARRAY_FIND_DELETED(next_deleted_batch, batches, BATCH_MAX_COUNT, "batch");
 }
 
 void GPU_batch_init(GPUBatch *batch)
@@ -64,7 +47,6 @@ GPUBatch *GPU_batch_create(void)
 {
   GPUBatch *batch = find_deleted_batch();
   GPU_batch_init(batch);
-  printf("New batch ID:%p\n", batch);
 
   return batch;
 }
@@ -127,7 +109,7 @@ GPUVertBuffer *GPU_batch_vertex_buffer(GPUBatch *batch)
 {
   if (!batch->vbuff)
     batch->vbuff = GPU_vertbuf_create();
-    
+
   return batch->vbuff;
 }
 
@@ -135,7 +117,7 @@ GPUIndexBuffer *GPU_batch_index_buffer(GPUBatch *batch)
 {
   if (!batch->ibuff)
     batch->ibuff = GPU_indexbuf_create();
-    
+
   return batch->ibuff;
 }
 
@@ -143,7 +125,7 @@ GPUUniformBuffer *GPU_batch_uniform_buffer(GPUBatch *batch)
 {
   if (!batch->ubuff)
     batch->ubuff = GPU_uniformbuffer_create();
-    
+
   return batch->ubuff;
 }
 

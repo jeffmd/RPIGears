@@ -1,6 +1,6 @@
 OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
-	xwindow.o xinput.o gles3.o fp16.o shaders.o gldebug.o \
+	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
 	gpu_vertex_format.o
@@ -28,12 +28,13 @@ window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
 xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h key_input.h
 shaders.o: gles3.h gpu_shader.h
-gpu_shader_unit.o: gles3.h
-gpu_shader.o: gles3.h gpu_shader_unit.h
-gpu_batch.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h
-gpu_vertex_buffer.o: gles3.h gpu_vertex_format.h
-gpu_vertex_format.o: gles3.h fp16.h gpu_shader.h
-gpu_uniform_buffer.o: gles3.h gpu_shader.h
+gpu_shader_unit.o: gles3.h static_array.h 
+gpu_shader.o: gles3.h static_array.h gpu_shader_unit.h
+gpu_batch.o: gles3.h static_array.h gpu_vertex_buffer.h gpu_index_buffer.h
+gpu_vertex_buffer.o: gles3.h static_array.h gpu_vertex_format.h
+gpu_vertex_format.o: gles3.h fp16.h static_array.h gpu_shader.h
+gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
+gpu_texture.o: gles3.h static_array.h 
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h
 
 

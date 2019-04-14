@@ -17,7 +17,6 @@
 #include "gpu_batch.h"
 
 typedef struct {
-  GLuint nvertices, nindices;
   GLfloat color[4];
   GPUBatch *batch; 
 } gear_t;

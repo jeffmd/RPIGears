@@ -6,6 +6,7 @@
 
 #include "gles3.h"
 #include "gpu_shader.h"
+#include "static_array.h"
 
 #define UNIFORM_MAX_COUNT 8
 
@@ -34,27 +35,10 @@ typedef struct {
 static GPUUniformBuffer uniform_buffers[UNIFORM_BUFFER_MAX_COUNT];
 static GPUUniformBuffer *next_deleted_uniform_buffer = 0;
 
-static GPUUniformBuffer *find_deleted_uniform_buffer(void)
+static inline GPUUniformBuffer *find_deleted_uniform_buffer(void)
 {
-  GPUUniformBuffer *ubuff = next_deleted_uniform_buffer;
-  const GPUUniformBuffer *max_ubuff = uniform_buffers + UNIFORM_BUFFER_MAX_COUNT;
-
-  if((ubuff <= uniform_buffers) | (ubuff >= max_ubuff))
-    ubuff = uniform_buffers + 1;
-
-  for ( ; ubuff < max_ubuff; ubuff++) {
-    if (ubuff->active == 0) {
-      next_deleted_uniform_buffer = ubuff + 1;
-      break;
-    }
-  }
-
-  if (ubuff == max_ubuff) {
-    printf("WARNING: No uniform buffers available\n");
-    ubuff = uniform_buffers;
-  }
-
-  return ubuff;
+  return ARRAY_FIND_DELETED(next_deleted_uniform_buffer, uniform_buffers,
+                            UNIFORM_BUFFER_MAX_COUNT, "uniform buffer");
 }
 
 void GPU_uniformbuffer_init(GPUUniformBuffer *ubuff)
@@ -70,7 +54,6 @@ GPUUniformBuffer *GPU_uniformbuffer_create(void)
 {
   GPUUniformBuffer *ubuff = find_deleted_uniform_buffer();
   GPU_uniformbuffer_init(ubuff);
-  printf("New uniform buffer ID:%p\n", ubuff);
 
   return ubuff;
 }

@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "gles3.h"
+#include "static_array.h"
 
 #define SHADER_UNIT_MAX_COUNT 10
 #define BUFFSIZE 5000
@@ -14,6 +15,7 @@ static char shaderBuf[BUFFSIZE];
 char msg[512];
 
 typedef struct {
+  uint8_t active;
   const char *fileName; // if null then represents deleted object
   GLuint type;
   uint16_t glShaderObj;
@@ -22,28 +24,10 @@ typedef struct {
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
 static GPUShaderUnit *next_deleted_shader_unit = 0;
 
-static GPUShaderUnit *find_deleted_shader_unit(void)
+static inline GPUShaderUnit *find_deleted_shader_unit(void)
 {
-  GPUShaderUnit *shader = next_deleted_shader_unit;
-  const GPUShaderUnit *max_shader = shader_units + SHADER_UNIT_MAX_COUNT;
-  
-  if ((shader <= shader_units) | (shader >= max_shader)) {
-    shader = shader_units + 1;
-  }
-  
-  for (; shader < max_shader; shader++) {
-    if (shader->fileName == 0) {
-      next_deleted_shader_unit = shader + 1;
-      break;
-    }
-  }
-  
-  if (shader == max_shader) {
-    printf("WARNING: No shader units available\n");
-    shader = shader_units;
-  }
-  
-  return shader;
+  return ARRAY_FIND_DELETED(next_deleted_shader_unit, shader_units,
+                            SHADER_UNIT_MAX_COUNT, "shader unit");
 }
 
 GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)

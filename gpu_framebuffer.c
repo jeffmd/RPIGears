@@ -5,6 +5,7 @@
 
 #include "gles3.h"
 #include "gpu_texture.h"
+#include "static_array.h"
 
 #define GPU_FRAMEBUFFER_MAX_COUNT 200
 
@@ -18,9 +19,9 @@ typedef enum {
 } GPUAttachmentType;
 
 typedef struct {
+  uint8_t refcount;
   //GPUContext *ctx;
   uint8_t object;
-  uint8_t refcount;
   uint8_t dirty_flag;
   uint16_t width, height;
   GPUTexture *attachments[GPU_FB_MAX_ATTACHEMENT];
@@ -33,27 +34,10 @@ static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
 static GPUFrameBuffer *next_deleted_framebuffer = 0;
 static GPUFrameBuffer *active_framebuffer;
 
-static GPUFrameBuffer *find_deleted_framebuffer(void)
+static inline GPUFrameBuffer *find_deleted_framebuffer(void)
 {
-  GPUFrameBuffer *fb = next_deleted_framebuffer;
-  const GPUFrameBuffer *max_fb = framebuffers + GPU_FRAMEBUFFER_MAX_COUNT;
-  
-  if((fb <= framebuffers) | (fb >= max_fb))
-    fb = framebuffers + 1;
-
-  for ( ; fb < max_fb; fb++) {
-    if (fb->refcount == 0) {
-      next_deleted_framebuffer = fb + 1;
-      break;
-    }
-  }
-
-  if (fb == max_fb) {
-    printf("WARNING: No Frame Buffers available\n");
-    fb = framebuffers;
-  }
-    
-  return fb;
+  return ARRAY_FIND_DELETED(next_deleted_framebuffer, framebuffers, 
+                            GPU_FRAMEBUFFER_MAX_COUNT, "Frame Buffer");
 }
 
 static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)

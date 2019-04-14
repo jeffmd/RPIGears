@@ -5,6 +5,8 @@
 
 #include "gles3.h"
 
+#include "static_array.h"
+
 typedef struct {
   uint8_t active;           // not zero if vertex buffer is not deleted
   GLuint max_count;         // max number of verts in data buffer
@@ -21,27 +23,10 @@ typedef struct {
 static GPUIndexBuffer index_buffers[INDEX_BUFFER_MAX_COUNT];
 static GPUIndexBuffer *next_deleted_index_buffer = 0;
 
-static GPUIndexBuffer *find_deleted_index_buffer(void)
+static inline GPUIndexBuffer *find_deleted_index_buffer(void)
 {
-  GPUIndexBuffer *ibuff = next_deleted_index_buffer;
-  const GPUIndexBuffer *max_ibuff = index_buffers + INDEX_BUFFER_MAX_COUNT;
-  
-  if((ibuff <= index_buffers) | (ibuff >= max_ibuff))
-    ibuff = index_buffers + 1;
-
-  for ( ; ibuff < max_ibuff; ibuff++) {
-    if (ibuff->active == 0) {
-      next_deleted_index_buffer = ibuff + 1;
-      break;
-    }
-  }
-
-  if (ibuff == max_ibuff) {
-    printf("WARNING: No index buffers available\n");
-    ibuff = index_buffers;
-  }
-
-  return ibuff;
+  return ARRAY_FIND_DELETED(next_deleted_index_buffer, index_buffers,
+                            INDEX_BUFFER_MAX_COUNT, "Index Buffer");
 }
 
 void GPU_indexbuf_init(GPUIndexBuffer *ibuff)
@@ -61,7 +46,6 @@ GPUIndexBuffer *GPU_indexbuf_create(void)
 {
   GPUIndexBuffer *ibuff = find_deleted_index_buffer();
   GPU_indexbuf_init(ibuff);
-  printf("New indexbuf ID:%p\n", ibuff);
 
   return ibuff;
 }

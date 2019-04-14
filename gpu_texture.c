@@ -5,14 +5,14 @@
 #include "gles3.h"
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
-
+#include "static_array.h"
 
 #define GPU_TEXTURE_MAX_COUNT 200
 
 typedef struct GPUTexture {
+  uint8_t refcount;  /* reference count */
   int width, height;
 
-  unsigned refcount:5;  /* reference count */
   signed slot:4;      /* number for multitexture binding */
   unsigned format:4;
   unsigned is_texture:1;
@@ -70,27 +70,10 @@ static void gpu_texture_memory_footprint_remove(GPUTexture *tex)
   memory_usage -= gpu_texture_memory_footprint_compute(tex);
 }
 
-static GPUTexture *find_deleted_texture(void)
+static inline GPUTexture *find_deleted_texture(void)
 {
-  GPUTexture *tex = next_deleted_texture;
-  const GPUTexture *max_tex = textures + GPU_TEXTURE_MAX_COUNT;
-  
-  if((tex <= textures) | (tex >= max_tex))
-    tex = textures + 1;
-
-  for ( ; tex < max_tex; tex++) {
-    if (tex->refcount == 0) {
-      next_deleted_texture = tex + 1;
-      break;
-    }
-  }
-
-  if (tex == max_tex) {
-    printf("WARNING: No Textures available\n");
-    tex = textures;
-  }
-
-  return tex;
+  return ARRAY_FIND_DELETED(next_deleted_texture, textures,
+                            GPU_TEXTURE_MAX_COUNT, "Texture");;
 }
 
 static void init_renderbuffer(GPUTexture *tex)

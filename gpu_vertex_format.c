@@ -5,6 +5,7 @@
 #include "gles3.h"
 #include "fp16.h"
 #include "gpu_shader.h"
+#include "static_array.h"
 
 typedef struct {
   GLenum type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
@@ -26,27 +27,10 @@ typedef struct {
 static GPUVertFormat vert_formats[VERT_FORMAT_MAX_COUNT];
 static GPUVertFormat *next_deleted_vert_format = 0;
 
-static GPUVertFormat *find_deleted_vert_format(void)
+static inline GPUVertFormat *find_deleted_vert_format(void)
 {
-  GPUVertFormat *vformat = next_deleted_vert_format;
-  const GPUVertFormat *max_vformat = vert_formats + VERT_FORMAT_MAX_COUNT;
-  
-  if((vformat <= vert_formats) | (vformat >= max_vformat))
-    vformat = vert_formats + 1;
-
-  for ( ; vformat < max_vformat; vformat++) {
-    if (vformat->active == 0) {
-      next_deleted_vert_format = vformat + 1;
-      break;
-    }
-  }
-
-  if (vformat == max_vformat) {
-    printf("WARNING: No vertex formats available\n");
-    vformat = vert_formats;
-  }
-
-  return vformat;
+  return ARRAY_FIND_DELETED(next_deleted_vert_format, vert_formats,
+                            VERT_FORMAT_MAX_COUNT, "vertex format");
 }
 
 void GPU_vertex_format_init(GPUVertFormat *vformat)

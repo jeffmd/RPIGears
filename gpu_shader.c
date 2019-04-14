@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "gles3.h"
+#include "static_array.h"
 #include "gpu_shader_unit.h"
 
 #define NAME_BUFFER_SIZE 100
@@ -33,6 +34,7 @@ typedef struct {
 } ShaderInputArrayTracker;
 
 typedef struct {
+  uint8_t active;
   GPUShaderUnit *vert_unit;
   GPUShaderUnit *frag_unit;
   uint16_t glProgramObj;
@@ -49,28 +51,10 @@ static uint16_t shader_inputs_count = 0;
 
 static GPUShader *active_shader = 0;
 
-static GPUShader *find_deleted_shader(void)
+static inline GPUShader *find_deleted_shader(void)
 {
-  GPUShader *shader = next_deleted_shader;
-  GPUShader *max_shader = shaders + SHADER_MAX_COUNT;
-  
-  if ((shader <= shaders) | (shader >= max_shader)) {
-    shader = shaders + 1;
-  }
-  
-  for (; shader < max_shader; shader++) {
-    if (shader->vert_unit == 0) {
-      next_deleted_shader = shader + 1;
-      break;
-    }
-  }
-  
-  if (shader == max_shader) {
-    printf("WARNING: No shaders available\n");
-    shader = shaders;
-  }
-  
-  return shader;
+  return ARRAY_FIND_DELETED(next_deleted_shader, shaders,
+                            SHADER_MAX_COUNT, "shader");
 }
 
 void GPU_shader_init(GPUShader *shader)
