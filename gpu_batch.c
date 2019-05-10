@@ -32,7 +32,7 @@ static inline GPUBatch *find_deleted_batch(void)
   return ARRAY_FIND_DELETED(next_deleted_batch, batches, BATCH_MAX_COUNT, "batch");
 }
 
-void GPU_batch_init(GPUBatch *batch)
+static void GPU_batch_init(GPUBatch *batch)
 {
   batch->active = 1;
   batch->vaoId = 0;

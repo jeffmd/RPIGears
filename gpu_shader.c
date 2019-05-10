@@ -35,6 +35,7 @@ typedef struct {
 
 typedef struct {
   uint8_t active;
+  uint8_t linked;
   GPUShaderUnit *vert_unit;
   GPUShaderUnit *frag_unit;
   uint16_t glProgramObj;
@@ -57,13 +58,11 @@ static inline GPUShader *find_deleted_shader(void)
                             SHADER_MAX_COUNT, "shader");
 }
 
-void GPU_shader_init(GPUShader *shader)
+static void GPU_shader_init(GPUShader *shader)
 {
-  GPU_shader_unit_init(shader->vert_unit);
-  GPU_shader_unit_init(shader->frag_unit);
-  
   shader->glProgramObj = glCreateProgram();
   printf("program object: %u\n", shader->glProgramObj);
+  shader->linked = 0;
   
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->vert_unit));
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->frag_unit));
@@ -72,6 +71,8 @@ void GPU_shader_init(GPUShader *shader)
 GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name)
 {
   GPUShader *shader = find_deleted_shader();
+  shader->linked = 0;
+  shader->glProgramObj = 0;
   
   shader->vert_unit = GPU_shader_unit_create(vertex_file_name, GL_VERTEX_SHADER);
   shader->frag_unit = GPU_shader_unit_create(fragment_file_name, GL_FRAGMENT_SHADER);
@@ -87,6 +88,7 @@ void GPU_shader_gldelete(GPUShader *shader)
   GPU_shader_unit_glDelete(shader->frag_unit);
   glDeleteProgram(shader->glProgramObj);
   shader->glProgramObj = 0;
+  shader->linked = 0;
 }
 
 
@@ -138,21 +140,28 @@ static void build_attribute_list(GPUShader *shader)
   build_input_list(shader, GL_FALSE);
 }
 
-void GPU_shader_bind(GPUShader *shader)
+static void link_shader(GPUShader *shader)
 {
-  const GLuint program = shader->glProgramObj;
-
-  glLinkProgram(program);
-  glGetProgramInfoLog(program, sizeof msg, NULL, msg);
+  glLinkProgram(shader->glProgramObj);
+  glGetProgramInfoLog(shader->glProgramObj, sizeof msg, NULL, msg);
   printf("Link info: %s\n", msg);
-
   build_uniform_list(shader);
   build_attribute_list(shader);
+}
 
-  /* Enable the shaders */
-  glUseProgram(program);
-  active_shader = shader;
+void GPU_shader_bind(GPUShader *shader)
+{
+  if (active_shader != shader) {
+    if (!shader->glProgramObj)
+      GPU_shader_init(shader);
+      
+    if (!shader->linked)
+      link_shader(shader);
 
+    /* Enable the shaders */
+    glUseProgram(shader->glProgramObj);
+    active_shader = shader;
+  }
 }
 
 GLuint GPU_shader_glprogram_obj(GPUShader* shader)

@@ -5,7 +5,6 @@
 
   typedef struct GPUBatch GPUBatch;
 
-  void GPU_batch_init(GPUBatch *batch);
   GPUBatch *GPU_batch_create(void);
   void GPU_batch_delete(GPUBatch *batch, const int delete_buffers);
   void GPU_batch_set_indices_draw_count(GPUBatch *batch, const int count);

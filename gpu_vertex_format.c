@@ -43,7 +43,7 @@ void GPU_vertex_format_init(GPUVertFormat *vformat)
 GPUVertFormat *GPU_vertex_format_create(void)
 {
   GPUVertFormat *vformat = find_deleted_vert_format();
-	GPU_vertex_format_init(vformat);
+  GPU_vertex_format_init(vformat);
   printf("New vertex format ID:%p\n", vformat);
 
 	return vformat;

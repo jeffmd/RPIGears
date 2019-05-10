@@ -30,10 +30,6 @@ static inline GPUShaderUnit *find_deleted_shader_unit(void)
                             SHADER_UNIT_MAX_COUNT, "shader unit");
 }
 
-GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
-{
-  return shader->glShaderObj;
-}
 
 // load shader from a file
 static int load_shaderBuf_file(const char *name)
@@ -64,11 +60,12 @@ GPUShaderUnit *GPU_shader_unit_create(const char *file_name, const GLuint type)
 
   shader->fileName = file_name;
   shader->type = type;
-    
+  shader->glShaderObj = 0;
+  
   return shader;
 }
 
-void GPU_shader_unit_init(GPUShaderUnit *shader)
+static void GPU_shader_unit_init(GPUShaderUnit *shader)
 {
   const GLchar *src = shaderBuf;
   
@@ -84,6 +81,14 @@ void GPU_shader_unit_init(GPUShaderUnit *shader)
   printf("%s shader object: %u\n", typeStr, shader->glShaderObj);
   printf("%s shader Compile info: %s\n", typeStr, msg);
 
+}
+
+GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
+{
+  if (!shader->glShaderObj)
+    GPU_shader_unit_init(shader);
+    
+  return shader->glShaderObj;
 }
 
 void GPU_shader_unit_glDelete(GPUShaderUnit *shader)
