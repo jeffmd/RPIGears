@@ -41,19 +41,18 @@ static inline GPUUniformBuffer *find_deleted_uniform_buffer(void)
                             UNIFORM_BUFFER_MAX_COUNT, "uniform buffer");
 }
 
-void GPU_uniformbuffer_init(GPUUniformBuffer *ubuff)
+static void uniformbuffer_init(GPUUniformBuffer *ubuff)
 {
-  ubuff->active = 1;
   ubuff->uniform_count = 0;
   ubuff->shader = 0;
-
 }
 
 
 GPUUniformBuffer *GPU_uniformbuffer_create(void)
 {
   GPUUniformBuffer *ubuff = find_deleted_uniform_buffer();
-  GPU_uniformbuffer_init(ubuff);
+  ubuff->active = 1;
+  uniformbuffer_init(ubuff);
 
   return ubuff;
 }
@@ -61,6 +60,7 @@ GPUUniformBuffer *GPU_uniformbuffer_create(void)
 void GPU_uniformbuffer_delete(GPUUniformBuffer *ubuff)
 {
   ubuff->active = 0;
+  uniformbuffer_init(ubuff);
   
   if (ubuff < next_deleted_uniform_buffer)
     next_deleted_uniform_buffer = ubuff; 

@@ -58,7 +58,13 @@ static inline GPUShader *find_deleted_shader(void)
                             SHADER_MAX_COUNT, "shader");
 }
 
-static void GPU_shader_init(GPUShader *shader)
+static void shader_init(GPUShader *shader)
+{
+  shader->linked = 0;
+  shader->glProgramObj = 0;
+}
+
+static void shader_attach(GPUShader *shader)
 {
   shader->glProgramObj = glCreateProgram();
   printf("program object: %u\n", shader->glProgramObj);
@@ -71,8 +77,8 @@ static void GPU_shader_init(GPUShader *shader)
 GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name)
 {
   GPUShader *shader = find_deleted_shader();
-  shader->linked = 0;
-  shader->glProgramObj = 0;
+  
+  shader_init(shader);
   
   shader->vert_unit = GPU_shader_unit_create(vertex_file_name, GL_VERTEX_SHADER);
   shader->frag_unit = GPU_shader_unit_create(fragment_file_name, GL_FRAGMENT_SHADER);
@@ -87,8 +93,7 @@ void GPU_shader_gldelete(GPUShader *shader)
   GPU_shader_unit_glDelete(shader->vert_unit);
   GPU_shader_unit_glDelete(shader->frag_unit);
   glDeleteProgram(shader->glProgramObj);
-  shader->glProgramObj = 0;
-  shader->linked = 0;
+  shader_init(shader);
 }
 
 
@@ -140,7 +145,7 @@ static void build_attribute_list(GPUShader *shader)
   build_input_list(shader, GL_FALSE);
 }
 
-static void link_shader(GPUShader *shader)
+static void shader_link(GPUShader *shader)
 {
   glLinkProgram(shader->glProgramObj);
   glGetProgramInfoLog(shader->glProgramObj, sizeof msg, NULL, msg);
@@ -153,10 +158,10 @@ void GPU_shader_bind(GPUShader *shader)
 {
   if (active_shader != shader) {
     if (!shader->glProgramObj)
-      GPU_shader_init(shader);
+      shader_attach(shader);
       
     if (!shader->linked)
-      link_shader(shader);
+      shader_link(shader);
 
     /* Enable the shaders */
     glUseProgram(shader->glProgramObj);

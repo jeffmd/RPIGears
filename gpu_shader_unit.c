@@ -65,7 +65,7 @@ GPUShaderUnit *GPU_shader_unit_create(const char *file_name, const GLuint type)
   return shader;
 }
 
-static void GPU_shader_unit_init(GPUShaderUnit *shader)
+static void shader_unit_build(GPUShaderUnit *shader)
 {
   const GLchar *src = shaderBuf;
   
@@ -86,7 +86,7 @@ static void GPU_shader_unit_init(GPUShaderUnit *shader)
 GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
 {
   if (!shader->glShaderObj)
-    GPU_shader_unit_init(shader);
+    shader_unit_build(shader);
     
   return shader->glShaderObj;
 }

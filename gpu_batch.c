@@ -32,9 +32,8 @@ static inline GPUBatch *find_deleted_batch(void)
   return ARRAY_FIND_DELETED(next_deleted_batch, batches, BATCH_MAX_COUNT, "batch");
 }
 
-static void GPU_batch_init(GPUBatch *batch)
+static void batch_init(GPUBatch *batch)
 {
-  batch->active = 1;
   batch->vaoId = 0;
   batch->vbuff = 0;
   batch->ibuff = 0;
@@ -46,7 +45,8 @@ static void GPU_batch_init(GPUBatch *batch)
 GPUBatch *GPU_batch_create(void)
 {
   GPUBatch *batch = find_deleted_batch();
-  GPU_batch_init(batch);
+  batch->active = 1;
+  batch_init(batch);
 
   return batch;
 }
@@ -70,12 +70,10 @@ void GPU_batch_delete(GPUBatch *batch, const int delete_buffers)
       GPU_uniformbuffer_delete(batch->ubuff);
     }
   }
-  batch->vaoId = 0;
-  batch->vbuff = 0;
-  batch->ibuff = 0;
-  batch->ubuff = 0;
-
+  
+  batch_init(batch);
   batch->active = 0;
+
   if (batch < next_deleted_batch)
     next_deleted_batch = batch;
 }

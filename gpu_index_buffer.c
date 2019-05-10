@@ -29,9 +29,8 @@ static inline GPUIndexBuffer *find_deleted_index_buffer(void)
                             INDEX_BUFFER_MAX_COUNT, "Index Buffer");
 }
 
-void GPU_indexbuf_init(GPUIndexBuffer *ibuff)
+static void indexbuf_init(GPUIndexBuffer *ibuff)
 {
-  ibuff->active = 1;
   ibuff->max_count = 0;
   ibuff->data = 0;
   ibuff->index = 0;
@@ -45,7 +44,8 @@ void GPU_indexbuf_init(GPUIndexBuffer *ibuff)
 GPUIndexBuffer *GPU_indexbuf_create(void)
 {
   GPUIndexBuffer *ibuff = find_deleted_index_buffer();
-  GPU_indexbuf_init(ibuff);
+  ibuff->active = 1;
+  indexbuf_init(ibuff);
 
   return ibuff;
 }
@@ -54,16 +54,15 @@ void GPU_indexbuf_delete(GPUIndexBuffer *ibuff)
 {
   if (ibuff->data) {
     free(ibuff->data);
-    ibuff->data = 0;
   }
   
   if (ibuff->ibo_id) {
     glDeleteBuffers(1, &ibuff->ibo_id);
-    ibuff->ibo_id = 0;
   }
   
   ibuff->active = 0;
-  
+  indexbuf_init(ibuff);
+    
   if (ibuff < next_deleted_index_buffer)
     next_deleted_index_buffer = ibuff; 
 }

@@ -29,9 +29,8 @@ static inline GPUVertBuffer *find_deleted_vert_buffer(void)
                             VERT_BUFFER_MAX_COUNT, "vertex buffer");
 }
 
-void GPU_vertbuf_init(GPUVertBuffer *vbuff)
+static void vertbuf_init(GPUVertBuffer *vbuff)
 {
-  vbuff->active = 1;
   vbuff->max_count = 0;
   vbuff->data = 0;
   vbuff->vbo_id = 0;
@@ -45,7 +44,8 @@ void GPU_vertbuf_init(GPUVertBuffer *vbuff)
 GPUVertBuffer *GPU_vertbuf_create(void)
 {
   GPUVertBuffer *vbuff = find_deleted_vert_buffer();
-  GPU_vertbuf_init(vbuff);
+  vbuff->active = 1;
+  vertbuf_init(vbuff);
   printf("New vertbuf ID:%p\n", vbuff);
 
   return vbuff;
@@ -55,15 +55,14 @@ void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
 {
   if (vbuff->data) {
     free(vbuff->data);
-    vbuff->data = 0;
   }
 
   if (vbuff->vbo_id) {
     glDeleteBuffers(1, &vbuff->vbo_id);
-    vbuff->vbo_id = 0;
   }
 
   vbuff->active = 0;
+  vertbuf_init(vbuff);
 
   if (vbuff < next_deleted_vert_buffer)
     next_deleted_vert_buffer = vbuff;
