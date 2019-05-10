@@ -28,7 +28,7 @@ static GPUUniformBuffer *uniform_buffer;
 /**
  * Draws a gear in GLES 2 mode.
  *
- * @param gearid the gear to draw
+ * @param gear the gear to draw
  * @param x the x position to draw the gear at
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
