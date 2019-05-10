@@ -126,7 +126,7 @@ static void run_gears(void)
   // keep doing the loop while no exit keys hit and exit timer not finished
   while ( ! run_exit_task() )
   {
-	frameClear();
+	  frameClear();
     do_tasks();
     do_key_down_update();
     xwindow_check_events();
