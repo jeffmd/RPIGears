@@ -36,6 +36,7 @@ typedef struct {
 typedef struct {
   uint8_t active;
   uint8_t linked;
+  int modid;
   GPUShaderUnit *vert_unit;
   GPUShaderUnit *frag_unit;
   uint16_t glProgramObj;
@@ -62,6 +63,7 @@ static void shader_init(GPUShader *shader)
 {
   shader->linked = 0;
   shader->glProgramObj = 0;
+  shader->modid++;
 }
 
 static void shader_attach(GPUShader *shader)
@@ -72,6 +74,8 @@ static void shader_attach(GPUShader *shader)
   
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->vert_unit));
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->frag_unit));
+
+  shader->modid++;
 }
 
 GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name)
@@ -152,6 +156,8 @@ static void shader_link(GPUShader *shader)
   printf("Link info: %s\n", msg);
   build_uniform_list(shader);
   build_attribute_list(shader);
+
+  shader->modid++;
 }
 
 void GPU_shader_bind(GPUShader *shader)
@@ -172,6 +178,11 @@ void GPU_shader_bind(GPUShader *shader)
 GLuint GPU_shader_glprogram_obj(GPUShader* shader)
 {
   return shader->glProgramObj;
+}
+
+int GPU_shader_modid(GPUShader* shader)
+{
+  return shader->modid;
 }
 
 GPUShader *GPU_shader_get_active(void)
