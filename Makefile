@@ -35,7 +35,7 @@ gpu_vertex_buffer.o: gles3.h static_array.h gpu_vertex_format.h
 gpu_vertex_format.o: gles3.h fp16.h static_array.h gpu_shader.h
 gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
 gpu_texture.o: gles3.h static_array.h 
-scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h
+scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h
 
 
 $(BIN): $(OBJS)
