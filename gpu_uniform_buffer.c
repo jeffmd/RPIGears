@@ -150,7 +150,7 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
 
 void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
 {
-  GPUShader *shader = GPU_shader_get_active();
+  GPUShader *shader = GPU_shader_active_shader();
   
   if ((ubuff->shaders[ubuff->active_index].shader != shader)
     || (ubuff->shaders[ubuff->active_index].modid != GPU_shader_modid(shader))) {

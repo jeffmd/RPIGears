@@ -196,7 +196,7 @@ static void batch_update_bindings(GPUBatch *batch)
 
 static void batch_bind(GPUBatch *batch)
 {
-  GPUShader *shader = GPU_shader_get_active();
+  GPUShader *shader = GPU_shader_active_shader();
   
   if ((batch->shaders[batch->active_index].shader != shader)
     || (batch->shaders[batch->active_index].modid != GPU_shader_modid(shader))) {

@@ -17,7 +17,7 @@ void load_shader_programs(void)
   if (!blinn_phong_prg)
     blinn_phong_prg = GPU_shader_create(blinn_phong_vert, blinn_phong_frag);
     
-  GPU_shader_gldelete(blinn_phong_prg);
+  GPU_shader_reset(blinn_phong_prg);
   GPU_shader_bind(blinn_phong_prg);
 }
 

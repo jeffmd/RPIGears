@@ -91,9 +91,10 @@ GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_
   return shader;
 }
 
-void GPU_shader_gldelete(GPUShader *shader)
+void GPU_shader_reset(GPUShader *shader)
 {
-  glUseProgram(0);
+  if (active_shader == shader)
+    glUseProgram(0);
 
   GPU_shader_unit_glDelete(shader->vert_unit);
   GPU_shader_unit_glDelete(shader->frag_unit);
@@ -187,7 +188,7 @@ int GPU_shader_modid(GPUShader* shader)
   return shader->modid;
 }
 
-GPUShader *GPU_shader_get_active(void)
+GPUShader *GPU_shader_active_shader(void)
 {
   return active_shader;
 }

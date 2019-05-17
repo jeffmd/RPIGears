@@ -6,9 +6,9 @@
   typedef struct GPUShader GPUShader;
 
   GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name);
-  void GPU_shader_gldelete(GPUShader *shader);
+  void GPU_shader_reset(GPUShader *shader);
 
-	GPUShader *GPU_shader_get_active(void);
+	GPUShader *GPU_shader_active_shader(void);
 	GLuint GPU_shader_glprogram_obj(GPUShader *shader);
   int GPU_shader_modid(GPUShader* shader);
 	void GPU_shader_bind(GPUShader *shader);
