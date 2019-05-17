@@ -9,7 +9,6 @@
 
 #include "gles3.h"
 
-#include "fp16.h"
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
 #include "gpu_index_buffer.h"
@@ -79,7 +78,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   }
   
   GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(gear->batch);
-  GPU_uniformbuffer_add_uniform(ubuff, "MaterialColor", 1, GL_FLOAT_VEC4, gear->color);
+  GPU_uniformbuffer_add_uniform_4f(ubuff, "MaterialColor", gear->color);
   
   GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);

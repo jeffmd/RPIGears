@@ -11,5 +11,8 @@
     const GLint size, const GLenum type, void *data);
   void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff);
   void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff);
+  
+#define GPU_uniformbuffer_add_uniform_4f(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/4, GL_FLOAT_VEC4, &data)
+#define GPU_uniformbuffer_add_uniform_1i(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, 1, GL_INT, &data)
 
 #endif

@@ -72,6 +72,6 @@ void init_scene(void)
    m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
    uniform_buffer = GPU_uniformbuffer_create();
-   GPU_uniformbuffer_add_uniform(uniform_buffer, "UBO", sizeof(UBO_Data)/4, GL_FLOAT_VEC4, &UBO_Data);
-   GPU_uniformbuffer_add_uniform(uniform_buffer, "DiffuseMap", 1, GL_INT, &diffuseMap_Data);
+   GPU_uniformbuffer_add_uniform_4f(uniform_buffer, "UBO", UBO_Data);
+   GPU_uniformbuffer_add_uniform_1i(uniform_buffer, "DiffuseMap", diffuseMap_Data);
 }

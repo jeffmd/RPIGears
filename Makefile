@@ -19,7 +19,7 @@ all: $(BIN)
 RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
 	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h
 RPi_Logo256.o: image.h
-gear.o: gles3.h fp16.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_batch.h
+gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
 demo_state.o: demo_state.h gear.h matrix_math.h
 key_input.o: key_input.c window.h demo_state.h print_info.h camera.h
 matrix_math.o: matrix_math.c
