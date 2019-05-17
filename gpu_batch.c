@@ -12,8 +12,18 @@
 #include "gpu_uniform_buffer.h"
 
 typedef struct {
-  uint8_t active;
+  GPUShader *shader;        // the shader used for binding
+  int modid;
   GLuint vaoId;               // ID for vertex array object
+} ShaderVAO;
+
+#define SHADER_CACHE_MAX_COUNT 5
+
+typedef struct {
+  uint8_t active;
+  ShaderVAO shaders[SHADER_CACHE_MAX_COUNT];        // shader VAO cache
+  uint8_t next_index;         // next index to use for a new shader binding
+  uint8_t active_index;       // the index to the shader used for current binding
   GPUVertBuffer *vbuff;       // ID for vert buffer
   GPUIndexBuffer *ibuff;      // ID for index buffer
   GPUUniformBuffer *ubuff;    // ID for uniform buffer
@@ -32,13 +42,60 @@ static inline GPUBatch *find_deleted_batch(void)
   return ARRAY_FIND_DELETED(next_deleted_batch, batches, BATCH_MAX_COUNT, "batch");
 }
 
+static int batch_next_index(GPUBatch *batch)
+{
+  if (batch->next_index >= SHADER_CACHE_MAX_COUNT)
+    batch->next_index = 0;
+      
+  return batch->next_index++;
+}
+
+static int batch_needs_binding(GPUBatch *batch, GPUShader *shader)
+{
+  int index = 0;
+  int needs_binding = 1;
+  int modid = GPU_shader_modid(shader);
+  
+  for ( ; index < SHADER_CACHE_MAX_COUNT; index++) {
+    if (batch->shaders[index].shader == shader) {
+      if (batch->shaders[index].modid == modid)
+        needs_binding = 0; // no changes in shader
+      break;
+    }
+    
+    if (batch->shaders[index].shader == 0) {
+      break;
+    }
+  }
+  
+  if (index >= SHADER_CACHE_MAX_COUNT) {
+    index = batch_next_index(batch);
+  }
+  
+  batch->shaders[index].shader = shader;
+  batch->shaders[index].modid = modid;
+  batch->active_index = index;
+  
+  return needs_binding;
+}
+
+static void batch_unbind(GPUBatch *batch)
+{
+  batch->shaders[batch->active_index].shader = 0;
+}
+
 static void batch_init(GPUBatch *batch)
 {
-  batch->vaoId = 0;
   batch->vbuff = 0;
   batch->ibuff = 0;
   batch->ubuff = 0;
   batch->shader = 0;
+
+  batch->active_index = 0;
+  batch->next_index = 1;
+  
+  batch_unbind(batch);
+  
 }
 
 // create new batch
@@ -53,9 +110,6 @@ GPUBatch *GPU_batch_create(void)
 
 void GPU_batch_delete(GPUBatch *batch, const int delete_buffers)
 {
-  if (batch->vaoId) {
-    glDeleteVertexArrays(1, &batch->vaoId);
-  }
 
   if (delete_buffers) {
     if (batch->vbuff) {
@@ -127,22 +181,38 @@ GPUUniformBuffer *GPU_batch_uniform_buffer(GPUBatch *batch)
   return batch->ubuff;
 }
 
-static void batch_bind(GPUBatch *batch)
+static void batch_update_bindings(GPUBatch *batch)
 {
-  glGenVertexArrays(1, &batch->vaoId);
-  glBindVertexArray(batch->vaoId);
+  ShaderVAO *shadervao = &batch->shaders[batch->active_index];
+  if (!shadervao->vaoId)
+    glGenVertexArrays(1, &shadervao->vaoId);
+  glBindVertexArray(shadervao->vaoId);
 
   GPU_indexbuf_bind(batch->ibuff);
   GPU_vertbuf_bind(batch->vbuff);
+  
+  printf("batch update bindings\n");
 }
+
+static void batch_bind(GPUBatch *batch)
+{
+  GPUShader *shader = GPU_shader_get_active();
+  
+  if (batch->shaders[batch->active_index].shader != shader) {
+    if (batch_needs_binding(batch, shader)) {
+      batch_update_bindings(batch);
+    }
+  }
+  else
+    glBindVertexArray(batch->shaders[batch->active_index].vaoId);
+
+}
+
 
 void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances)
 {
 
-  if (!batch->vaoId)
-    batch_bind(batch);
-  else
-    glBindVertexArray(batch->vaoId);
+  batch_bind(batch);
 
   if (batch->ubuff)
     GPU_uniformbuffer_update(batch->ubuff);

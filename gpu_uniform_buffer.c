@@ -22,7 +22,7 @@ typedef struct {
   void *data;              // pointer to current location in data buffer for writing/reading
 } UniformAttribute;
 
-typedef struct ShaderUniformIndex{
+typedef struct {
   GPUShader *shader;        // the shader used for binding
   int modid;
   GLint locations[UNIFORM_MAX_COUNT];  // uniform bind location
