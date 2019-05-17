@@ -52,6 +52,7 @@ static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
 static uint16_t shader_inputs_count = 0;
 
 static GPUShader *active_shader = 0;
+static int active_shader_modid = 0;
 
 static inline GPUShader *find_deleted_shader(void)
 {
@@ -162,7 +163,7 @@ static void shader_link(GPUShader *shader)
 
 void GPU_shader_bind(GPUShader *shader)
 {
-  if (active_shader != shader) {
+  if ((active_shader != shader) || (shader->modid != active_shader_modid)) {
     if (!shader->glProgramObj)
       shader_attach(shader);
       
@@ -172,6 +173,7 @@ void GPU_shader_bind(GPUShader *shader)
     /* Enable the shaders */
     glUseProgram(shader->glProgramObj);
     active_shader = shader;
+    active_shader_modid = shader->modid;
   }
 }
 

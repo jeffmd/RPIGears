@@ -152,7 +152,8 @@ void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
 {
   GPUShader *shader = GPU_shader_get_active();
   
-  if (ubuff->shaders[ubuff->active_index].shader != shader) {
+  if ((ubuff->shaders[ubuff->active_index].shader != shader)
+    || (ubuff->shaders[ubuff->active_index].modid != GPU_shader_modid(shader))) {
     if (uniformbuffer_needs_binding(ubuff, shader)) {
       uniformbuffer_update_locations(ubuff);
     }
