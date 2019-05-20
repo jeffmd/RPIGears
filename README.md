@@ -90,6 +90,8 @@ Speed keys while demo is running
 -----------------------------
 i - print GL info to console
 
+h or any invalid key - print help info
+
 l - toggle draw mode GL_TRIAGLES/GL_LINES/GL_POINTS
 
 o - print command line options to console
@@ -129,3 +131,11 @@ right arrow - move light right
 home - move window to centre of screen
 
 end - move window off screen
+
+I - add another draw instance of the gears
+
+O - remove an instance of the gears
+
+R - reload shaders
+
+b - toggle use of vertex buffer objects for gear vertex data

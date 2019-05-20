@@ -91,8 +91,9 @@ void print_keyhelp(void)
 {
   printf(
    "\nspecial keys and what they do\n"
+   "h or any invalid key - print this info\n"
    "i - print GL info\n"
-   "l - toggle draw mode GL_TRIAGLES/GL_LINES\n"
+   "l - toggle draw mode GL_TRIAGLES/GL_LINES/GL_POINT\n"
    "o - print command line options\n"
    "p - turn gears spin off\n"
    "v - toggle vertical sync on/off\n"
@@ -100,6 +101,10 @@ void print_keyhelp(void)
    "Z - decrease window size (zoom out)\n"
    "< - decrease gear spin rate\n"
    "> - increase gear spin rate\n"
+   "b - toggle use of Buffer Objects for gear vertex data\n"
+   "I - add another draw instance of the gears\n"
+   "O - remove an instance of the gears\n"
+   "R - reload shaders\n"
    "a - move camera left\n"
    "d - move camera right\n"
    "w - move camera up\n"
@@ -112,6 +117,7 @@ void print_keyhelp(void)
    "right arrow - move light right\n"
    "home - move window to centre of screen\n"
    "end - move window off screen\n"
+   "esc or Enter - end program\n"
    );
 }
 

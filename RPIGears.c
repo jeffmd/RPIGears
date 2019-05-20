@@ -101,11 +101,14 @@ static void frameClear(void)
   glDepthMask(GL_TRUE);
   glStencilMask(0xFFFFFFFF);
 
-  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
-  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+}
+
+static void frameEnd(void)
+{
+  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
+  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
 }
 
 void toggle_useVSync(void)
@@ -134,6 +137,7 @@ static void run_gears(void)
     inc_move_rate();
     update_gear_rotation();
     draw_scene();
+    frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
   }

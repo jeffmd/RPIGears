@@ -29,16 +29,34 @@ static inline GPUIndexBuffer *find_deleted_index_buffer(void)
                             INDEX_BUFFER_MAX_COUNT, "Index Buffer");
 }
 
+static void delete_data(GPUIndexBuffer *ibuff)
+{
+  if (ibuff->data) {
+    free(ibuff->data);
+    ibuff->data = 0;
+  }
+}
+
+static void delete_ibo(GPUIndexBuffer *ibuff)
+{
+  if (ibuff->ibo_id) {
+    glDeleteBuffers(1, &ibuff->ibo_id);
+    ibuff->ibo_id = 0;
+  }
+}
+
 static void indexbuf_init(GPUIndexBuffer *ibuff)
 {
   ibuff->max_count = 0;
-  ibuff->data = 0;
   ibuff->index = 0;
-  ibuff->ibo_id = 0;
   ibuff->usage = GL_STATIC_DRAW;
   ibuff->ready = 0;
   
+  delete_ibo(ibuff);
+  delete_data(ibuff);
+  
 }
+
 
 // create new GPUIndexBuffer
 GPUIndexBuffer *GPU_indexbuf_create(void)
@@ -52,14 +70,6 @@ GPUIndexBuffer *GPU_indexbuf_create(void)
 
 void GPU_indexbuf_delete(GPUIndexBuffer *ibuff)
 {
-  if (ibuff->data) {
-    free(ibuff->data);
-  }
-  
-  if (ibuff->ibo_id) {
-    glDeleteBuffers(1, &ibuff->ibo_id);
-  }
-  
   ibuff->active = 0;
   indexbuf_init(ibuff);
     
@@ -92,11 +102,16 @@ void GPU_indexbuf_add_3(GPUIndexBuffer *ibuff, const GLshort val1, const GLshort
   }
 }
 
-void GPU_indexbuf_use_VBO(GPUIndexBuffer *ibuff)
+void GPU_indexbuf_use_BO(GPUIndexBuffer *ibuff)
 {
   if (!ibuff->ibo_id) {
     glGenBuffers(1, &ibuff->ibo_id);
   }
+}
+
+void GPU_indexbuf_no_BO(GPUIndexBuffer *ibuff)
+{
+  delete_ibo(ibuff);
 }
 
 // set VAO

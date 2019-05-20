@@ -29,15 +29,32 @@ static inline GPUVertBuffer *find_deleted_vert_buffer(void)
                             VERT_BUFFER_MAX_COUNT, "vertex buffer");
 }
 
+static void delete_data(GPUVertBuffer *vbuff)
+{
+  if (vbuff->data) {
+    free(vbuff->data);
+    vbuff->data = 0;
+  }
+}
+
+static void delete_vbo(GPUVertBuffer *vbuff)
+{
+  if (vbuff->vbo_id) {
+    glDeleteBuffers(1, &vbuff->vbo_id);
+    vbuff->vbo_id = 0;
+  }
+}
+
+
 static void vertbuf_init(GPUVertBuffer *vbuff)
 {
   vbuff->max_count = 0;
-  vbuff->data = 0;
-  vbuff->vbo_id = 0;
   vbuff->vformat = 0;
   vbuff->usage = GL_STATIC_DRAW;
   vbuff->ready = 0;
 
+  delete_vbo(vbuff);
+  delete_data(vbuff);
 }
 
 // create new GPUVertBuffer
@@ -46,21 +63,12 @@ GPUVertBuffer *GPU_vertbuf_create(void)
   GPUVertBuffer *vbuff = find_deleted_vert_buffer();
   vbuff->active = 1;
   vertbuf_init(vbuff);
-  printf("New vertbuf ID:%p\n", vbuff);
 
   return vbuff;
 }
 
 void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
 {
-  if (vbuff->data) {
-    free(vbuff->data);
-  }
-
-  if (vbuff->vbo_id) {
-    glDeleteBuffers(1, &vbuff->vbo_id);
-  }
-
   vbuff->active = 0;
   vertbuf_init(vbuff);
 
@@ -108,11 +116,16 @@ void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GL
   }
 }
 
-void GPU_vertbuf_use_VBO(GPUVertBuffer *vbuff)
+void GPU_vertbuf_use_BO(GPUVertBuffer *vbuff)
 {
   if (!vbuff->vbo_id) {
     glGenBuffers(1, &vbuff->vbo_id);
   }
+}
+
+void GPU_vertbuf_no_BO(GPUVertBuffer *vbuff)
+{
+  delete_vbo(vbuff);
 }
 
 void GPU_vertbuf_bind(GPUVertBuffer *vbuff)

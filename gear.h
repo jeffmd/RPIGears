@@ -8,10 +8,13 @@
   
   gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
                        const GLfloat width, const GLint teeth,
-                       const GLfloat tooth_depth, const GLfloat color[],
-                       const int useVBO);
+                       const GLfloat tooth_depth,
+                       const GLfloat color[]);
   
   void free_gear(gear_t *gear);
   void gear_draw(gear_t *gear, const GLenum drawMode, const GLuint instances);
+  void gear_use_BO(gear_t* gear);
+  void gear_no_BO(gear_t* gear);
+
 #endif  
   

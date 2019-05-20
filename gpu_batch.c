@@ -50,6 +50,14 @@ static int batch_next_index(GPUBatch *batch)
   return batch->next_index++;
 }
 
+static void batch_clear_shaders(GPUBatch *batch)
+{
+  for (int index = 0; index < SHADER_CACHE_MAX_COUNT; index++) {
+    // don't need to clear shader, just modid to force rebinding
+    batch->shaders[index].modid = 0;
+  }  
+}
+
 static int batch_needs_binding(GPUBatch *batch, GPUShader *shader)
 {
   int index = 0;
@@ -209,6 +217,19 @@ static void batch_bind(GPUBatch *batch)
 
 }
 
+void GPU_batch_use_BO(GPUBatch *batch)
+{
+  GPU_indexbuf_use_BO(batch->ibuff);
+  GPU_vertbuf_use_BO(batch->vbuff);
+  batch_clear_shaders(batch);
+}
+
+void GPU_batch_no_BO(GPUBatch *batch)
+{
+  GPU_indexbuf_no_BO(batch->ibuff);
+  GPU_vertbuf_no_BO(batch->vbuff);
+  batch_clear_shaders(batch);
+}
 
 void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances)
 {

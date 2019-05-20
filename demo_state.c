@@ -46,6 +46,27 @@ typedef struct
 static DEMO_STATE_T _state;
 static DEMO_STATE_T * const state = &_state;
 
+static void update_gear_VBO_use(void)
+{
+  if (state->use_VBO) {
+    gear_use_BO(state->gear1);
+    gear_use_BO(state->gear2);
+    gear_use_BO(state->gear3);
+    printf("using Buffer Objects for vertex/index data\n");
+  }
+  else {
+    gear_no_BO(state->gear1);
+    gear_no_BO(state->gear2);
+    gear_no_BO(state->gear3);
+    printf("Not using Buffer Objects for vertex/index data\n");
+  }
+}
+
+void state_toggle_VBO(void)
+{
+  state->use_VBO = state->use_VBO ? GL_FALSE : GL_TRUE;
+  update_gear_VBO_use();
+}
 
 GLuint state_timeToRun(void)
 {
@@ -192,11 +213,13 @@ void build_gears(const int useVBO)
   const GLfloat green[4] = {0.2, 0.8, 0.2, 1.0};
   const GLfloat blue[4] = {0.2, 0.2, 0.8, 1.0};
 
+  state->use_VBO = useVBO;
   /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 1.25, 20, 0.7, red, useVBO);
-  state->gear2 = gear(0.5, 2.0, 1.50, 10, 0.7, green, useVBO);
-  state->gear3 = gear(1.3, 2.0, 0.75, 10, 0.7, blue, useVBO);
+  state->gear1 = gear(1.0, 4.0, 1.25, 20, 0.7, red);
+  state->gear2 = gear(0.5, 2.0, 1.50, 10, 0.7, green);
+  state->gear3 = gear(1.3, 2.0, 0.75, 10, 0.7, blue);
 
+  update_gear_VBO_use();
 }
 
 void set_key_down_update(UPDATE_KEY_DOWN fn, float val)

@@ -16,5 +16,8 @@
   GPUVertBuffer *GPU_batch_vertex_buffer(GPUBatch *batch);
   GPUIndexBuffer *GPU_batch_index_buffer(GPUBatch *batch);
   GPUUniformBuffer *GPU_batch_uniform_buffer(GPUBatch *batch);
+  void GPU_batch_use_BO(GPUBatch *batch);
+  void GPU_batch_no_BO(GPUBatch *batch);
+
   
 #endif

@@ -133,13 +133,10 @@ int check_key(const int inpkey)
   {
     case 10:
     case 13:
+    case 27: // check escape sequence
       result = 0;
       break;
-      
-    case 27: // check escape sequence
-      result = 0; // user pressed esc key to exit program
-      break;
-      
+           
     case 'i': 
       print_GLInfo();
       break;
@@ -194,6 +191,10 @@ int check_key(const int inpkey)
 
     case 's':
       set_key_down_update(camera_change_y, 1.0f);
+      break;
+      
+    case 'b':
+      state_toggle_VBO();
       break;
       
     case 'S':

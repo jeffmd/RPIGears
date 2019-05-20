@@ -8,6 +8,7 @@
 // a procedure that takes a value representing the rate change to apply to an update
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
+void state_toggle_VBO(void);
 GLuint state_timeToRun(void);
 GPUTexture *state_tex(void);
 gear_t *state_gear1(void);

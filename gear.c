@@ -46,8 +46,8 @@ static GPUVertFormat *vformat = 0;
  **/
 gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
-                     const GLfloat tooth_depth, const GLfloat color[],
-                     const int useVBO)
+                     const GLfloat tooth_depth,
+                     const GLfloat color[])
 {
   GLint i, j;
   GLfloat r0, r1, r2;
@@ -218,13 +218,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
   }
-
-  // if VBO enabled then set them up for each gear
-  if (useVBO) {
-    GPU_indexbuf_use_VBO(ibuff);
-    GPU_vertbuf_use_VBO(vbuff);
-  }
-  
+ 
   return gear;
 }
 
@@ -244,4 +238,14 @@ void gear_draw(gear_t* gear, const GLenum drawMode, const GLuint instances)
 {
   
   GPU_batch_draw(gear->batch, drawMode, instances);
+}
+
+void gear_use_BO(gear_t* gear)
+{
+  GPU_batch_use_BO(gear->batch);
+}
+
+void gear_no_BO(gear_t* gear)
+{
+  GPU_batch_no_BO(gear->batch);
 }
