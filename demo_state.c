@@ -62,7 +62,7 @@ static void update_gear_VBO_use(void)
   }
 }
 
-void state_toggle_VBO(void)
+void demo_state_toggle_VBO(void)
 {
   state->use_VBO = state->use_VBO ? GL_FALSE : GL_TRUE;
   update_gear_VBO_use();
@@ -207,7 +207,7 @@ GLfloat *state_LightSourcePosition(void)
   return state->LightSourcePosition;
 }
 
-void build_gears(const int useVBO)
+void demo_state_build_gears(const int useVBO)
 {
   const GLfloat red[4] = {0.8, 0.2, 0.2, 1.0};
   const GLfloat green[4] = {0.2, 0.8, 0.2, 1.0};
@@ -220,6 +220,14 @@ void build_gears(const int useVBO)
   state->gear3 = gear(1.3, 2.0, 0.75, 10, 0.7, blue);
 
   update_gear_VBO_use();
+}
+
+void demo_state_delete(void)
+{
+  // release memory used for gear and associated vertex arrays
+  gear_delete(state->gear1);
+  gear_delete(state->gear2);
+  gear_delete(state->gear3);
 }
 
 void set_key_down_update(UPDATE_KEY_DOWN fn, float val)
@@ -235,7 +243,7 @@ void do_key_down_update(void)
   }
 }
 
-void init_demo_state(void)
+void demo_state_init(void)
 {
   memset( state, 0, sizeof( *state ) );
 

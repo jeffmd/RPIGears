@@ -136,7 +136,7 @@ static void run_gears(void)
     window_update();
     inc_move_rate();
     update_gear_rotation();
-    draw_scene();
+    scene_draw();
     frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
@@ -158,12 +158,7 @@ static void exit_func(void)
 
   // Release OpenGL resources
   window_release();
-
-  // release memory used for gear and associated vertex arrays
-  free_gear(state_gear1());
-  free_gear(state_gear2());
-  free_gear(state_gear3());
-
+  demo_state_delete();
   printf("\nRPIGears finished\n");
 
 } // exit_func()
@@ -183,7 +178,7 @@ int main (int argc, char *argv[])
 {
   bcm_host_init();
   gles3_init();
-  init_demo_state();
+  demo_state_init();
   init_options(argc, argv);
   // Start OGLES
   window_init();
@@ -195,10 +190,10 @@ int main (int argc, char *argv[])
    print_GLInfo();
   }
   init_textures();
-  build_gears(options_useVBO());
+  demo_state_build_gears(options_useVBO());
 
   camera_init();
-  init_scene();
+  scene_init();
 
   // animate the gears
   run_gears();

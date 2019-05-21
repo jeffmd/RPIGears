@@ -47,7 +47,7 @@ static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
 /**
  * Draws the gears in the scene.
  */
-void draw_scene(void)
+void scene_draw(void)
 {
   if (light_isDirty() || camera_isDirty()) {
      m4xv3(UBO_Data.LightSourcePosition, camera_view_matrix(), state_LightSourcePosition());
@@ -64,7 +64,7 @@ void draw_scene(void)
 }
 
 
-void init_scene(void)
+void scene_init(void)
 {
    // setup the scene based on rendering mode
    camera_init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());

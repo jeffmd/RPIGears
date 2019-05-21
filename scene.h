@@ -3,7 +3,7 @@
 #ifndef _SCENE_H_
   #define _SCENE_H_
 
-  void draw_scene(void);
-  void init_scene(void);
+  void scene_draw(void);
+  void scene_init(void);
 
 #endif

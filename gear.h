@@ -11,7 +11,7 @@
                        const GLfloat tooth_depth,
                        const GLfloat color[]);
   
-  void free_gear(gear_t *gear);
+  void gear_delete(gear_t *gear);
   void gear_draw(gear_t *gear, const GLenum drawMode, const GLuint instances);
   void gear_use_BO(gear_t* gear);
   void gear_no_BO(gear_t* gear);

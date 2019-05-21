@@ -194,7 +194,7 @@ int check_key(const int inpkey)
       break;
       
     case 'b':
-      state_toggle_VBO();
+      demo_state_toggle_VBO();
       break;
       
     case 'S':
