@@ -222,13 +222,6 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   return gear;
 }
 
-void gear_vbo_off(void)
-{
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-
 void free_gear(gear_t* gear)
 {
   GPU_batch_delete(gear->batch, 1);
