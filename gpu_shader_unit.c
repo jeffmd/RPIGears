@@ -57,7 +57,10 @@ static int load_shaderBuf_file(const char *name)
 
 void shader_unit_init(GPUShaderUnit *shader)
 {
-  shader->glShaderObj = 0;
+  if (shader->glShaderObj) {
+    glDeleteShader(shader->glShaderObj);
+    shader->glShaderObj = 0;
+  }
   shader->modid++;
 }
 
@@ -119,7 +122,6 @@ GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
 
 void GPU_shader_unit_reset(GPUShaderUnit *shader)
 {
-  glDeleteShader(shader->glShaderObj);
   shader_unit_init(shader);
 }
 

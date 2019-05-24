@@ -87,7 +87,7 @@ static void shader_attach(GPUShader *shader)
   shader->modid++;
 }
 
-GPUShader *find_shader(const char *vertex_file_name, const char *fragment_file_name)
+static GPUShader *find_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
   for (int idx = 0; idx < SHADER_MAX_COUNT; idx++) {
     GPUShader *shader = &shaders[idx];
@@ -168,13 +168,13 @@ static void build_input_list(GPUShader *shader, const GLboolean is_uniform)
   }
 }
 
-static void build_uniform_list(GPUShader *shader)
+static void build_uniforms(GPUShader *shader)
 {
   update_array_tracker(shader, GL_TRUE);
   build_input_list(shader, GL_TRUE);
 }
 
-static void build_attribute_list(GPUShader *shader)
+static void build_attributes(GPUShader *shader)
 {
   update_array_tracker(shader, GL_FALSE);
   build_input_list(shader, GL_FALSE);
@@ -185,8 +185,8 @@ static void shader_link(GPUShader *shader)
   glLinkProgram(shader->glProgramObj);
   glGetProgramInfoLog(shader->glProgramObj, sizeof msg, NULL, msg);
   printf("Link info: %s\n", msg);
-  build_uniform_list(shader);
-  build_attribute_list(shader);
+  build_uniforms(shader);
+  build_attributes(shader);
 
   shader->modid++;
 }
