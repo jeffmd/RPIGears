@@ -63,9 +63,15 @@ void shader_unit_init(GPUShaderUnit *shader)
 
 GPUShaderUnit *find_shader_unit(const char *file_name, const GLuint type)
 {
-  GPUShaderUnit *shader = 0;
   
-  return shader;
+  for (int idx = 0; idx < SHADER_UNIT_MAX_COUNT; idx++) {
+    if ((shader_units[idx].type == type) 
+        && (strcmp(shader_units[idx].fileName, file_name) == 0)) {
+      return &shader_units[idx];
+    }
+  }
+  
+  return 0;
 }
 
 GPUShaderUnit *GPU_shader_unit(const char *file_name, const GLuint type)

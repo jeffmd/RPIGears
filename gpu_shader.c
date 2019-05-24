@@ -89,9 +89,8 @@ static void shader_attach(GPUShader *shader)
 
 GPUShader *find_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
-  GPUShader *shader = 0;
   
-  return shader;
+  return 0;
 }
 
 GPUShader *GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
