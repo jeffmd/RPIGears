@@ -135,17 +135,21 @@ void GPU_uniformbuffer_delete(GPUUniformBuffer *ubuff)
 void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
   const GLint size, const GLenum type, void *data)
 {
-  UniformAttribute *uniform = &ubuff->uniforms[ubuff->uniform_count];
-  
-  uniform->type = type;
-  uniform->size = size;
-  uniform->name = name;
-  uniform->data = data;
-  
-  // force rebinding to active shader
-  uniformbuffer_unbind(ubuff);                             
-  ubuff->uniform_count++;
-
+  if (data) {
+    UniformAttribute *uniform = &ubuff->uniforms[ubuff->uniform_count];
+    
+    uniform->type = type;
+    uniform->size = size;
+    uniform->name = name;
+    uniform->data = data;
+    
+    // force rebinding to active shader
+    uniformbuffer_unbind(ubuff);                             
+    ubuff->uniform_count++;
+  }
+  else {
+    printf("ERROR: can't add %s uniform to uniform buffer, buffer pointer is NULL\n", name);
+  }
 }
 
 void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
