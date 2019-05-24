@@ -85,8 +85,8 @@ GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_
   
   shader_init(shader);
   
-  shader->vert_unit = GPU_shader_unit_create(vertex_file_name, GL_VERTEX_SHADER);
-  shader->frag_unit = GPU_shader_unit_create(fragment_file_name, GL_FRAGMENT_SHADER);
+  shader->vert_unit = GPU_shader_unit(vertex_file_name, GL_VERTEX_SHADER);
+  shader->frag_unit = GPU_shader_unit(fragment_file_name, GL_FRAGMENT_SHADER);
   
   return shader;
 }
@@ -96,8 +96,8 @@ void GPU_shader_reset(GPUShader *shader)
   if (active_shader == shader)
     glUseProgram(0);
 
-  GPU_shader_unit_glDelete(shader->vert_unit);
-  GPU_shader_unit_glDelete(shader->frag_unit);
+  GPU_shader_unit_reset(shader->vert_unit);
+  GPU_shader_unit_reset(shader->frag_unit);
   glDeleteProgram(shader->glProgramObj);
   shader_init(shader);
 }

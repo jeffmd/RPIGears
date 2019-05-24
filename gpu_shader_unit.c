@@ -19,6 +19,7 @@ typedef struct {
   const char *fileName; // if null then represents deleted object
   GLuint type;
   uint16_t glShaderObj;
+  int modid;
 } GPUShaderUnit;
 
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
@@ -54,13 +55,14 @@ static int load_shaderBuf_file(const char *name)
   return result;
 }
 
-GPUShaderUnit *GPU_shader_unit_create(const char *file_name, const GLuint type)
+GPUShaderUnit *GPU_shader_unit(const char *file_name, const GLuint type)
 {
   GPUShaderUnit *shader = find_deleted_shader_unit();
 
   shader->fileName = file_name;
   shader->type = type;
   shader->glShaderObj = 0;
+  shader->modid++;
   
   return shader;
 }
@@ -91,8 +93,14 @@ GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
   return shader->glShaderObj;
 }
 
-void GPU_shader_unit_glDelete(GPUShaderUnit *shader)
+void GPU_shader_unit_reset(GPUShaderUnit *shader)
 {
   glDeleteShader(shader->glShaderObj);
   shader->glShaderObj = 0;
 }
+
+int GPU_shader_unit_modid(GPUShaderUnit *shader)
+{
+  return shader->modid;
+}
+
