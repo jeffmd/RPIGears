@@ -112,31 +112,35 @@ GLuint GPU_vertex_format_attribute_count(GPUVertFormat *vformat)
 
 void GPU_vertex_format_add_4(GPUVertFormat *vformat, const GLuint attribute_id, GLvoid *attr_data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
-  VertAttribute *vattr = &vformat->vertex_attributes[attribute_id];
-  const GLuint size = vattr->size;
-  
-  if (vattr->type == GL_FLOAT) {
-    GLfloat *data = attr_data;
-    data[0] = val1;
+  if (attr_data) {
+    VertAttribute *vattr = &vformat->vertex_attributes[attribute_id];
+    const GLuint size = vattr->size;
     
-    if (size > 1)
-      data[1] = val2;
-    if (size > 2)
-      data[2] = val3;
-    if (size > 3)
-      data[3] = val4;
+    if (vattr->type == GL_FLOAT) {
+      GLfloat *data = attr_data;
+      data[0] = val1;
+      
+      if (size > 1)
+        data[1] = val2;
+      if (size > 2)
+        data[2] = val3;
+      if (size > 3)
+        data[3] = val4;
+    }
+    else if (vattr->type == GL_HALF_FLOAT_OES) {
+      GLshort *data = attr_data;
+      data[0] = f16(val1);
+      if (size > 1)
+        data[1] = f16(val2);
+      if (size > 2)
+        data[2] = f16(val3);
+      if (size > 3)
+        data[3] = f16(val4);
+    }
   }
-  else if (vattr->type == GL_HALF_FLOAT_OES) {
-    GLshort *data = attr_data;
-    data[0] = f16(val1);
-    if (size > 1)
-      data[1] = f16(val2);
-    if (size > 2)
-      data[2] = f16(val3);
-    if (size > 3)
-      data[3] = f16(val4);
+  else {
+    printf("ERROR: vertex format cannot add values to buffer, buffer pointer is NULL\n");
   }
-
 }
 
 
