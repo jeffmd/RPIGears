@@ -196,8 +196,11 @@ static void batch_update_bindings(GPUBatch *batch)
     glGenVertexArrays(1, &shadervao->vaoId);
   glBindVertexArray(shadervao->vaoId);
 
-  GPU_indexbuf_bind(batch->ibuff);
-  GPU_vertbuf_bind(batch->vbuff);
+  if (batch->ibuff)
+    GPU_indexbuf_bind(batch->ibuff);
+
+  if (batch->vbuff)
+    GPU_vertbuf_bind(batch->vbuff);
   
   printf("batch update bindings\n");
 }
@@ -219,15 +222,23 @@ static void batch_bind(GPUBatch *batch)
 
 void GPU_batch_use_BO(GPUBatch *batch)
 {
-  GPU_indexbuf_use_BO(batch->ibuff);
-  GPU_vertbuf_use_BO(batch->vbuff);
+  if (batch->ibuff)
+    GPU_indexbuf_use_BO(batch->ibuff);
+
+  if (batch->vbuff)
+    GPU_vertbuf_use_BO(batch->vbuff);
+
   batch_clear_shaders(batch);
 }
 
 void GPU_batch_no_BO(GPUBatch *batch)
 {
-  GPU_indexbuf_no_BO(batch->ibuff);
-  GPU_vertbuf_no_BO(batch->vbuff);
+  if (batch->ibuff)
+    GPU_indexbuf_no_BO(batch->ibuff);
+
+  if (batch->vbuff)
+    GPU_vertbuf_no_BO(batch->vbuff);
+
   batch_clear_shaders(batch);
 }
 
