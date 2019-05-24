@@ -55,15 +55,31 @@ static int load_shaderBuf_file(const char *name)
   return result;
 }
 
-GPUShaderUnit *GPU_shader_unit(const char *file_name, const GLuint type)
+void shader_unit_init(GPUShaderUnit *shader)
 {
-  GPUShaderUnit *shader = find_deleted_shader_unit();
-
-  shader->fileName = file_name;
-  shader->type = type;
   shader->glShaderObj = 0;
   shader->modid++;
+}
+
+GPUShaderUnit *find_shader_unit(const char *file_name, const GLuint type)
+{
+  GPUShaderUnit *shader = 0;
   
+  return shader;
+}
+
+GPUShaderUnit *GPU_shader_unit(const char *file_name, const GLuint type)
+{
+  GPUShaderUnit *shader = find_shader_unit(file_name, type);
+  
+  if (!shader) {
+    shader = find_deleted_shader_unit();
+
+    shader->fileName = file_name;
+    shader->type = type;
+    shader_unit_init(shader);
+  }  
+
   return shader;
 }
 
@@ -82,6 +98,8 @@ static void shader_unit_build(GPUShaderUnit *shader)
   const char * typeStr = (shader->type == GL_VERTEX_SHADER) ? "vertex" : "fragment";
   printf("%s shader object: %u\n", typeStr, shader->glShaderObj);
   printf("%s shader Compile info: %s\n", typeStr, msg);
+  
+  shader->modid++;
 
 }
 
@@ -96,7 +114,7 @@ GLuint GPU_shader_unit_globj(GPUShaderUnit *shader)
 void GPU_shader_unit_reset(GPUShaderUnit *shader)
 {
   glDeleteShader(shader->glShaderObj);
-  shader->glShaderObj = 0;
+  shader_unit_init(shader);
 }
 
 int GPU_shader_unit_modid(GPUShaderUnit *shader)

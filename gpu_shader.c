@@ -38,7 +38,9 @@ typedef struct {
   uint8_t linked;
   int modid;
   GPUShaderUnit *vert_unit;
+  int vert_modid;
   GPUShaderUnit *frag_unit;
+  int frag_modid;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
   ShaderInputArrayTracker attributes;
@@ -62,9 +64,13 @@ static inline GPUShader *find_deleted_shader(void)
 
 static void shader_init(GPUShader *shader)
 {
-  shader->linked = 0;
-  shader->glProgramObj = 0;
+  if (shader->glProgramObj) {
+    glDeleteProgram(shader->glProgramObj);
+    shader->glProgramObj = 0;
+  }
+
   shader->modid++;
+  shader->linked = 0;
 }
 
 static void shader_attach(GPUShader *shader)
@@ -74,20 +80,35 @@ static void shader_attach(GPUShader *shader)
   shader->linked = 0;
   
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->vert_unit));
+  shader->vert_modid = GPU_shader_unit_modid(shader->vert_unit);
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->frag_unit));
+    shader->frag_modid = GPU_shader_unit_modid(shader->frag_unit);
 
   shader->modid++;
 }
 
-GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name)
+GPUShader *find_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
-  GPUShader *shader = find_deleted_shader();
+  GPUShader *shader = 0;
   
-  shader_init(shader);
+  return shader;
+}
+
+GPUShader *GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
+{
+  GPUShader *shader = find_shader(vertex_file_name, fragment_file_name);
+
+  if (!shader) {
+    shader = find_deleted_shader();
   
-  shader->vert_unit = GPU_shader_unit(vertex_file_name, GL_VERTEX_SHADER);
-  shader->frag_unit = GPU_shader_unit(fragment_file_name, GL_FRAGMENT_SHADER);
-  
+    shader_init(shader);
+    
+    shader->vert_unit = GPU_shader_unit(vertex_file_name, GL_VERTEX_SHADER);
+    shader->vert_modid = GPU_shader_unit_modid(shader->vert_unit);
+    shader->frag_unit = GPU_shader_unit(fragment_file_name, GL_FRAGMENT_SHADER);
+    shader->frag_modid = GPU_shader_unit_modid(shader->frag_unit);
+  }
+    
   return shader;
 }
 
@@ -98,7 +119,6 @@ void GPU_shader_reset(GPUShader *shader)
 
   GPU_shader_unit_reset(shader->vert_unit);
   GPU_shader_unit_reset(shader->frag_unit);
-  glDeleteProgram(shader->glProgramObj);
   shader_init(shader);
 }
 
@@ -162,8 +182,19 @@ static void shader_link(GPUShader *shader)
   shader->modid++;
 }
 
+static void shader_check_unit_updates(GPUShader *shader)
+{
+  if ((shader->vert_modid != GPU_shader_unit_modid(shader->vert_unit))
+     || (shader->frag_modid != GPU_shader_unit_modid(shader->frag_unit)) ) {
+    shader_init(shader);     
+  }
+  
+}
+
 void GPU_shader_bind(GPUShader *shader)
 {
+  shader_check_unit_updates(shader);
+  
   if ((active_shader != shader) || (shader->modid != active_shader_modid)) {
     if (!shader->glProgramObj)
       shader_attach(shader);
@@ -176,11 +207,6 @@ void GPU_shader_bind(GPUShader *shader)
     active_shader = shader;
     active_shader_modid = shader->modid;
   }
-}
-
-GLuint GPU_shader_glprogram_obj(GPUShader* shader)
-{
-  return shader->glProgramObj;
 }
 
 int GPU_shader_modid(GPUShader* shader)

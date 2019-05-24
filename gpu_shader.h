@@ -5,11 +5,10 @@
 
   typedef struct GPUShader GPUShader;
 
-  GPUShader *GPU_shader_create(const char *vertex_file_name, const char *fragment_file_name);
+  GPUShader *GPU_shader(const char *vertex_file_name, const char *fragment_file_name);
   void GPU_shader_reset(GPUShader *shader);
 
 	GPUShader *GPU_shader_active_shader(void);
-	GLuint GPU_shader_glprogram_obj(GPUShader *shader);
   int GPU_shader_modid(GPUShader* shader);
 	void GPU_shader_bind(GPUShader *shader);
 	GLint GPU_shader_uniform_location(GPUShader *shader, const char *name);
