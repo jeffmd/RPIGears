@@ -84,27 +84,34 @@ void GPU_vertbuf_set_vertex_format(GPUVertBuffer *vbuff, GPUVertFormat *vformat)
 // begin data update ( vertex max count ) - no more attributes can be added
 void GPU_vertbuf_begin_update(GPUVertBuffer *vbuff, const GLuint max_count)
 {
-  const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat);
+  if (vbuff->vformat) {
+    const uint8_t stride = GPU_vertex_format_stride(vbuff->vformat);
 
-  if (stride > 0) {
-    // allocate heap storage for data
-    if (!vbuff->data)
-      vbuff->data = calloc(max_count, stride);
-    else if (max_count > vbuff->max_count) {
-      vbuff->data = realloc(vbuff->data, max_count * stride);
+    if (stride > 0) {
+      // allocate heap storage for data
+      if (!vbuff->data)
+        vbuff->data = calloc(max_count, stride);
+      else if (max_count > vbuff->max_count) {
+        vbuff->data = realloc(vbuff->data, max_count * stride);
+      }
+
+      vbuff->max_count = max_count;
+
+      const GLuint max_Idx = GPU_vertex_format_attribute_count(vbuff->vformat);
+      for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
+        vbuff->vertex_data[Idx] = vbuff->data + GPU_vertex_format_offset(vbuff->vformat, Idx);
+      }
+
+      // ready to receive data updates in buffer storage
+      vbuff->ready = 1;
     }
-
-    vbuff->max_count = max_count;
-
-    const GLuint max_Idx = GPU_vertex_format_attribute_count(vbuff->vformat);
-    for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
-      vbuff->vertex_data[Idx] = vbuff->data + GPU_vertex_format_offset(vbuff->vformat, Idx);
+    else {
+      printf("ERROR: vertex format has no attributes\n");
     }
-
-    // ready to receive data updates in buffer storage
-    vbuff->ready = 1;
   }
-
+  else {
+    printf("ERROR: vertex buffer not ready for updating, there is no vertex format attached\n");    
+  }
 }
 
 // add vertex attribute data ( attribute_id, float, float, float )
@@ -113,6 +120,9 @@ void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GL
   if (vbuff->ready) {
     GPU_vertex_format_add_4(vbuff->vformat, attribute_id, vbuff->vertex_data[attribute_id], val1, val2, val3, val4);
     vbuff->vertex_data[attribute_id] += GPU_vertex_format_stride(vbuff->vformat);
+  }
+  else {
+    printf("ERROR: vertex buffer not ready for adding data\n");    
   }
 }
 
@@ -139,5 +149,8 @@ void GPU_vertbuf_bind(GPUVertBuffer *vbuff)
     }
 
     GPU_vertex_format_bind(vbuff->vformat, data);
+  }
+  else {
+    printf("ERROR: vertex buffer not ready for binding\n");
   }
 }
