@@ -40,8 +40,8 @@ typedef struct {
   GPUShaderUnit *vert_unit;
   GPUShaderUnit *frag_unit;
   uint16_t glProgramObj;
-  ShaderInputArrayTracker uniform_array;
-  ShaderInputArrayTracker attribute_array;
+  ShaderInputArrayTracker uniforms;
+  ShaderInputArrayTracker attributes;
 } GPUShader;
 
 static GPUShader shaders[SHADER_MAX_COUNT];
@@ -105,7 +105,7 @@ void GPU_shader_reset(GPUShader *shader)
 
 static void update_array_tracker(GPUShader *shader, const GLboolean is_uniform)
 {
-  ShaderInputArrayTracker *tracker = is_uniform ? &shader->uniform_array : &shader->attribute_array;
+  ShaderInputArrayTracker *tracker = is_uniform ? &shader->uniforms : &shader->attributes;
   GLint old_count = tracker->count;
 
   GLint val;
@@ -123,7 +123,7 @@ static void update_array_tracker(GPUShader *shader, const GLboolean is_uniform)
 
 static void build_input_list(GPUShader *shader, const GLboolean is_uniform)
 {
-  ShaderInputArrayTracker *tracker = is_uniform ? &shader->uniform_array : &shader->attribute_array;
+  ShaderInputArrayTracker *tracker = is_uniform ? &shader->uniforms : &shader->attributes;
 
 
   const GLuint end = tracker->count;
@@ -213,21 +213,21 @@ static inline GLint get_shader_input_location(const ShaderInputArrayTracker* inp
 
 GLint GPU_shader_uniform_location(GPUShader *shader, const char *name)
 {
-  return get_shader_input_location(&shader->uniform_array, name);
+  return get_shader_input_location(&shader->uniforms, name);
 }
 
 GLint GPU_shader_attribute_location(GPUShader *shader, const char *name)
 {
-  return get_shader_input_location(&shader->attribute_array, name);
+  return get_shader_input_location(&shader->attributes, name);
 }
 
 GLint GPU_get_active_uniform_location(const char *name)
 {
-  return get_shader_input_location(&active_shader->uniform_array, name);
+  return get_shader_input_location(&active_shader->uniforms, name);
 }
 
 GLint GPU_get_active_attribute_location(const char *name)
 {
-  return get_shader_input_location(&active_shader->attribute_array, name);
+  return get_shader_input_location(&active_shader->attributes, name);
 }
 
