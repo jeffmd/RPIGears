@@ -89,6 +89,16 @@ static void shader_attach(GPUShader *shader)
 
 GPUShader *find_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
+  for (int idx = 0; idx < SHADER_MAX_COUNT; idx++) {
+    GPUShader *shader = &shaders[idx];
+    
+    if (shader->vert_unit && shader->frag_unit) { 
+        if ((strcmp(GPU_shader_unit_file_name(shader->vert_unit), vertex_file_name) == 0)
+             && (strcmp(GPU_shader_unit_file_name(shader->frag_unit), fragment_file_name) == 0) ) {
+          return shader;
+        }
+    }
+  }
   
   return 0;
 }

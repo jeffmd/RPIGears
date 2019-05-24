@@ -9,5 +9,6 @@
   GLuint GPU_shader_unit_globj(GPUShaderUnit *shader);
   void GPU_shader_unit_reset(GPUShaderUnit *shader);
   int GPU_shader_unit_modid(GPUShaderUnit *shader);
+  const char *GPU_shader_unit_file_name(GPUShaderUnit *shader);
 
 #endif

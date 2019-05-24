@@ -128,3 +128,9 @@ int GPU_shader_unit_modid(GPUShaderUnit *shader)
   return shader->modid;
 }
 
+const char *GPU_shader_unit_file_name(GPUShaderUnit *shader)
+{
+  return shader->fileName;
+}
+
+
