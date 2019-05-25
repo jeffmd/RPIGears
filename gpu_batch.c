@@ -215,8 +215,8 @@ static void batch_bind(GPUBatch *batch)
       batch_update_bindings(batch);
     }
   }
-  else
-    glBindVertexArray(batch->shaders[batch->active_index].vaoId);
+
+  glBindVertexArray(batch->shaders[batch->active_index].vaoId);
 
 }
 
