@@ -14,7 +14,7 @@ static GPUShader *blinn_phong_prg = 0;
 static GPUShader *active_gear_shader = 0;
 
 
-void load_shader_programs(void)
+void shaders_load_programs(void)
 {
   if (!blinn_phong_prg) {
     blinn_phong_prg = GPU_shader(blinn_phong_vert, blinn_phong_frag);

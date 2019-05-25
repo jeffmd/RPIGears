@@ -202,7 +202,7 @@ int check_key(const int inpkey)
       break;
       
     case 'R':
-      load_shader_programs();
+      shaders_load_programs();
       break;
       
     case 'p':
