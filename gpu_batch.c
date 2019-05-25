@@ -27,7 +27,6 @@ typedef struct {
   GPUVertBuffer *vbuff;       // ID for vert buffer
   GPUIndexBuffer *ibuff;      // ID for index buffer
   GPUUniformBuffer *ubuff;    // ID for uniform buffer
-  GPUShader *shader;          // shader program ID
   GLuint vertices_draw_count; // number of vertices to draw
   GLuint indices_draw_count;  // number of indices to draw
 } GPUBatch;
@@ -97,13 +96,11 @@ static void batch_init(GPUBatch *batch)
   batch->vbuff = 0;
   batch->ibuff = 0;
   batch->ubuff = 0;
-  batch->shader = 0;
 
   batch->active_index = 0;
   batch->next_index = 1;
   
   batch_unbind(batch);
-  
 }
 
 // create new batch
@@ -192,8 +189,10 @@ GPUUniformBuffer *GPU_batch_uniform_buffer(GPUBatch *batch)
 static void batch_update_bindings(GPUBatch *batch)
 {
   ShaderVAO *shadervao = &batch->shaders[batch->active_index];
+  
   if (!shadervao->vaoId)
     glGenVertexArrays(1, &shadervao->vaoId);
+    
   glBindVertexArray(shadervao->vaoId);
 
   if (batch->ibuff)
@@ -217,7 +216,6 @@ static void batch_bind(GPUBatch *batch)
   }
 
   glBindVertexArray(batch->shaders[batch->active_index].vaoId);
-
 }
 
 void GPU_batch_use_BO(GPUBatch *batch)
@@ -244,7 +242,6 @@ void GPU_batch_no_BO(GPUBatch *batch)
 
 void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instances)
 {
-
   batch_bind(batch);
 
   if (batch->ubuff)
