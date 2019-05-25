@@ -40,7 +40,6 @@ static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
    m4x4_translate(UBO_Data.model_view, x, y, 0);
    m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
 
-   GPU_uniformbuffer_update(uniform_buffer);
    gear_draw(gear, options_drawMode(), state_instances());
 }
 
@@ -57,6 +56,9 @@ void scene_draw(void)
   
   // Bind texture surface to current vertices
   GPU_texture_bind(state_tex(), 0);
+  shaders_bind_gear_shader();
+  // make uniform_buffer active so that it gets used for all active gears
+  GPU_uniformbuffer_activate(uniform_buffer);
   /* Draw the gears */
   draw_gear(state_gear1(), -3.0, -2.0, state_angle());
   draw_gear(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);

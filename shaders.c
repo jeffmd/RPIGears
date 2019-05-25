@@ -11,6 +11,8 @@ static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
 static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
 static GPUShader *blinn_phong_prg = 0;
 
+static GPUShader *active_gear_shader = 0;
+
 
 void load_shader_programs(void)
 {
@@ -19,6 +21,11 @@ void load_shader_programs(void)
   }
   
   GPU_shader_reset(blinn_phong_prg);
-  GPU_shader_bind(blinn_phong_prg);
+  active_gear_shader = blinn_phong_prg;
+}
+
+void shaders_bind_gear_shader(void)
+{
+  GPU_shader_bind(active_gear_shader);
 }
 

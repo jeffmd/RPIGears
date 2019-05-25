@@ -249,7 +249,9 @@ void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instanc
 
   if (batch->ubuff)
     GPU_uniformbuffer_update(batch->ubuff);
-
+  
+  GPU_uniformbuffer_update_active();
+  
   if (drawMode == GL_POINTS)
     if (instances > 1 )
       glDrawArraysInstanced(drawMode, 0, batch->vertices_draw_count, instances);

@@ -44,6 +44,7 @@ typedef struct {
 static GPUUniformBuffer uniform_buffers[UNIFORM_BUFFER_MAX_COUNT];
 static GPUUniformBuffer *next_deleted_uniform_buffer = 0;
 
+static GPUUniformBuffer *active_uniform_buffer = 0;
 
 static inline GPUUniformBuffer *find_deleted_uniform_buffer(void)
 {
@@ -210,3 +211,13 @@ void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff)
   }
 }
 
+void GPU_uniformbuffer_activate(GPUUniformBuffer *ubuff)
+{
+  active_uniform_buffer = ubuff;
+}
+
+void GPU_uniformbuffer_update_active(void)
+{
+  if (active_uniform_buffer)
+    GPU_uniformbuffer_update(active_uniform_buffer);
+}
