@@ -110,8 +110,6 @@ GLfloat *camera_view_matrix(void)
 
 void camera_init(void)
 {
-  //memset( camera, 0, sizeof( *camera ) );
-
   camera->z = -45.0f;
   camera->x = 2.0f;
   camera->y = 0.0f;
@@ -119,5 +117,4 @@ void camera_init(void)
   camera->view_roty = 25.0f;
   camera->view_rotz = 0.0f;
   camera->dirty = GL_TRUE;
-  
 }

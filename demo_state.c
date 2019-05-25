@@ -153,10 +153,10 @@ void dec_instances(void)
 
 void update_gear_rotation(void)
 {
-    /* advance gear rotation for next frame */
-    state->angle += state->angleFrame;
-    if (state->angle > 360.0)
-      state->angle -= 360.0;
+  /* advance gear rotation for next frame */
+  state->angle += state->angleFrame;
+  if (state->angle > 360.0)
+    state->angle -= 360.0;
 }
 
 void move_rate_on(void)
@@ -245,8 +245,6 @@ void do_key_down_update(void)
 
 void demo_state_init(void)
 {
-  memset( state, 0, sizeof( *state ) );
-
   state->rate = 1.0f;
   state->avgfps = 300.0f;
   state->period_rate = 1.0f / state->avgfps;
