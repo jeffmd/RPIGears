@@ -83,6 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xwindow.h"
 #include "print_info.h"
 #include "scene.h"
+#include "font.h"
 
 extern IMAGE_T rpi_image;
 
@@ -194,7 +195,7 @@ int main (int argc, char *argv[])
 
   camera_init();
   scene_init();
-
+  font_set_active(font_create("freefont/FreeSerif.ttf"));
   // animate the gears
   run_gears();
   
