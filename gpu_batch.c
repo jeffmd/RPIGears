@@ -249,15 +249,17 @@ void GPU_batch_draw(GPUBatch *batch, const GLenum drawMode, const GLuint instanc
   
   GPU_uniformbuffer_update_active();
   
-  if (drawMode == GL_POINTS)
+  if ((drawMode == GL_POINTS) || !batch->ibuff) {
     if (instances > 1 )
       glDrawArraysInstanced(drawMode, 0, batch->vertices_draw_count, instances);
     else
       glDrawArrays(drawMode, 0, batch->vertices_draw_count);
-  else
+  }
+  else {
     if (instances > 1)
       glDrawElementsInstanced(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuff), instances);
     else
       glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuff));
+  }
 }
 
