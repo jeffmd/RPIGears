@@ -86,8 +86,11 @@ GPUShaderUnit *GPU_shader_unit(const char *file_name, const GLuint type)
 
     shader->fileName = file_name;
     shader->type = type;
+
     shader_unit_init(shader);
   }  
+
+  shader->active = 1;
 
   return shader;
 }

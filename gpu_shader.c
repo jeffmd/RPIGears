@@ -117,6 +117,8 @@ GPUShader *GPU_shader(const char *vertex_file_name, const char *fragment_file_na
     shader->frag_unit = GPU_shader_unit(fragment_file_name, GL_FRAGMENT_SHADER);
     shader->frag_modid = GPU_shader_unit_modid(shader->frag_unit);
   }
+  
+  shader->active = 1;
     
   return shader;
 }

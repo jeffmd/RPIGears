@@ -117,6 +117,7 @@ static void uniformbuffer_update_locations(GPUUniformBuffer *ubuff)
 GPUUniformBuffer *GPU_uniformbuffer_create(void)
 {
   GPUUniformBuffer *ubuff = find_deleted_uniform_buffer();
+  
   ubuff->active = 1;
   uniformbuffer_init(ubuff);
 

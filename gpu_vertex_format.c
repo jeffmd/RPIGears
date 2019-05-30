@@ -35,7 +35,6 @@ static inline GPUVertFormat *find_deleted_vert_format(void)
 
 void GPU_vertex_format_init(GPUVertFormat *vformat)
 {
-  vformat->active = 1;
   vformat->attribute_count = 0;
   vformat->stride = 0;
 }
@@ -43,6 +42,8 @@ void GPU_vertex_format_init(GPUVertFormat *vformat)
 GPUVertFormat *GPU_vertex_format_create(void)
 {
   GPUVertFormat *vformat = find_deleted_vert_format();
+
+  vformat->active = 1;
   GPU_vertex_format_init(vformat);
   printf("New vertex format ID:%p\n", vformat);
 
