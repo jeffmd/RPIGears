@@ -152,9 +152,11 @@ void GPU_vertex_format_bind(GPUVertFormat *vformat, GLvoid *data)
   for (GLuint Idx = 0; Idx < max_Idx; Idx++) {
     VertAttribute *vattr = &vformat->vertex_attributes[Idx];
 
-    GLuint loc = GPU_get_active_attribute_location(vattr->name);
-    glEnableVertexAttribArray(loc);
-    glVertexAttribPointer(loc, vattr->size, vattr->type, GL_FALSE, vformat->stride, data + vattr->offset);
+    GLint loc = GPU_get_active_attribute_location(vattr->name);
+    if (loc >= 0) {
+      glEnableVertexAttribArray(loc);
+      glVertexAttribPointer(loc, vattr->size, vattr->type, GL_FALSE, vformat->stride, data + vattr->offset);
+    }
   }
 }
 
