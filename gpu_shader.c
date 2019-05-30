@@ -35,7 +35,7 @@ typedef struct {
 
 typedef struct {
   uint8_t active;
-  uint8_t linked;
+  GLint linked;
   int modid;
   GPUShaderUnit *vert_unit;
   int vert_modid;
@@ -187,9 +187,11 @@ static void shader_link(GPUShader *shader)
   glLinkProgram(shader->glProgramObj);
   glGetProgramInfoLog(shader->glProgramObj, sizeof msg, NULL, msg);
   printf("Link info: %s\n", msg);
-  build_uniforms(shader);
-  build_attributes(shader);
-
+  glGetProgramiv(shader->glProgramObj, GL_LINK_STATUS, &shader->linked);
+  if (shader->linked) {
+    build_uniforms(shader);
+    build_attributes(shader);
+  }
   shader->modid++;
 }
 
@@ -197,7 +199,7 @@ static void shader_check_unit_updates(GPUShader *shader)
 {
   if ((shader->vert_modid != GPU_shader_unit_modid(shader->vert_unit))
      || (shader->frag_modid != GPU_shader_unit_modid(shader->frag_unit)) ) {
-    shader_init(shader);     
+    shader_init(shader);   
   }
   
 }
