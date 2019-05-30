@@ -3,7 +3,7 @@ OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
-	gpu_vertex_format.o font.o
+	gpu_vertex_format.o font.o test_quad.o
 	
 BIN = RPIGears.bin
 	
@@ -17,11 +17,13 @@ CFLAGS+=$(INCLUDES)
 all: $(BIN)
 
 RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
-	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h font.h
+	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h font.h \
+	test_quad.h
 RPi_Logo256.o: image.h
 gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
 demo_state.o: demo_state.h gear.h matrix_math.h
-key_input.o: key_input.c window.h demo_state.h print_info.h camera.h
+key_input.o: gles3.h window.h gear.h gpu_texture.h demo_state.h print_info.h \
+  user_options.h camera.h shaders.h test_quad.h
 matrix_math.o: matrix_math.c
 tasks.o: demo_state.h key_input.h
 window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
@@ -37,6 +39,7 @@ gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
 gpu_texture.o: gles3.h static_array.h 
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h
 font.o: static_array.h
+test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h
 
 
 $(BIN): $(OBJS)

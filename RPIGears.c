@@ -84,6 +84,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "print_info.h"
 #include "scene.h"
 #include "font.h"
+#include "test_quad.h"
 
 extern IMAGE_T rpi_image;
 
@@ -138,6 +139,7 @@ static void run_gears(void)
     inc_move_rate();
     update_gear_rotation();
     scene_draw();
+    test_quad_draw();
     frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
@@ -160,6 +162,7 @@ static void exit_func(void)
   // Release OpenGL resources
   window_release();
   demo_state_delete();
+  test_quad_delete();
   printf("\nRPIGears finished\n");
 
 } // exit_func()
@@ -196,6 +199,7 @@ int main (int argc, char *argv[])
   camera_init();
   scene_init();
   font_set_active(font_create("freefont/FreeSerif.ttf"));
+  test_quad();
   // animate the gears
   run_gears();
   

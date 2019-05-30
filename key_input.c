@@ -15,6 +15,7 @@
 #include "user_options.h"
 #include "camera.h"
 #include "shaders.h"
+#include "test_quad.h"
 
 extern void toggle_useVSync(void);
 
@@ -215,7 +216,11 @@ int check_key(const int inpkey)
       
     case 'O':
       dec_instances();
-      break; 
+      break;
+      
+    case 'T':
+      test_quad_toggle();
+      break;
           
     default: print_keyhelp();
   }
