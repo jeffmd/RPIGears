@@ -51,6 +51,9 @@ void print_GL_Limits(void)
   }
   printf("\n");
 
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, num);
+  printf("MAX_TEXTURE_SIZE: %i\n", num[0]);
+
   glGetIntegerv(GL_NUM_SHADER_BINARY_FORMATS, num);
   printf("NUM_SHADER_BINARY_FORMATS: %i\n", num[0]);
 
