@@ -139,8 +139,8 @@ static void run_gears(void)
     window_update();
     inc_move_rate();
     update_gear_rotation();
-    test_quad_draw();
     scene_draw();
+    test_quad_draw();
     frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
@@ -199,8 +199,11 @@ int main (int argc, char *argv[])
 
   camera_init();
   scene_init();
+  //font_set_active(font_create("liberation2/LiberationMono-Regular.ttf"));
+  //font_set_active(font_create("dejavu/DejaVuSans.ttf"));
   font_set_active(font_create("noto/NotoMono-Regular.ttf"));
   test_quad();
+  test_quad_set_texture(font_active_texture());
   // animate the gears
   run_gears();
   
