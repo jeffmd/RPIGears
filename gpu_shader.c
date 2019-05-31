@@ -187,11 +187,9 @@ static void shader_link(GPUShader *shader)
   glLinkProgram(shader->glProgramObj);
   glGetProgramInfoLog(shader->glProgramObj, sizeof msg, NULL, msg);
   printf("Link info: %s\n", msg);
-  glGetProgramiv(shader->glProgramObj, GL_LINK_STATUS, &shader->linked);
-  if (shader->linked) {
-    build_uniforms(shader);
-    build_attributes(shader);
-  }
+  build_uniforms(shader);
+  build_attributes(shader);
+  shader->linked = 1;
   shader->modid++;
 }
 
