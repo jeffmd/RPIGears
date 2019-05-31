@@ -8,5 +8,5 @@
   void font_set_size(Font *font, int size);
   void font_set_active(Font *font);
   void font_active_bind(const int slot);
-
+  GPUTexture *font_active_texture(void);
 #endif

@@ -27,8 +27,8 @@ static Font *next_deleted_font = 0;
 
 static Font *active_font = 0;
 
-#define TEXTURE_GLYPH_SLOTS 7
-#define DEFAULT_GLYPH_HEIGHT 20
+#define TEXTURE_GLYPH_SLOTS 8
+#define DEFAULT_GLYPH_HEIGHT 30
 #define GLYPHSPC 2
 #define TEXTURE_SIZE TEXTURE_GLYPH_SLOTS * (font->size + GLYPHSPC)
 
@@ -64,7 +64,7 @@ static void transfer_glyphs(Font *font)
     //int roww = 0;
 		int rowh = 0;
     int ox = GLYPHSPC;
-		int oy = GLYPHSPC;
+		int oy = DEFAULT_GLYPH_HEIGHT + GLYPHSPC;
 
     for (int i = 32; i < 127; i++) {
       if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
@@ -81,7 +81,7 @@ static void transfer_glyphs(Font *font)
         ox = GLYPHSPC;
       }
 
-      GPU_texture_sub_image(font->texture, ox, oy, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
+      GPU_texture_sub_image(font->texture, ox, oy - glyph->bitmap_top, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
       
       //c[i].ax = glyph->advance.x >> 6;
       //c[i].ay = g->advance.y >> 6;
@@ -187,4 +187,12 @@ void font_active_bind(const int slot)
   if (active_font && (active_font->ready)) {
     GPU_texture_bind(active_font->texture, slot);
   }
+}
+
+GPUTexture *font_active_texture(void)
+{
+  if (active_font)
+    return active_font->texture;
+  else
+    return 0;
 }
