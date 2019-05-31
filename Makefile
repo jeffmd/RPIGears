@@ -38,7 +38,7 @@ gpu_vertex_format.o: gles3.h fp16.h static_array.h gpu_shader.h
 gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
 gpu_texture.o: gles3.h static_array.h 
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h
-font.o: static_array.h
+font.o: gles3.h gpu_texture.h static_array.h
 test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h
 
 
