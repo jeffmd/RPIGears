@@ -92,7 +92,8 @@ static void init_textures(void)
 {
    // load a texture buffer
    printf("creating Textures\n");
-   GPUTexture *tex = GPU_texture_create_2D(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
+   GPUTexture *tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
+   //GPU_texture_mipmap(tex);
    update_tex(tex);
 }
 
@@ -138,8 +139,8 @@ static void run_gears(void)
     window_update();
     inc_move_rate();
     update_gear_rotation();
-    scene_draw();
     test_quad_draw();
+    scene_draw();
     frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
@@ -198,7 +199,7 @@ int main (int argc, char *argv[])
 
   camera_init();
   scene_init();
-  font_set_active(font_create("freefont/FreeSerif.ttf"));
+  font_set_active(font_create("noto/NotoMono-Regular.ttf"));
   test_quad();
   // animate the gears
   run_gears();
