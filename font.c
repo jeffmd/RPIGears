@@ -27,13 +27,24 @@ static Font *next_deleted_font = 0;
 
 static Font *active_font = 0;
 
-#define DEFAULT_GLYPH_HEIGHT 12
+#define TEXTURE_GLYPH_SLOTS 7
+#define DEFAULT_GLYPH_HEIGHT 20
+#define GLYPHSPC 2
+#define TEXTURE_SIZE TEXTURE_GLYPH_SLOTS * (font->size + GLYPHSPC)
 
 static FT_Library ft_lib;
 static FT_Face face;
 
 static const char default_path[] = "/usr/share/fonts/truetype/";
 static char path[255];
+
+static void init_texture(Font * font)
+{
+  if (!font->texture) {
+    font->texture = GPU_texture_create(TEXTURE_SIZE,
+      TEXTURE_SIZE, GPU_R8, 0);
+  }
+}
 
 static void transfer_glyphs(Font *font)
 {
@@ -47,19 +58,30 @@ static void transfer_glyphs(Font *font)
   if (face) {
     FT_Set_Pixel_Sizes(face, 0, font->size);
     FT_GlyphSlot glyph = face->glyph;
-    for (int i = 32; i < 128; i++) {
+    
+    init_texture(font);
+    
+    //int roww = 0;
+		int rowh = 0;
+    int ox = GLYPHSPC;
+		int oy = GLYPHSPC;
+
+    for (int i = 32; i < 127; i++) {
       if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
         printf("Loading character %c failed!\n", i);
         continue;
       }
 
-      //if (ox + g->bitmap.width + 1 >= MAXWIDTH) {
-      //  oy += rowh;
-      //  rowh = 0;
-      //  ox = 0;
-      //}
+      if (glyph->bitmap.rows > rowh)
+        rowh = glyph->bitmap.rows;
 
-      //glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+      if ((ox + glyph->bitmap.width + GLYPHSPC) >= TEXTURE_SIZE) {
+        oy += rowh + GLYPHSPC;
+        rowh = 0;
+        ox = GLYPHSPC;
+      }
+
+      GPU_texture_sub_image(font->texture, ox, oy, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
       
       //c[i].ax = glyph->advance.x >> 6;
       //c[i].ay = g->advance.y >> 6;
@@ -71,12 +93,13 @@ static void transfer_glyphs(Font *font)
 
       //c[i].bl = g->bitmap_left;
       //c[i].bt = g->bitmap_top;
-    
+      ox += glyph->bitmap.width + GLYPHSPC;
     }
-
+    
     FT_Done_Face(face);
     face = 0;
     
+    //GPU_texture_mipmap(font->texture);	
     font->ready = 1;
   }
 }
@@ -156,5 +179,12 @@ void font_set_active(Font *font)
   
   if (font->ready) {
     active_font = font;
+  }
+}
+
+void font_active_bind(const int slot)
+{
+  if (active_font && (active_font->ready)) {
+    GPU_texture_bind(active_font->texture, slot);
   }
 }

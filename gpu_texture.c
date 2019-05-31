@@ -55,7 +55,8 @@ static GLuint gpu_texture_memory_footprint_compute(GPUTexture *tex)
   const GLuint bytes = (tex->format < GPU_STENCIL8) ? tex->format : tex->format - GPU_RGBA8;
   GLuint size = bytes * tex->width * tex->height;
   if (tex->target == GL_TEXTURE_CUBE_MAP) size *= 6;
-
+  printf("texture size: %u\n", size);
+  
   return size;
 }
 
@@ -116,7 +117,7 @@ static void init_texture(GPUTexture *tex, const void *pixels)
 
 }
 
-GPUTexture *GPU_texture_create_2D(const int w, const int h,
+GPUTexture *GPU_texture_create(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
   GPUTexture *tex = find_deleted_texture();
@@ -139,6 +140,19 @@ GPUTexture *GPU_texture_create_2D(const int w, const int h,
   return tex;
 }
 
+void GPU_texture_sub_image(GPUTexture *tex, const GLint xoffset,
+  const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels)
+{
+  if (tex->format < GPU_STENCIL8) {
+    const GLenum data_format = gpu_get_gl_dataformat(tex->format);
+    
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glBindTexture(GL_TEXTURE_2D, tex->bindcode);
+    glTexSubImage2D(tex->target, 0, xoffset, yoffset, width, height,
+                    data_format, GL_UNSIGNED_BYTE, pixels);
+  }
+}
+
 void GPU_texture_bind(GPUTexture *tex, const int slot)
 {
 
@@ -151,10 +165,15 @@ void GPU_texture_bind(GPUTexture *tex, const int slot)
 
   if (tex->bindcode != 0)
     glBindTexture(tex->target, tex->bindcode);
-  //else
-  //  GPU_invalid_tex_bind(tex->target_base);
-  //printf("bind texture: %i\n", tex->bindcode);
   tex->slot = slot;
+}
+
+void GPU_texture_mipmap(GPUTexture *tex)
+{
+  if (tex->format < GPU_STENCIL8) {
+    glBindTexture(GL_TEXTURE_2D, tex->bindcode);
+    glGenerateMipmap(GL_TEXTURE_2D);  
+  }
 }
 
 void GPU_texture_unbind(GPUTexture *tex)

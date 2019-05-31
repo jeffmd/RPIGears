@@ -335,11 +335,11 @@ static void window_setup_frameBufferRenderTexture(void)
 {
   check_gl_error("starting setup frameBufferRenderTexture");
   // Build the texture that will serve as the color attachment for the framebuffer.
-  GPUTexture *tex = GPU_texture_create_2D(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_RGB8, NULL);
+  GPUTexture *tex = GPU_texture_create(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_RGB8, NULL);
   check_gl_error("make color texture buffer");
 
   // Build the texture that will serve as the depth attachment for the framebuffer.
-  GPUTexture *depth_tex = GPU_texture_create_2D(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_DEPTH24, NULL);
+  GPUTexture *depth_tex = GPU_texture_create(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_DEPTH24, NULL);
   check_gl_error("make depth texture buffer");
   
   // Build the framebuffer.

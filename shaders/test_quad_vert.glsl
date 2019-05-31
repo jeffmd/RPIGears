@@ -1,5 +1,5 @@
 #version 100
-// Blinn_Phong_vert.glsl
+// test_quad_vert.glsl
 attribute vec4 position_uv;
 
 varying vec2 oUV;

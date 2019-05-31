@@ -17,7 +17,7 @@ typedef enum {
 
 typedef struct GPUTexture GPUTexture;
 
-GPUTexture *GPU_texture_create_2D(const int w, const int h,
+GPUTexture *GPU_texture_create(const int w, const int h,
         const GPUTextureFormat tex_format, const void *pixels);
 
 void GPU_texture_bind(GPUTexture *tex, const int slot);
@@ -31,6 +31,8 @@ int GPU_texture_height(GPUTexture *tex);
 GPUTextureFormat GPU_texture_format(GPUTexture *tex);
 GLboolean GPU_texture_cube(GPUTexture *tex);
 GLuint GPU_texture_opengl_bindcode(GPUTexture *tex);
-
+void GPU_texture_sub_image(GPUTexture *tex, const GLint xoffset,
+  const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels);
+void GPU_texture_mipmap(GPUTexture *tex);
 
 #endif // _GPU_TEXTURE_H_
