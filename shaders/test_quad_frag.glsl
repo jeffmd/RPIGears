@@ -8,6 +8,6 @@ varying vec2 oUV;
 void main(void)
 {
     gl_FragColor = texture2D(DiffuseMap, oUV).rgbr;
-    if (gl_FragColor.a == 0.0)
+    if (gl_FragColor.a < 0.5)
       discard;
 }
