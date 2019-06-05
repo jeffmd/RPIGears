@@ -10,11 +10,25 @@
 #include "gpu_texture.h"
 #include "static_array.h"
 
+#define CHAR_START 32
+#define CHAR_END 127
+#define CHAR_SET CHAR_END - CHAR_START
+
+typedef struct Glyph {
+  float u;
+  float v;
+  float advance;
+  float width;
+  float height;
+  
+} Glyph;
 
 typedef struct Font {
   uint8_t active;
   uint8_t size;
   uint8_t ready;
+  
+  Glyph glyphs[CHAR_SET];
   GPUTexture *texture;
   const char *filename;
   
@@ -65,8 +79,10 @@ static void transfer_glyphs(Font *font)
 		int rowh = 0;
     int ox = GLYPHSPC;
 		int oy = DEFAULT_GLYPH_HEIGHT + GLYPHSPC;
+    const float tex_width = GPU_texture_width(font->texture);
+    const float tex_height = GPU_texture_height(font->texture);
 
-    for (int i = 32; i < 127; i++) {
+    for (int i = CHAR_START; i < CHAR_END; i++) {
       if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
         printf("Loading character %c failed!\n", i);
         continue;
@@ -83,23 +99,24 @@ static void transfer_glyphs(Font *font)
 
       GPU_texture_sub_image(font->texture, ox, oy - glyph->bitmap_top, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
       
-      //c[i].ax = glyph->advance.x >> 6;
-      //c[i].ay = g->advance.y >> 6;
-
-      //c[i].bw = g->bitmap.width;
+      Glyph *glyphc = &font->glyphs[i - CHAR_START];
+      
+      glyphc->advance = glyph->advance.x >> 6;
+      glyphc->height = glyph->bitmap.rows;
+      glyphc->width = glyph->bitmap.width;
+      glyphc->u = (float)ox / tex_width;
+      glyphc->v = (float)(oy - glyph->bitmap_top) / tex_height;
+      
       printf("glyph: %c, width: %i height: %i left: %i. top: %i\n", i,
              glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap_left, glyph->bitmap_top);
-      //c[i].bh = g->bitmap.rows;
 
-      //c[i].bl = g->bitmap_left;
-      //c[i].bt = g->bitmap_top;
       ox += glyph->bitmap.width + GLYPHSPC;
     }
     
     FT_Done_Face(face);
     face = 0;
     
-    //GPU_texture_mipmap(font->texture);	
+    GPU_texture_mipmap(font->texture);	
     font->ready = 1;
   }
 }
