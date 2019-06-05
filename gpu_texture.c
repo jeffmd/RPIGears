@@ -172,6 +172,7 @@ void GPU_texture_mipmap(GPUTexture *tex)
 {
   if (tex->format < GPU_STENCIL8) {
     glBindTexture(GL_TEXTURE_2D, tex->bindcode);
+    glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
     glGenerateMipmap(GL_TEXTURE_2D);  
   }
 }
