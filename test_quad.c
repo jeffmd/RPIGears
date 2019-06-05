@@ -40,15 +40,10 @@ void test_quad(void)
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
   GPU_vertbuf_begin_update(vbuff, 6);
   
-#define VERTEX(x,y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, (x + 1)*0.5, (-y + 1)*0.5))
-
-  VERTEX(1, -1);
-  VERTEX(-1, 1);
-  VERTEX(-1, -1);
-
-  VERTEX(1, -1);
-  VERTEX(1, 1);
-  VERTEX(-1, 1);
+#define VERTEX(x, y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, ((x) + 1)*0.5, (-(y) + 1)*0.5))
+#define QUAD(x, y, dx, dy) VERTEX(x+dx, y); VERTEX(x, y+dy); VERTEX(x, y);  VERTEX(x+dx, y); VERTEX(x+dx, y+dy); VERTEX(x, y+dy);
+  
+  QUAD(-1, -1, 2, 2)
   
 }
 
