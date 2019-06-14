@@ -45,7 +45,6 @@ GPUVertFormat *GPU_vertex_format_create(void)
 
   vformat->active = 1;
   GPU_vertex_format_init(vformat);
-  printf("New vertex format ID:%p\n", vformat);
 
 	return vformat;
 }

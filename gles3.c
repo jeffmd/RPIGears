@@ -481,7 +481,7 @@ static void update_instanced_attributes(const GLuint instanceID)
 void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primCount)
 {
   setup_instanced_attributes();
-  
+
   for (GLuint instanceID = 0; instanceID < primCount; instanceID++) {
     update_instanced_attributes(instanceID);
     glDrawArrays(mode, first, count);
