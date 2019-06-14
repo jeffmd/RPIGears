@@ -121,14 +121,6 @@ void m4x4_identity(GLfloat *m)
  */
 void m4x4_transpose(GLfloat *m)
 {
-/*   const GLfloat t[16] = {
-      m[0], m[4], m[8],  m[12],
-      m[1], m[5], m[9],  m[13],
-      m[2], m[6], m[10], m[14],
-      m[3], m[7], m[11], m[15]};
-
-   m4x4_copy(m, t);
-*/
 #define SWAP(i, j) t = m[i]; m[i] = m[j]; m[j] = t
   GLfloat t;
   
@@ -162,7 +154,6 @@ void m4x4_invert(GLfloat *m)
    m[12] = m[13] = m[14] = 0;
    m4x4_transpose(m);
 
-   // inv(m) = inv(r) * inv(t)
    m4x4_multiply(m, t);
 }
 
@@ -184,7 +175,6 @@ void m4xv3(float r[3], const float mat[16], const float vec[3])
  */
 void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, const GLfloat zNear, const GLfloat zFar)
 {
-   //GLfloat tmp[16];
    m4x4_identity(m);
 
    float sine, cosine, cotangent, deltaZ;
@@ -205,6 +195,4 @@ void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, cons
    m[11] = -1.0;
    m[14] = -2.0 * zNear * zFar / deltaZ;
    m[15] = 0;
-
-   //m4x4_copy(m, tmp);
 }
