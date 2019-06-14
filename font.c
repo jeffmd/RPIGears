@@ -12,14 +12,16 @@
 
 #define CHAR_START 32
 #define CHAR_END 127
-#define CHAR_SET CHAR_END - CHAR_START
+#define CHAR_SET CHAR_END - CHAR_START 
 
 typedef struct Glyph {
-  float u;
-  float v;
-  float advance;
-  float width;
-  float height;
+  float u1;
+  float v1;
+  float u2;
+  float v2;
+  int advance;
+  int width;
+  int height;
   
 } Glyph;
 
@@ -104,13 +106,15 @@ static void transfer_glyphs(Font *font)
       glyphc->advance = glyph->advance.x >> 6;
       glyphc->height = glyph->bitmap.rows;
       glyphc->width = glyph->bitmap.width;
-      glyphc->u = (float)ox / tex_width;
-      glyphc->v = (float)(oy - glyph->bitmap_top) / tex_height;
+      glyphc->u1 = (float)ox / tex_width;
+      glyphc->v1 = (float)(oy - glyph->bitmap_top + glyphc->height) / tex_height;
+      glyphc->u2 = (float)(ox + glyphc->width) / tex_width;
+      glyphc->v2 = (float)(oy - glyph->bitmap_top) / tex_height;
       
-      printf("glyph: %c, width: %i height: %i left: %i. top: %i\n", i,
-             glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap_left, glyph->bitmap_top);
+      printf("glyph: %c, width: %i height: %i left: %i. top: %i, advance: %i\n", i,
+             glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap_left, glyph->bitmap_top, glyphc->advance);
 
-      ox += glyph->bitmap.width + GLYPHSPC;
+      ox += glyphc->width + GLYPHSPC;
     }
     
     FT_Done_Face(face);
@@ -199,6 +203,11 @@ void font_set_active(Font *font)
   }
 }
 
+Font *font_active(void)
+{
+  return active_font;
+}
+
 void font_active_bind(const int slot)
 {
   if (active_font && (active_font->ready)) {
@@ -206,10 +215,54 @@ void font_active_bind(const int slot)
   }
 }
 
-GPUTexture *font_active_texture(void)
+GPUTexture *font_texture(Font *font)
 {
-  if (active_font)
-    return active_font->texture;
+  if (font)
+    return font->texture;
   else
     return 0;
 }
+
+Glyph *font_glyph(Font *font, const char ch)
+{
+  if (font)
+    return &font->glyphs[ch - CHAR_START];
+  else
+    return 0;
+}
+
+float glyph_u1(Glyph *glyph)
+{
+  return glyph->u1;
+}
+
+float glyph_v1(Glyph *glyph)
+{
+  return glyph->v1;
+}
+
+float glyph_u2(Glyph *glyph)
+{
+  return glyph->u2;
+}
+
+float glyph_v2(Glyph *glyph)
+{
+  return glyph->v2;
+}
+
+int glyph_advance(Glyph *glyph)
+{
+  return glyph->advance;
+}
+
+int glyph_width(Glyph *glyph)
+{
+  return glyph->width;
+}
+
+int glyph_height(Glyph *glyph)
+{
+  return glyph->height;
+}
+

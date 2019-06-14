@@ -13,13 +13,13 @@
 
 enum {
   ATTR_POSITION,
-  ATTR_UV,
 };
 
 typedef struct {
   GPUTexture *texture;
   GPUBatch *batch;
-  uint8_t toggle; 
+  uint8_t toggle;
+  float scale;
 } TQuad;
 
 static TQuad quad;
@@ -27,9 +27,13 @@ static GPUVertFormat *vformat = 0;
 
 void test_quad(void)
 {
-  if (!quad.batch)
+  if (!quad.batch) {
     quad.batch = GPU_batch_create();
-  
+    GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(quad.batch);
+    GPU_uniformbuffer_add_uniform_1f(ubuff, "scale", quad.scale);
+    quad.scale = 0.13f;
+    
+  }
   if (!vformat) {
     vformat = GPU_vertex_format_create();
     GPU_vertex_format_add_attribute(vformat, "position_uv", 4, GL_HALF_FLOAT_OES);

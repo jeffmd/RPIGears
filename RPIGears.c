@@ -85,8 +85,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scene.h"
 #include "font.h"
 #include "test_quad.h"
+#include "text.h"
 
 extern IMAGE_T rpi_image;
+
+const char test_text[] = "This is a test: 012345";
+static Text *text;
 
 static void init_textures(void)
 {
@@ -141,6 +145,7 @@ static void run_gears(void)
     update_gear_rotation();
     scene_draw();
     test_quad_draw();
+    text_draw(text);
     frameEnd();
     window_swap_buffers();
     xwindow_frame_update();
@@ -203,7 +208,12 @@ int main (int argc, char *argv[])
   //font_set_active(font_create("dejavu/DejaVuSans.ttf"));
   font_set_active(font_create("noto/NotoMono-Regular.ttf"));
   test_quad();
-  test_quad_set_texture(font_active_texture());
+  test_quad_set_texture(font_texture(font_active()));
+  
+  text = text_create();
+  text_add(text, -500, 400, test_text);
+  //text_set_scale(text, 0.00105f);
+  
   // animate the gears
   run_gears();
   

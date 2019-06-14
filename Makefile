@@ -3,7 +3,7 @@ OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
-	gpu_vertex_format.o font.o test_quad.o
+	gpu_vertex_format.o font.o test_quad.o text.o
 	
 BIN = RPIGears.bin
 	
@@ -40,7 +40,7 @@ gpu_texture.o: gles3.h static_array.h
 scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h
 font.o: gles3.h gpu_texture.h static_array.h
 test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h
-
+text.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h static_array.h font.h
 
 $(BIN): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS) 
