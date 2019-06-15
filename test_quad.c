@@ -10,6 +10,7 @@
 #include "gpu_uniform_buffer.h"
 #include "gpu_batch.h"
 #include "shaders.h"
+#include "camera.h"
 
 enum {
   ATTR_POSITION,
@@ -31,7 +32,8 @@ void test_quad(void)
     quad.batch = GPU_batch_create();
     GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(quad.batch);
     GPU_uniformbuffer_add_uniform_1f(ubuff, "scale", quad.scale);
-    quad.scale = 0.13f;
+    GPU_uniformbuffer_add_uniform(ubuff, "ProjMat", 1, GL_FLOAT_MAT4, camera_ProjectionMatrixPtr());
+    quad.scale = 0.05f;
     
   }
   if (!vformat) {

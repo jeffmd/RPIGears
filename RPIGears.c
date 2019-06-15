@@ -211,7 +211,7 @@ int main (int argc, char *argv[])
   test_quad_set_texture(font_texture(font_active()));
   
   text = text_create();
-  text_add(text, -500, 400, test_text);
+  text_add(text, 0, 0, test_text);
   //text_set_scale(text, 0.00105f);
   
   // animate the gears

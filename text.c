@@ -13,6 +13,7 @@
 #include "shaders.h"
 #include "static_array.h"
 #include "font.h"
+#include "camera.h"
 
 typedef struct {
 
@@ -50,7 +51,8 @@ void text_init(Text *text)
     text->batch = GPU_batch_create();
     GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(text->batch);
     GPU_uniformbuffer_add_uniform_1f(ubuff, "scale", text->scale);
-    text->scale = 0.001f;
+    GPU_uniformbuffer_add_uniform(ubuff, "ProjMat", 1, GL_FLOAT_MAT4, camera_ProjectionMatrixPtr());
+    text->scale = 0.00035f;
   }
   
   if (!vformat) {
