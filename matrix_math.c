@@ -194,5 +194,4 @@ void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, cons
    m[10] = -(zFar + zNear) / deltaZ;
    m[11] = -1.0;
    m[14] = -2.0 * zNear * zFar / deltaZ;
-   m[15] = 0;
 }
