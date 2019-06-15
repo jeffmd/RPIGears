@@ -20,7 +20,7 @@ typedef struct {
   GPUTexture *texture;
   GPUBatch *batch;
   uint8_t toggle;
-  float scale;
+  GLfloat ProjMatrix[4];
 } TQuad;
 
 static TQuad quad;
@@ -31,9 +31,11 @@ void test_quad(void)
   if (!quad.batch) {
     quad.batch = GPU_batch_create();
     GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(quad.batch);
-    GPU_uniformbuffer_add_uniform_1f(ubuff, "scale", quad.scale);
-    GPU_uniformbuffer_add_uniform(ubuff, "ProjMat", 1, GL_FLOAT_MAT4, camera_ProjectionMatrixPtr());
-    quad.scale = 0.05f;
+    GPU_uniformbuffer_add_uniform_4f(ubuff, "ProjMat", quad.ProjMatrix);
+    quad.ProjMatrix[0] = 0.12f;
+    quad.ProjMatrix[1] = 0.12f;
+    quad.ProjMatrix[2] = 0.0f;
+    quad.ProjMatrix[3] = 0.0f;
     
   }
   if (!vformat) {

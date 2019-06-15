@@ -3,15 +3,14 @@
 
 attribute vec4 position_uv;
 
-uniform float scale;
-uniform mat4 ProjMat;
+uniform vec4 ProjMat;
 
 varying vec2 oUV;
 
 
 void main(void)
 {
-    gl_Position = ProjMat * vec4(position_uv.xy * scale, 0.1, 1.0);
+    gl_Position = vec4(position_uv.xy * ProjMat.xy + ProjMat.zw, 0.1, 1.0);
     oUV = position_uv.zw;
 }
  

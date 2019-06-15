@@ -13,7 +13,6 @@
 #include "shaders.h"
 #include "static_array.h"
 #include "font.h"
-#include "camera.h"
 
 typedef struct {
 
@@ -22,8 +21,7 @@ typedef struct {
   Font *font;
   const char *str;
   uint8_t ready;
-  float scale;
-  
+  GLfloat ProjMatrix[4];
 } Text;
 
 enum {
@@ -39,6 +37,7 @@ static Text *next_deleted_text = 0;
 
 static GPUVertFormat *vformat = 0;
 
+
 static inline Text *find_deleted_text(void)
 {
   return ARRAY_FIND_DELETED(next_deleted_text, texts,
@@ -50,9 +49,11 @@ void text_init(Text *text)
   if (!text->batch) {
     text->batch = GPU_batch_create();
     GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(text->batch);
-    GPU_uniformbuffer_add_uniform_1f(ubuff, "scale", text->scale);
-    GPU_uniformbuffer_add_uniform(ubuff, "ProjMat", 1, GL_FLOAT_MAT4, camera_ProjectionMatrixPtr());
-    text->scale = 0.00035f;
+    GPU_uniformbuffer_add_uniform_4f(ubuff, "ProjMat", text->ProjMatrix);
+    text->ProjMatrix[0] = 1.0/1280;
+    text->ProjMatrix[1] = 1.0/1024;
+    text->ProjMatrix[2] = -0.49f;
+    text->ProjMatrix[3] = -0.49f;
   }
   
   if (!vformat) {
@@ -150,11 +151,6 @@ void text_add(Text *text, int x, int y, const char *str)
       GPU_batch_set_vertices_draw_count(text->batch, count * QUAD_SZE);
     }
   }
-}
-
-void text_set_scale(Text *text, float scale)
-{
-  text->scale = scale;
 }
 
 void text_draw(Text *text)

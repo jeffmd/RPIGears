@@ -89,7 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern IMAGE_T rpi_image;
 
-const char test_text[] = "This is a test: 012345";
+const char test_text[] = "RPIGears ver: 1.0 GLES2.0";
 static Text *text;
 
 static void init_textures(void)
@@ -212,7 +212,6 @@ int main (int argc, char *argv[])
   
   text = text_create();
   text_add(text, 0, 0, test_text);
-  //text_set_scale(text, 0.00105f);
   
   // animate the gears
   run_gears();
