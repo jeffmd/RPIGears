@@ -144,7 +144,7 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
     uniform->size = size;
     uniform->name = name;
     uniform->data = data;
-    
+    printf("user add uniform name: %s, size: %i\n", name, size);
     // force rebinding to active shader
     uniformbuffer_unbind(ubuff);                             
     ubuff->uniform_count++;

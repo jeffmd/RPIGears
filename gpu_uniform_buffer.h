@@ -14,8 +14,9 @@
   void GPU_uniformbuffer_update_active(void);
   void GPU_uniformbuffer_activate(GPUUniformBuffer *ubuff);
 
-#define GPU_uniformbuffer_add_uniform_4f(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/4, GL_FLOAT_VEC4, &data)
-#define GPU_uniformbuffer_add_uniform_1f(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/4, GL_FLOAT, &data)
-#define GPU_uniformbuffer_add_uniform_1i(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/4, GL_INT, &data)
+#define GPU_uniformbuffer_add_uniform_4f(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/(sizeof(float)*4), GL_FLOAT_VEC4, &data)
+#define GPU_uniformbuffer_add_uniform_1f(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/sizeof(float), GL_FLOAT, &data)
+#define GPU_uniformbuffer_add_uniform_1i(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/sizeof(int), GL_INT, &data)
+#define GPU_uniformbuffer_add_uniform_4x4m(ubuff, name, data) GPU_uniformbuffer_add_uniform(ubuff, name, sizeof(data)/(sizeof(float)*4*4), GL_FLOAT_MAT4, &data)
 
 #endif
