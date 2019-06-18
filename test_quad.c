@@ -46,7 +46,7 @@ void test_quad(void)
   GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(quad.batch);
   GPU_batch_set_vertices_draw_count(quad.batch, 6);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
-  GPU_vertbuf_begin_update(vbuff, 6);
+  GPU_vertbuf_set_add_count(vbuff, 6);
   
 #define VERTEX(x, y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, ((x) + 1)*0.5, (-(y) + 1)*0.5))
 #define QUAD(x, y, dx, dy) VERTEX(x+dx, y); VERTEX(x, y+dy); VERTEX(x, y);  VERTEX(x+dx, y); VERTEX(x+dx, y+dy); VERTEX(x, y+dy);

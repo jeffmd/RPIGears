@@ -83,7 +83,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
-  GPU_vertbuf_begin_update(vbuff, nvertices);
+  GPU_vertbuf_set_add_count(vbuff, nvertices);
   
   r0 = inner_radius;
   r1 = outer_radius - tooth_depth / 2.0;
@@ -218,7 +218,7 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
   }
- 
+  printf("gear vertices: %i\n", idx); 
   return gear;
 }
 

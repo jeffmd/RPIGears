@@ -7,7 +7,8 @@
 
   GPUVertBuffer *GPU_vertbuf_create(void);
   void GPU_vertbuf_delete(GPUVertBuffer *vbuff);
-  void GPU_vertbuf_begin_update(GPUVertBuffer *vbuff, const GLuint max_count);
+  void GPU_vertbuf_set_start(GPUVertBuffer *vbuff, const GLuint index);
+  void GPU_vertbuf_set_add_count(GPUVertBuffer *vbuff, const GLuint count);
   void GPU_vertbuf_set_vertex_format(GPUVertBuffer *vbuff, GPUVertFormat *vformat);
   void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4);
   void GPU_vertbuf_use_BO(GPUVertBuffer *vbuff);

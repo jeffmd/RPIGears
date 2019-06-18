@@ -22,6 +22,8 @@ typedef struct {
   const char *str;
   uint8_t ready;
   GLfloat ProjMatrix[4];
+  uint16_t index;
+  uint16_t count;
 } Text;
 
 enum {
@@ -54,6 +56,8 @@ void text_init(Text *text)
     text->ProjMatrix[1] = 1.0/1024;
     text->ProjMatrix[2] = -0.49f;
     text->ProjMatrix[3] = -0.49f;
+    text->count = 0;
+    text->index = 0;
   }
   
   if (!vformat) {
@@ -63,7 +67,7 @@ void text_init(Text *text)
 
   GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
-  GPU_vertbuf_begin_update(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
+  GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
   text->ready = 0;
 }
 
@@ -109,7 +113,6 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   int advance = 0;
   
   if (glyph) {
-    if (ch !=' ') {
       const int dx = glyph_width(glyph);
       const int dy = glyph_height(glyph);
       const float u1 = glyph_u1(glyph);
@@ -117,7 +120,13 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
       const float u2 = glyph_u2(glyph);
       const float v2 = glyph_v2(glyph);
 
-      advance = dx + 2;
+      if (ch !=' ') {
+        advance = dx + 2;
+      }
+      else {
+        advance = glyph_advance(glyph);
+      }
+      
       // build two triangles in vertex buffer
       VERTEX(x+dx, y, u2, v1);
       VERTEX(x, y+dy, u1, v2);
@@ -126,10 +135,6 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
       VERTEX(x+dx, y,    u2, v1);
       VERTEX(x+dx, y+dy, u2, v2);
       VERTEX(x, y+dy,    u1, v2);
-    }
-    else {
-      advance = glyph_advance(glyph);
-    }
   }
     
   return advance;
@@ -151,6 +156,11 @@ void text_add(Text *text, int x, int y, const char *str)
       GPU_batch_set_vertices_draw_count(text->batch, count * QUAD_SZE);
     }
   }
+}
+
+void text_set_index(Text *text, const int index)
+{
+  
 }
 
 void text_draw(Text *text)
