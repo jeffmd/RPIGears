@@ -89,8 +89,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern IMAGE_T rpi_image;
 
-const char test_text[] = "RPIGears ver: 1.0 GLES2.0";
+#define FPS_Y 980
+#define FPS_X 60
+
+static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
+static const char fps_text[] = "FPS:";
+static int fps_start; 
 static Text *text;
+
 
 static void init_textures(void)
 {
@@ -126,6 +132,16 @@ void toggle_useVSync(void)
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
+static void update_fps(void)
+{
+  char *fps_str = has_fps();
+  
+  if (fps_str) {
+    text_set_start(text, fps_start);
+    text_add(text, FPS_X, FPS_Y, fps_str);
+  }
+}
+
 static void run_gears(void)
 {
   
@@ -145,6 +161,7 @@ static void run_gears(void)
     update_gear_rotation();
     scene_draw();
     test_quad_draw();
+    update_fps();
     text_draw(text);
     frameEnd();
     window_swap_buffers();
@@ -211,8 +228,10 @@ int main (int argc, char *argv[])
   test_quad_set_texture(font_texture(font_active()));
   
   text = text_create();
-  text_add(text, 0, 0, test_text);
-  
+  text_add(text, 0, 0, ver_text);
+  text_add(text, 0, FPS_Y, fps_text);
+  fps_start = text_start(text);
+  update_fps();
   // animate the gears
   run_gears();
   

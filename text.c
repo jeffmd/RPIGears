@@ -20,10 +20,10 @@ typedef struct {
   GPUBatch *batch;
   Font *font;
   const char *str;
-  uint8_t ready;
+  uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];
-  uint16_t index;
-  uint16_t count;
+  uint16_t index;          // current index into vertex buffer
+  uint16_t count;          // mumber of characters in text vertex buffer
 } Text;
 
 enum {
@@ -108,36 +108,55 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 {
 #define VERTEX(x1, y1, u, v) GPU_vertbuf_add_4(vbuff, ATTR_POSITION, (x1), (y1), u, v)
 
-  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
   Glyph *glyph = font_glyph(text->font, ch);
   int advance = 0;
   
   if (glyph) {
-      const int dx = glyph_width(glyph);
-      const int dy = glyph_height(glyph);
-      const float u1 = glyph_u1(glyph);
-      const float v1 = glyph_v1(glyph);
-      const float u2 = glyph_u2(glyph);
-      const float v2 = glyph_v2(glyph);
+    GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+    
+    const int dx = glyph_width(glyph);
+    const int dy = glyph_height(glyph);
+    const float u1 = glyph_u1(glyph);
+    const float v1 = glyph_v1(glyph);
+    const float u2 = glyph_u2(glyph);
+    const float v2 = glyph_v2(glyph);
 
-      if (ch !=' ') {
-        advance = dx + 2;
-      }
-      else {
-        advance = glyph_advance(glyph);
-      }
-      
-      // build two triangles in vertex buffer
-      VERTEX(x+dx, y, u2, v1);
-      VERTEX(x, y+dy, u1, v2);
-      VERTEX(x, y,    u1, v1);
-      
-      VERTEX(x+dx, y,    u2, v1);
-      VERTEX(x+dx, y+dy, u2, v2);
-      VERTEX(x, y+dy,    u1, v2);
+    if (ch !=' ') {
+      advance = dx + 2;
+    }
+    else {
+      advance = glyph_advance(glyph);
+    }
+    
+    // build two triangles in vertex buffer
+    VERTEX(x+dx, y, u2, v1);
+    VERTEX(x, y+dy, u1, v2);
+    VERTEX(x, y,    u1, v1);
+    
+    VERTEX(x+dx, y,    u2, v1);
+    VERTEX(x+dx, y+dy, u2, v2);
+    VERTEX(x, y+dy,    u1, v2);
+    
+    text->index++;
   }
     
   return advance;
+}
+
+static void text_update_draw_count(Text *text)
+{
+  if (text->index >= text->count) {
+    text->count = text->index + 1;
+    GPU_batch_set_vertices_draw_count(text->batch, text->count * QUAD_SZE);
+  }
+  
+}
+
+static void text_update_start(Text *text)
+{
+  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+  
+  GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
 }
 
 void text_add(Text *text, int x, int y, const char *str)
@@ -145,22 +164,27 @@ void text_add(Text *text, int x, int y, const char *str)
   if (str) {
     Font *font = text_font(text);
     if (font) {
-      int count = 0;
+      
+      text_update_start(text);
       
       for (; *str; str++) {
         x += add_quad_char(text, x, y, *str);
-        count++;
       }
       
+      text_update_draw_count(text);
       text->ready = 1;
-      GPU_batch_set_vertices_draw_count(text->batch, count * QUAD_SZE);
     }
   }
 }
 
-void text_set_index(Text *text, const int index)
+void text_set_start(Text *text, const int index)
 {
-  
+  text->index = index;
+}
+
+int text_start(Text *text)
+{
+  return text->index;
 }
 
 void text_draw(Text *text)

@@ -28,6 +28,8 @@ typedef struct
 } Task_T;
 
 static uint current_ms; // current time in milliseconds
+static char fps_str[12];
+static char *fps_strptr;
 
 static uint getMilliseconds()
 {
@@ -93,11 +95,21 @@ static void do_AngleFrame_task(void)
   }
 }
 
+char *has_fps(void)
+{
+  char * str = fps_strptr;
+  fps_strptr = 0;
+  
+  return str;
+}
+
 static void do_FPS_task(void)
 {
   const float dt = FPS_task.elapsed_ms / 1000.0f;
   const float fps = (float)frames / dt;
-  printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
+  sprintf(fps_str, "%3.1f", fps);
+  fps_strptr = fps_str;
+  printf("%d frames in %3.1f seconds = %s FPS\n", frames, dt, fps_str);
   lastFrames = lastFrames - frames;
   frames = 0;
 }
