@@ -21,7 +21,6 @@ typedef struct {
 
 #define VERT_BUFFER_MAX_COUNT 10
 #define DEFAULT_COUNT 100
-#define INDEX_TRIGGER 1
 
 static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
 static GPUVertBuffer *next_deleted_vert_buffer = 0;
