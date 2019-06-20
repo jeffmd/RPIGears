@@ -116,7 +116,7 @@ static void frameClear(void)
   glStencilMask(0xFFFFFFFF);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+  demo_state_next_frame();
 }
 
 static void frameEnd(void)
@@ -135,7 +135,7 @@ void toggle_useVSync(void)
 
 static void update_fps(void)
 {
-  char *fps_str = has_fps();
+  char *fps_str = demo_state_has_fps();
   
   if (fps_str) {
     text_set_start(text, fps_start);
@@ -145,8 +145,6 @@ static void update_fps(void)
 
 static void run_gears(void)
 {
-  
-  reset_tasks();
   set_key_down_update(0, 0.0f);
   window_init_size();
 

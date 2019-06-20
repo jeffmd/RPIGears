@@ -15,7 +15,5 @@
   void task_run(Task * const task);
   uint task_elapsed(Task * const task);
 
-  char *has_fps(void);
   void do_tasks(void);
-  void reset_tasks(void);
 #endif

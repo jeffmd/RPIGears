@@ -276,5 +276,5 @@ void key_input_init(void)
 {
   KeyScan_task = task_create();
   task_set_action(KeyScan_task, do_KeyScan_task);
-  task_set_interval(KeyScan_task, 40);
+  task_set_interval(KeyScan_task, 100);
 }

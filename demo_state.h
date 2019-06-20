@@ -19,6 +19,8 @@ gear_t *state_gear2(void);
 gear_t *state_gear3(void);
 GLfloat state_angle(void);
 GLuint state_instances(void);
+void demo_state_next_frame(void);
+char *demo_state_has_fps(void);
   
 void update_timeToRun(const GLuint val);
 void update_angleVel(const GLfloat val);

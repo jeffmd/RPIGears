@@ -21,7 +21,7 @@ RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
 	test_quad.h key_input.h exit.h
 RPi_Logo256.o: image.h
 gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
-demo_state.o: demo_state.h gear.h matrix_math.h
+demo_state.o: gles3.h demo_state.h gear.h gpu_texture.h tasks.h
 key_input.o: gles3.h window.h gear.h gpu_texture.h demo_state.h print_info.h \
   user_options.h camera.h shaders.h test_quad.h tasks.h exit.h
 matrix_math.o: matrix_math.c

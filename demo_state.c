@@ -10,6 +10,7 @@
 #include "gear.h"
 #include "gpu_texture.h"
 #include "demo_state.h"
+#include "tasks.h"
 
 typedef struct
 {
@@ -45,6 +46,15 @@ typedef struct
 
 static DEMO_STATE_T _state;
 static DEMO_STATE_T * const state = &_state;
+
+static int frames; // number of frames drawn since the last frame/sec calculation
+static int lastFrames;
+static char fps_str[12];
+static char *fps_strptr;
+
+static Task *AngleFrame_task;
+static Task *FPS_task;
+
 
 static void update_gear_VBO_use(void)
 {
@@ -243,6 +253,44 @@ void do_key_down_update(void)
   }
 }
 
+static void do_AngleFrame_task(void)
+{
+  
+  const float dt = task_elapsed(AngleFrame_task) / 1000.0f;
+  if (dt > 0.0f) {
+	  
+    update_avgfps((float)(frames - lastFrames) / dt);
+    lastFrames = frames;
+    update_angleFrame();
+    update_rate_frame();
+  }
+}
+
+char *demo_state_has_fps(void)
+{
+  char * str = fps_strptr;
+  fps_strptr = 0;
+  
+  return str;
+}
+
+void demo_state_next_frame(void)
+{
+  frames++;
+}
+
+static void do_FPS_task(void)
+{
+  const float dt = task_elapsed(FPS_task) / 1000.0f;
+  const float fps = (float)frames / dt;
+  sprintf(fps_str, "%3.1f", fps);
+  fps_strptr = fps_str;
+  printf("%d frames in %3.1f seconds = %s FPS\n", frames, dt, fps_str);
+  lastFrames = lastFrames - frames;
+  frames = 0;
+}
+
+
 void demo_state_init(void)
 {
   state->rate = 1.0f;
@@ -256,4 +304,15 @@ void demo_state_init(void)
   state->LightDirty = GL_TRUE;
   state->instances = 1;
   update_angleFrame();
+  
+  frames = lastFrames = 0;
+  
+  FPS_task = task_create();
+  task_set_action(FPS_task, do_FPS_task);
+  task_set_interval(FPS_task, 5000);
+  
+  AngleFrame_task = task_create();
+  task_set_action(AngleFrame_task, do_AngleFrame_task);
+  task_set_interval(AngleFrame_task, 100);
+  
 }

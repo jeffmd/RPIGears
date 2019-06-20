@@ -2,17 +2,14 @@
  * tasks.c  
  */ 
 
-#include <stdio.h>
+#include <stdint.h>
 #include <time.h>
 #include <stdlib.h>
 
-#include "gles3.h"
-#include "gear.h"
-#include "gpu_texture.h"
-#include "demo_state.h"
 #include "static_array.h"
 
 #define TASKS_MAX_COUNT 10
+#define TASKS_DELTA 10
 
 typedef enum
 {
@@ -38,8 +35,8 @@ static Task tasks[TASKS_MAX_COUNT];
 static Task *next_deleted_task = 0;
 
 static uint current_ms; // current time in milliseconds
-static char fps_str[12];
-static char *fps_strptr;
+static uint prev_ms;
+static uint tasks_delta = TASKS_DELTA;
 
 static uint getMilliseconds()
 {
@@ -86,6 +83,10 @@ void task_set_action(Task * const task, Action dofunc)
 void task_set_interval(Task * const task, uint interval)
 {
   task->interval_ms = interval;
+  const uint new_delta = interval / 4;
+  if (new_delta < tasks_delta) {
+    tasks_delta = new_delta;
+  }
 }
 
 uint task_elapsed(Task * const task)
@@ -94,24 +95,21 @@ uint task_elapsed(Task * const task)
 }
 
 
-static int task_do(Task * const task)
+static void task_do(Task * const task)
 {
-  int is_ready = 0;
 
   if (task->active) {
     
     if (task->state == TS_RUN) {
       task->elapsed_ms = current_ms - task->prev_ms;
       
-      is_ready = task->elapsed_ms >= task->interval_ms;
-      if (is_ready) {
+      if (task->elapsed_ms >= task->interval_ms) {
         if (task->dofunc) task->dofunc();
         task->prev_ms = current_ms;
       }
     }
   }  
 
-  return is_ready;
 }
 
 void task_pause(Task * const task)
@@ -124,68 +122,16 @@ void task_run(Task * const task)
   task->state = TS_RUN;
 }
 
-
-static int frames; // number of frames drawn since the last frame/sec calculation
-static int lastFrames;
-
-static Task *AngleFrame_task;
-static Task *FPS_task;
-
-static void do_AngleFrame_task(void)
-{
-  
-  const float dt = task_elapsed(AngleFrame_task) / 1000.0f;
-  if (dt > 0.0f) {
-	  
-    update_avgfps((float)(frames - lastFrames) / dt);
-    lastFrames = frames;
-    update_angleFrame();
-    update_rate_frame();
-  }
-}
-
-char *has_fps(void)
-{
-  char * str = fps_strptr;
-  fps_strptr = 0;
-  
-  return str;
-}
-
-static void do_FPS_task(void)
-{
-  const float dt = task_elapsed(FPS_task) / 1000.0f;
-  const float fps = (float)frames / dt;
-  sprintf(fps_str, "%3.1f", fps);
-  fps_strptr = fps_str;
-  printf("%d frames in %3.1f seconds = %s FPS\n", frames, dt, fps_str);
-  lastFrames = lastFrames - frames;
-  frames = 0;
-}
-
-
-void reset_tasks(void)
-{
-  frames = lastFrames = 0;
-  
-  FPS_task = task_create();
-  task_set_action(FPS_task, do_FPS_task);
-  task_set_interval(FPS_task, 5000);
-  
-  AngleFrame_task = task_create();
-  task_set_action(AngleFrame_task, do_AngleFrame_task);
-  task_set_interval(AngleFrame_task, 100);
-  
-  update_current_ms();
-}
-
 void do_tasks(void)
 {
-  frames++;
   update_current_ms();
-
-  for (int idx = 0; idx < TASKS_MAX_COUNT; idx++) {
-    task_do(tasks + idx);
+  if ( (current_ms - prev_ms) > tasks_delta) {
+    prev_ms = current_ms;
+      
+    for (int idx = 0; idx < TASKS_MAX_COUNT; idx++) {
+      task_do(tasks + idx);
+    }
   }
+  
 }
 
