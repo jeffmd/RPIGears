@@ -231,7 +231,6 @@ int main (int argc, char *argv[])
   text_add(text, 0, 0, ver_text);
   text_add(text, 0, FPS_Y, fps_text);
   fps_start = text_start(text);
-  update_fps();
   // animate the gears
   run_gears();
   

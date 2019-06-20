@@ -25,7 +25,7 @@ demo_state.o: demo_state.h gear.h matrix_math.h
 key_input.o: gles3.h window.h gear.h gpu_texture.h demo_state.h print_info.h \
   user_options.h camera.h shaders.h test_quad.h
 matrix_math.o: matrix_math.c
-tasks.o: demo_state.h key_input.h
+tasks.o: demo_state.h key_input.h static_array.h
 window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
 xwindow.o: xinput.h tasks.h window.h
 xinput.o: tasks.h key_input.h

@@ -11,21 +11,32 @@
 #include "gpu_texture.h"
 #include "demo_state.h"
 #include "key_input.h"
+#include "static_array.h"
+
+#define TASKS_MAX_COUNT 10
 
 typedef enum
 {
-  TS_PAUSED,
-  TS_RUN  
+  TS_RUN,  
+  TS_PAUSED
 } TASKSTATE;
+
+typedef void (*Action)(void);
 
 typedef struct
 {
-  uint prev_ms; // when the task last executed in milliseconds
-  uint interval_ms; // how often in milliseconds the task should run
-  uint elapsed_ms; // how many milliseconds since the last time the task executed
-  TASKSTATE state; // state of the task ie TS_RUN, TS_PAUSED
+  uint8_t active;           // zero if deleted
+  uint prev_ms;             // when the task last executed in milliseconds
+  uint interval_ms;         // how often in milliseconds the task should run
+  uint elapsed_ms;          // how many milliseconds since the last time the task executed
+  TASKSTATE state;          // state of the task ie TS_RUN, TS_PAUSED
+  const char *name;
+  Action dofunc;
   
-} Task_T;
+} Task;
+
+static Task tasks[TASKS_MAX_COUNT];
+static Task *next_deleted_task = 0;
 
 static uint current_ms; // current time in milliseconds
 static char fps_str[12];
@@ -39,53 +50,88 @@ static uint getMilliseconds()
 	
 	return (spec.tv_sec * 1000L + spec.tv_nsec / 1000000L);
 }
-
  
 static void update_current_ms(void)
 {
   current_ms = getMilliseconds();
 }
 
-
-typedef void (*Action)(void);
-
-static int run_task(Task_T * const task, Action dofunc)
+static inline Task *find_deleted_task(void)
 {
-  int is_ready = 0;
-  
-  if (task->state == TS_RUN) {
-    task->elapsed_ms = current_ms - task->prev_ms;
-    
-    is_ready = task->elapsed_ms > task->interval_ms;
-    if (is_ready) {
-      if (dofunc) dofunc();
-      task->prev_ms = current_ms;
-    }
-  }
-    
-  return is_ready;
+  return ARRAY_FIND_DELETED(next_deleted_task, tasks,
+                            TASKS_MAX_COUNT, "task");
 }
 
-
-static void reset_task(Task_T * const task)
+static void task_init(Task * const task)
 {
   task->prev_ms = getMilliseconds();
   task->elapsed_ms = 0.0f;
+}
+
+Task *task_create(void)
+{
+  Task *task = find_deleted_task();
+
+  task->active = 1;
+  task_init(task);
+
+	return task;
+}
+
+
+void task_set_action(Task * const task, Action dofunc)
+{
+  task->dofunc = dofunc;
+}
+
+void task_set_interval(Task * const task, uint interval)
+{
+  task->interval_ms = interval;
+}
+
+static int task_do(Task * const task)
+{
+  int is_ready = 0;
+
+  if (task->active) {
+    
+    if (task->state == TS_RUN) {
+      task->elapsed_ms = current_ms - task->prev_ms;
+      
+      is_ready = task->elapsed_ms >= task->interval_ms;
+      if (is_ready) {
+        if (task->dofunc) task->dofunc();
+        task->prev_ms = current_ms;
+      }
+    }
+  }  
+
+  return is_ready;
+}
+
+void task_pause(Task * const task)
+{
+  task->state = TS_PAUSED;
+}
+
+void task_run(Task * const task)
+{
+  task->state = TS_RUN;
 }
 
 
 static int frames; // number of frames drawn since the last frame/sec calculation
 static int lastFrames;
 
-static Task_T AngleFrame_task = { 0, 100, 0, TS_RUN};
-static Task_T FPS_task = {0, 5000, 0, TS_RUN};
-static Task_T KeyScan_task = {0, 40, 0, TS_RUN};
-static Task_T Exit_task = {0, 0, 0, TS_PAUSED};
+static Task *AngleFrame_task;
+static Task *FPS_task;
+static Task *KeyScan_task;
+static Task *Exit_task;
 
 static void do_AngleFrame_task(void)
 {
   
-  const float dt = AngleFrame_task.elapsed_ms / 1000.0f;
+  const float dt = AngleFrame_task->elapsed_ms / 1000.0f;
   if (dt > 0.0f) {
 	  
     update_avgfps((float)(frames - lastFrames) / dt);
@@ -105,7 +151,7 @@ char *has_fps(void)
 
 static void do_FPS_task(void)
 {
-  const float dt = FPS_task.elapsed_ms / 1000.0f;
+  const float dt = FPS_task->elapsed_ms / 1000.0f;
   const float fps = (float)frames / dt;
   sprintf(fps_str, "%3.1f", fps);
   fps_strptr = fps_str;
@@ -116,15 +162,21 @@ static void do_FPS_task(void)
 
 static void init_Exit_task(void)
 {
-  reset_task(&Exit_task);
-  Exit_task.interval_ms = state_timeToRun();
-  if (Exit_task.interval_ms > 0.0f) Exit_task.state = TS_RUN;
+  Exit_task = task_create();
+  
+  if (state_timeToRun() > 0) {
+    task_run(Exit_task);
+    task_set_interval(Exit_task, state_timeToRun());
+  }
+  else {
+    task_pause(Exit_task);
+  }
 }
 
 void enable_exit(void)
 {
-  Exit_task.state = TS_RUN;
-  Exit_task.interval_ms = 0.0f;
+  task_run(Exit_task);
+  task_set_interval(Exit_task, 0);
 }
 
 static void do_KeyScan_task(void)
@@ -134,17 +186,27 @@ static void do_KeyScan_task(void)
     // stop the program if a special key was hit
     case 0: enable_exit(); break;
     // speed up key processing if more keys in buffer
-    case 2: KeyScan_task.interval_ms = 10.0f; break;
-    default: KeyScan_task.interval_ms = 100.0f;
+    case 2: task_set_interval(KeyScan_task, 10); break;
+    default: task_set_interval(KeyScan_task, 100);
   }
 }
 
 void reset_tasks(void)
 {
   frames = lastFrames = 0;
-  reset_task(&FPS_task);
-  reset_task(&AngleFrame_task);
-  reset_task(&KeyScan_task);
+  
+  FPS_task = task_create();
+  task_set_action(FPS_task, do_FPS_task);
+  task_set_interval(FPS_task, 5000);
+  
+  AngleFrame_task = task_create();
+  task_set_action(AngleFrame_task, do_AngleFrame_task);
+  task_set_interval(AngleFrame_task, 100);
+  
+  KeyScan_task = task_create();
+  task_set_action(KeyScan_task, do_KeyScan_task);
+  task_set_interval(KeyScan_task, 40);
+  
   init_Exit_task();
 
   update_current_ms();
@@ -152,7 +214,7 @@ void reset_tasks(void)
 
 int run_exit_task(void)
 {
-  return run_task(&Exit_task, 0);
+  return task_do(Exit_task);
 }
 
 void do_tasks(void)
@@ -160,10 +222,8 @@ void do_tasks(void)
   frames++;
   update_current_ms();
   // print out fps stats every 5 secs
-  run_task(&FPS_task, do_FPS_task);
-  // adjust angleFrame each half second
-  run_task(&AngleFrame_task, do_AngleFrame_task);
-  // about every 40ms check if the user hit the keyboard
-  run_task(&KeyScan_task, do_KeyScan_task);
+  for (int idx = 0; idx < TASKS_MAX_COUNT; idx++) {
+    task_do(tasks + idx);
+  }
 }
 
