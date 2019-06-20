@@ -8,8 +8,9 @@
 
 #include "static_array.h"
 
-#define TASKS_MAX_COUNT 10
-#define TASKS_DELTA 10
+#define TASKS_MAX_COUNT 20
+#define TASKS_DTIME 10
+#define TASKS_DO_COUNT TASKS_MAX_COUNT / 4
 
 typedef enum
 {
@@ -36,13 +37,14 @@ static Task *next_deleted_task = 0;
 
 static uint current_ms; // current time in milliseconds
 static uint prev_ms;
-static uint tasks_delta = TASKS_DELTA;
+static uint tasks_dtime = TASKS_DTIME;
+static int task_id = 0;
 
 static uint getMilliseconds()
 {
-    struct timespec spec;
+  struct timespec spec;
 
-    clock_gettime(CLOCK_REALTIME, &spec);
+  clock_gettime(CLOCK_REALTIME, &spec);
 	
 	return (spec.tv_sec * 1000L + spec.tv_nsec / 1000000L);
 }
@@ -83,9 +85,9 @@ void task_set_action(Task * const task, Action dofunc)
 void task_set_interval(Task * const task, uint interval)
 {
   task->interval_ms = interval;
-  const uint new_delta = interval / 4;
-  if (new_delta < tasks_delta) {
-    tasks_delta = new_delta;
+  const uint new_dtime = interval / 4;
+  if (new_dtime < tasks_dtime) {
+    tasks_dtime = new_dtime;
   }
 }
 
@@ -97,19 +99,19 @@ uint task_elapsed(Task * const task)
 
 static void task_do(Task * const task)
 {
-
   if (task->active) {
     
     if (task->state == TS_RUN) {
       task->elapsed_ms = current_ms - task->prev_ms;
       
       if (task->elapsed_ms >= task->interval_ms) {
-        if (task->dofunc) task->dofunc();
+        if (task->dofunc) {
+          task->dofunc();
+        }
         task->prev_ms = current_ms;
       }
     }
   }  
-
 }
 
 void task_pause(Task * const task)
@@ -122,14 +124,23 @@ void task_run(Task * const task)
   task->state = TS_RUN;
 }
 
+static int next_task_id(void)
+{
+  if (task_id >= TASKS_MAX_COUNT) {
+    task_id = 0;
+  }
+  
+  return task_id++;
+}
+
 void do_tasks(void)
 {
   update_current_ms();
-  if ( (current_ms - prev_ms) > tasks_delta) {
+  if ( (current_ms - prev_ms) > tasks_dtime) {
     prev_ms = current_ms;
       
-    for (int idx = 0; idx < TASKS_MAX_COUNT; idx++) {
-      task_do(tasks + idx);
+    for (int idx = 0; idx < TASKS_DO_COUNT; idx++) {
+      task_do(tasks + next_task_id());
     }
   }
   
