@@ -13,10 +13,9 @@
   void task_set_interval(Task * const task, uint interval);
   void task_pause(Task * const task);
   void task_run(Task * const task);
+  uint task_elapsed(Task * const task);
 
   char *has_fps(void);
   void do_tasks(void);
   void reset_tasks(void);
-  int run_exit_task(void);
-  void enable_exit(void);
 #endif

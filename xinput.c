@@ -5,13 +5,13 @@
 #include <X11/Xutil.h>
 #include <stdio.h>
 
-#include "tasks.h"
+#include "exit.h"
 #include "key_input.h"
 
 static void xinput_keypress(const char key)
 {
   if (!check_key(key))
-    enable_exit();
+    exit_enable();
 }
 
 void xinput_check_keys(XEvent *event)

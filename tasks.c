@@ -10,7 +10,6 @@
 #include "gear.h"
 #include "gpu_texture.h"
 #include "demo_state.h"
-#include "key_input.h"
 #include "static_array.h"
 
 #define TASKS_MAX_COUNT 10
@@ -89,6 +88,12 @@ void task_set_interval(Task * const task, uint interval)
   task->interval_ms = interval;
 }
 
+uint task_elapsed(Task * const task)
+{
+  return task->elapsed_ms;
+}
+
+
 static int task_do(Task * const task)
 {
   int is_ready = 0;
@@ -125,13 +130,11 @@ static int lastFrames;
 
 static Task *AngleFrame_task;
 static Task *FPS_task;
-static Task *KeyScan_task;
-static Task *Exit_task;
 
 static void do_AngleFrame_task(void)
 {
   
-  const float dt = AngleFrame_task->elapsed_ms / 1000.0f;
+  const float dt = task_elapsed(AngleFrame_task) / 1000.0f;
   if (dt > 0.0f) {
 	  
     update_avgfps((float)(frames - lastFrames) / dt);
@@ -151,7 +154,7 @@ char *has_fps(void)
 
 static void do_FPS_task(void)
 {
-  const float dt = FPS_task->elapsed_ms / 1000.0f;
+  const float dt = task_elapsed(FPS_task) / 1000.0f;
   const float fps = (float)frames / dt;
   sprintf(fps_str, "%3.1f", fps);
   fps_strptr = fps_str;
@@ -160,36 +163,6 @@ static void do_FPS_task(void)
   frames = 0;
 }
 
-static void init_Exit_task(void)
-{
-  Exit_task = task_create();
-  
-  if (state_timeToRun() > 0) {
-    task_run(Exit_task);
-    task_set_interval(Exit_task, state_timeToRun());
-  }
-  else {
-    task_pause(Exit_task);
-  }
-}
-
-void enable_exit(void)
-{
-  task_run(Exit_task);
-  task_set_interval(Exit_task, 0);
-}
-
-static void do_KeyScan_task(void)
-{
-  switch (detect_keypress())
-  {
-    // stop the program if a special key was hit
-    case 0: enable_exit(); break;
-    // speed up key processing if more keys in buffer
-    case 2: task_set_interval(KeyScan_task, 10); break;
-    default: task_set_interval(KeyScan_task, 100);
-  }
-}
 
 void reset_tasks(void)
 {
@@ -203,25 +176,14 @@ void reset_tasks(void)
   task_set_action(AngleFrame_task, do_AngleFrame_task);
   task_set_interval(AngleFrame_task, 100);
   
-  KeyScan_task = task_create();
-  task_set_action(KeyScan_task, do_KeyScan_task);
-  task_set_interval(KeyScan_task, 40);
-  
-  init_Exit_task();
-
   update_current_ms();
-}
-
-int run_exit_task(void)
-{
-  return task_do(Exit_task);
 }
 
 void do_tasks(void)
 {
   frames++;
   update_current_ms();
-  // print out fps stats every 5 secs
+
   for (int idx = 0; idx < TASKS_MAX_COUNT; idx++) {
     task_do(tasks + idx);
   }

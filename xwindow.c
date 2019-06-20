@@ -11,7 +11,7 @@
 
 #include "xinput.h"
 #include "window.h"
-#include "tasks.h"
+#include "exit.h"
 
 static Display *dis;
 static int screen;
@@ -178,7 +178,7 @@ static void do_ClientMessage(const XClientMessageEvent* event)
   {
     if ((Atom)event->data.l[0] ==  wmprotocols[1])
     {
-      enable_exit();
+      exit_enable();
     }
     else if ((Atom)event->data.l[0] ==  wmprotocols[2])
     {

@@ -86,6 +86,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "font.h"
 #include "test_quad.h"
 #include "text.h"
+#include "key_input.h"
+#include "exit.h"
 
 extern IMAGE_T rpi_image;
 
@@ -96,7 +98,6 @@ static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
 static int fps_start; 
 static Text *text;
-
 
 static void init_textures(void)
 {
@@ -150,7 +151,7 @@ static void run_gears(void)
   window_init_size();
 
   // keep doing the loop while no exit keys hit and exit timer not finished
-  while ( ! run_exit_task() )
+  while (!exit_is_now())
   {
 	  frameClear();
     do_tasks();
@@ -168,6 +169,7 @@ static void run_gears(void)
     xwindow_frame_update();
   }
 }
+
 
 //------------------------------------------------------------------------------
 
@@ -212,10 +214,13 @@ int main (int argc, char *argv[])
   xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
-
+  exit_init(state_timeToRun());
+  key_input_init();
+  
   if (options_wantInfo()) {
    print_GLInfo();
   }
+  
   init_textures();
   demo_state_build_gears(options_useVBO());
 

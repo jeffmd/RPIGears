@@ -16,6 +16,8 @@
 #include "camera.h"
 #include "shaders.h"
 #include "test_quad.h"
+#include "tasks.h"
+#include "exit.h"
 
 extern void toggle_useVSync(void);
 
@@ -24,6 +26,8 @@ extern void toggle_useVSync(void);
  
 static struct termios saved_attributes;
 static int initialized = 0;
+
+static Task *KeyScan_task;
 
 static void reset_input_mode(void)
 {
@@ -229,7 +233,7 @@ int check_key(const int inpkey)
 }
 
 
-int detect_keypress(void)
+static int detect_keypress(void)
 {
   int active = FRAMES;
   const int keyswaiting = _kbhit();
@@ -256,3 +260,21 @@ int detect_keypress(void)
   return active;  
 }
 
+static void do_KeyScan_task(void)
+{
+  switch (detect_keypress())
+  {
+    // stop the program if a special key was hit
+    case 0: exit_enable(); break;
+    // speed up key processing if more keys in buffer
+    case 2: task_set_interval(KeyScan_task, 10); break;
+    default: task_set_interval(KeyScan_task, 100);
+  }
+}
+
+void key_input_init(void)
+{
+  KeyScan_task = task_create();
+  task_set_action(KeyScan_task, do_KeyScan_task);
+  task_set_interval(KeyScan_task, 40);
+}
