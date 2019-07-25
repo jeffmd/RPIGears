@@ -8,9 +8,9 @@
 
 #include "static_array.h"
 
-#define TASKS_MAX_COUNT 20
+#define TASKS_MAX_COUNT 10
 #define TASKS_DTIME 10
-#define TASKS_DO_COUNT TASKS_MAX_COUNT / 4
+#define TASKS_DO_COUNT TASKS_MAX_COUNT
 
 typedef enum
 {
@@ -85,7 +85,7 @@ void task_set_action(Task * const task, Action dofunc)
 void task_set_interval(Task * const task, uint interval)
 {
   task->interval_ms = interval;
-  const uint new_dtime = interval / 4;
+  const uint new_dtime = interval / 2;
   if (new_dtime < tasks_dtime) {
     tasks_dtime = new_dtime;
   }
