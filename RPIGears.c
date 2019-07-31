@@ -75,7 +75,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "user_options.h"
 #include "gpu_texture.h"
 #include "demo_state.h"
-#include "tasks.h"
 #include "image.h"
 #include "camera.h"
 #include "print_info.h"
@@ -85,7 +84,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "text.h"
 #include "exit.h"
 #include "window.h"
-#include "xwindow.h"
 #include "window_manager.h"
 
 extern IMAGE_T rpi_image;
@@ -105,23 +103,6 @@ static void init_textures(void)
    GPUTexture *tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
    update_tex(tex);
-}
-
-static void frameClear(void)
-{
-  glDisable(GL_SCISSOR_TEST);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDepthMask(GL_TRUE);
-  glStencilMask(0xFFFFFFFF);
-
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  demo_state_next_frame();
-}
-
-static void frameEnd(void)
-{
-  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
-  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
 }
 
 void toggle_useVSync(void)
@@ -145,44 +126,33 @@ static void update_fps(void)
 static void run_gears(void)
 {
   set_key_down_update(0, 0.0f);
-  window_init_size();
 
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!exit_is_now())
   {
-	  frameClear();
-    do_tasks();
+	  WM_frameClear();
+    demo_state_next_frame();
+    WM_update();
     do_key_down_update();
-    xwindow_check_events();
-    window_update();
     inc_move_rate();
     update_gear_rotation();
     scene_draw();
     test_quad_draw();
     update_fps();
     text_draw(text);
-    frameEnd();
-    window_swap_buffers();
-    xwindow_frame_update();
+    WM_frameEnd();
   }
 }
-
-
-//------------------------------------------------------------------------------
 
 static void exit_func(void)
 // Function to be passed to atexit().
 {
 
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  // clear screen
-  frameClear();
-
   // Release OpenGL resources
   demo_state_delete();
   test_quad_delete();
+  window_manager_delete();
+
   printf("\nRPIGears finished\n");
 
 } // exit_func()
@@ -204,7 +174,6 @@ int main (int argc, char *argv[])
   init_options(argc, argv);
   // Start OGLES
   window_manager_init();
-  // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
   exit_init(state_timeToRun());
   
@@ -231,7 +200,6 @@ int main (int argc, char *argv[])
   run_gears();
   
   exit_func();
-  void window_manager_delete();
   
   return 0;
 }

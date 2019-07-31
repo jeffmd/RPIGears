@@ -182,7 +182,7 @@ static void check_window_offsets(void)
 void window_update(void)
 {
   if (window->update) {
-    check_window_offsets();
+    //check_window_offsets();
 
     DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
     assert(update != 0);
@@ -203,7 +203,6 @@ void window_update(void)
     result = vc_dispmanx_update_submit(update, 0, 0);
     assert(result == 0);
     window->update = 0;
-    //window_init_pos();
   }
 }
 
