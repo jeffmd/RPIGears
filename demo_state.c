@@ -125,7 +125,8 @@ void change_angleVel(const float val)
 
 void update_avgfps(const float fps)
 {
-  //state->avgfps = state->avgfps * 0.4f + fps * 0.6f;
+  //state->avgfps = state->avgfps * 0.6f + fps * 0.4f;
+  //printf("fps: %f\n", fps);
   state->period_rate = 1.0f / fps;
 }
 
@@ -283,7 +284,7 @@ static void do_FPS_task(void)
 {
   const float dt = task_elapsed(FPS_task) / 1000.0f;
   const float fps = (float)frames / dt;
-  sprintf(fps_str, "%3.1f", fps);
+  sprintf(fps_str, "%3.1f  ", fps);
   fps_strptr = fps_str;
   printf("%d frames in %3.1f seconds = %s FPS\n", frames, dt, fps_str);
   lastFrames = lastFrames - frames;
@@ -294,7 +295,7 @@ static void do_FPS_task(void)
 void demo_state_init(void)
 {
   state->rate = 1.0f;
-  state->avgfps = 300.0f;
+  state->avgfps = 50.0f;
   state->period_rate = 1.0f / state->avgfps;
   state->angleVel = -30.0f;
   state->LightSourcePosition[0] = -8.0;

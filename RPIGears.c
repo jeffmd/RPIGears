@@ -67,8 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _GNU_SOURCE
 
 #include <stdio.h>
-
-#include "bcm_host.h"
+#include <stdlib.h>
 
 #include "gles3.h"
 
@@ -76,18 +75,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "user_options.h"
 #include "gpu_texture.h"
 #include "demo_state.h"
-#include "window.h"
 #include "tasks.h"
 #include "image.h"
 #include "camera.h"
-#include "xwindow.h"
 #include "print_info.h"
 #include "scene.h"
 #include "font.h"
 #include "test_quad.h"
 #include "text.h"
-#include "key_input.h"
 #include "exit.h"
+#include "window.h"
+#include "xwindow.h"
+#include "window_manager.h"
 
 extern IMAGE_T rpi_image;
 
@@ -180,10 +179,8 @@ static void exit_func(void)
 
   // clear screen
   frameClear();
-  window_swap_buffers();
 
   // Release OpenGL resources
-  window_release();
   demo_state_delete();
   test_quad_delete();
   printf("\nRPIGears finished\n");
@@ -203,17 +200,13 @@ static void init_options(int argc, char *argv[])
 
 int main (int argc, char *argv[])
 {
-  bcm_host_init();
-  gles3_init();
   demo_state_init();
   init_options(argc, argv);
   // Start OGLES
-  window_init();
-  xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
+  window_manager_init();
   // default to no vertical sync but user option may turn it on
   window_update_VSync(options_useVSync());
   exit_init(state_timeToRun());
-  key_input_init();
   
   if (options_wantInfo()) {
    print_GLInfo();
@@ -238,7 +231,7 @@ int main (int argc, char *argv[])
   run_gears();
   
   exit_func();
-  xwindow_close();
-  bcm_host_deinit();
+  void window_manager_delete();
+  
   return 0;
 }
