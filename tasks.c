@@ -38,7 +38,6 @@ static Task *next_deleted_task = 0;
 static uint current_ms; // current time in milliseconds
 static uint prev_ms;
 static uint tasks_dtime = TASKS_DTIME;
-static int task_id = 0;
 
 static uint getMilliseconds()
 {
@@ -96,7 +95,6 @@ uint task_elapsed(Task * const task)
   return task->elapsed_ms;
 }
 
-
 static void task_do(Task * const task)
 {
   if (task->active) {
@@ -124,23 +122,14 @@ void task_run(Task * const task)
   task->state = TS_RUN;
 }
 
-static int next_task_id(void)
-{
-  if (task_id >= TASKS_MAX_COUNT) {
-    task_id = 0;
-  }
-  
-  return task_id++;
-}
-
 void do_tasks(void)
 {
   update_current_ms();
   if ( (current_ms - prev_ms) > tasks_dtime) {
     prev_ms = current_ms;
       
-    for (int idx = 0; idx < TASKS_DO_COUNT; idx++) {
-      task_do(tasks + next_task_id());
+    for (int idx = 1; idx < TASKS_MAX_COUNT; idx++) {
+      task_do(tasks + idx);
     }
   }
   
