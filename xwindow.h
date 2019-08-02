@@ -9,5 +9,6 @@
   void xwindow_close(void);
   void xwindow_check_events(void);
   void xwindow_frame_update(void);
+  int xwindow_minimized(void);
 
 #endif

@@ -14,6 +14,7 @@
   void task_pause(Task * const task);
   void task_run(Task * const task);
   uint task_elapsed(Task * const task);
+  uint getMilliseconds();
 
   void do_tasks(void);
 #endif

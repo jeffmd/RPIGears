@@ -3,9 +3,11 @@
 #include <stdlib.h>
 
 #include "tasks.h"
+#include "key_input.h"
 
 static Task *exit_task;
 static int exit_now;
+static const char exit_help[] = "esc or Enter - end program";
 
 void exit_enable(void)
 {
@@ -36,4 +38,8 @@ void exit_init(int time_to_run)
   else {
     task_pause(exit_task);
   }
+  
+  key_add_action(10, exit_enable, 0);
+  key_add_action(13, exit_enable, 0);
+  key_add_action(27, exit_enable, exit_help);
 }

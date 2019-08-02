@@ -15,6 +15,7 @@
 #include "shaders.h"
 #include "gpu_shader.h"
 #include "gpu_uniform_buffer.h"
+#include "key_input.h"
 
 static struct {
    GLfloat model_view[16];
@@ -71,6 +72,7 @@ void scene_init(void)
    // setup the scene based on rendering mode
    camera_init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
    shaders_load_programs();
+   key_add_action('R', shaders_load_programs, "reload shaders");
    m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
    uniform_buffer = GPU_uniformbuffer_create();

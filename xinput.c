@@ -5,14 +5,7 @@
 #include <X11/Xutil.h>
 #include <stdio.h>
 
-#include "exit.h"
 #include "key_input.h"
-
-static void xinput_keypress(const char key)
-{
-  if (!check_key(key))
-    exit_enable();
-}
 
 void xinput_check_keys(XEvent *event)
 {
@@ -23,6 +16,6 @@ void xinput_check_keys(XEvent *event)
 	//printf( "Key: %x %c\n", (int)key, key );
 	
   if (event->type == KeyPress)
-    xinput_keypress(key);
+    key_input_action(key);
 }
 

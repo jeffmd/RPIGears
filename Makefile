@@ -21,9 +21,9 @@ RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
 	test_quad.h key_input.h exit.h
 RPi_Logo256.o: image.h
 gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
-demo_state.o: gles3.h demo_state.h gear.h gpu_texture.h tasks.h
-key_input.o: gles3.h window.h gear.h gpu_texture.h demo_state.h print_info.h \
-  user_options.h camera.h shaders.h test_quad.h tasks.h exit.h
+camera.o: gles3.h matrix_math.h key_input.h
+demo_state.o: gles3.h gear.h gpu_texture.h tasks.h key_input.h
+key_input.o: print_info.h tasks.h 
 matrix_math.o: matrix_math.c
 tasks.o: demo_state.h static_array.h
 window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
@@ -37,12 +37,13 @@ gpu_vertex_buffer.o: gles3.h static_array.h gpu_vertex_format.h
 gpu_vertex_format.o: gles3.h fp16.h static_array.h gpu_shader.h
 gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
 gpu_texture.o: gles3.h static_array.h 
-scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h
+scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h key_input.h
 font.o: gles3.h gpu_texture.h static_array.h
-test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h
+test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h camera.h key_input.h
 text.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h static_array.h font.h
 exit.o: tasks.h
-window_manager.o: 
+window_manager.o: gles3.h window.h xwindow.h key_input.h tasks.h
+user_options.o: gles3.h key_input.h
 
 $(BIN): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS) 

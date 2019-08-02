@@ -155,7 +155,7 @@ static void updateSrcSize(void)
   window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
-
+/*
 static void check_window_offsets(void)
 {
   if (window->dst_rect.x <= -window->dst_rect.width) {
@@ -178,6 +178,7 @@ static void check_window_offsets(void)
        window->pos_y = (float)window->dst_rect.y;
     }
 }
+*/
 
 void window_update(void)
 {
@@ -328,7 +329,7 @@ static void createContext(void)
   assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
 }
 
-#define TESTIT 1
+#define TESTIT 0
 #define WSCALE 1
 static void window_setup_frameBufferRenderTexture(void)
 {

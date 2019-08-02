@@ -11,6 +11,7 @@
 #include "gpu_batch.h"
 #include "shaders.h"
 #include "camera.h"
+#include "key_input.h"
 
 enum {
   ATTR_POSITION,
@@ -25,6 +26,11 @@ typedef struct {
 
 static TQuad quad;
 static GPUVertFormat *vformat = 0;
+
+static void test_quad_toggle(void)
+{
+  quad.toggle = !quad.toggle;
+}
 
 void test_quad(void)
 {
@@ -53,6 +59,8 @@ void test_quad(void)
   
   QUAD(-1, -1, 2, 2)
   
+  key_add_action('T', test_quad_toggle, "toggle test quad visibility");
+  
 }
 
 void test_quad_draw(void)
@@ -75,11 +83,6 @@ void test_quad_delete(void)
     GPU_batch_delete(quad.batch, 1);
     quad.batch = 0;
   }
-}
-
-void test_quad_toggle(void)
-{
-  quad.toggle = !quad.toggle;
 }
 
 void test_quad_set_texture(GPUTexture *tex)

@@ -362,3 +362,8 @@ void xwindow_check_events(void)
   }
 }
 
+int xwindow_minimized(void)
+{
+  return minimized;
+}
+

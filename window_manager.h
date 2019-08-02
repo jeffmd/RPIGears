@@ -8,5 +8,6 @@
   void WM_frameClear(void);
   void WM_frameEnd(void);
   void WM_update(void);
+  int WM_minimized(void);
 
 #endif

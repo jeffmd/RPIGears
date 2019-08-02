@@ -6,7 +6,6 @@
   #define _demo_state_h_
 
 // a procedure that takes a value representing the rate change to apply to an update
-typedef void (*UPDATE_KEY_DOWN)(const float);
 
 void demo_state_init(void);
 void demo_state_build_gears(const int useVBO);
@@ -24,27 +23,12 @@ char *demo_state_has_fps(void);
   
 void update_timeToRun(const GLuint val);
 void update_angleVel(const GLfloat val);
-void update_avgfps(const float fps);
-void update_angleFrame(void);
-void update_rate_frame(void);
-void change_angleVel(const float val);
-void update_avgfps(const float fps);
-void update_angleFrame(void);
-void update_rate_frame(void);
-void change_angleVel(const float val);
 void update_gear_rotation(void);
-void move_rate_on(void);
-void move_rate_off(void);
-void inc_move_rate(void);
-void inc_instances(void);
-void dec_instances(void);
 void light_move_y(const float val);
 void light_move_x(const float val);
 GLfloat *state_LightSourcePosition(void);
 GLboolean light_isDirty(void);
 void light_clean(void);
 void update_tex(GPUTexture *tex);
-void set_key_down_update(UPDATE_KEY_DOWN fn, float val);
-void do_key_down_update(void);
 
 #endif

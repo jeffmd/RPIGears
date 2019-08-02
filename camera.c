@@ -3,10 +3,10 @@
 */
 
 #include <stdio.h>
+
 #include "gles3.h"
-
 #include "matrix_math.h"
-
+#include "key_input.h"
 
 typedef struct {
   GLfloat z;
@@ -54,19 +54,19 @@ GLfloat camera_view_rotz(void)
   return camera->view_rotz;
 }
 
-void camera_change_z(const float val)
+static void camera_change_z(const float val)
 {
   camera->z += val;  
   camera->dirty = GL_TRUE;
 }
 
-void camera_change_x(const float val)
+static void camera_change_x(const float val)
 {
   camera->x += val;
   camera->dirty = GL_TRUE;
 }
 
-void camera_change_y(const float val)
+static void camera_change_y(const float val)
 {
   camera->y += val;  
   camera->dirty = GL_TRUE;
@@ -108,6 +108,36 @@ GLfloat *camera_view_matrix(void)
 	return camera->ViewMatrix;
 }
 
+static void camera_key_reverse(void)
+{
+  key_input_set_update(camera_change_z, -1.0f);
+}
+
+static void camera_key_forward(void)
+{
+  key_input_set_update(camera_change_z, 1.0f);
+}
+
+static void camera_key_right(void)
+{
+  key_input_set_update(camera_change_x, -1.0f);
+}
+
+static void camera_key_left(void)
+{
+  key_input_set_update(camera_change_x, 1.0f);
+}
+          
+static void camera_key_down(void)
+{
+  key_input_set_update(camera_change_y, 1.0f);
+}
+
+static void camera_key_up(void)
+{
+  key_input_set_update(camera_change_y, -1.0f);
+}
+
 void camera_init(void)
 {
   camera->z = -45.0f;
@@ -117,4 +147,12 @@ void camera_init(void)
   camera->view_roty = 25.0f;
   camera->view_rotz = 0.0f;
   camera->dirty = GL_TRUE;
+  
+  key_add_action('r', camera_key_reverse, "move camera back from gears");
+  key_add_action('f', camera_key_forward, "move camera toward gears");
+  key_add_action('a', camera_key_left, "move camera left");
+  key_add_action('d', camera_key_right, "move camera left");
+  key_add_action('w', camera_key_up, "move camera up");
+  key_add_action('s', camera_key_down, "move camera down");
+  
 }

@@ -52,6 +52,14 @@ void WM_frameEnd(void)
 void WM_update(void)
 {
   do_tasks();
+  key_input_down_update();
   xwindow_check_events();
   window_update();
+  key_input_inc_rate();
 }
+
+int WM_minimized(void)
+{
+  return xwindow_minimized();
+}
+

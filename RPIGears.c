@@ -83,6 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "test_quad.h"
 #include "text.h"
 #include "exit.h"
+#include "key_input.h"
 #include "window.h"
 #include "window_manager.h"
 
@@ -125,21 +126,19 @@ static void update_fps(void)
 
 static void run_gears(void)
 {
-  set_key_down_update(0, 0.0f);
-
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!exit_is_now())
   {
 	  WM_frameClear();
     demo_state_next_frame();
     WM_update();
-    do_key_down_update();
-    inc_move_rate();
     update_gear_rotation();
-    scene_draw();
-    test_quad_draw();
-    update_fps();
-    text_draw(text);
+    if (!WM_minimized()) {
+      test_quad_draw();
+      update_fps();
+      text_draw(text);
+      scene_draw();
+    }
     WM_frameEnd();
   }
 }
@@ -176,6 +175,8 @@ int main (int argc, char *argv[])
   window_manager_init();
   window_update_VSync(options_useVSync());
   exit_init(state_timeToRun());
+  print_info_init();
+  key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();

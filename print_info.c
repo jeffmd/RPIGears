@@ -6,6 +6,7 @@
 
 #include "gles3.h"
 #include "EGL/egl.h"
+#include "key_input.h"
 
 void print_GLInfo(void)
 {
@@ -95,33 +96,15 @@ void print_keyhelp(void)
   printf(
    "\nspecial keys and what they do\n"
    "h or any invalid key - print this info\n"
-   "i - print GL info\n"
-   "l - toggle draw mode GL_TRIAGLES/GL_LINES/GL_POINT\n"
-   "o - print command line options\n"
-   "p - turn gears spin off\n"
-   "v - toggle vertical sync on/off\n"
-   "z - increase window size (zoom in)\n"
-   "Z - decrease window size (zoom out)\n"
-   "< - decrease gear spin rate\n"
-   "> - increase gear spin rate\n"
-   "b - toggle use of Buffer Objects for gear vertex data\n"
-   "I - add another draw instance of the gears\n"
-   "O - remove an instance of the gears\n"
-   "R - reload shaders\n"
-   "a - move camera left\n"
-   "d - move camera right\n"
-   "w - move camera up\n"
-   "s - move camera down\n"
-   "r - move camera back from gears\n"
-   "f - move camera toward gears\n"
    "up arrow - move light up\n"
    "down arrow - move light down\n"
    "left arrow - move light left\n"
    "right arrow - move light right\n"
    "home - move window to centre of screen\n"
    "end - move window off screen\n"
-   "esc or Enter - end program\n"
+   
    );
+   key_input_print_help();
 }
 
 void print_CLoptions_help(void)
@@ -138,3 +121,9 @@ void print_CLoptions_help(void)
     );
 }
 
+void print_info_init(void)
+{
+  key_add_action('i', print_GLInfo, "print GL info");
+  key_add_action('o', print_CLoptions_help, "print command line options");
+  
+}

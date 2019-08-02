@@ -39,7 +39,7 @@ static uint current_ms; // current time in milliseconds
 static uint prev_ms;
 static uint tasks_dtime = TASKS_DTIME;
 
-static uint getMilliseconds()
+uint getMilliseconds()
 {
   struct timespec spec;
 
