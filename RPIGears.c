@@ -143,19 +143,6 @@ static void run_gears(void)
   }
 }
 
-static void exit_func(void)
-// Function to be passed to atexit().
-{
-
-  // Release OpenGL resources
-  demo_state_delete();
-  test_quad_delete();
-  window_manager_delete();
-
-  printf("\nRPIGears finished\n");
-
-} // exit_func()
-
 //==============================================================================
 static void init_options(int argc, char *argv[])
 {
@@ -200,7 +187,7 @@ int main (int argc, char *argv[])
   // animate the gears
   run_gears();
   
-  exit_func();
+  printf("\nRPIGears finished\n");
   
   return 0;
 }

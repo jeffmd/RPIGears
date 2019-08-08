@@ -9,7 +9,6 @@
 
 void demo_state_init(void);
 void demo_state_build_gears(const int useVBO);
-void demo_state_delete(void);
 void demo_state_toggle_VBO(void);
 GLuint state_timeToRun(void);
 GPUTexture *state_tex(void);

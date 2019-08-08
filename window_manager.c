@@ -7,15 +7,6 @@
 #include "key_input.h"
 #include "tasks.h"
 
-void window_manager_init(void)
-{
-  bcm_host_init();
-  gles3_init();
-  window_init();
-  xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
-  key_input_init();
-}
-
 void WM_frameClear(void)
 {
   glDisable(GL_SCISSOR_TEST);
@@ -26,7 +17,7 @@ void WM_frameClear(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void window_manager_delete(void)
+static void window_manager_delete(void)
 {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -36,8 +27,17 @@ void window_manager_delete(void)
   window_swap_buffers();
   window_release();
   xwindow_close();
-  bcm_host_deinit();
-  
+  bcm_host_deinit();  
+}
+
+void window_manager_init(void)
+{
+  bcm_host_init();
+  gles3_init();
+  window_init();
+  xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
+  key_input_init();
+  atexit(window_manager_delete);
 }
 
 void WM_frameEnd(void)

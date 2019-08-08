@@ -211,7 +211,7 @@ void demo_state_build_gears(const int useVBO)
   update_gear_VBO_use();
 }
 
-void demo_state_delete(void)
+static void demo_state_delete(void)
 {
   // release memory used for gear and associated vertex arrays
   gear_delete(state->gear1);
@@ -299,5 +299,7 @@ void demo_state_init(void)
   key_add_action('<', key_angleVel_down, "decrease gear spin rate");
   key_add_action('>', key_angleVel_up, "increase gear spin rate");
   key_add_action('p', key_angleVel_pause, "stop gear spin");
+  
+  atexit(demo_state_delete);
 
 }

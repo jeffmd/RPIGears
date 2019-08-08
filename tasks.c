@@ -131,7 +131,6 @@ void do_tasks(void)
     for (int idx = 1; idx < TASKS_MAX_COUNT; idx++) {
       task_do(tasks + idx);
     }
-  }
-  
+  }  
 }
 

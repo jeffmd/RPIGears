@@ -1,6 +1,7 @@
 // test_quad.c
 // render a texture to a quad
 
+#include "stdlib.h"
 #include "gles3.h"
 
 #include "gpu_texture.h"
@@ -32,6 +33,14 @@ static void test_quad_toggle(void)
   quad.toggle = !quad.toggle;
 }
 
+static void test_quad_delete(void)
+{
+  if (quad.batch) {
+    GPU_batch_delete(quad.batch, 1);
+    quad.batch = 0;
+  }
+}
+
 void test_quad(void)
 {
   if (!quad.batch) {
@@ -60,6 +69,7 @@ void test_quad(void)
   QUAD(-1, -1, 2, 2)
   
   key_add_action('T', test_quad_toggle, "toggle test quad visibility");
+  atexit(test_quad_delete);
   
 }
 
@@ -74,14 +84,6 @@ void test_quad_draw(void)
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     GPU_batch_draw(quad.batch, GL_TRIANGLES, 1);  
     //glDisable(GL_BLEND);
-  }
-}
-
-void test_quad_delete(void)
-{
-  if (quad.batch) {
-    GPU_batch_delete(quad.batch, 1);
-    quad.batch = 0;
   }
 }
 
