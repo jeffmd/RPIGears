@@ -29,10 +29,7 @@ typedef  struct {
    DISPMANX_DISPLAY_HANDLE_T dispman_display;
    VC_RECT_T dst_rect;
    VC_RECT_T src_rect;
-   float pos_x;
-   float pos_y;
-   float width;
-   float height;
+   VC_RECT_T old_rect;
    int update:1; // if > 0 then window needs updating in dispmanx
    int inFocus:1;
 } WINDOW_T;
@@ -66,85 +63,26 @@ uint32_t window_screen_height(void)
   return window->nativewindow.height;
 }
 
-void window_update_pos(void)
+void window_update_old(void)
 {
-  window->pos_x = (float)window->dst_rect.x;
-  window->pos_y = (float)window->dst_rect.y;
-}
-
-void window_init_size(void)
-{
-  window->width = (float)window->dst_rect.width;
-  window->height = (float)window->dst_rect.height;
-}
-
-
-void window_move_x(const float val)
-{
-  window->pos_x += val;
-  window->dst_rect.x = (int)window->pos_x;
-  window->update = 1;
-}
-
-
-void window_move_y(const float val)
-{
-  window->pos_y += val;
-  window->dst_rect.y = (int)window->pos_y;
-  window->update = 1;
+  window->old_rect.width = window->dst_rect.width;
+  window->old_rect.height = window->dst_rect.height;
 }
 
 void window_pos(const int x, const int y)
 {
   window->dst_rect.y = y;
   window->dst_rect.x = x;
-  window_update_pos();
-  window->update = 1;
-}
-
-void window_center(void)
-{
-  window->dst_rect.x = window->nativewindow.width/4;
-  window->dst_rect.y = window->nativewindow.height/4;
-  window_update_pos();
   window->update = 1;
 }
 
 void window_show(void)
 {
-  window->dst_rect.x = window->pos_x;
-  window->dst_rect.y = window->pos_y;
+  window->dst_rect.width = window->old_rect.width;
+  window->dst_rect.height = window->old_rect.height;
   window->update = 1;
   window->inFocus = 1;
   printf("showing window \n");
-}
-
-void window_hide(void)
-{
-  window_update_pos();
-  window->dst_rect.x = window->nativewindow.width;
-  window->dst_rect.y = window->nativewindow.height;
-  window->update = 1;
-  window->inFocus = 0;
-  printf("hiding window \n");
-}
-
-void window_zoom(const float val)
-{
-  window->width += val;
-  window->height += val;
-  window->dst_rect.width = (int)window->width;
-  window->dst_rect.height = (int)window->height;
-  window->update = 1;
-}
-
-void window_size(const int width, const int height)
-{
-  window->width = width;
-  window->height = height;
-  window->dst_rect.width = width;
-  window->dst_rect.height = height;
-  window->update = 1;
 }
 
 static void updateSrcSize(void)
@@ -155,39 +93,21 @@ static void updateSrcSize(void)
   window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
-/*
-static void check_window_offsets(void)
+void window_size(const int width, const int height)
 {
-  if (window->dst_rect.x <= -window->dst_rect.width) {
-    window->dst_rect.x = -window->dst_rect.width + 1;
-    window->pos_x = (float)window->dst_rect.x;
-  }
-  else
-    if (window->dst_rect.x > (int)window->nativewindow.width) {
-      window->dst_rect.x = (int)window->nativewindow.width;
-      window->pos_x = (float)window->dst_rect.x;
-    }
-
-  if (window->dst_rect.y <= -window->dst_rect.height) {
-    window->dst_rect.y = -window->dst_rect.height + 1;
-    window->pos_y = (float)window->dst_rect.y;
-  }
-  else
-    if (window->dst_rect.y > (int)window->nativewindow.height) {
-       window->dst_rect.y = (int)window->nativewindow.height;
-       window->pos_y = (float)window->dst_rect.y;
-    }
+  window->dst_rect.width = width;
+  window->dst_rect.height = height;
+  window_update_old();
+  updateSrcSize();
+  window->update = 1;
 }
-*/
 
 void window_update(void)
 {
   if (window->update) {
-    //check_window_offsets();
 
     DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
     assert(update != 0);
-    updateSrcSize();
 
     int result = vc_dispmanx_element_change_attributes(update,
                                             window->nativewindow.element,
@@ -205,6 +125,17 @@ void window_update(void)
     assert(result == 0);
     window->update = 0;
   }
+}
+
+void window_hide(void)
+{
+  window_update_old();
+  window->dst_rect.width = 1;
+  window->dst_rect.height = 1;
+  window->update = 1;
+  window->inFocus = 0;
+  printf("hiding window \n");
+  window_update();
 }
 
 void window_update_VSync(const int sync)
@@ -368,11 +299,10 @@ void window_init(void)
 {
   EGLBoolean result;
 
-  window->inFocus = 1;
   createContext();
   // create an EGL window surface based on current screen size
   createSurface();
-
+  window_hide();
   // connect the context to the surface
   result = eglMakeCurrent(window->display, window->surface, window->surface, window->contextGLES2);
   assert(egl_chk(EGL_FALSE != result));

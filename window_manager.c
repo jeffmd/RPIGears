@@ -13,7 +13,6 @@ void window_manager_init(void)
   gles3_init();
   window_init();
   xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
-  window_init_size();
   key_input_init();
 }
 
@@ -52,10 +51,11 @@ void WM_frameEnd(void)
 void WM_update(void)
 {
   do_tasks();
-  key_input_down_update();
   xwindow_check_events();
-  window_update();
+  key_input_down_update();
   key_input_inc_rate();
+  if (xwindow_is_clear())
+    window_update();
 }
 
 int WM_minimized(void)

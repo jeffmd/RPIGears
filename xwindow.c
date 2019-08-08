@@ -24,6 +24,7 @@ static XImage *img;
 static int resized = 1;
 static int useMITSHM = 0;
 static int minimized = 0;
+static int dirty = 1;
 
 static XWindowAttributes window_attributes;
 static XShmSegmentInfo shmSInfo;
@@ -255,7 +256,6 @@ static void init_XimageBuffer(int width, int height, int depth)
 
 void xwindow_frame_update(void)
 {
-  static int dirty = 0;
   
   if(window_inFocus() | minimized) {
     if(dirty) {
@@ -365,5 +365,10 @@ void xwindow_check_events(void)
 int xwindow_minimized(void)
 {
   return minimized;
+}
+
+int xwindow_is_clear(void)
+{
+  return !dirty;
 }
 
