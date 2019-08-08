@@ -217,6 +217,9 @@ static void demo_state_delete(void)
   gear_delete(state->gear1);
   gear_delete(state->gear2);
   gear_delete(state->gear3);
+  
+  printf("demo state has shut down\n");
+
 }
 
 static void do_AngleFrame_task(void)

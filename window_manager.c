@@ -1,5 +1,7 @@
 // window_manage.c
 
+#include <stdio.h>
+
 #include "bcm_host.h"
 #include "gles3.h"
 #include "window.h"
@@ -27,7 +29,8 @@ static void window_manager_delete(void)
   window_swap_buffers();
   window_release();
   xwindow_close();
-  bcm_host_deinit();  
+  bcm_host_deinit();
+  printf("window manager has shut down\n"); 
 }
 
 void window_manager_init(void)

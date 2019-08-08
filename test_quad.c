@@ -1,7 +1,9 @@
 // test_quad.c
 // render a texture to a quad
 
-#include "stdlib.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "gles3.h"
 
 #include "gpu_texture.h"
@@ -39,6 +41,7 @@ static void test_quad_delete(void)
     GPU_batch_delete(quad.batch, 1);
     quad.batch = 0;
   }
+  printf("test quad has shut down\n"); 
 }
 
 void test_quad(void)

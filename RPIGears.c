@@ -68,6 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "gles3.h"
 
@@ -154,8 +155,16 @@ static void init_options(int argc, char *argv[])
   update_angleVel(options_angleVel());
 }
 
+void sig_handler(int signo)
+{
+  printf("CTRL-C\n");
+  fflush(0);
+  exit(signo);
+}
+
 int main (int argc, char *argv[])
 {
+  signal(SIGINT, sig_handler);
   demo_state_init();
   init_options(argc, argv);
   // Start OGLES
