@@ -39,9 +39,9 @@ typedef struct Font {
 #define FONT_MAX_COUNT 10
 
 static Font fonts[FONT_MAX_COUNT];
-static Font *next_deleted_font = 0;
+static int next_deleted_font;
 
-static Font *active_font = 0;
+static int active_font = 0;
 
 #define TEXTURE_GLYPH_SLOTS 8
 #define DEFAULT_GLYPH_HEIGHT 30
@@ -140,19 +140,31 @@ static void build_glyphs(Font *font)
   }  
 }
 
-static inline Font *find_deleted_font(void)
+static inline int find_deleted_font_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_font, fonts, FONT_MAX_COUNT, "font");
+  return ARRAY_FIND_DELETED_ID(next_deleted_font, fonts, FONT_MAX_COUNT, Font, "font");
 }
 
-static Font *find_font(const char *filename)
+static Font *get_font(int id)
 {
-  for (int idx = 0; idx < FONT_MAX_COUNT; idx++) {
+  if ((id < 0) | (id >= FONT_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Font id, using default id: 0\n");
+  }
+    
+  return fonts + id;
+}
+
+
+static int find_font(const char *filename)
+{
+  int idx = 1;
+  for (; idx < FONT_MAX_COUNT; idx++) {
     Font *font = &fonts[idx];
     
     if (font->filename) {
       if (strcmp(font->filename, filename) == 0) {
-          return font;
+          return idx;
       }
     }
   }
@@ -169,100 +181,108 @@ static void font_init(Font *font)
   font->ready = 0; 
 }
 
-Font *font_create(const char *filename)
+int font_create(const char *filename)
 {
-  Font *font = find_font(filename);
+  Font *font;
+  int id = find_font(filename);
   
-  if (!font) {
-    font = find_deleted_font();
+  if (!id) {
+    id = find_deleted_font_id();
+    font = get_font(id);
     font->filename = filename;
     font_init(font);
+  }
+  else {
+    font = get_font(id);
   }
   
   font->active = 1;
   
-  return font;
+  return id;
 }
 
-void font_set_size(Font *font, int size)
+void font_set_size(int id, int size)
 {
+  Font *font = get_font(id);
   if (font->size != size) {
     font->size = size;
     font->ready = 0;
   }
 }
 
-void font_set_active(Font *font)
+void font_set_active(int id)
 {
+  Font *font = get_font(id);
   if (!font->ready) {
     build_glyphs(font);
   }
   
   if (font->ready) {
-    active_font = font;
+    active_font = id;
   }
 }
 
-Font *font_active(void)
+int font_active(void)
 {
   return active_font;
 }
 
 void font_active_bind(const int slot)
 {
-  if (active_font && (active_font->ready)) {
-    GPU_texture_bind(active_font->texture, slot);
+  if (active_font) {
+    Font *font = get_font(active_font);
+    if (font->ready)
+      GPU_texture_bind(font->texture, slot);
   }
 }
 
-int font_texture(Font *font)
+int font_texture(int id)
 {
-  if (font)
-    return font->texture;
+  return get_font(id)->texture;
+}
+
+static Glyph *get_glyph(int id, const char ch)
+{
+  int idx;
+  if (ch >= CHAR_START)
+    idx = ch - CHAR_START;
   else
-    return 0;
+    idx = 0;
+  return get_font(id)->glyphs + idx;
 }
 
-Glyph *font_glyph(Font *font, const char ch)
+float glyph_u1(int id, const char ch)
 {
-  if (font)
-    return &font->glyphs[ch - CHAR_START];
-  else
-    return 0;
+  return get_glyph(id, ch)->u1;
 }
 
-float glyph_u1(Glyph *glyph)
+float glyph_v1(int id, const char ch)
 {
-  return glyph->u1;
+  return get_glyph(id, ch)->v1;
 }
 
-float glyph_v1(Glyph *glyph)
+float glyph_u2(int id, const char ch)
 {
-  return glyph->v1;
+  return get_glyph(id, ch)->u2;
 }
 
-float glyph_u2(Glyph *glyph)
+float glyph_v2(int id, const char ch)
 {
-  return glyph->u2;
+  return get_glyph(id, ch)->v2;
 }
 
-float glyph_v2(Glyph *glyph)
+int glyph_advance(int id, const char ch)
 {
-  return glyph->v2;
+  return get_glyph(id, ch)->advance;
 }
 
-int glyph_advance(Glyph *glyph)
+int glyph_width(int id, const char ch)
 {
-  return glyph->advance;
+  return get_glyph(id, ch)->width;
 }
 
-int glyph_width(Glyph *glyph)
+int glyph_height(int id, const char ch)
 {
-  return glyph->width;
-}
-
-int glyph_height(Glyph *glyph)
-{
-  return glyph->height;
+  return get_glyph(id, ch)->height;
 }
 

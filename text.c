@@ -18,7 +18,7 @@ typedef struct {
 
   uint8_t active;           // zero if deleted
   GPUBatch *batch;
-  Font *font;
+  int font;
   const char *str;
   uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];
@@ -101,14 +101,14 @@ void text_delete(int id)
     next_deleted_text = id; 
 }
 
-void text_set_font(int id, Font *font)
+void text_set_font(int id, int font)
 {
   Text * const text = get_text(id);
   text->font = font;
   text->ready = 0;
 }
 
-static Font *text_font(Text *text)
+static int text_font(Text *text)
 {
   if (!text->font) {
     text->font = font_active();    
@@ -121,37 +121,35 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 {
 #define VERTEX(x1, y1, u, v) GPU_vertbuf_add_4(vbuff, ATTR_POSITION, (x1), (y1), u, v)
 
-  Glyph *glyph = font_glyph(text->font, ch);
   int advance = 0;
   
-  if (glyph) {
-    GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
-    
-    const int dx = glyph_width(glyph);
-    const int dy = glyph_height(glyph);
-    const float u1 = glyph_u1(glyph);
-    const float v1 = glyph_v1(glyph);
-    const float u2 = glyph_u2(glyph);
-    const float v2 = glyph_v2(glyph);
+  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+  const int font = text->font;
+  
+  const int dx = glyph_width(font, ch);
+  const int dy = glyph_height(font, ch);
+  const float u1 = glyph_u1(font, ch);
+  const float v1 = glyph_v1(font, ch);
+  const float u2 = glyph_u2(font, ch);
+  const float v2 = glyph_v2(font, ch);
 
-    if (ch !=' ') {
-      advance = dx + 2;
-    }
-    else {
-      advance = glyph_advance(glyph);
-    }
-    
-    // build two triangles in vertex buffer
-    VERTEX(x+dx, y, u2, v1);
-    VERTEX(x, y+dy, u1, v2);
-    VERTEX(x, y,    u1, v1);
-    
-    VERTEX(x+dx, y,    u2, v1);
-    VERTEX(x+dx, y+dy, u2, v2);
-    VERTEX(x, y+dy,    u1, v2);
-    
-    text->index++;
+  if (ch !=' ') {
+    advance = dx + 2;
   }
+  else {
+    advance = glyph_advance(font, ch);
+  }
+  
+  // build two triangles in vertex buffer
+  VERTEX(x+dx, y, u2, v1);
+  VERTEX(x, y+dy, u1, v2);
+  VERTEX(x, y,    u1, v1);
+  
+  VERTEX(x+dx, y,    u2, v1);
+  VERTEX(x+dx, y+dy, u2, v2);
+  VERTEX(x, y+dy,    u1, v2);
+  
+  text->index++;
     
   return advance;
 }
@@ -176,7 +174,7 @@ void text_add(int id, int x, int y, const char *str)
 {
   if (str) {
     Text * const text = get_text(id);
-    Font *font = text_font(text);
+    int font = text_font(text);
     
     if (font) {
       
