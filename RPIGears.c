@@ -72,7 +72,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gles3.h"
 
-#include "gear.h"
 #include "user_options.h"
 #include "gpu_texture.h"
 #include "demo_state.h"

@@ -24,7 +24,7 @@ static struct {
 } UBO_Data;
 
 static int diffuseMap_Data = 0;
-static GPUUniformBuffer *uniform_buffer;
+static int uniform_buffer;
 
 /**
  * Draws a gear in GLES 2 mode.

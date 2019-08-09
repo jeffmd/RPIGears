@@ -16,9 +16,9 @@ CFLAGS+=$(INCLUDES)
 
 all: $(BIN)
 
-RPIGears.o: user_options.h demo_state.h window.h  gear.h tasks.h image.h \
+RPIGears.o: user_options.h demo_state.h window.h gear.h tasks.h image.h \
 	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h font.h \
-	test_quad.h key_input.h exit.h
+	test_quad.h key_input.h exit.h window_manager.h
 RPi_Logo256.o: image.h
 gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
 camera.o: gles3.h matrix_math.h key_input.h

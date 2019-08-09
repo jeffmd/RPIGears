@@ -48,7 +48,7 @@ void test_quad(void)
 {
   if (!quad.batch) {
     quad.batch = GPU_batch_create();
-    GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(quad.batch);
+    const int ubuff = GPU_batch_uniform_buffer(quad.batch);
     GPU_uniformbuffer_add_uniform_4f(ubuff, "ProjMat", quad.ProjMatrix);
     quad.ProjMatrix[0] = 0.12f;
     quad.ProjMatrix[1] = 0.12f;

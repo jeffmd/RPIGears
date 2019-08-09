@@ -84,7 +84,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
   
-  GPUUniformBuffer *ubuff = GPU_batch_uniform_buffer(gear->batch);
+  const int ubuff = GPU_batch_uniform_buffer(gear->batch);
   GPU_uniformbuffer_add_uniform_4f(ubuff, "MaterialColor", gear->color);
   
   GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(gear->batch);

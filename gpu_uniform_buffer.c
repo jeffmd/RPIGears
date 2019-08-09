@@ -42,14 +42,24 @@ typedef struct {
 #define UNIFORM_BUFFER_MAX_COUNT 10
 
 static GPUUniformBuffer uniform_buffers[UNIFORM_BUFFER_MAX_COUNT];
-static GPUUniformBuffer *next_deleted_uniform_buffer = 0;
+static int next_deleted_uniform_buffer;
 
-static GPUUniformBuffer *active_uniform_buffer = 0;
+static int active_uniform_buffer = 0;
 
-static inline GPUUniformBuffer *find_deleted_uniform_buffer(void)
+static inline int find_deleted_uniform_buffer_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_uniform_buffer, uniform_buffers,
-                            UNIFORM_BUFFER_MAX_COUNT, "uniform buffer");
+  return ARRAY_FIND_DELETED_ID(next_deleted_uniform_buffer, uniform_buffers,
+                            UNIFORM_BUFFER_MAX_COUNT, GPUUniformBuffer, "uniform buffer");
+}
+
+static GPUUniformBuffer *get_uniform_buffer(int id)
+{
+  if ((id < 0) | (id >= UNIFORM_BUFFER_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Uniform buffer id, using default id: 0\n");
+  }
+    
+  return uniform_buffers + id;
 }
 
 static int uniformbuffer_next_index(GPUUniformBuffer *ubuff)
@@ -114,30 +124,33 @@ static void uniformbuffer_update_locations(GPUUniformBuffer *ubuff)
   printf("updating uniform locations\n");
 }
 
-GPUUniformBuffer *GPU_uniformbuffer_create(void)
+int GPU_uniformbuffer_create(void)
 {
-  GPUUniformBuffer *ubuff = find_deleted_uniform_buffer();
+  const int id = find_deleted_uniform_buffer_id();
+  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   
   ubuff->active = 1;
   uniformbuffer_init(ubuff);
 
-  return ubuff;
+  return id;
 }
 
-void GPU_uniformbuffer_delete(GPUUniformBuffer *ubuff)
+void GPU_uniformbuffer_delete(int id)
 {
+  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   ubuff->active = 0;
   uniformbuffer_init(ubuff);
   
-  if (ubuff < next_deleted_uniform_buffer)
-    next_deleted_uniform_buffer = ubuff; 
+  if (id < next_deleted_uniform_buffer)
+    next_deleted_uniform_buffer = id; 
 
 }
 
-void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
+void GPU_uniformbuffer_add_uniform(int id, const char *name,
   const GLint size, const GLenum type, void *data)
 {
   if (data) {
+    GPUUniformBuffer *ubuff = get_uniform_buffer(id);
     UniformAttribute *uniform = &ubuff->uniforms[ubuff->uniform_count];
     
     uniform->type = type;
@@ -154,9 +167,10 @@ void GPU_uniformbuffer_add_uniform(GPUUniformBuffer *ubuff, const char *name,
   }
 }
 
-void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
+void GPU_uniformbuffer_bind(int id)
 {
   GPUShader *shader = GPU_shader_active_shader();
+  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   
   if ((ubuff->shaders[ubuff->active_index].shader != shader)
     || (ubuff->shaders[ubuff->active_index].modid != GPU_shader_modid(shader))) {
@@ -166,10 +180,11 @@ void GPU_uniformbuffer_bind(GPUUniformBuffer *ubuff)
   }
 }
 
-void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff)
+void GPU_uniformbuffer_update(int id)
 {
-  GPU_uniformbuffer_bind(ubuff);
+  GPU_uniformbuffer_bind(id);
   
+  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   GLint *locations = ubuff->shaders[ubuff->active_index].locations;
 
   for (int idx = 0; idx < ubuff->uniform_count; idx++) {
@@ -212,9 +227,9 @@ void GPU_uniformbuffer_update(GPUUniformBuffer *ubuff)
   }
 }
 
-void GPU_uniformbuffer_activate(GPUUniformBuffer *ubuff)
+void GPU_uniformbuffer_activate(int id)
 {
-  active_uniform_buffer = ubuff;
+  active_uniform_buffer = id;
 }
 
 void GPU_uniformbuffer_update_active(void)
