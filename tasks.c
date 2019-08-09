@@ -3,6 +3,7 @@
  */ 
 
 #include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 
@@ -33,7 +34,7 @@ typedef struct
 } Task;
 
 static Task tasks[TASKS_MAX_COUNT];
-static Task *next_deleted_task = 0;
+static int next_deleted_task;
 
 static uint current_ms; // current time in milliseconds
 static uint prev_ms;
@@ -53,11 +54,22 @@ static void update_current_ms(void)
   current_ms = getMilliseconds();
 }
 
-static inline Task *find_deleted_task(void)
+static inline int find_deleted_task_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_task, tasks,
-                            TASKS_MAX_COUNT, "task");
+  return ARRAY_FIND_DELETED_ID(next_deleted_task, tasks,
+                            TASKS_MAX_COUNT, Task, "task");
 }
+
+static Task *get_task(int id)
+{
+  if ((id < 0) | (id >= TASKS_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Task id, using default id: 0\n");
+  }
+    
+  return tasks + id;
+}
+
 
 static void task_init(Task * const task)
 {
@@ -65,34 +77,35 @@ static void task_init(Task * const task)
   task->elapsed_ms = 0.0f;
 }
 
-Task *task_create(void)
+int task_create(void)
 {
-  Task *task = find_deleted_task();
+  const int id = find_deleted_task_id();
+  Task * const task = get_task(id);
 
   task->active = 1;
   task_init(task);
 
-	return task;
+	return id;
 }
 
 
-void task_set_action(Task * const task, Action dofunc)
+void task_set_action(int id, Action dofunc)
 {
-  task->dofunc = dofunc;
+  get_task(id)->dofunc = dofunc;
 }
 
-void task_set_interval(Task * const task, uint interval)
+void task_set_interval(int id, uint interval)
 {
-  task->interval_ms = interval;
+  get_task(id)->interval_ms = interval;
   const uint new_dtime = interval / 2;
   if (new_dtime < tasks_dtime) {
     tasks_dtime = new_dtime;
   }
 }
 
-uint task_elapsed(Task * const task)
+uint task_elapsed(int id)
 {
-  return task->elapsed_ms;
+  return get_task(id)->elapsed_ms;
 }
 
 static void task_do(Task * const task)
@@ -112,14 +125,14 @@ static void task_do(Task * const task)
   }  
 }
 
-void task_pause(Task * const task)
+void task_pause(int id)
 {
-  task->state = TS_PAUSED;
+  get_task(id)->state = TS_PAUSED;
 }
 
-void task_run(Task * const task)
+void task_run(int id)
 {
-  task->state = TS_RUN;
+  get_task(id)->state = TS_RUN;
 }
 
 void do_tasks(void)

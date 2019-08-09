@@ -35,18 +35,28 @@ enum {
 #define MAX_CHAR_LENGTH 100
 
 static Text texts[TEXT_MAX_COUNT];
-static Text *next_deleted_text = 0;
+static int next_deleted_text;
 
 static GPUVertFormat *vformat = 0;
 
 
-static inline Text *find_deleted_text(void)
+static inline int find_deleted_text_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_text, texts,
-                            TEXT_MAX_COUNT, "text");
+  return ARRAY_FIND_DELETED_ID(next_deleted_text, texts,
+                            TEXT_MAX_COUNT, Text,"text");
 }
 
-void text_init(Text *text)
+static Text *get_text(int id)
+{
+  if ((id < 0) | (id >= TEXT_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Text id, using default id: 0\n");
+  }
+    
+  return texts + id;
+}
+
+static void text_init(Text *text)
 {
   if (!text->batch) {
     text->batch = GPU_batch_create();
@@ -71,26 +81,29 @@ void text_init(Text *text)
   text->ready = 0;
 }
 
-Text *text_create(void)
+int text_create(void)
 {
-  Text *text = find_deleted_text();
+  const int id = find_deleted_text_id();
+  Text * const text = get_text(id);
 
   text->active = 1;
   text_init(text);
   
-  return text;
+  return id;
 }
 
-void text_delete(Text *text)
+void text_delete(int id)
 {
+  Text * const text = get_text(id);
   text->active = 0;
   
-  if (text < next_deleted_text)
-    next_deleted_text = text; 
+  if (id < next_deleted_text)
+    next_deleted_text = id; 
 }
 
-void text_set_font(Text *text, Font *font)
+void text_set_font(int id, Font *font)
 {
+  Text * const text = get_text(id);
   text->font = font;
   text->ready = 0;
 }
@@ -159,10 +172,12 @@ static void text_update_start(Text *text)
   GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
 }
 
-void text_add(Text *text, int x, int y, const char *str)
+void text_add(int id, int x, int y, const char *str)
 {
   if (str) {
+    Text * const text = get_text(id);
     Font *font = text_font(text);
+    
     if (font) {
       
       text_update_start(text);
@@ -177,18 +192,19 @@ void text_add(Text *text, int x, int y, const char *str)
   }
 }
 
-void text_set_start(Text *text, const int index)
+void text_set_start(int id, const int index)
 {
-  text->index = index;
+  get_text(id)->index = index;
 }
 
-int text_start(Text *text)
+int text_start(int id)
 {
-  return text->index;
+  return get_text(id)->index;
 }
 
-void text_draw(Text *text)
+void text_draw(int id)
 {
+  Text * const text = get_text(id);
   if (text->ready) {
     GPU_texture_bind(font_texture(text->font), 0);
     shaders_bind_test_quad_shader();

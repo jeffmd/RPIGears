@@ -24,7 +24,7 @@ typedef struct {
   uint8_t object;
   uint8_t dirty_flag;
   uint16_t width, height;
-  GPUTexture *attachments[GPU_FB_MAX_ATTACHEMENT];
+  int attachments[GPU_FB_MAX_ATTACHEMENT];
 } GPUFrameBuffer;
 
 #define GPU_FB_ATTACHEMENT_IS_DIRTY(flag, type) ((flag & (1 << type)) != 0)
@@ -50,7 +50,7 @@ static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)
   return table[type];
 }
 
-static GPUAttachmentType attachment_type_from_tex(GPUTexture *tex)
+static GPUAttachmentType attachment_type_from_tex(int tex)
 {
   switch (GPU_texture_format(tex)) {
     case GPU_DEPTH32:
@@ -115,7 +115,7 @@ void GPU_framebuffer_free(GPUFrameBuffer *fb)
   }
 }
 
-void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, GPUTexture *tex)
+void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, int tex)
 {
   const GPUAttachmentType at_type = attachment_type_from_tex(tex);
 
@@ -125,7 +125,7 @@ void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, GPUTexture *tex)
   }
 }
 
-void GPU_framebuffer_texture_detach_all(GPUTexture *tex)
+void GPU_framebuffer_texture_detach_all(int tex)
 {
   const GPUFrameBuffer *max_fb = framebuffers + GPU_FRAMEBUFFER_MAX_COUNT;
   for (GPUFrameBuffer *fb = framebuffers; fb < max_fb; fb++) {
@@ -134,7 +134,7 @@ void GPU_framebuffer_texture_detach_all(GPUTexture *tex)
 
 }
 
-void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, GPUTexture *tex)
+void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, int tex)
 {
 
   const GPUAttachmentType type = attachment_type_from_tex(tex);
@@ -147,7 +147,7 @@ void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, GPUTexture *tex)
 
 }
 
-static void gpu_framebuffer_attachment_attach(GPUTexture *tex, GPUAttachmentType attach_type)
+static void gpu_framebuffer_attachment_attach(int tex, GPUAttachmentType attach_type)
 {
   const int tex_bind = GPU_texture_opengl_bindcode(tex);
   const GLenum target = GPU_texture_target(tex);

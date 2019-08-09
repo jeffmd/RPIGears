@@ -15,24 +15,22 @@ typedef enum {
 	GPU_DEPTH32
 } GPUTextureFormat;
 
-typedef struct GPUTexture GPUTexture;
-
-GPUTexture *GPU_texture_create(const int w, const int h,
+int GPU_texture_create(const int w, const int h,
         const GPUTextureFormat tex_format, const void *pixels);
 
-void GPU_texture_bind(GPUTexture *tex, const int slot);
-void GPU_texture_unbind(GPUTexture *tex);
-void GPU_texture_free(GPUTexture *tex);
-int GPU_texture_bound_slot(GPUTexture *tex);
-void GPU_texture_ref(GPUTexture *tex);
-int GPU_texture_target(GPUTexture *tex);
-int GPU_texture_width(GPUTexture *tex);
-int GPU_texture_height(GPUTexture *tex);
-GPUTextureFormat GPU_texture_format(GPUTexture *tex);
-GLboolean GPU_texture_cube(GPUTexture *tex);
-GLuint GPU_texture_opengl_bindcode(GPUTexture *tex);
-void GPU_texture_sub_image(GPUTexture *tex, const GLint xoffset,
+void GPU_texture_bind(int id, const int slot);
+void GPU_texture_unbind(int id);
+void GPU_texture_free(int id);
+int GPU_texture_bound_slot(int id);
+void GPU_texture_ref(int id);
+int GPU_texture_target(int id);
+int GPU_texture_width(int id);
+int GPU_texture_height(int id);
+GPUTextureFormat GPU_texture_format(int id);
+GLboolean GPU_texture_cube(int id);
+GLuint GPU_texture_opengl_bindcode(int id);
+void GPU_texture_sub_image(int id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels);
-void GPU_texture_mipmap(GPUTexture *tex);
+void GPU_texture_mipmap(int id);
 
 #endif // _GPU_TEXTURE_H_

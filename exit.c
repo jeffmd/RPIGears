@@ -5,7 +5,7 @@
 #include "tasks.h"
 #include "key_input.h"
 
-static Task *exit_task;
+static int exit_task;
 static int exit_now;
 static const char exit_help[] = "esc or Enter - end program";
 

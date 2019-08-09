@@ -4,6 +4,6 @@
   
   void test_quad(void);
   void test_quad_draw(void);
-  void test_quad_set_texture(GPUTexture *tex);
+  void test_quad_set_texture(int id);
 
 #endif

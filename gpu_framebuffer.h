@@ -12,9 +12,9 @@ typedef enum GPUFrameBufferBits {
 
 GPUFrameBuffer *GPU_framebuffer_create(void);
 void GPU_framebuffer_free(GPUFrameBuffer *fb);
-void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, GPUTexture *tex);
-void GPU_framebuffer_texture_detach_all(GPUTexture *tex);
-void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, GPUTexture *tex);
+void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, int tex);
+void GPU_framebuffer_texture_detach_all(int tex);
+void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, int tex);
 void GPU_framebuffer_bind(GPUFrameBuffer *fb);
 
 #endif  /* __GPU_FRAMEBUFFER_H__ */

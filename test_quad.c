@@ -21,7 +21,7 @@ enum {
 };
 
 typedef struct {
-  GPUTexture *texture;
+  int texture;
   GPUBatch *batch;
   uint8_t toggle;
   GLfloat ProjMatrix[4];
@@ -90,7 +90,7 @@ void test_quad_draw(void)
   }
 }
 
-void test_quad_set_texture(GPUTexture *tex)
+void test_quad_set_texture(int id)
 {
-  quad.texture = tex;
+  quad.texture = id;
 }

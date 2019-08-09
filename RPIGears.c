@@ -96,13 +96,13 @@ extern IMAGE_T rpi_image;
 static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
 static int fps_start; 
-static Text *text;
+static int text_id;
 
 static void init_textures(void)
 {
    // load a texture buffer
    printf("creating Textures\n");
-   GPUTexture *tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
+   int tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
    update_tex(tex);
 }
@@ -120,8 +120,8 @@ static void update_fps(void)
   char *fps_str = demo_state_has_fps();
   
   if (fps_str) {
-    text_set_start(text, fps_start);
-    text_add(text, FPS_X, FPS_Y, fps_str);
+    text_set_start(text_id, fps_start);
+    text_add(text_id, FPS_X, FPS_Y, fps_str);
   }
 }
 
@@ -137,7 +137,7 @@ static void run_gears(void)
     if (!WM_minimized()) {
       test_quad_draw();
       update_fps();
-      text_draw(text);
+      text_draw(text_id);
       scene_draw();
     }
     WM_frameEnd();
@@ -189,10 +189,10 @@ int main (int argc, char *argv[])
   test_quad();
   test_quad_set_texture(font_texture(font_active()));
   
-  text = text_create();
-  text_add(text, 0, 0, ver_text);
-  text_add(text, 0, FPS_Y, fps_text);
-  fps_start = text_start(text);
+  text_id = text_create();
+  text_add(text_id, 0, 0, ver_text);
+  text_add(text_id, 0, FPS_Y, fps_text);
+  fps_start = text_start(text_id);
   // animate the gears
   run_gears();
   

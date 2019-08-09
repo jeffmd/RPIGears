@@ -25,7 +25,7 @@ typedef struct GPUTexture {
 } GPUTexture;
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
-static GPUTexture *next_deleted_texture = 0;
+static int next_deleted_texture;
 
 static const GLenum data_format[] = {
   0,
@@ -71,10 +71,20 @@ static void gpu_texture_memory_footprint_remove(GPUTexture *tex)
   memory_usage -= gpu_texture_memory_footprint_compute(tex);
 }
 
-static inline GPUTexture *find_deleted_texture(void)
+static inline int find_deleted_texture_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_texture, textures,
-                            GPU_TEXTURE_MAX_COUNT, "Texture");;
+  return ARRAY_FIND_DELETED_ID(next_deleted_texture, textures,
+                            GPU_TEXTURE_MAX_COUNT, GPUTexture, "Texture");;
+}
+
+static GPUTexture *get_texture(int id)
+{
+  if ((id < 0) | (id >= GPU_TEXTURE_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Texture id, using default id: 0\n");
+  }
+    
+  return textures + id;
 }
 
 static void init_renderbuffer(GPUTexture *tex)
@@ -117,10 +127,11 @@ static void init_texture(GPUTexture *tex, const void *pixels)
 
 }
 
-GPUTexture *GPU_texture_create(const int w, const int h,
+int GPU_texture_create(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
-  GPUTexture *tex = find_deleted_texture();
+  const int id = find_deleted_texture_id();
+  GPUTexture *tex = get_texture(id);
 
   tex->width = w;
   tex->height = h;
@@ -135,14 +146,15 @@ GPUTexture *GPU_texture_create(const int w, const int h,
 
   gpu_texture_memory_footprint_add(tex);
 
-  printf("New Texture ID:%p glObjID: %i\n", tex, tex->bindcode);
+  printf("New glObjID: %i\n", tex->bindcode);
 
-  return tex;
+  return id;
 }
 
-void GPU_texture_sub_image(GPUTexture *tex, const GLint xoffset,
+void GPU_texture_sub_image(int id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels)
 {
+  GPUTexture * const tex = get_texture(id);
   if (tex->format < GPU_STENCIL8) {
     const GLenum data_format = gpu_get_gl_dataformat(tex->format);
     
@@ -153,7 +165,7 @@ void GPU_texture_sub_image(GPUTexture *tex, const GLint xoffset,
   }
 }
 
-void GPU_texture_bind(GPUTexture *tex, const int slot)
+void GPU_texture_bind(int id, const int slot)
 {
 
   if (slot >= 8) {
@@ -163,13 +175,15 @@ void GPU_texture_bind(GPUTexture *tex, const int slot)
 
   glActiveTexture(GL_TEXTURE0 + slot);
 
+  GPUTexture * const tex = get_texture(id);
   if (tex->bindcode != 0)
     glBindTexture(tex->target, tex->bindcode);
   tex->slot = slot;
 }
 
-void GPU_texture_mipmap(GPUTexture *tex)
+void GPU_texture_mipmap(int id)
 {
+  GPUTexture * const tex = get_texture(id);
   if (tex->format < GPU_STENCIL8) {
     glBindTexture(GL_TEXTURE_2D, tex->bindcode);
     glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
@@ -177,8 +191,9 @@ void GPU_texture_mipmap(GPUTexture *tex)
   }
 }
 
-void GPU_texture_unbind(GPUTexture *tex)
+void GPU_texture_unbind(int id)
 {
+  GPUTexture * const tex = get_texture(id);
   if (tex->slot == -1)
     return;
 
@@ -188,15 +203,16 @@ void GPU_texture_unbind(GPUTexture *tex)
   tex->slot = -1;
 }
 
-void GPU_texture_free(GPUTexture *tex)
+void GPU_texture_free(int id)
 {
+  GPUTexture * const tex = get_texture(id);
   tex->refcount--;
 
   if (tex->refcount < 0)
     printf("GPUTexture: negative refcount\n");
 
   if (tex->refcount == 0) {
-    GPU_framebuffer_texture_detach_all(tex);
+    GPU_framebuffer_texture_detach_all(id);
 
     //glDeleteTextures(1, &tex->bindcode);//GPU_tex_free(tex->bindcode);
 
@@ -205,43 +221,43 @@ void GPU_texture_free(GPUTexture *tex)
   }
 }
 
-int GPU_texture_bound_slot(GPUTexture *tex)
+int GPU_texture_bound_slot(int id)
 {
-  return tex->slot;
+  return get_texture(id)->slot;
 }
 
 
-void GPU_texture_ref(GPUTexture *tex)
+void GPU_texture_ref(int id)
 {
-  tex->refcount++;
+  get_texture(id)->refcount++;
 }
 
-int GPU_texture_target(GPUTexture *tex)
+int GPU_texture_target(int id)
 {
-  return tex->target;
+  return get_texture(id)->target;
 }
 
-int GPU_texture_width(GPUTexture *tex)
+int GPU_texture_width(int id)
 {
-  return tex->width;
+  return get_texture(id)->width;
 }
 
-int GPU_texture_height(GPUTexture *tex)
+int GPU_texture_height(int id)
 {
-  return tex->height;
+  return get_texture(id)->height;
 }
 
-GPUTextureFormat GPU_texture_format(GPUTexture *tex)
+GPUTextureFormat GPU_texture_format(int id)
 {
-  return tex->format;
+  return get_texture(id)->format;
 }
 
-GLboolean GPU_texture_cube(GPUTexture *tex)
+GLboolean GPU_texture_cube(int id)
 {
-  return (tex->target == GL_TEXTURE_CUBE_MAP);
+  return (get_texture(id)->target == GL_TEXTURE_CUBE_MAP);
 }
 
-GLuint GPU_texture_opengl_bindcode(GPUTexture *tex)
+GLuint GPU_texture_opengl_bindcode(int id)
 {
-  return tex->bindcode;
+  return get_texture(id)->bindcode;
 }

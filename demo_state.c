@@ -17,7 +17,7 @@ typedef struct
 {
 // number of seconds to run the demo
    GLuint timeToRun;
-   GPUTexture *tex;
+   int tex;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
    gear_t *gear1, *gear2, *gear3;
@@ -46,8 +46,8 @@ static int lastFrames;
 static char fps_str[12];
 static char *fps_strptr;
 
-static Task *AngleFrame_task;
-static Task *FPS_task;
+static int AngleFrame_task;
+static int FPS_task;
 
 
 static void update_gear_VBO_use(void)
@@ -77,7 +77,7 @@ GLuint state_timeToRun(void)
   return state->timeToRun;
 }
 
-GPUTexture *state_tex(void)
+int state_tex(void)
 {
   return state->tex;
 }
@@ -137,9 +137,9 @@ void update_avgfps(const float fps)
   }
 }
 
-void update_tex(GPUTexture *tex)
+void update_tex(int id)
 {
-  state->tex = tex;
+  state->tex = id;
 }
 
 GLuint state_instances(void)

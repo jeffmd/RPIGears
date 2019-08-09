@@ -8,7 +8,7 @@
   Font *font_create(const char *filename);
   void font_set_size(Font *font, int size);
   Glyph *font_glyph(Font *font, const char ch);
-  GPUTexture *font_texture(Font *font);
+  int font_texture(Font *font);
   void font_set_active(Font *font);
   void font_active_bind(const int slot);
   Font *font_active(void);

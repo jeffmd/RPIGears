@@ -31,7 +31,7 @@ typedef struct Font {
   uint8_t ready;
   
   Glyph glyphs[CHAR_SET];
-  GPUTexture *texture;
+  int texture;
   const char *filename;
   
 } Font;
@@ -215,7 +215,7 @@ void font_active_bind(const int slot)
   }
 }
 
-GPUTexture *font_texture(Font *font)
+int font_texture(Font *font)
 {
   if (font)
     return font->texture;

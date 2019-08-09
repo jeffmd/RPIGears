@@ -25,7 +25,7 @@ extern void toggle_useVSync(void);
 static struct termios saved_attributes;
 static int initialized = 0;
 
-static Task *KeyScan_task;
+static int KeyScan_task;
 
 typedef void (*Action)(void);
 typedef void (*UPDATE_KEY_DOWN)(const float);
