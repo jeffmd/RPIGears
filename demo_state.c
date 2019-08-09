@@ -20,7 +20,7 @@ typedef struct
    int tex;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
-   gear_t *gear1, *gear2, *gear3;
+   int gear1, gear2, gear3;
 
 // current angle of the gear
    GLfloat angle;
@@ -82,17 +82,17 @@ int state_tex(void)
   return state->tex;
 }
 
-gear_t *state_gear1(void)
+int state_gear1(void)
 {
   return state->gear1;
 }
 
-gear_t *state_gear2(void)
+int state_gear2(void)
 {
   return state->gear2;
 }
 
-gear_t *state_gear3(void)
+int state_gear3(void)
 {
   return state->gear3;
 }

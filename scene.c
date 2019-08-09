@@ -34,7 +34,7 @@ static GPUUniformBuffer *uniform_buffer;
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
  */
-static void draw_gear(gear_t *gear, GLfloat x, GLfloat y, GLfloat angle)
+static void draw_gear(int gear, GLfloat x, GLfloat y, GLfloat angle)
 {
    /* Translate and rotate the gear */
    m4x4_copy(UBO_Data.model_view, camera_view_matrix());

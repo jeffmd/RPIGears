@@ -31,6 +31,12 @@ enum {
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
 static GPUVertFormat *vformat = 0;
+
+static gear_t *get_gear(int id)
+{
+  return gears + id;
+}
+
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -44,7 +50,7 @@ static GPUVertFormat *vformat = 0;
           tooth_depth - depth of tooth
  
  **/
-gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
+int gear( const GLfloat inner_radius, const GLfloat outer_radius,
                      const GLfloat width, const GLint teeth,
                      const GLfloat tooth_depth,
                      const GLfloat color[])
@@ -57,7 +63,8 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
   
-  gear_t *gear = &gears[gearID++];
+  const int id = gearID++;
+  gear_t *gear = get_gear(id);
   
   const int nvertices = teeth * 38;
   const int nindices = teeth * 64 * 3;
@@ -219,26 +226,29 @@ gear_t *gear( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix1, ix3, ix2);
   }
   printf("gear vertices: %i\n", idx); 
-  return gear;
+  return id;
 }
 
-void gear_delete(gear_t* gear)
+void gear_delete(int id)
 {
+  gear_t *gear = get_gear(id);
   GPU_batch_delete(gear->batch, 1);
 }
 
-void gear_draw(gear_t* gear, const GLenum drawMode, const GLuint instances)
+void gear_draw(int id, const GLenum drawMode, const GLuint instances)
 {
-  
+  gear_t *gear = get_gear(id);
   GPU_batch_draw(gear->batch, drawMode, instances);
 }
 
-void gear_use_BO(gear_t* gear)
+void gear_use_BO(int id)
 {
+  gear_t *gear = get_gear(id);
   GPU_batch_use_BO(gear->batch);
 }
 
-void gear_no_BO(gear_t* gear)
+void gear_no_BO(int id)
 {
+  gear_t *gear = get_gear(id);
   GPU_batch_no_BO(gear->batch);
 }
