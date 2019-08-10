@@ -73,7 +73,7 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  GPUIndexBuffer *ibuff = GPU_batch_index_buffer(gear->batch);
+  const int ibuff = GPU_batch_index_buffer(gear->batch);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_set_add_count(ibuff, nindices);
     

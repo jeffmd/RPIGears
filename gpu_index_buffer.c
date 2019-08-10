@@ -23,12 +23,22 @@ typedef struct {
 #define DEFAULT_COUNT 100
 
 static GPUIndexBuffer index_buffers[INDEX_BUFFER_MAX_COUNT];
-static GPUIndexBuffer *next_deleted_index_buffer = 0;
+static int next_deleted_index_buffer;
 
-static inline GPUIndexBuffer *find_deleted_index_buffer(void)
+static inline int find_deleted_index_buffer_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_index_buffer, index_buffers,
-                            INDEX_BUFFER_MAX_COUNT, "Index Buffer");
+  return ARRAY_FIND_DELETED_ID(next_deleted_index_buffer, index_buffers,
+                            INDEX_BUFFER_MAX_COUNT, GPUIndexBuffer, "Index Buffer");
+}
+
+static GPUIndexBuffer *get_index_buffer(int id)
+{
+  if ((id < 0) | (id >= INDEX_BUFFER_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Index buffer id, using default id: 0\n");
+  }
+    
+  return index_buffers + id;
 }
 
 static void delete_data(GPUIndexBuffer *ibuff)
@@ -59,32 +69,35 @@ static void indexbuf_init(GPUIndexBuffer *ibuff)
 
 
 // create new GPUIndexBuffer
-GPUIndexBuffer *GPU_indexbuf_create(void)
+int GPU_indexbuf_create(void)
 {
-  GPUIndexBuffer *ibuff = find_deleted_index_buffer();
+  const int id = find_deleted_index_buffer_id();
+  GPUIndexBuffer *ibuff = get_index_buffer(id);
   ibuff->active = 1;
   indexbuf_init(ibuff);
 
-  return ibuff;
+  return id;
 }
 
-void GPU_indexbuf_delete(GPUIndexBuffer *ibuff)
+void GPU_indexbuf_delete(int id)
 {
+  GPUIndexBuffer *ibuff = get_index_buffer(id);
+
   ibuff->active = 0;
   indexbuf_init(ibuff);
     
-  if (ibuff < next_deleted_index_buffer)
-    next_deleted_index_buffer = ibuff; 
+  if (id < next_deleted_index_buffer)
+    next_deleted_index_buffer = id; 
 }
 
-void GPU_indexbuf_set_add_count(GPUIndexBuffer *ibuff, const GLuint count)
+void GPU_indexbuf_set_add_count(int id, const GLuint count)
 {
-  ibuff->add_count = count;
+  get_index_buffer(id)->add_count = count;
 }
 
-void GPU_indexbuf_set_start(GPUIndexBuffer *ibuff, const GLuint start)
+void GPU_indexbuf_set_start(int id, const GLuint start)
 {
-  ibuff->idx = start;
+  get_index_buffer(id)->idx = start;
 }
 
 
@@ -131,8 +144,10 @@ static GLuint indexbuf_idx(GPUIndexBuffer *ibuff)
   return idx;
 }
 
-void GPU_indexbuf_add(GPUIndexBuffer *ibuff, const GLshort val)
+void GPU_indexbuf_add(int id, const GLshort val)
 {
+  GPUIndexBuffer *ibuff = get_index_buffer(id);
+
   if (!ibuff->ready) {
     indexbuf_make_ready(ibuff);
   }
@@ -145,21 +160,25 @@ void GPU_indexbuf_add(GPUIndexBuffer *ibuff, const GLshort val)
   }
 }
 
-void GPU_indexbuf_use_BO(GPUIndexBuffer *ibuff)
+void GPU_indexbuf_use_BO(int id)
 {
+  GPUIndexBuffer *ibuff = get_index_buffer(id);
+
   if (!ibuff->ibo_id) {
     glGenBuffers(1, &ibuff->ibo_id);
   }
 }
 
-void GPU_indexbuf_no_BO(GPUIndexBuffer *ibuff)
+void GPU_indexbuf_no_BO(int id)
 {
-  delete_ibo(ibuff);
+  delete_ibo(get_index_buffer(id));
 }
 
 // set VAO
-void GPU_indexbuf_bind(GPUIndexBuffer *ibuff)
+void GPU_indexbuf_bind(int id)
 {
+  GPUIndexBuffer *ibuff = get_index_buffer(id);
+
   if (ibuff->ready) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuff->ibo_id);
     ibuff->index = ibuff->data;
@@ -170,7 +189,7 @@ void GPU_indexbuf_bind(GPUIndexBuffer *ibuff)
   }
 }
 
-GLvoid *GPU_indexbuf_get_index(GPUIndexBuffer *ibuff)
+GLvoid *GPU_indexbuf_get_index(int id)
 {
-  return ibuff->index;
+  return get_index_buffer(id)->index;
 }

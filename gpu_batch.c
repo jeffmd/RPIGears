@@ -25,7 +25,7 @@ typedef struct {
   uint8_t next_index;         // next index to use for a new shader binding
   uint8_t active_index;       // the index to the shader used for current binding
   int vbuff;                  // ID for vert buffer
-  GPUIndexBuffer *ibuff;      // ID for index buffer
+  int ibuff;                  // ID for index buffer
   int ubuff;                  // ID for uniform buffer
   GLuint vertices_draw_count; // number of vertices to draw
   GLuint indices_draw_count;  // number of indices to draw
@@ -161,7 +161,7 @@ void GPU_batch_set_vertices_draw_count(int id, const int count)
   get_batch(id)->vertices_draw_count = count;
 }
 
-void GPU_batch_set_index_buffer(int id, GPUIndexBuffer *ibuff)
+void GPU_batch_set_index_buffer(int id, int ibuff)
 {
   get_batch(id)->ibuff = ibuff;
 }
@@ -186,7 +186,7 @@ int GPU_batch_vertex_buffer(int id)
   return batch->vbuff;
 }
 
-GPUIndexBuffer *GPU_batch_index_buffer(int id)
+int GPU_batch_index_buffer(int id)
 {
   GPUBatch *batch = get_batch(id);
 
