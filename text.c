@@ -62,8 +62,8 @@ static void text_init(Text *text)
     text->batch = GPU_batch_create();
     const int ubuff = GPU_batch_uniform_buffer(text->batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", text->ProjMatrix);
-    text->ProjMatrix[0] = 1.0/1280;
-    text->ProjMatrix[1] = 1.0/1024;
+    text->ProjMatrix[0] = 1.0f/1280.0f;
+    text->ProjMatrix[1] = 1.0f/1024.0f;
     text->ProjMatrix[2] = -0.49f;
     text->ProjMatrix[3] = -0.49f;
     text->count = 0;
