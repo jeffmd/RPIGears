@@ -17,7 +17,7 @@
 typedef struct {
 
   uint8_t active;           // zero if deleted
-  GPUBatch *batch;
+  int batch;
   int font;
   const char *str;
   uint8_t ready;           // 1 if ready to draw

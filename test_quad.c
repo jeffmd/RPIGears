@@ -22,7 +22,7 @@ enum {
 
 typedef struct {
   int texture;
-  GPUBatch *batch;
+  int batch;
   uint8_t toggle;
   GLfloat ProjMatrix[4];
 } TQuad;

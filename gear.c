@@ -17,7 +17,7 @@
 
 typedef struct {
   GLfloat color[4];
-  GPUBatch *batch; 
+  int batch; 
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
