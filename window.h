@@ -4,13 +4,11 @@
 
 #ifndef _WINDOW_H_
   #define _WINDOW_H_
-  #include "EGL/egl.h"
   
   int window_major(void);
   int window_minor(void);
-  EGLDisplay window_display(void);
-  uint32_t window_screen_width(void);
-  uint32_t window_screen_height(void);
+  int window_screen_width(void);
+  int window_screen_height(void);
   void window_pos(const int x, const int y);
   void window_show(void);
   void window_hide(void);

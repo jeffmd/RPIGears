@@ -48,17 +48,12 @@ int window_minor(void)
   return window->minor;
 }
 
-EGLDisplay window_display(void)
-{
-  return window->display;
-}
-
-uint32_t window_screen_width(void)
+int window_screen_width(void)
 {
   return window->nativewindow.width;
 }
 
-uint32_t window_screen_height(void)
+int window_screen_height(void)
 {
   return window->nativewindow.height;
 }
