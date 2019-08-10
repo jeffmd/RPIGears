@@ -12,11 +12,11 @@ static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
 static const char test_quad_vert[] = "test_quad_vert.glsl";
 static const char test_quad_frag[] = "test_quad_frag.glsl";
 
-static GPUShader *blinn_phong_prg = 0;
-static GPUShader *test_quad_prg = 0;
+static int blinn_phong_prg = 0;
+static int test_quad_prg = 0;
 
-static GPUShader *active_gear_shader = 0;
-static GPUShader *active_test_quad_shader = 0;
+static int active_gear_shader = 0;
+static int active_test_quad_shader = 0;
 
 void shaders_load_programs(void)
 {

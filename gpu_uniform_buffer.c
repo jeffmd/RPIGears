@@ -23,7 +23,7 @@ typedef struct {
 } UniformAttribute;
 
 typedef struct {
-  GPUShader *shader;        // the shader used for binding
+  int shader;        // the shader used for binding
   int modid;
   GLint locations[UNIFORM_MAX_COUNT];  // uniform bind location
 } ShaderUniformIndex;
@@ -70,7 +70,7 @@ static int uniformbuffer_next_index(GPUUniformBuffer *ubuff)
   return ubuff->next_index++;
 }
 
-static int uniformbuffer_needs_binding(GPUUniformBuffer *ubuff, GPUShader *shader)
+static int uniformbuffer_needs_binding(GPUUniformBuffer *ubuff, int shader)
 {
   int index = 0;
   int needs_binding = 1;
@@ -169,7 +169,7 @@ void GPU_uniformbuffer_add_uniform(int id, const char *name,
 
 void GPU_uniformbuffer_bind(int id)
 {
-  GPUShader *shader = GPU_shader_active_shader();
+  int shader = GPU_shader_active_shader();
   GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   
   if ((ubuff->shaders[ubuff->active_index].shader != shader)

@@ -12,7 +12,7 @@
 #include "gpu_uniform_buffer.h"
 
 typedef struct {
-  GPUShader *shader;        // the shader used for binding
+  int shader;        // the shader used for binding
   int modid;
   GLuint vaoId;               // ID for vertex array object
 } ShaderVAO;
@@ -68,7 +68,7 @@ static void batch_clear_shaders(GPUBatch *batch)
   }  
 }
 
-static int batch_needs_binding(GPUBatch *batch, GPUShader *shader)
+static int batch_needs_binding(GPUBatch *batch, int shader)
 {
   int index = 0;
   int needs_binding = 1;
@@ -226,7 +226,7 @@ static void batch_update_bindings(GPUBatch *batch)
 
 static void batch_bind(GPUBatch *batch)
 {
-  GPUShader *shader = GPU_shader_active_shader();
+  int shader = GPU_shader_active_shader();
   
   if ((batch->shaders[batch->active_index].shader != shader)
     || (batch->shaders[batch->active_index].modid != GPU_shader_modid(shader))) {
