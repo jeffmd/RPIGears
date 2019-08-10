@@ -31,13 +31,23 @@ typedef struct {
 #define GPU_FB_ATTACHEMENT_SET_DIRTY(flag, type) (flag |= (1 << type))
 
 static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
-static GPUFrameBuffer *next_deleted_framebuffer = 0;
-static GPUFrameBuffer *active_framebuffer;
+static int next_deleted_framebuffer;
+static int active_framebuffer;
 
-static inline GPUFrameBuffer *find_deleted_framebuffer(void)
+static inline int find_deleted_framebuffer_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_framebuffer, framebuffers, 
-                            GPU_FRAMEBUFFER_MAX_COUNT, "Frame Buffer");
+  return ARRAY_FIND_DELETED_ID(next_deleted_framebuffer, framebuffers, 
+                            GPU_FRAMEBUFFER_MAX_COUNT, GPUFrameBuffer, "Frame Buffer");
+}
+
+static GPUFrameBuffer *get_framebuffer(int id)
+{
+  if ((id < 0) | (id >= GPU_FRAMEBUFFER_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Frame buffer id, using default id: 0\n");
+  }
+    
+  return framebuffers + id;
 }
 
 static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)
@@ -65,24 +75,24 @@ static GPUAttachmentType attachment_type_from_tex(int tex)
   }
 }
 
-GPUFrameBuffer *GPU_framebuffer_active_get(void)
+int GPU_framebuffer_active_get(void)
 {
   return active_framebuffer;
 }
 
-static void gpu_framebuffer_current_set(GPUFrameBuffer *fb)
+static void gpu_framebuffer_current_set(int id)
 {
-  active_framebuffer = fb;
+  active_framebuffer = id;
 }
 
-GPUFrameBuffer *GPU_framebuffer_create(void)
+int GPU_framebuffer_create(void)
 {
   /* We generate the FB object later at first use in order to
    * create the framebuffer in the right opengl context. */
-  GPUFrameBuffer *fb = find_deleted_framebuffer();
-  fb->refcount = 1;
+  const int id = find_deleted_framebuffer_id();
+  get_framebuffer(id)->refcount = 1;
 
-  return fb;
+  return id;
 }
 
 static void gpu_framebuffer_init(GPUFrameBuffer *fb)
@@ -92,9 +102,10 @@ static void gpu_framebuffer_init(GPUFrameBuffer *fb)
   fb->object = obj;
 }
 
-void GPU_framebuffer_free(GPUFrameBuffer *fb)
+void GPU_framebuffer_free(int id)
 {
-
+  GPUFrameBuffer *fb = get_framebuffer(id);
+  
   fb->refcount--;
 
   if (fb->refcount < 0)
@@ -105,7 +116,7 @@ void GPU_framebuffer_free(GPUFrameBuffer *fb)
       fb->attachments[type] = 0;
     }
 
-    if (GPU_framebuffer_active_get() == fb) {
+    if (GPU_framebuffer_active_get() == id) {
       gpu_framebuffer_current_set(0);
     }
     /* This restores the framebuffer if it was bound */
@@ -115,8 +126,10 @@ void GPU_framebuffer_free(GPUFrameBuffer *fb)
   }
 }
 
-void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, int tex)
+void GPU_framebuffer_texture_detach(int id, int tex)
 {
+  GPUFrameBuffer *fb = get_framebuffer(id);
+
   const GPUAttachmentType at_type = attachment_type_from_tex(tex);
 
   if (fb->attachments[at_type] == tex) {
@@ -127,16 +140,15 @@ void GPU_framebuffer_texture_detach(GPUFrameBuffer *fb, int tex)
 
 void GPU_framebuffer_texture_detach_all(int tex)
 {
-  const GPUFrameBuffer *max_fb = framebuffers + GPU_FRAMEBUFFER_MAX_COUNT;
-  for (GPUFrameBuffer *fb = framebuffers; fb < max_fb; fb++) {
-    GPU_framebuffer_texture_detach(fb, tex);
+  for (int id = 1; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
+    GPU_framebuffer_texture_detach(id, tex);
   }
 
 }
 
-void GPU_framebuffer_texture_attach(GPUFrameBuffer *fb, int tex)
+void GPU_framebuffer_texture_attach(int id, int tex)
 {
-
+  GPUFrameBuffer *fb = get_framebuffer(id);
   const GPUAttachmentType type = attachment_type_from_tex(tex);
 
   if (fb->attachments[type] != tex)
@@ -200,15 +212,17 @@ static void gpu_framebuffer_update_attachments(GPUFrameBuffer *fb)
 
 }
 
-void GPU_framebuffer_bind(GPUFrameBuffer *fb)
+void GPU_framebuffer_bind(int id)
 {
+  GPUFrameBuffer *fb = get_framebuffer(id);
+
   if (fb->object == 0)
     gpu_framebuffer_init(fb);
 
   //if (GPU_framebuffer_active_get() != fbID)
     glBindFramebuffer(GL_FRAMEBUFFER, fb->object);
 
-  gpu_framebuffer_current_set(fb);
+  gpu_framebuffer_current_set(id);
 
   if (fb->dirty_flag)
     gpu_framebuffer_update_attachments(fb);
