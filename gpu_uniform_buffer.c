@@ -146,7 +146,7 @@ void GPU_uniformbuffer_delete(int id)
 
 }
 
-void GPU_uniformbuffer_add_uniform(int id, const char *name,
+void GPU_uniformbuffer_add(int id, const char *name,
   const GLint size, const GLenum type, void *data)
 {
   if (data) {
