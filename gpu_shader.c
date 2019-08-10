@@ -37,9 +37,9 @@ typedef struct {
   uint8_t active;
   GLint linked;
   int modid;
-  GPUShaderUnit *vert_unit;
+  int vert_unit;
   int vert_modid;
-  GPUShaderUnit *frag_unit;
+  int frag_unit;
   int frag_modid;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
