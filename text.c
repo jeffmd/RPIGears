@@ -75,7 +75,7 @@ static void text_init(Text *text)
     GPU_vertex_format_add_attribute(vformat, "position_uv", 4, GL_HALF_FLOAT_OES);
   }
 
-  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+  const int vbuff = GPU_batch_vertex_buffer(text->batch);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
   GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
   text->ready = 0;
@@ -123,7 +123,7 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 
   int advance = 0;
   
-  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+  const int vbuff = GPU_batch_vertex_buffer(text->batch);
   const int font = text->font;
   
   const int dx = glyph_width(font, ch);
@@ -165,7 +165,7 @@ static void text_update_draw_count(Text *text)
 
 static void text_update_start(Text *text)
 {
-  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(text->batch);
+  const int vbuff = GPU_batch_vertex_buffer(text->batch);
   
   GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
 }

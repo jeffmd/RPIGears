@@ -23,12 +23,22 @@ typedef struct {
 #define DEFAULT_COUNT 100
 
 static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
-static GPUVertBuffer *next_deleted_vert_buffer = 0;
+static int next_deleted_vert_buffer;
 
-static inline GPUVertBuffer *find_deleted_vert_buffer(void)
+static inline int find_deleted_vert_buffer_id(void)
 {
-  return ARRAY_FIND_DELETED(next_deleted_vert_buffer, vert_buffers,
-                            VERT_BUFFER_MAX_COUNT, "vertex buffer");
+  return ARRAY_FIND_DELETED_ID(next_deleted_vert_buffer, vert_buffers,
+                            VERT_BUFFER_MAX_COUNT, GPUVertBuffer, "vertex buffer");
+}
+
+static GPUVertBuffer *get_vert_buffer(int id)
+{
+  if ((id < 0) | (id >= VERT_BUFFER_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad vertex buffer id, using default id: 0\n");
+  }
+    
+  return vert_buffers + id;
 }
 
 static void delete_data(GPUVertBuffer *vbuff)
@@ -59,36 +69,39 @@ static void vertbuf_init(GPUVertBuffer *vbuff)
 }
 
 // create new GPUVertBuffer
-GPUVertBuffer *GPU_vertbuf_create(void)
+int GPU_vertbuf_create(void)
 {
-  GPUVertBuffer *vbuff = find_deleted_vert_buffer();
+  const int id = find_deleted_vert_buffer_id();
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
   vbuff->active = 1;
   vertbuf_init(vbuff);
 
-  return vbuff;
+  return id;
 }
 
-void GPU_vertbuf_delete(GPUVertBuffer *vbuff)
+void GPU_vertbuf_delete(int id)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
   vbuff->active = 0;
   vertbuf_init(vbuff);
 
-  if (vbuff < next_deleted_vert_buffer)
-    next_deleted_vert_buffer = vbuff;
+  if (id < next_deleted_vert_buffer)
+    next_deleted_vert_buffer = id;
 }
 
-void GPU_vertbuf_set_vertex_format(GPUVertBuffer *vbuff, GPUVertFormat *vformat)
+void GPU_vertbuf_set_vertex_format(int id, GPUVertFormat *vformat)
 {
-  vbuff->vformat = vformat;
+  get_vert_buffer(id)->vformat = vformat;
 }
 
-void GPU_vertbuf_set_add_count(GPUVertBuffer *vbuff, const GLuint count)
+void GPU_vertbuf_set_add_count(int id, const GLuint count)
 {
-  vbuff->add_count = count;
+  get_vert_buffer(id)->add_count = count;
 }
 
-void GPU_vertbuf_set_start(GPUVertBuffer *vbuff, const GLuint start)
+void GPU_vertbuf_set_start(int id, const GLuint start)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
   for (GLuint Idx = 0; Idx < VERT_ATTRIB_MAX; Idx++) {
     vbuff->data_idx[Idx] = start;
   }
@@ -153,8 +166,10 @@ static void *vertbuf_attr_data(GPUVertBuffer *vbuff, const GLuint attribute_id)
   return vbuff->data + (idx * stride) + GPU_vertex_format_offset(vbuff->vformat, attribute_id);  
 }
 
-void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertbuf_add_4(int id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
+
   if (!vbuff->ready) {
     vertbuf_make_ready(vbuff);
   }
@@ -169,20 +184,25 @@ void GPU_vertbuf_add_4(GPUVertBuffer *vbuff, const GLuint attribute_id, const GL
   }
 }
 
-void GPU_vertbuf_use_BO(GPUVertBuffer *vbuff)
+void GPU_vertbuf_use_BO(int id)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
+
   if (!vbuff->vbo_id) {
     glGenBuffers(1, &vbuff->vbo_id);
   }
 }
 
-void GPU_vertbuf_no_BO(GPUVertBuffer *vbuff)
+void GPU_vertbuf_no_BO(int id)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
   delete_vbo(vbuff);
 }
 
-void GPU_vertbuf_bind(GPUVertBuffer *vbuff)
+void GPU_vertbuf_bind(int id)
 {
+  GPUVertBuffer *vbuff = get_vert_buffer(id);
+
   if (vbuff->ready) {
     glBindBuffer(GL_ARRAY_BUFFER, vbuff->vbo_id);
     GLvoid *data = vbuff->data;

@@ -24,7 +24,7 @@ typedef struct {
   ShaderVAO shaders[SHADER_CACHE_MAX_COUNT];        // shader VAO cache
   uint8_t next_index;         // next index to use for a new shader binding
   uint8_t active_index;       // the index to the shader used for current binding
-  GPUVertBuffer *vbuff;       // ID for vert buffer
+  int vbuff;                  // ID for vert buffer
   GPUIndexBuffer *ibuff;      // ID for index buffer
   int ubuff;                  // ID for uniform buffer
   GLuint vertices_draw_count; // number of vertices to draw
@@ -166,7 +166,7 @@ void GPU_batch_set_index_buffer(int id, GPUIndexBuffer *ibuff)
   get_batch(id)->ibuff = ibuff;
 }
 
-void GPU_batch_set_vertex_buffer(int id, GPUVertBuffer *vbuff)
+void GPU_batch_set_vertex_buffer(int id, int vbuff)
 {
   get_batch(id)->vbuff = vbuff;
 }
@@ -176,7 +176,7 @@ void GPU_batch_set_uniform_buffer(int id, int ubuff)
   get_batch(id)->ubuff = ubuff;
 }
 
-GPUVertBuffer *GPU_batch_vertex_buffer(int id)
+int GPU_batch_vertex_buffer(int id)
 {
   GPUBatch *batch = get_batch(id);
 

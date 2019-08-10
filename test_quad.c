@@ -61,7 +61,7 @@ void test_quad(void)
     GPU_vertex_format_add_attribute(vformat, "position_uv", 4, GL_HALF_FLOAT_OES);
   }
 
-  GPUVertBuffer *vbuff = GPU_batch_vertex_buffer(quad.batch);
+  const int vbuff = GPU_batch_vertex_buffer(quad.batch);
   GPU_batch_set_vertices_draw_count(quad.batch, 6);
   GPU_vertbuf_set_vertex_format(vbuff, vformat);
   GPU_vertbuf_set_add_count(vbuff, 6);
