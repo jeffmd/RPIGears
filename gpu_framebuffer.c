@@ -50,7 +50,7 @@ static GPUFrameBuffer *get_framebuffer(int id)
   return framebuffers + id;
 }
 
-static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)
+static GLenum convert_attachment_type_to_gl(const GPUAttachmentType type)
 {
   static const GLenum table[] = {
     [GPU_FB_COLOR_ATTACHMENT0] = GL_COLOR_ATTACHMENT0,
@@ -60,7 +60,7 @@ static GLenum convert_attachment_type_to_gl(GPUAttachmentType type)
   return table[type];
 }
 
-static GPUAttachmentType attachment_type_from_tex(int tex)
+static GPUAttachmentType attachment_type_from_tex(const int tex)
 {
   switch (GPU_texture_format(tex)) {
     case GPU_DEPTH32:
@@ -80,7 +80,7 @@ int GPU_framebuffer_active_get(void)
   return active_framebuffer;
 }
 
-static void gpu_framebuffer_current_set(int id)
+static void gpu_framebuffer_current_set(const int id)
 {
   active_framebuffer = id;
 }
@@ -126,7 +126,7 @@ void GPU_framebuffer_free(int id)
   }
 }
 
-void GPU_framebuffer_texture_detach(int id, int tex)
+void GPU_framebuffer_texture_detach(const int id, const int tex)
 {
   GPUFrameBuffer *fb = get_framebuffer(id);
 
@@ -138,7 +138,7 @@ void GPU_framebuffer_texture_detach(int id, int tex)
   }
 }
 
-void GPU_framebuffer_texture_detach_all(int tex)
+void GPU_framebuffer_texture_detach_all(const int tex)
 {
   for (int id = 1; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
     GPU_framebuffer_texture_detach(id, tex);
@@ -146,7 +146,7 @@ void GPU_framebuffer_texture_detach_all(int tex)
 
 }
 
-void GPU_framebuffer_texture_attach(int id, int tex)
+void GPU_framebuffer_texture_attach(const int id, const int tex)
 {
   GPUFrameBuffer *fb = get_framebuffer(id);
   const GPUAttachmentType type = attachment_type_from_tex(tex);
@@ -159,7 +159,7 @@ void GPU_framebuffer_texture_attach(int id, int tex)
 
 }
 
-static void gpu_framebuffer_attachment_attach(int tex, GPUAttachmentType attach_type)
+static void gpu_framebuffer_attachment_attach(const int tex, const GPUAttachmentType attach_type)
 {
   const int tex_bind = GPU_texture_opengl_bindcode(tex);
   const GLenum target = GPU_texture_target(tex);
@@ -174,7 +174,7 @@ static void gpu_framebuffer_attachment_attach(int tex, GPUAttachmentType attach_
   }
 }
 
-static void gpu_framebuffer_attachment_detach(GPUAttachmentType attach_type)
+static void gpu_framebuffer_attachment_detach(const GPUAttachmentType attach_type)
 {
   const GLenum gl_attachment = convert_attachment_type_to_gl(attach_type);
 
@@ -212,7 +212,7 @@ static void gpu_framebuffer_update_attachments(GPUFrameBuffer *fb)
 
 }
 
-void GPU_framebuffer_bind(int id)
+void GPU_framebuffer_bind(const int id)
 {
   GPUFrameBuffer *fb = get_framebuffer(id);
 

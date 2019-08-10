@@ -89,12 +89,12 @@ int task_create(void)
 }
 
 
-void task_set_action(int id, Action dofunc)
+void task_set_action(const int id, Action dofunc)
 {
   get_task(id)->dofunc = dofunc;
 }
 
-void task_set_interval(int id, uint interval)
+void task_set_interval(const int id, const uint interval)
 {
   get_task(id)->interval_ms = interval;
   const uint new_dtime = interval / 2;
@@ -103,7 +103,7 @@ void task_set_interval(int id, uint interval)
   }
 }
 
-uint task_elapsed(int id)
+uint task_elapsed(const int id)
 {
   return get_task(id)->elapsed_ms;
 }
@@ -125,12 +125,12 @@ static void task_do(Task * const task)
   }  
 }
 
-void task_pause(int id)
+void task_pause(const int id)
 {
   get_task(id)->state = TS_PAUSED;
 }
 
-void task_run(int id)
+void task_run(const int id)
 {
   get_task(id)->state = TS_RUN;
 }

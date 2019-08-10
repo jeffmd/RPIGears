@@ -128,7 +128,7 @@ static void shader_unit_build(GPUShaderUnit *shader)
 
 }
 
-GLuint GPU_shader_unit_globj(int id)
+GLuint GPU_shader_unit_globj(const int id)
 {
   GPUShaderUnit *shader = get_shader_unit(id);
   
@@ -138,17 +138,17 @@ GLuint GPU_shader_unit_globj(int id)
   return shader->glShaderObj;
 }
 
-void GPU_shader_unit_reset(int id)
+void GPU_shader_unit_reset(const int id)
 {
   shader_unit_init(get_shader_unit(id));
 }
 
-int GPU_shader_unit_modid(int id)
+int GPU_shader_unit_modid(const int id)
 {
   return get_shader_unit(id)->modid;
 }
 
-const char *GPU_shader_unit_file_name(int id)
+const char *GPU_shader_unit_file_name(const int id)
 {
   return get_shader_unit(id)->fileName;
 }

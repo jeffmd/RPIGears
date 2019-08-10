@@ -138,7 +138,7 @@ int GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
   return id;
 }
 
-void GPU_shader_reset(int id)
+void GPU_shader_reset(const int id)
 {
   if (active_shader == id)
     glUseProgram(0);
@@ -219,7 +219,7 @@ static void shader_check_unit_updates(GPUShader *shader)
   
 }
 
-void GPU_shader_bind(int id)
+void GPU_shader_bind(const int id)
 {
   GPUShader *shader = get_shader(id);
 
@@ -239,7 +239,7 @@ void GPU_shader_bind(int id)
   }
 }
 
-int GPU_shader_modid(int id)
+int GPU_shader_modid(const int id)
 {
   return get_shader(id)->modid;
 }
@@ -267,12 +267,12 @@ static inline GLint get_shader_input_location(const ShaderInputArrayTracker* inp
   return (input) ? input->location : -1;
 }
 
-GLint GPU_shader_uniform_location(int id, const char *name)
+GLint GPU_shader_uniform_location(const int id, const char *name)
 {
   return get_shader_input_location(&get_shader(id)->uniforms, name);
 }
 
-GLint GPU_shader_attribute_location(int id, const char *name)
+GLint GPU_shader_attribute_location(const int id, const char *name)
 {
   return get_shader_input_location(&get_shader(id)->attributes, name);
 }

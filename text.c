@@ -101,7 +101,7 @@ void text_delete(int id)
     next_deleted_text = id; 
 }
 
-void text_set_font(int id, int font)
+void text_set_font(const int id, const int font)
 {
   Text * const text = get_text(id);
   text->font = font;
@@ -170,7 +170,7 @@ static void text_update_start(Text *text)
   GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
 }
 
-void text_add(int id, int x, int y, const char *str)
+void text_add(const int id, int x, int y, const char *str)
 {
   if (str) {
     Text * const text = get_text(id);
@@ -190,17 +190,17 @@ void text_add(int id, int x, int y, const char *str)
   }
 }
 
-void text_set_start(int id, const int index)
+void text_set_start(const int id, const int index)
 {
   get_text(id)->index = index;
 }
 
-int text_start(int id)
+int text_start(const int id)
 {
   return get_text(id)->index;
 }
 
-void text_draw(int id)
+void text_draw(const int id)
 {
   Text * const text = get_text(id);
   if (text->ready) {

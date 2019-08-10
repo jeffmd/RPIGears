@@ -201,18 +201,20 @@ int font_create(const char *filename)
   return id;
 }
 
-void font_set_size(int id, int size)
+void font_set_size(const int id, const int size)
 {
   Font *font = get_font(id);
+  
   if (font->size != size) {
     font->size = size;
     font->ready = 0;
   }
 }
 
-void font_set_active(int id)
+void font_set_active(const int id)
 {
   Font *font = get_font(id);
+  
   if (!font->ready) {
     build_glyphs(font);
   }
@@ -236,12 +238,12 @@ void font_active_bind(const int slot)
   }
 }
 
-int font_texture(int id)
+int font_texture(const int id)
 {
   return get_font(id)->texture;
 }
 
-static Glyph *get_glyph(int id, const char ch)
+static Glyph *get_glyph(const int id, const char ch)
 {
   int idx;
   if (ch >= CHAR_START)
@@ -251,37 +253,37 @@ static Glyph *get_glyph(int id, const char ch)
   return get_font(id)->glyphs + idx;
 }
 
-float glyph_u1(int id, const char ch)
+float glyph_u1(const int id, const char ch)
 {
   return get_glyph(id, ch)->u1;
 }
 
-float glyph_v1(int id, const char ch)
+float glyph_v1(const int id, const char ch)
 {
   return get_glyph(id, ch)->v1;
 }
 
-float glyph_u2(int id, const char ch)
+float glyph_u2(const int id, const char ch)
 {
   return get_glyph(id, ch)->u2;
 }
 
-float glyph_v2(int id, const char ch)
+float glyph_v2(const int id, const char ch)
 {
   return get_glyph(id, ch)->v2;
 }
 
-int glyph_advance(int id, const char ch)
+int glyph_advance(const int id, const char ch)
 {
   return get_glyph(id, ch)->advance;
 }
 
-int glyph_width(int id, const char ch)
+int glyph_width(const int id, const char ch)
 {
   return get_glyph(id, ch)->width;
 }
 
-int glyph_height(int id, const char ch)
+int glyph_height(const int id, const char ch)
 {
   return get_glyph(id, ch)->height;
 }

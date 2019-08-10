@@ -28,6 +28,6 @@ void light_move_x(const float val);
 GLfloat *state_LightSourcePosition(void);
 GLboolean light_isDirty(void);
 void light_clean(void);
-void update_tex(int id);
+void update_tex(const int id);
 
 #endif

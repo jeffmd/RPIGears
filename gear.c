@@ -229,26 +229,22 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   return id;
 }
 
-void gear_delete(int id)
+void gear_delete(const int id)
 {
-  gear_t *gear = get_gear(id);
-  GPU_batch_delete(gear->batch, 1);
+  GPU_batch_delete(get_gear(id)->batch, 1);
 }
 
-void gear_draw(int id, const GLenum drawMode, const GLuint instances)
+void gear_draw(const int id, const GLenum drawMode, const GLuint instances)
 {
-  gear_t *gear = get_gear(id);
-  GPU_batch_draw(gear->batch, drawMode, instances);
+  GPU_batch_draw(get_gear(id)->batch, drawMode, instances);
 }
 
-void gear_use_BO(int id)
+void gear_use_BO(const int id)
 {
-  gear_t *gear = get_gear(id);
-  GPU_batch_use_BO(gear->batch);
+  GPU_batch_use_BO(get_gear(id)->batch);
 }
 
-void gear_no_BO(int id)
+void gear_no_BO(const int id)
 {
-  gear_t *gear = get_gear(id);
-  GPU_batch_no_BO(gear->batch);
+  GPU_batch_no_BO(get_gear(id)->batch);
 }

@@ -151,7 +151,7 @@ void key_input_action(const int inpkey)
   }
 }
 
-void key_add_action(int key, void (*action)(void), const char *help)
+void key_add_action(const int key, void (*action)(void), const char *help)
 {
   if ((key >= KEY_START) && (key <= KEY_END)) {
     keyActions[key - KEY_START] = action;
@@ -161,7 +161,7 @@ void key_add_action(int key, void (*action)(void), const char *help)
     printf("key binding out of range: %i\n", key);
 }
 
-void key_input_set_update(UPDATE_KEY_DOWN fn, float val)
+void key_input_set_update(UPDATE_KEY_DOWN fn, const float val)
 {
   key_down_update = fn;
   rate_direction = val;
@@ -184,7 +184,7 @@ void key_input_print_help(void)
   }  
 }
 
-void key_input_set_rate_frame(float period_rate)
+void key_input_set_rate_frame(const float period_rate)
 {
   rate_frame = rate * period_rate;
 }

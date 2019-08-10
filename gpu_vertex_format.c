@@ -62,7 +62,7 @@ int GPU_vertex_format_create(void)
 
 
 // add attribute to vertex format
-void GPU_vertex_format_add_attribute(int id, const char *name, const GLint size, const GLenum type)
+void GPU_vertex_format_add_attribute(const int id, const char *name, const GLint size, const GLenum type)
 {
   GPUVertFormat *vformat = get_vert_format(id);
   VertAttribute *vattr = &vformat->vertex_attributes[vformat->attribute_count];
@@ -76,7 +76,7 @@ void GPU_vertex_format_add_attribute(int id, const char *name, const GLint size,
   vformat->stride = 0;
 }
 
-void GPU_vertex_format_delete(int id)
+void GPU_vertex_format_delete(const int id)
 {
   GPUVertFormat *vformat = get_vert_format(id);
 
@@ -100,7 +100,7 @@ static GLuint get_type_byte_size(const GLenum type)
   }
 }
 
-GLuint GPU_vertex_format_stride(int id)
+GLuint GPU_vertex_format_stride(const int id)
 {
   GPUVertFormat *vformat = get_vert_format(id);
 
@@ -116,17 +116,17 @@ GLuint GPU_vertex_format_stride(int id)
   return vformat->stride;
 }
 
-GLuint GPU_vertex_format_offset(int id, const GLuint idx)
+GLuint GPU_vertex_format_offset(const int id, const GLuint idx)
 {
   return get_vert_format(id)->vertex_attributes[idx].offset;
 }
 
-GLuint GPU_vertex_format_attribute_count(int id)
+GLuint GPU_vertex_format_attribute_count(const int id)
 {
   return get_vert_format(id)->attribute_count;
 }
 
-void GPU_vertex_format_add_4(int id, const GLuint attribute_id, GLvoid *attr_data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertex_format_add_4(const int id, const GLuint attribute_id, GLvoid *attr_data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
   GPUVertFormat *vformat = get_vert_format(id);
   if (attr_data) {
@@ -161,7 +161,7 @@ void GPU_vertex_format_add_4(int id, const GLuint attribute_id, GLvoid *attr_dat
 }
 
 
-void GPU_vertex_format_bind(int id, GLvoid *data)
+void GPU_vertex_format_bind(const int id, GLvoid *data)
 {
   GPUVertFormat *vformat = get_vert_format(id);
 

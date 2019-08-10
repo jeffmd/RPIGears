@@ -3,7 +3,7 @@
 #ifndef EXIT_H_
   #define EXIT_H_
 
-  void exit_init(int time_to_run);
+  void exit_init(const int time_to_run);
   int exit_is_now(void);
   void exit_enable(void);
   

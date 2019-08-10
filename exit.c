@@ -25,7 +25,7 @@ int exit_is_now(void)
   return exit_now;
 }
 
-void exit_init(int time_to_run)
+void exit_init(const int time_to_run)
 {
   exit_now = 0;  
   exit_task = task_create();

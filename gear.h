@@ -9,10 +9,10 @@
                        const GLfloat tooth_depth,
                        const GLfloat color[]);
   
-  void gear_delete(int id);
-  void gear_draw(int id, const GLenum drawMode, const GLuint instances);
-  void gear_use_BO(int id);
-  void gear_no_BO(int id);
+  void gear_delete(const int id);
+  void gear_draw(const int id, const GLenum drawMode, const GLuint instances);
+  void gear_use_BO(const int id);
+  void gear_no_BO(const int id);
 
 #endif  
   

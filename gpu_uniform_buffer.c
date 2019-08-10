@@ -135,7 +135,7 @@ int GPU_uniformbuffer_create(void)
   return id;
 }
 
-void GPU_uniformbuffer_delete(int id)
+void GPU_uniformbuffer_delete(const int id)
 {
   GPUUniformBuffer *ubuff = get_uniform_buffer(id);
   ubuff->active = 0;
@@ -146,7 +146,7 @@ void GPU_uniformbuffer_delete(int id)
 
 }
 
-void GPU_uniformbuffer_add(int id, const char *name,
+void GPU_uniformbuffer_add(const int id, const char *name,
   const GLint size, const GLenum type, void *data)
 {
   if (data) {
@@ -167,7 +167,7 @@ void GPU_uniformbuffer_add(int id, const char *name,
   }
 }
 
-void GPU_uniformbuffer_bind(int id)
+void GPU_uniformbuffer_bind(const int id)
 {
   int shader = GPU_shader_active_shader();
   GPUUniformBuffer *ubuff = get_uniform_buffer(id);
@@ -180,7 +180,7 @@ void GPU_uniformbuffer_bind(int id)
   }
 }
 
-void GPU_uniformbuffer_update(int id)
+void GPU_uniformbuffer_update(const int id)
 {
   GPU_uniformbuffer_bind(id);
   
@@ -227,7 +227,7 @@ void GPU_uniformbuffer_update(int id)
   }
 }
 
-void GPU_uniformbuffer_activate(int id)
+void GPU_uniformbuffer_activate(const int id)
 {
   active_uniform_buffer = id;
 }

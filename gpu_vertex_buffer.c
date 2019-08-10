@@ -79,9 +79,10 @@ int GPU_vertbuf_create(void)
   return id;
 }
 
-void GPU_vertbuf_delete(int id)
+void GPU_vertbuf_delete(const int id)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
+  
   vbuff->active = 0;
   vertbuf_init(vbuff);
 
@@ -89,19 +90,20 @@ void GPU_vertbuf_delete(int id)
     next_deleted_vert_buffer = id;
 }
 
-void GPU_vertbuf_set_vertex_format(int id, int vformat)
+void GPU_vertbuf_set_vertex_format(const int id, const int vformat)
 {
   get_vert_buffer(id)->vformat = vformat;
 }
 
-void GPU_vertbuf_set_add_count(int id, const GLuint count)
+void GPU_vertbuf_set_add_count(const int id, const GLuint count)
 {
   get_vert_buffer(id)->add_count = count;
 }
 
-void GPU_vertbuf_set_start(int id, const GLuint start)
+void GPU_vertbuf_set_start(const int id, const GLuint start)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
+  
   for (GLuint Idx = 0; Idx < VERT_ATTRIB_MAX; Idx++) {
     vbuff->data_idx[Idx] = start;
   }
@@ -166,7 +168,7 @@ static void *vertbuf_attr_data(GPUVertBuffer *vbuff, const GLuint attribute_id)
   return vbuff->data + (idx * stride) + GPU_vertex_format_offset(vbuff->vformat, attribute_id);  
 }
 
-void GPU_vertbuf_add_4(int id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertbuf_add_4(const int id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
 
@@ -184,7 +186,7 @@ void GPU_vertbuf_add_4(int id, const GLuint attribute_id, const GLfloat val1, co
   }
 }
 
-void GPU_vertbuf_use_BO(int id)
+void GPU_vertbuf_use_BO(const int id)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
 
@@ -193,13 +195,13 @@ void GPU_vertbuf_use_BO(int id)
   }
 }
 
-void GPU_vertbuf_no_BO(int id)
+void GPU_vertbuf_no_BO(const int id)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
   delete_vbo(vbuff);
 }
 
-void GPU_vertbuf_bind(int id)
+void GPU_vertbuf_bind(const int id)
 {
   GPUVertBuffer *vbuff = get_vert_buffer(id);
 

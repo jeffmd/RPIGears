@@ -137,7 +137,7 @@ void update_avgfps(const float fps)
   }
 }
 
-void update_tex(int id)
+void update_tex(const int id)
 {
   state->tex = id;
 }
