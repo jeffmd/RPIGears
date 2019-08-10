@@ -37,7 +37,7 @@ enum {
 static Text texts[TEXT_MAX_COUNT];
 static int next_deleted_text;
 
-static GPUVertFormat *vformat = 0;
+static int vformat = 0;
 
 
 static inline int find_deleted_text_id(void)

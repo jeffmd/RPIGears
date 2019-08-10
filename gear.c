@@ -30,7 +30,7 @@ enum {
   
 static int gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
-static GPUVertFormat *vformat = 0;
+static int vformat = 0;
 
 static gear_t *get_gear(int id)
 {

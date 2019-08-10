@@ -28,7 +28,7 @@ typedef struct {
 } TQuad;
 
 static TQuad quad;
-static GPUVertFormat *vformat = 0;
+static int vformat = 0;
 
 static void test_quad_toggle(void)
 {

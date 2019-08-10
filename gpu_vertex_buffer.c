@@ -12,11 +12,11 @@ typedef struct {
   GLuint data_idx[VERT_ATTRIB_MAX];     // current index in data buffer for writing
   GLuint alloc_count;        // number of verts allocated in data buffer
   GLuint add_count;          // number of verts to add to data buffer when resize occurs
-  void *data;               // pointer to data buffer in cpu ram
-  GPUVertFormat *vformat;  // vertex format ID
-  GLuint vbo_id;            // 0 indicates using client ram or not allocated yet
-  GLenum usage;             // usage hint for GL optimisation
-  uint8_t ready;           // not zero if ready for adding data to buffer
+  void *data;                // pointer to data buffer in cpu ram
+  int vformat;               // vertex format ID
+  GLuint vbo_id;             // 0 indicates using client ram or not allocated yet
+  GLenum usage;              // usage hint for GL optimisation
+  uint8_t ready;             // not zero if ready for adding data to buffer
 } GPUVertBuffer;
 
 #define VERT_BUFFER_MAX_COUNT 10
@@ -89,7 +89,7 @@ void GPU_vertbuf_delete(int id)
     next_deleted_vert_buffer = id;
 }
 
-void GPU_vertbuf_set_vertex_format(int id, GPUVertFormat *vformat)
+void GPU_vertbuf_set_vertex_format(int id, int vformat)
 {
   get_vert_buffer(id)->vformat = vformat;
 }
