@@ -20,6 +20,5 @@
   void window_update_VSync(const int sync);
   void window_snapshot(const int width, const int height, void *buffer);
   int window_inFocus(void);
-  void window_noupdate(void);
 
 #endif
