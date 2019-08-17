@@ -6,8 +6,8 @@ int array_find_deleted_id(int *next_deleted, void *array, const int maxId, const
 {
   int id = *next_deleted;
 
-	if ((id <= 0) | (id >= maxId))
-	  id = 1;
+  if ((id <= 0) | (id >= maxId))
+    id = 1;
 
   for ( ; id < maxId; id++) {
     const char active = *(char *)(array + (id * size)); 
