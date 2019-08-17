@@ -122,14 +122,23 @@ void glBindBufferMod(GLenum target, GLuint buffer)
 	}
 }
 
+static gl_vao *get_vao(GLuint name)
+{
+  if (name >= ARRAY_OBJECT_MAX) {
+    name = 0;
+    printf("ERROR: Bad VAO id, using default id: 0\n");
+  }
+  
+  return ctx.Array.Objects + name;
+}
+
 static void delete_vao(GLuint name)
 {
-   gl_vao *obj = &ctx.Array.Objects[name];
+   gl_vao *obj = get_vao(name);
    obj->Active = GL_FALSE;
    if (name < ctx.Array.NextDeletedVAO)
 		ctx.Array.NextDeletedVAO = name;
 }
-
 
 /**
  * Initialize attributes of a vertex array within a vertex array object.
@@ -157,7 +166,7 @@ static void init_array_attributes(gl_vao *vao,
  */
 static gl_vao *init_vao(GLuint name)
 {
-   gl_vao *vao = &ctx.Array.Objects[name];
+   gl_vao *vao = get_vao(name);
    vao->ElementBuffer = 0;
 
    /* Init the individual arrays */
@@ -186,8 +195,8 @@ static GLint find_deleted_vao()
 {
 	GLint id = ctx.Array.NextDeletedVAO;
 	
-	if (id >= ARRAY_OBJECT_MAX)
-	  id = 0;
+	if ((id == 0) || (id >= ARRAY_OBJECT_MAX))
+	  id = 1;
 	  
 	for ( ; id < ARRAY_OBJECT_MAX; id++) {
 	  if (ctx.Array.Objects[id].Active == GL_FALSE) {
@@ -196,7 +205,7 @@ static GLint find_deleted_vao()
 	  }
 	}
     
-  if (id == ARRAY_OBJECT_MAX) {
+  if (id >= ARRAY_OBJECT_MAX) {
     printf("WARNING: No VAO available\n");
     id = 0;
   }
@@ -223,6 +232,8 @@ void gles3_init()
 
 
 /**
+ * ARB version of glGenVertexArrays()
+ * All arrays will be required to live in VBOs.
  * Generate a set of unique array object IDs and store them in \c arrays.
  * Helper for _mesa_GenVertexArrays() and _mesa_CreateVertexArrays()
  * below.
@@ -230,7 +241,7 @@ void gles3_init()
  * \param n       Number of IDs to generate.
  * \param arrays  Array of \c n locations to store the IDs.
  */
-static inline void gen_vaos(GLsizei n, GLuint *arrays)
+void glGenVertexArrays(GLsizei n, GLuint *arrays)
 {
   GLint i;
   if (n < 0) {
@@ -253,15 +264,6 @@ static inline void gen_vaos(GLsizei n, GLuint *arrays)
 }
 
 /**
- * ARB version of glGenVertexArrays()
- * All arrays will be required to live in VBOs.
- */
-void glGenVertexArrays(GLsizei n, GLuint *arrays)
-{
-  gen_vaos(n, arrays);
-}
-
-/**
  * Determine if ID is the name of an array object.
  *
  * \param id  ID of the potential array object.
@@ -281,10 +283,8 @@ void glBindVertexArray(GLuint id)
   if (ctx.Array.VAO == id)
     return;   /* rebinding the same array object- no change */
 
-  assert(id < ARRAY_OBJECT_MAX);
-
-  gl_vao *oldVao =  &ctx.Array.Objects[ctx.Array.VAO];
-  gl_vao *vao =  &ctx.Array.Objects[id];
+  gl_vao *oldVao =  get_vao(ctx.Array.VAO);
+  gl_vao *vao =  get_vao(id);
   ctx.Array.VAO = id;
 
   glBindBufferMod(GL_ELEMENT_ARRAY_BUFFER, vao->ElementBuffer);
@@ -312,15 +312,19 @@ void glBindVertexArray(GLuint id)
  * \param n      Number of array objects to delete.
  * \param ids    Array of \c n array object IDs.
  */
-static void delete_vaos(GLsizei n, const GLuint *ids)
+void glDeleteVertexArrays(GLsizei n, const GLuint *ids)
 {
+  if (n < 0) {
+    printf("GL_INVALID_VALUE: glDeleteVertexArray(n)\n");
+    return;
+  }
+
   GLsizei i;
 
   for (i = 0; i < n; i++) {
     GLuint obj = ids[i];
 
     if (obj) {
-      assert(obj < ARRAY_OBJECT_MAX);
 
       /* If the array object is currently bound, the spec says "the binding
       * for that object reverts to zero and the default vertex array
@@ -332,16 +336,6 @@ static void delete_vaos(GLsizei n, const GLuint *ids)
       delete_vao(obj);
     }
   }
-}
-
-void glDeleteVertexArrays(GLsizei n, const GLuint *ids)
-{
-  if (n < 0) {
-    printf("GL_INVALID_VALUE: glDeleteVertexArray(n)\n");
-    return;
-  }
-
-  delete_vaos(n, ids);
 }
 
 /**
@@ -385,7 +379,7 @@ static inline void enable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
   assert(id < ARRAY_OBJECT_MAX);
   assert(attrib < VERT_ATTRIB_MAX);
-  gl_vao *vao =  &ctx.Array.Objects[id];
+  gl_vao *vao =  get_vao(id);
   vao->VertexAttrib[attrib].Enabled = GL_TRUE;
 }
 
@@ -402,10 +396,9 @@ void glEnableVertexArrayAttrib(GLuint vaobj, GLuint index)
 
 static inline void disable_vertex_array_attrib(GLuint id, GLuint attrib)
 {
-  assert(id < ARRAY_OBJECT_MAX);
   assert(attrib < VERT_ATTRIB_MAX);
 
-  ctx.Array.Objects[id].VertexAttrib[attrib].Enabled = GL_FALSE;
+  get_vao(id)->VertexAttrib[attrib].Enabled = GL_FALSE;
 
 }
 
@@ -431,7 +424,7 @@ void glVertexAttribDivisor(GLuint index, GLuint divisor)
 {
   assert(index < VERT_ATTRIB_MAX);
 
-  ctx.Array.Objects[ctx.Array.VAO].VertexAttrib[index].divisor = divisor;
+  get_vao(ctx.Array.VAO)->VertexAttrib[index].divisor = divisor;
 
 }
 
