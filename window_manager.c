@@ -57,8 +57,6 @@ void WM_update(void)
   xwindow_check_events();
   key_input_down_update();
   key_input_inc_rate();
-  if (xwindow_is_clear())
-    window_update();
 }
 
 int WM_minimized(void)

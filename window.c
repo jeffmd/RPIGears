@@ -30,7 +30,6 @@ typedef  struct {
    VC_RECT_T dst_rect;
    VC_RECT_T src_rect;
    VC_RECT_T old_rect;
-   int update:1; // if > 0 then window needs updating in dispmanx
    int inFocus:1;
 } WINDOW_T;
 
@@ -62,22 +61,8 @@ void window_update_old(void)
 {
   window->old_rect.width = window->dst_rect.width;
   window->old_rect.height = window->dst_rect.height;
-}
-
-void window_pos(const int x, const int y)
-{
-  window->dst_rect.y = y;
-  window->dst_rect.x = x;
-  window->update = 1;
-}
-
-void window_show(void)
-{
-  window->dst_rect.width = window->old_rect.width;
-  window->dst_rect.height = window->old_rect.height;
-  window->update = 1;
-  window->inFocus = 1;
-  printf("showing window \n");
+  window->old_rect.x = window->dst_rect.x;
+  window->old_rect.y = window->dst_rect.y;
 }
 
 static void updateSrcSize(void)
@@ -88,38 +73,25 @@ static void updateSrcSize(void)
   window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
-void window_size(const int width, const int height)
-{
-  window->dst_rect.width = width;
-  window->dst_rect.height = height;
-  window_update_old();
-  updateSrcSize();
-  window->update = 1;
-}
-
 void window_update(void)
 {
-  if (window->update) {
+  DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+  assert(update != 0);
 
-    DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
-    assert(update != 0);
+  int result = vc_dispmanx_element_change_attributes(update,
+                  window->nativewindow.element,
+                  0/*ELEMENT_CHANGE_OPACITY | ELEMENT_CHANGE_TRANSFORM*/,
+                  0,
+                  0,
+                  &window->dst_rect,
+                  &window->src_rect,
+                  0,
+                  0);
+  
+  assert(result == 0);
 
-    int result = vc_dispmanx_element_change_attributes(update,
-                                            window->nativewindow.element,
-                                            0/*ELEMENT_CHANGE_OPACITY | ELEMENT_CHANGE_TRANSFORM*/,
-                                            0,
-                                            0,
-                                            &window->dst_rect,
-                                            &window->src_rect,
-                                            0,
-                                            0);
-    
-    assert(result == 0);
-
-    result = vc_dispmanx_update_submit(update, 0, 0);
-    assert(result == 0);
-    window->update = 0;
-  }
+  result = vc_dispmanx_update_submit(update, 0, 0);
+  assert(result == 0);
 }
 
 void window_hide(void)
@@ -127,9 +99,38 @@ void window_hide(void)
   window_update_old();
   window->dst_rect.width = 1;
   window->dst_rect.height = 1;
-  window->update = 1;
+  window->dst_rect.x = 0;
+  window->dst_rect.y = 0;
   window->inFocus = 0;
   printf("hiding window \n");
+  window_update();
+}
+
+void window_show(void)
+{
+  window->dst_rect.width = window->old_rect.width;
+  window->dst_rect.height = window->old_rect.height;
+  window->dst_rect.x = window->old_rect.x;
+  window->dst_rect.y = window->old_rect.y;
+  window->inFocus = 1;
+  printf("showing window \n");
+  window_update();
+}
+
+void window_size(const int width, const int height)
+{
+  window->dst_rect.width = width;
+  window->dst_rect.height = height;
+  window_update_old();
+  updateSrcSize();
+  window_update();
+}
+
+void window_pos(const int x, const int y)
+{
+  window->dst_rect.y = y;
+  window->dst_rect.x = x;
+  window_update_old();
   window_update();
 }
 
