@@ -34,7 +34,7 @@ typedef struct
 } Task;
 
 static Task tasks[TASKS_MAX_COUNT];
-static int next_deleted_task;
+static short next_deleted_task;
 
 static uint current_ms; // current time in milliseconds
 static uint prev_ms;

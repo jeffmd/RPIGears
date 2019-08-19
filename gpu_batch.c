@@ -12,7 +12,7 @@
 #include "gpu_uniform_buffer.h"
 
 typedef struct {
-  int shader;        // the shader used for binding
+  short shader;               // the shader used for binding
   int modid;
   GLuint vaoId;               // ID for vertex array object
 } ShaderVAO;
@@ -24,9 +24,9 @@ typedef struct {
   ShaderVAO shaders[SHADER_CACHE_MAX_COUNT];        // shader VAO cache
   uint8_t next_index;         // next index to use for a new shader binding
   uint8_t active_index;       // the index to the shader used for current binding
-  int vbuff;                  // ID for vert buffer
-  int ibuff;                  // ID for index buffer
-  int ubuff;                  // ID for uniform buffer
+  short vbuff;                // ID for vert buffer
+  short ibuff;                // ID for index buffer
+  short ubuff;                // ID for uniform buffer
   GLuint vertices_draw_count; // number of vertices to draw
   GLuint indices_draw_count;  // number of indices to draw
 } GPUBatch;
@@ -34,7 +34,7 @@ typedef struct {
 #define BATCH_MAX_COUNT 10
 
 static GPUBatch batches[BATCH_MAX_COUNT];
-static int next_deleted_batch;
+static short next_deleted_batch;
 
 static inline int find_deleted_batch_id(void)
 {

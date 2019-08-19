@@ -19,9 +19,9 @@ typedef struct Glyph {
   float v1;
   float u2;
   float v2;
-  int advance;
-  int width;
-  int height;
+  short advance;
+  short width;
+  short height;
   
 } Glyph;
 
@@ -31,7 +31,7 @@ typedef struct Font {
   uint8_t ready;
   
   Glyph glyphs[CHAR_SET];
-  int texture;
+  short texture;
   const char *filename;
   
 } Font;
@@ -39,7 +39,7 @@ typedef struct Font {
 #define FONT_MAX_COUNT 10
 
 static Font fonts[FONT_MAX_COUNT];
-static int next_deleted_font;
+static short next_deleted_font;
 
 static int active_font = 0;
 

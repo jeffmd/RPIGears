@@ -25,7 +25,7 @@ extern void toggle_useVSync(void);
 static struct termios saved_attributes;
 static int initialized = 0;
 
-static int KeyScan_task;
+static short KeyScan_task;
 
 typedef void (*Action)(void);
 typedef void (*UPDATE_KEY_DOWN)(const float);
@@ -36,7 +36,7 @@ static const char *keyHelp[KEY_COUNT];
 // keyboard data
 UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
 float rate; // the rate at which a change occurs
-int rate_enabled; // if enabled the change_rate will increase each frame
+short rate_enabled; // if enabled the change_rate will increase each frame
 float rate_direction; // direction and scale for rate change
 float rate_frame; // how much the rate changes each frame
 

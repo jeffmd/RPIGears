@@ -23,7 +23,7 @@ typedef struct {
 } GPUShaderUnit;
 
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
-static int next_deleted_shader_unit;
+static short next_deleted_shader_unit;
 
 static inline int find_deleted_shader_unit_id(void)
 {

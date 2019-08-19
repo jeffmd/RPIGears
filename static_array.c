@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int array_find_deleted_id(int *next_deleted, void *array, const int maxId, const size_t size, const char *object_name)
+int array_find_deleted_id(short *next_deleted, void *array, const int maxId, const size_t size, const char *object_name)
 {
   int id = *next_deleted;
 

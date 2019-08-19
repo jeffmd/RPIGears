@@ -25,7 +25,7 @@ typedef struct GPUTexture {
 } GPUTexture;
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
-static int next_deleted_texture;
+static short next_deleted_texture;
 
 static const GLenum data_format[] = {
   0,

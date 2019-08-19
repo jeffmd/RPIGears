@@ -17,7 +17,7 @@
 
 typedef struct {
   GLfloat color[4];
-  int batch; 
+  short batch; 
 } gear_t;
 
 #define GEARS_MAX_COUNT 3
@@ -28,9 +28,9 @@ enum {
   ATTR_UV,
 };
   
-static int gearID = 0;
+static short gearID = 0;
 static gear_t gears[GEARS_MAX_COUNT];
-static int vformat = 0;
+static short vformat = 0;
 
 static gear_t *get_gear(int id)
 {

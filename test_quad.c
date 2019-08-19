@@ -21,14 +21,14 @@ enum {
 };
 
 typedef struct {
-  int texture;
-  int batch;
+  short texture;
+  short batch;
   uint8_t toggle;
   GLfloat ProjMatrix[4];
 } TQuad;
 
 static TQuad quad;
-static int vformat = 0;
+static short vformat = 0;
 
 static void test_quad_toggle(void)
 {

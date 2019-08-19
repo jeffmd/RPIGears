@@ -17,8 +17,8 @@
 typedef struct {
 
   uint8_t active;           // zero if deleted
-  int batch;
-  int font;
+  short batch;
+  short font;
   const char *str;
   uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];
@@ -35,9 +35,9 @@ enum {
 #define MAX_CHAR_LENGTH 100
 
 static Text texts[TEXT_MAX_COUNT];
-static int next_deleted_text;
+static short next_deleted_text;
 
-static int vformat = 0;
+static short vformat = 0;
 
 
 static inline int find_deleted_text_id(void)

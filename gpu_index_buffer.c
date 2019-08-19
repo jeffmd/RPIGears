@@ -23,7 +23,7 @@ typedef struct {
 #define DEFAULT_COUNT 100
 
 static GPUIndexBuffer index_buffers[INDEX_BUFFER_MAX_COUNT];
-static int next_deleted_index_buffer;
+static short next_deleted_index_buffer;
 
 static inline int find_deleted_index_buffer_id(void)
 {

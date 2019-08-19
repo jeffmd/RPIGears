@@ -95,7 +95,7 @@ extern IMAGE_T rpi_image;
 static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
 static int fps_start; 
-static int text_id;
+static short text_id;
 
 static void init_textures(void)
 {

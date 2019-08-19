@@ -24,15 +24,15 @@ typedef struct {
   uint8_t object;
   uint8_t dirty_flag;
   uint16_t width, height;
-  int attachments[GPU_FB_MAX_ATTACHEMENT];
+  short attachments[GPU_FB_MAX_ATTACHEMENT];
 } GPUFrameBuffer;
 
 #define GPU_FB_ATTACHEMENT_IS_DIRTY(flag, type) ((flag & (1 << type)) != 0)
 #define GPU_FB_ATTACHEMENT_SET_DIRTY(flag, type) (flag |= (1 << type))
 
 static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
-static int next_deleted_framebuffer;
-static int active_framebuffer;
+static short next_deleted_framebuffer;
+static short active_framebuffer;
 
 static inline int find_deleted_framebuffer_id(void)
 {

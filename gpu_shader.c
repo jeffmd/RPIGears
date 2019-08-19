@@ -37,9 +37,9 @@ typedef struct {
   uint8_t active;
   GLint linked;
   int modid;
-  int vert_unit;
+  short vert_unit;
   int vert_modid;
-  int frag_unit;
+  short frag_unit;
   int frag_modid;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
@@ -47,13 +47,13 @@ typedef struct {
 } GPUShader;
 
 static GPUShader shaders[SHADER_MAX_COUNT];
-static int next_deleted_shader;
+static short next_deleted_shader;
 
 
 static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
 static uint16_t shader_inputs_count = 0;
 
-static int active_shader = 0;
+static short active_shader = 0;
 static int active_shader_modid = 0;
 
 static inline int find_deleted_shader_id(void)

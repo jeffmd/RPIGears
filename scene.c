@@ -23,8 +23,8 @@ static struct {
    GLfloat projection_matrix[16];
 } UBO_Data;
 
-static int diffuseMap_Data = 0;
-static int uniform_buffer;
+static short diffuseMap_Data = 0;
+static short uniform_buffer;
 
 /**
  * Draws a gear in GLES 2 mode.

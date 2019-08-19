@@ -17,10 +17,10 @@ typedef struct
 {
 // number of seconds to run the demo
    GLuint timeToRun;
-   int tex;
+   short tex;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
-   int gear1, gear2, gear3;
+   short gear1, gear2, gear3;
 
 // current angle of the gear
    GLfloat angle;

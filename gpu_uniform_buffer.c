@@ -23,7 +23,7 @@ typedef struct {
 } UniformAttribute;
 
 typedef struct {
-  int shader;        // the shader used for binding
+  short shader;            // the shader used for binding
   int modid;
   GLint locations[UNIFORM_MAX_COUNT];  // uniform bind location
 } ShaderUniformIndex;
@@ -42,9 +42,9 @@ typedef struct {
 #define UNIFORM_BUFFER_MAX_COUNT 10
 
 static GPUUniformBuffer uniform_buffers[UNIFORM_BUFFER_MAX_COUNT];
-static int next_deleted_uniform_buffer;
+static short next_deleted_uniform_buffer;
 
-static int active_uniform_buffer = 0;
+static short active_uniform_buffer = 0;
 
 static inline int find_deleted_uniform_buffer_id(void)
 {

@@ -13,7 +13,7 @@ typedef struct {
   GLuint alloc_count;        // number of verts allocated in data buffer
   GLuint add_count;          // number of verts to add to data buffer when resize occurs
   void *data;                // pointer to data buffer in cpu ram
-  int vformat;               // vertex format ID
+  short vformat;             // vertex format ID
   GLuint vbo_id;             // 0 indicates using client ram or not allocated yet
   GLenum usage;              // usage hint for GL optimisation
   uint8_t ready;             // not zero if ready for adding data to buffer
@@ -23,7 +23,7 @@ typedef struct {
 #define DEFAULT_COUNT 100
 
 static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
-static int next_deleted_vert_buffer;
+static short next_deleted_vert_buffer;
 
 static inline int find_deleted_vert_buffer_id(void)
 {

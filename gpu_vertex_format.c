@@ -25,7 +25,7 @@ typedef struct {
 #define VERT_FORMAT_MAX_COUNT 5
 
 static GPUVertFormat vert_formats[VERT_FORMAT_MAX_COUNT];
-static int next_deleted_vert_format;
+static short next_deleted_vert_format;
 
 static inline int find_deleted_vert_format_id(void)
 {
