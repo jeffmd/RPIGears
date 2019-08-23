@@ -1,10 +1,10 @@
-VPATH = src:include:src/gpu:include/gpu
-OBJS = RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
+VPATH = src:include:src/gpu:include/gpu:obj
+OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
 	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
-	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o
+	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o)
 	
 BIN = RPIGears.bin
 	
@@ -13,46 +13,29 @@ LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lrt -lm -lX11 -lXex
 
 INCLUDES+=-Iinclude -Iinclude/gpu -I/opt/vc/include/ -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host -I/opt/vc/include/interface/vmcs_host/linux -I/usr/include/freetype2
 
-CFLAGS+=$(INCLUDES)
+CFLAGS +=$(INCLUDES) -MMD -MP
 
-all: $(BIN)
+all: obj $(BIN)
 
-RPIGears.o: user_options.h demo_state.h window.h gear.h tasks.h image.h \
-	camera.h xwindow.h gles3.h print_info.h scene.h gpu_texture.h font.h \
-	test_quad.h key_input.h exit.h window_manager.h
-RPi_Logo256.o: image.h
-gear.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h
-camera.o: gles3.h matrix_math.h key_input.h
-demo_state.o: gles3.h gear.h gpu_texture.h tasks.h key_input.h
-key_input.o: print_info.h tasks.h 
-matrix_math.o: matrix_math.c
-tasks.o: demo_state.h static_array.h
-window.o: gles3.h gldebug.h print_info.h gpu_texture.h gpu_framebuffer.h
-xwindow.o: xinput.h window.h exit.h
-xinput.o: exit.h key_input.h
-shaders.o: gles3.h gpu_shader.h
-gpu_shader_unit.o: gles3.h static_array.h 
-gpu_shader.o: gles3.h static_array.h gpu_shader_unit.h
-gpu_batch.o: gles3.h static_array.h gpu_vertex_buffer.h gpu_index_buffer.h
-gpu_vertex_buffer.o: gles3.h static_array.h gpu_vertex_format.h
-gpu_vertex_format.o: gles3.h fp16.h static_array.h gpu_shader.h
-gpu_uniform_buffer.o: gles3.h static_array.h gpu_shader.h
-gpu_texture.o: gles3.h static_array.h 
-scene.o: gles3.h gear.h matrix_math.h camera.h gpu_texture.h demo_state.h user_options.h window.h shaders.h gpu_shader.h gpu_uniform_buffer.h key_input.h
-font.o: gles3.h gpu_texture.h static_array.h
-test_quad.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h camera.h key_input.h
-text.o: gles3.h gpu_vertex_buffer.h gpu_index_buffer.h gpu_uniform_buffer.h gpu_batch.h shaders.h static_array.h font.h
-exit.o: tasks.h
-window_manager.o: gles3.h window.h xwindow.h key_input.h tasks.h
-user_options.o: gles3.h key_input.h
+obj:
+	@mkdir obj
 
 $(BIN): $(OBJS)
-	$(CC) -o $@ $^ $(LDFLAGS) 
+	$(CC) -o $@ $^ $(LDFLAGS)
 
+obj/%.o: %.c
+obj/%.o: %.c %.d
+	$(CC) -c $(CFLAGS) $< -o $@
+
+DEPFILES = $(OBJS:.o=.d)	
+
+$(DEPFILES):
 
 list: $(BIN)
 	objdump -d -S $(BIN) > list.txt
 	
+-include $(DEPFILES)
+
 .PHONY: clean
 
 clean:
