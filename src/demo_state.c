@@ -5,13 +5,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 #include "gles3.h"
 #include "gear.h"
 #include "gpu_texture.h"
-#include "tasks.h"
 #include "key_input.h"
+#include "window_manager.h"
 
 typedef struct
 {
@@ -24,14 +23,8 @@ typedef struct
 
 // current angle of the gear
    GLfloat angle;
-// the degrees that the angle should change each frame
-   GLfloat angleFrame;
 // the degrees per second the gear should rotate at
    GLfloat angleVel;
-// Average Frames Per Second
-   float avgfps;
-   // the average time between each frame update = 1/avgfps
-   float period_rate;
    int instances;
    GLboolean use_VBO;   
 
@@ -40,14 +33,6 @@ typedef struct
 
 static DEMO_STATE_T _state;
 static DEMO_STATE_T * const state = &_state;
-
-static int frames; // number of frames drawn since the last frame/sec calculation
-static int lastFrames;
-static char fps_str[12];
-static char *fps_strptr;
-
-static int AngleFrame_task;
-static int FPS_task;
 
 
 static void update_gear_VBO_use(void)
@@ -117,26 +102,6 @@ static void change_angleVel(const float val)
   state->angleVel += val;
 }
 
-static void update_angleFrame(void)
-{
-	state->angleFrame = state->angleVel * state->period_rate;
-}
-
-
-void update_avgfps(const float fps)
-{
-  //state->avgfps = state->avgfps * 0.6f + fps * 0.4f;
-  //printf("fps: %f\n", fps);
-  if ( fabsf(state->avgfps - fps) > 0.1f ) {
-    sprintf(fps_str, "%3.1f  ", fps);
-    fps_strptr = fps_str;
-    state->period_rate = 1.0f / fps;
-    state->avgfps = fps;
-    update_angleFrame();
-    key_input_set_rate_frame(state->period_rate);
-  }
-}
-
 void update_tex(const int id)
 {
   state->tex = id;
@@ -162,7 +127,7 @@ static void dec_instances(void)
 void update_gear_rotation(void)
 {
   /* advance gear rotation for next frame */
-  state->angle += state->angleFrame;
+  state->angle += state->angleVel * WM_period_rate();
   if (state->angle > 360.0)
     state->angle -= 360.0;
 }
@@ -222,40 +187,6 @@ static void demo_state_delete(void)
 
 }
 
-static void do_AngleFrame_task(void)
-{
-  
-  const float dt = task_elapsed(AngleFrame_task) / 1000.0f;
-  if (dt > 0.0f) {
-	  
-    update_avgfps((float)(frames - lastFrames) / dt);
-    lastFrames = frames;
-  }
-}
-
-char *demo_state_has_fps(void)
-{
-  char * str = fps_strptr;
-  fps_strptr = 0;
-  
-  return str;
-}
-
-void demo_state_next_frame(void)
-{
-  frames++;
-}
-
-static void do_FPS_task(void)
-{
-  const float dt = task_elapsed(FPS_task) / 1000.0f;
-  const float fps = (float)frames / dt;
-
-  printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
-  lastFrames = lastFrames - frames;
-  frames = 0;
-}
-
 static void key_angleVel_down(void)
 {
   key_input_set_update(change_angleVel, -10.0f);
@@ -274,8 +205,6 @@ static void key_angleVel_pause(void)
 void demo_state_init(void)
 {
   //state->rate = 1.0f;
-  state->avgfps = 50.0f;
-  state->period_rate = 1.0f / state->avgfps;
   state->angleVel = -30.0f;
   state->LightSourcePosition[0] = -8.0;
   state->LightSourcePosition[1] = 5.0;
@@ -283,17 +212,6 @@ void demo_state_init(void)
   state->LightSourcePosition[3] = 1.0;
   state->LightDirty = GL_TRUE;
   state->instances = 1;
-  update_angleFrame();
-  
-  frames = lastFrames = 0;
-  
-  FPS_task = task_create();
-  task_set_action(FPS_task, do_FPS_task);
-  task_set_interval(FPS_task, 5000);
-  
-  AngleFrame_task = task_create();
-  task_set_action(AngleFrame_task, do_AngleFrame_task);
-  task_set_interval(AngleFrame_task, 100);
   
   key_input_set_update(0, 0.0f);
   key_add_action('b', demo_state_toggle_VBO, "toggle use of Buffer Objects for gear vertex data");

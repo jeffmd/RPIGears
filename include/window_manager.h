@@ -3,10 +3,12 @@
 #ifndef _WINDOW_MANAGER_H_
   #define _WINDOW_MANAGER_H_
   
-  void window_manager_init(void);
-  void WM_frameClear(void);
-  void WM_frameEnd(void);
-  void WM_update(void);
-  int WM_minimized(void);
+  typedef void (* Action)(void);
 
+  void window_manager_init(void);
+  int WM_minimized(void);
+  void WM_refresh(void);
+  void WM_set_draw(Action fn);
+  char *WM_has_fps(void);
+  float WM_period_rate(void);
 #endif

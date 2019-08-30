@@ -116,7 +116,7 @@ void toggle_useVSync(void)
 
 static void update_fps(void)
 {
-  char *fps_str = demo_state_has_fps();
+  char *fps_str = WM_has_fps();
   
   if (fps_str) {
     text_set_start(text_id, fps_start);
@@ -129,18 +129,17 @@ static void run_gears(void)
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!exit_is_now())
   {
-	  WM_frameClear();
-    demo_state_next_frame();
-    WM_update();
     update_gear_rotation();
-    if (!WM_minimized()) {
-      test_quad_draw();
-      update_fps();
-      text_draw(text_id);
-      scene_draw();
-    }
-    WM_frameEnd();
+    WM_refresh();
   }
+}
+
+static void draw(void)
+{
+  test_quad_draw();
+  update_fps();
+  text_draw(text_id);
+  scene_draw();
 }
 
 //==============================================================================
@@ -168,6 +167,7 @@ int main (int argc, char *argv[])
   init_options(argc, argv);
   // Start OGLES
   window_manager_init();
+  WM_set_draw(draw);
   window_update_VSync(options_useVSync());
   exit_init(state_timeToRun());
   print_info_init();

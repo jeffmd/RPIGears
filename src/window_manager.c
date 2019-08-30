@@ -1,6 +1,7 @@
 // window_manage.c
 
 #include <stdio.h>
+#include <math.h>
 
 #include "bcm_host.h"
 #include "gles3.h"
@@ -9,7 +10,24 @@
 #include "key_input.h"
 #include "tasks.h"
 
-void WM_frameClear(void)
+typedef void (* Action)(void);
+
+static int frames; // number of frames drawn since the last frame/sec calculation
+static int lastFrames;
+static char fps_str[12];
+static char *fps_strptr;
+
+static int frame_rate_task;
+static int FPS_task;
+
+// Average Frames Per Second
+static float avgfps;
+// the average time between each frame update = 1/avgfps
+static float period_rate;
+
+static Action draw_fn;
+
+static void wm_frameClear(void)
 {
   glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -24,13 +42,103 @@ static void window_manager_delete(void)
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  WM_frameClear();
+  wm_frameClear();
 
   window_swap_buffers();
   window_release();
   xwindow_close();
   bcm_host_deinit();
   printf("window manager has shut down\n"); 
+}
+
+static void wm_frameEnd(void)
+{
+  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
+  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
+  window_swap_buffers();
+  xwindow_frame_update();
+}
+
+int WM_minimized(void)
+{
+  return xwindow_minimized();
+}
+
+static void wm_do_draw_fn(void)
+{
+  if (!WM_minimized()) {
+    if (draw_fn) {
+      draw_fn();
+    }
+  }
+}
+
+static void wm_update(void)
+{
+  do_tasks();
+  xwindow_check_events();
+  key_input_down_update();
+  key_input_inc_rate();
+  wm_do_draw_fn();
+}
+
+static void wm_update_avgfps(const float fps)
+{
+  //printf("fps: %f\n", fps);
+  if ( fabsf(avgfps - fps) > 0.1f ) {
+    sprintf(fps_str, "%3.1f  ", fps);
+    fps_strptr = fps_str;
+    period_rate = 1.0f / fps;
+    avgfps = fps;
+    //update_angleFrame();
+    key_input_set_rate_frame(period_rate);
+  }
+}
+
+static void wm_do_frame_rate_task(void)
+{
+  const float dt = task_elapsed(frame_rate_task) / 1000.0f;
+  if (dt > 0.0f) {
+	  
+    wm_update_avgfps((float)(frames - lastFrames) / dt);
+    lastFrames = frames;
+  }
+}
+
+static void wm_do_FPS_task(void)
+{
+  const float dt = task_elapsed(FPS_task) / 1000.0f;
+  const float fps = (float)frames / dt;
+
+  printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
+  lastFrames = lastFrames - frames;
+  frames = 0;
+}
+
+char *WM_has_fps(void)
+{
+  char * str = fps_strptr;
+  fps_strptr = 0;
+  
+  return str;
+}
+
+float WM_period_rate(void)
+{
+  return period_rate;
+}
+
+void WM_set_draw(Action fn)
+{
+  draw_fn = fn;
+}
+
+void WM_refresh(void)
+{
+  frames++;
+  wm_frameClear();
+  wm_update();
+  wm_frameEnd();
 }
 
 void window_manager_init(void)
@@ -41,26 +149,16 @@ void window_manager_init(void)
   xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
   key_input_init();
   atexit(window_manager_delete);
+  avgfps = 50.0f;
+  period_rate = 1.0f / avgfps;
+  
+  frames = lastFrames = 0;
+  
+  FPS_task = task_create();
+  task_set_action(FPS_task, wm_do_FPS_task);
+  task_set_interval(FPS_task, 5000);
+  
+  frame_rate_task = task_create();
+  task_set_action(frame_rate_task, wm_do_frame_rate_task);
+  task_set_interval(frame_rate_task, 100);
 }
-
-void WM_frameEnd(void)
-{
-  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
-  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
-  window_swap_buffers();
-  xwindow_frame_update();
-}
-
-void WM_update(void)
-{
-  do_tasks();
-  xwindow_check_events();
-  key_input_down_update();
-  key_input_inc_rate();
-}
-
-int WM_minimized(void)
-{
-  return xwindow_minimized();
-}
-

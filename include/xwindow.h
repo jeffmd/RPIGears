@@ -10,6 +10,6 @@
   void xwindow_check_events(void);
   void xwindow_frame_update(void);
   int xwindow_minimized(void);
-  int xwindow_is_clear(void);
+  int xwindow_is_clear(void); 
 
 #endif
