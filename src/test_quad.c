@@ -49,7 +49,6 @@ void test_quad(void)
 void test_quad_draw(void)
 {
   if (quad.toggle) {
-    GPU_uniformbuffer_activate(0);
     GPU_quad_draw(quad.quad);  
   }
 }
