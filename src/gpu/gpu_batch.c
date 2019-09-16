@@ -51,7 +51,6 @@ static GPUBatch *get_batch(int id)
   return batches + id;
 }
 
-
 static int batch_next_index(GPUBatch *batch)
 {
   if (batch->next_index >= SHADER_CACHE_MAX_COUNT)

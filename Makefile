@@ -4,7 +4,8 @@ OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o
 	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
-	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o)
+	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o \
+        gpu_quad.o)
 	
 BIN = RPIGears.bin
 	

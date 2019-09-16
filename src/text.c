@@ -10,6 +10,7 @@
 #include "gpu_index_buffer.h"
 #include "gpu_uniform_buffer.h"
 #include "gpu_batch.h"
+#include "gpu_shader.h"
 #include "shaders.h"
 #include "static_array.h"
 #include "font.h"
@@ -205,7 +206,7 @@ void text_draw(const int id)
   Text * const text = get_text(id);
   if (text->ready) {
     GPU_texture_bind(font_texture(text->font), 0);
-    shaders_bind_test_quad_shader();
+    GPU_shader_bind(shaders_test_quad());
     GPU_uniformbuffer_activate(0);
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

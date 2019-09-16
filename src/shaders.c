@@ -36,11 +36,16 @@ void shaders_load_programs(void)
 
 void shaders_bind_gear_shader(void)
 {
+  if (!active_gear_shader)
+    shaders_load_programs();
   GPU_shader_bind(active_gear_shader);
 }
 
-void shaders_bind_test_quad_shader(void)
+int shaders_test_quad(void)
 {
-  GPU_shader_bind(active_test_quad_shader);
+  if (!active_test_quad_shader)
+    shaders_load_programs();
+
+  return active_test_quad_shader;
 }
 
