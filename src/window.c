@@ -11,8 +11,6 @@
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 #include "print_info.h"
-#include "gpu_texture.h"
-#include "gpu_framebuffer.h"
 
 #include "gldebug.h"
 
@@ -256,30 +254,6 @@ static void createContext(void)
   assert(egl_chk(window->contextGLES2 != EGL_NO_CONTEXT));
 }
 
-#define TESTIT 0
-#define WSCALE 1
-static void window_setup_frameBufferRenderTexture(void)
-{
-  check_gl_error("starting setup frameBufferRenderTexture");
-  // Build the texture that will serve as the color attachment for the framebuffer.
-  const int tex = GPU_texture_create(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_RGB8, NULL);
-  check_gl_error("make color texture buffer");
-
-  // Build the texture that will serve as the depth attachment for the framebuffer.
-  const int depth_tex = GPU_texture_create(window->nativewindow.width/WSCALE, window->nativewindow.height/WSCALE, GPU_DEPTH24, NULL);
-  check_gl_error("make depth texture buffer");
-  
-  // Build the framebuffer.
-  const int framebuffer = GPU_framebuffer_create();
-  GPU_framebuffer_texture_attach(framebuffer, tex);
-  GPU_framebuffer_texture_attach(framebuffer, depth_tex);
-  GPU_framebuffer_bind(framebuffer);
-  
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (status != GL_FRAMEBUFFER_COMPLETE)
-    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
-
-}
 
 
 /***********************************************************
@@ -321,9 +295,6 @@ void window_init(void)
   print_EGL_info();
   print_EGLSurface_info(window->surface);
   print_GL_Limits();
-
-  for(int x=0; x<TESTIT; x++) window_setup_frameBufferRenderTexture();
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void window_swap_buffers(void)

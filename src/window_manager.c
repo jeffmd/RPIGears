@@ -5,6 +5,7 @@
 
 #include "bcm_host.h"
 #include "gles3.h"
+#include "gpu_framebuffer.h"
 #include "window.h"
 #include "xwindow.h"
 #include "key_input.h"
@@ -29,6 +30,8 @@ static Action draw_fn;
 
 static void wm_frameClear(void)
 {
+  GPU_framebuffer_done();
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);

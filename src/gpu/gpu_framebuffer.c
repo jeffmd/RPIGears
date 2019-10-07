@@ -212,8 +212,15 @@ static void gpu_framebuffer_update_attachments(GPUFrameBuffer *fb)
 
 }
 
+void GPU_framebuffer_done(void)
+{
+  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
+  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
+}
+
 void GPU_framebuffer_bind(const int id)
 {
+  GPU_framebuffer_done();
   GPUFrameBuffer *fb = get_framebuffer(id);
 
   if (fb->object == 0)
@@ -227,6 +234,6 @@ void GPU_framebuffer_bind(const int id)
   if (fb->dirty_flag)
     gpu_framebuffer_update_attachments(fb);
 
-  glViewport(0, 0, fb->width, fb->height);
+  //glViewport(0, 0, fb->width, fb->height);
 }
 

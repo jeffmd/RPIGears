@@ -74,6 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "user_options.h"
 #include "gpu_texture.h"
+#include "gpu_framebuffer.h"
 #include "demo_state.h"
 #include "image.h"
 #include "camera.h"
@@ -86,6 +87,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "key_input.h"
 #include "window.h"
 #include "window_manager.h"
+#include "gldebug.h"
 
 extern IMAGE_T rpi_image;
 
@@ -96,6 +98,7 @@ static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
 static int fps_start; 
 static short text_id;
+static short render_tex;
 
 static void init_textures(void)
 {
@@ -160,6 +163,43 @@ void sig_handler(int signo)
   exit(signo);
 }
 
+static void setup_render_texture(const int width, const int height)
+{
+  check_gl_error("starting setup frameBufferRenderTexture");
+  // Build the texture that will serve as the color attachment for the framebuffer.
+  render_tex = GPU_texture_create(width, height, GPU_RGB8, NULL);
+  check_gl_error("make color texture buffer");
+
+  // Build the texture that will serve as the depth attachment for the framebuffer.
+  const int depth_tex = GPU_texture_create(width, height, GPU_DEPTH24, NULL);
+  check_gl_error("make depth texture buffer");
+  
+  // Build the framebuffer.
+  const int framebuffer = GPU_framebuffer_create();
+  GPU_framebuffer_texture_attach(framebuffer, render_tex);
+  GPU_framebuffer_texture_attach(framebuffer, depth_tex);
+  GPU_framebuffer_bind(framebuffer);
+  
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE)
+    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
+}
+
+static void setup_test_quad(void)
+{
+  test_quad();
+  test_quad_add_texture(font_texture(font_active()));
+  test_quad_add_texture(render_tex);
+}
+
+static void setup_text(void)
+{
+  text_id = text_create();
+  text_add(text_id, 0, 0, ver_text);
+  text_add(text_id, 0, FPS_Y, fps_text);
+  fps_start = text_start(text_id);
+}
+
 int main (int argc, char *argv[])
 {
   signal(SIGINT, sig_handler);
@@ -185,13 +225,11 @@ int main (int argc, char *argv[])
   //font_set_active(font_create("liberation2/LiberationMono-Regular.ttf"));
   //font_set_active(font_create("dejavu/DejaVuSans.ttf"));
   font_set_active(font_create("noto/NotoMono-Regular.ttf"));
-  test_quad();
-  test_quad_set_texture(font_texture(font_active()));
-  
-  text_id = text_create();
-  text_add(text_id, 0, 0, ver_text);
-  text_add(text_id, 0, FPS_Y, fps_text);
-  fps_start = text_start(text_id);
+
+  setup_render_texture(640, 512);
+  setup_test_quad();
+  setup_text();
+
   // animate the gears
   run_gears();
   

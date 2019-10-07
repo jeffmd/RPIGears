@@ -14,5 +14,6 @@ void GPU_framebuffer_texture_detach(const int id, const int tex);
 void GPU_framebuffer_texture_detach_all(const int tex);
 void GPU_framebuffer_texture_attach(const int id, const int tex);
 void GPU_framebuffer_bind(const int id);
+void GPU_framebuffer_done(void);
 
 #endif  /* __GPU_FRAMEBUFFER_H__ */

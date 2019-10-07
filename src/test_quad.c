@@ -15,8 +15,12 @@ enum {
   ATTR_POSITION,
 };
 
+#define MAX_TEXTURES 5
 typedef struct {
   short quad;
+  short textures[MAX_TEXTURES];
+  uint8_t texture_count;
+  uint8_t texture_index;
   uint8_t toggle;
 } TQuad;
 
@@ -25,6 +29,14 @@ static TQuad quad;
 static void test_quad_toggle(void)
 {
   quad.toggle = !quad.toggle;
+}
+
+static void test_quad_next_texture(void)
+{
+  quad.texture_index++;
+  if (quad.texture_index >= quad.texture_count)
+    quad.texture_index = 0;
+  GPU_quad_set_texture(quad.quad, quad.textures[quad.texture_index]);
 }
 
 static void test_quad_delete(void)
@@ -40,8 +52,10 @@ void test_quad(void)
     quad.quad = GPU_quad_create();    
   }
 
+  quad.texture_count = 0;
   GPU_quad_set_shader(quad.quad, shaders_test_quad());
   key_add_action('T', test_quad_toggle, "toggle test quad visibility");
+  key_add_action('Y', test_quad_next_texture, "next test quad texture");
   atexit(test_quad_delete);
   
 }
@@ -53,7 +67,13 @@ void test_quad_draw(void)
   }
 }
 
-void test_quad_set_texture(const int id)
+void test_quad_add_texture(const int id)
 {
   GPU_quad_set_texture(quad.quad, id);
+  quad.texture_index = quad.texture_count;
+  quad.textures[quad.texture_index] = id;
+
+  quad.texture_count++;
+  if (quad.texture_count >= MAX_TEXTURES)
+    quad.texture_count = MAX_TEXTURES - 1;
 }
