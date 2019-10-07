@@ -151,7 +151,7 @@ void camera_init(void)
   key_add_action('r', camera_key_reverse, "move camera back from gears");
   key_add_action('f', camera_key_forward, "move camera toward gears");
   key_add_action('a', camera_key_left, "move camera left");
-  key_add_action('d', camera_key_right, "move camera left");
+  key_add_action('d', camera_key_right, "move camera right");
   key_add_action('w', camera_key_up, "move camera up");
   key_add_action('s', camera_key_down, "move camera down");
   
