@@ -161,7 +161,7 @@ static void draw(void)
   test_quad_draw();
   update_fps();
   text_draw(text_id);
-  //scene_draw();
+  scene_draw();
 }
 
 //==============================================================================
