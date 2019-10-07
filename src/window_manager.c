@@ -32,6 +32,7 @@ static void wm_frameClear(void)
 {
   GPU_framebuffer_done();
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
   glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);

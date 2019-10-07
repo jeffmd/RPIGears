@@ -290,8 +290,6 @@ void window_init(void)
 
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
-  glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
-
   print_EGL_info();
   print_EGLSurface_info(window->surface);
   print_GL_Limits();
