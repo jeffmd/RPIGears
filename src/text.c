@@ -23,6 +23,7 @@ typedef struct {
   const char *str;
   uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];
+  GLfloat alimit;
   uint16_t index;          // current index into vertex buffer
   uint16_t count;          // mumber of characters in text vertex buffer
 } Text;
@@ -63,10 +64,12 @@ static void text_init(Text *text)
     text->batch = GPU_batch_create();
     const int ubuff = GPU_batch_uniform_buffer(text->batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", text->ProjMatrix);
+    GPU_uniformbuffer_add_1f(ubuff, "alimit", text->alimit);
     text->ProjMatrix[0] = 1.0f/1280.0f;
     text->ProjMatrix[1] = 1.0f/1024.0f;
     text->ProjMatrix[2] = -0.49f;
     text->ProjMatrix[3] = -0.49f;
+    text->alimit = 0.5f;
     text->count = 0;
     text->index = 0;
   }

@@ -19,6 +19,7 @@ enum {
 typedef struct {
   short quad;
   short textures[MAX_TEXTURES];
+  float alimits[MAX_TEXTURES];
   uint8_t texture_count;
   uint8_t texture_index;
   uint8_t toggle;
@@ -37,6 +38,7 @@ static void test_quad_next_texture(void)
   if (quad.texture_index >= quad.texture_count)
     quad.texture_index = 0;
   GPU_quad_set_texture(quad.quad, quad.textures[quad.texture_index]);
+  GPU_quad_set_alimit(quad.quad, quad.alimits[quad.texture_index]);
 }
 
 static void test_quad_delete(void)
@@ -67,11 +69,12 @@ void test_quad_draw(void)
   }
 }
 
-void test_quad_add_texture(const int id)
+void test_quad_add_texture(const int id, const float alimit)
 {
   GPU_quad_set_texture(quad.quad, id);
   quad.texture_index = quad.texture_count;
   quad.textures[quad.texture_index] = id;
+  quad.alimits[quad.texture_index] = alimit;
 
   quad.texture_count++;
   if (quad.texture_count >= MAX_TEXTURES)

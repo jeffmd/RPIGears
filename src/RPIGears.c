@@ -99,6 +99,8 @@ static const char fps_text[] = "FPS:";
 static int fps_start; 
 static short text_id;
 static short render_tex;
+static short offscreen_fb;
+static short offscreen_draw;
 
 static void init_textures(void)
 {
@@ -109,12 +111,17 @@ static void init_textures(void)
    update_tex(tex);
 }
 
-void toggle_useVSync(void)
+static void toggle_useVSync(void)
 {
   const int sync = options_useVSync() ? 0 : 1;
   update_useVSync(sync);
   window_update_VSync(sync);
   printf("\nvertical sync is %s\n", sync ? "on": "off");
+}
+
+static void toggle_back_render(void)
+{
+  offscreen_draw = !offscreen_draw;
 }
 
 static void update_fps(void)
@@ -127,12 +134,24 @@ static void update_fps(void)
   }
 }
 
+static void offscreen_refresh(void)
+{
+  if (offscreen_draw) {
+    GPU_framebuffer_bind(offscreen_fb);
+    glDepthMask(GL_TRUE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    scene_draw();
+  }
+}
+
 static void run_gears(void)
 {
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!exit_is_now())
   {
     update_gear_rotation();
+    offscreen_refresh();
     WM_refresh();
   }
 }
@@ -142,7 +161,7 @@ static void draw(void)
   test_quad_draw();
   update_fps();
   text_draw(text_id);
-  scene_draw();
+  //scene_draw();
 }
 
 //==============================================================================
@@ -175,21 +194,21 @@ static void setup_render_texture(const int width, const int height)
   check_gl_error("make depth texture buffer");
   
   // Build the framebuffer.
-  const int framebuffer = GPU_framebuffer_create();
-  GPU_framebuffer_texture_attach(framebuffer, render_tex);
-  GPU_framebuffer_texture_attach(framebuffer, depth_tex);
-  GPU_framebuffer_bind(framebuffer);
+  offscreen_fb = GPU_framebuffer_create();
+  GPU_framebuffer_texture_attach(offscreen_fb, render_tex);
+  GPU_framebuffer_texture_attach(offscreen_fb, depth_tex);
+  GPU_framebuffer_bind(offscreen_fb);
   
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE)
-    printf("Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
+    printf("*** Frame buffer incomplete: %s\n", get_FramebufferStatus_msg(status));
 }
 
 static void setup_test_quad(void)
 {
   test_quad();
-  test_quad_add_texture(font_texture(font_active()));
-  test_quad_add_texture(render_tex);
+  test_quad_add_texture(font_texture(font_active()), 0.5f);
+  test_quad_add_texture(render_tex, 0.0f);
 }
 
 static void setup_text(void)
@@ -212,6 +231,7 @@ int main (int argc, char *argv[])
   exit_init(state_timeToRun());
   print_info_init();
   key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
+  key_add_action('B', toggle_back_render, "toggle background render on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();
@@ -226,7 +246,7 @@ int main (int argc, char *argv[])
   //font_set_active(font_create("dejavu/DejaVuSans.ttf"));
   font_set_active(font_create("noto/NotoMono-Regular.ttf"));
 
-  setup_render_texture(640, 512);
+  setup_render_texture(128, 128);
   setup_test_quad();
   setup_text();
 

@@ -24,6 +24,7 @@ typedef struct {
   short batch;
   short shader;
   GLfloat ProjMatrix[4];
+  GLfloat alimit;
 } GPUQuad;
 
 #define QUAD_MAX_COUNT 10
@@ -64,6 +65,7 @@ static void gpu_quad_init(GPUQuad *quad)
   quad->ProjMatrix[1] = 0.12f;
   quad->ProjMatrix[2] = 0.0f;
   quad->ProjMatrix[3] = 0.0f;
+  quad->alimit = 0.5f;
 }
 
 void GPU_quad_delete(const int id)
@@ -94,6 +96,7 @@ static void gpu_quad_batch_init(GPUQuad *quad)
     quad->batch = GPU_batch_create();
     const int ubuff = GPU_batch_uniform_buffer(quad->batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", quad->ProjMatrix);    
+    GPU_uniformbuffer_add_1f(ubuff, "alimit", quad->alimit);    
   }
 
   const int vbuff = GPU_batch_vertex_buffer(quad->batch);
@@ -137,3 +140,9 @@ void GPU_quad_set_shader(const int id, const int shader_id)
 {
   get_quad(id)->shader = shader_id;
 }
+
+void GPU_quad_set_alimit(const int id, const float val)
+{
+  get_quad(id)->alimit = val;
+}
+

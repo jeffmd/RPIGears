@@ -4,6 +4,6 @@
   
   void test_quad(void);
   void test_quad_draw(void);
-  void test_quad_add_texture(const int id);
+  void test_quad_add_texture(const int id, const float alimit);
 
 #endif

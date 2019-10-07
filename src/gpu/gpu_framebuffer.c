@@ -234,6 +234,6 @@ void GPU_framebuffer_bind(const int id)
   if (fb->dirty_flag)
     gpu_framebuffer_update_attachments(fb);
 
-  //glViewport(0, 0, fb->width, fb->height);
+  glViewport(0, 0, fb->width, fb->height);
 }
 
