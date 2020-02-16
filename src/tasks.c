@@ -46,7 +46,7 @@ uint getMilliseconds()
 
   clock_gettime(CLOCK_REALTIME, &spec);
 	
-	return (spec.tv_sec * 1000L + spec.tv_nsec / 1000000L);
+  return (spec.tv_sec * 1000L + spec.tv_nsec / 1000000L);
 }
  
 static void update_current_ms(void)
@@ -116,10 +116,10 @@ static void task_do(Task * const task)
       task->elapsed_ms = current_ms - task->prev_ms;
       
       if (task->elapsed_ms >= task->interval_ms) {
+        task->prev_ms = current_ms;
         if (task->dofunc) {
           task->dofunc();
         }
-        task->prev_ms = current_ms;
       }
     }
   }  
@@ -138,7 +138,7 @@ void task_run(const int id)
 void do_tasks(void)
 {
   update_current_ms();
-  if ( (current_ms - prev_ms) > tasks_dtime) {
+  if ( (current_ms - prev_ms) >= tasks_dtime) {
     prev_ms = current_ms;
       
     for (int idx = 1; idx < TASKS_MAX_COUNT; idx++) {
