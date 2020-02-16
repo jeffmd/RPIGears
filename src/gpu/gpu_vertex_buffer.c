@@ -72,7 +72,7 @@ static void vertbuf_init(GPUVertBuffer *vbuff)
 int GPU_vertbuf_create(void)
 {
   const int id = find_deleted_vert_buffer_id();
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
   vbuff->active = 1;
   vertbuf_init(vbuff);
 
@@ -81,7 +81,7 @@ int GPU_vertbuf_create(void)
 
 void GPU_vertbuf_delete(const int id)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
   vbuff->active = 0;
   vertbuf_init(vbuff);
@@ -102,7 +102,7 @@ void GPU_vertbuf_set_add_count(const int id, const GLuint count)
 
 void GPU_vertbuf_set_start(const int id, const GLuint start)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
   for (GLuint Idx = 0; Idx < VERT_ATTRIB_MAX; Idx++) {
     vbuff->data_idx[Idx] = start;
@@ -170,7 +170,7 @@ static void *vertbuf_attr_data(GPUVertBuffer *vbuff, const GLuint attribute_id)
 
 void GPU_vertbuf_add_4(const int id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
   if (!vbuff->ready) {
     vertbuf_make_ready(vbuff);
@@ -188,7 +188,7 @@ void GPU_vertbuf_add_4(const int id, const GLuint attribute_id, const GLfloat va
 
 void GPU_vertbuf_use_BO(const int id)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
   if (!vbuff->vbo_id) {
     glGenBuffers(1, &vbuff->vbo_id);
@@ -197,13 +197,13 @@ void GPU_vertbuf_use_BO(const int id)
 
 void GPU_vertbuf_no_BO(const int id)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
   delete_vbo(vbuff);
 }
 
 void GPU_vertbuf_bind(const int id)
 {
-  GPUVertBuffer *vbuff = get_vert_buffer(id);
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
   if (vbuff->ready) {
     glBindBuffer(GL_ARRAY_BUFFER, vbuff->vbo_id);

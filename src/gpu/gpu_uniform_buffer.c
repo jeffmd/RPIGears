@@ -137,7 +137,7 @@ int GPU_uniformbuffer_create(void)
 
 void GPU_uniformbuffer_delete(const int id)
 {
-  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
+  GPUUniformBuffer *const ubuff = get_uniform_buffer(id);
   ubuff->active = 0;
   uniformbuffer_init(ubuff);
   
@@ -151,7 +151,7 @@ void GPU_uniformbuffer_add(const int id, const char *name,
 {
   if (data) {
     GPUUniformBuffer *ubuff = get_uniform_buffer(id);
-    UniformAttribute *uniform = &ubuff->uniforms[ubuff->uniform_count];
+    UniformAttribute *const uniform = &ubuff->uniforms[ubuff->uniform_count];
     
     uniform->type = type;
     uniform->size = size;
@@ -170,7 +170,7 @@ void GPU_uniformbuffer_add(const int id, const char *name,
 void GPU_uniformbuffer_bind(const int id)
 {
   int shader = GPU_shader_active_shader();
-  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
+  GPUUniformBuffer *const ubuff = get_uniform_buffer(id);
   
   if ((ubuff->shaders[ubuff->active_index].shader != shader)
     || (ubuff->shaders[ubuff->active_index].modid != GPU_shader_modid(shader))) {
@@ -184,7 +184,7 @@ void GPU_uniformbuffer_update(const int id)
 {
   GPU_uniformbuffer_bind(id);
   
-  GPUUniformBuffer *ubuff = get_uniform_buffer(id);
+  GPUUniformBuffer *const ubuff = get_uniform_buffer(id);
   GLint *locations = ubuff->shaders[ubuff->active_index].locations;
 
   for (int idx = 0; idx < ubuff->uniform_count; idx++) {

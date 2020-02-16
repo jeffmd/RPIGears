@@ -130,7 +130,7 @@ static void shader_unit_build(GPUShaderUnit *shader)
 
 GLuint GPU_shader_unit_globj(const int id)
 {
-  GPUShaderUnit *shader = get_shader_unit(id);
+  GPUShaderUnit *const shader = get_shader_unit(id);
   
   if (!shader->glShaderObj)
     shader_unit_build(shader);

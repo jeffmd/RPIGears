@@ -70,7 +70,7 @@ static void gpu_quad_init(GPUQuad *quad)
 
 void GPU_quad_delete(const int id)
 {
-  GPUQuad *quad = get_quad(id);
+  GPUQuad *const quad = get_quad(id);
 
   quad->active = 0;
   gpu_quad_init(quad);
@@ -113,7 +113,7 @@ static void gpu_quad_batch_init(GPUQuad *quad)
 int GPU_quad_create(void)
 {
   const int id = find_deleted_quad_id();
-  GPUQuad *quad = get_quad(id);
+  GPUQuad *const quad = get_quad(id);
   quad->active = 1;
   gpu_quad_init(quad);
   gpu_quad_batch_init(quad);
@@ -123,7 +123,7 @@ int GPU_quad_create(void)
 
 void GPU_quad_draw(const int id)
 {
-  GPUQuad *quad = get_quad(id);
+  GPUQuad *const quad = get_quad(id);
 
   GPU_texture_bind(quad->texture, 0);
   GPU_shader_bind(quad->shader);;

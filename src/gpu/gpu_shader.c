@@ -143,7 +143,7 @@ void GPU_shader_reset(const int id)
   if (active_shader == id)
     glUseProgram(0);
 
-  GPUShader *shader = get_shader(id);
+  GPUShader *const shader = get_shader(id);
 
   GPU_shader_unit_reset(shader->vert_unit);
   GPU_shader_unit_reset(shader->frag_unit);
@@ -221,7 +221,7 @@ static void shader_check_unit_updates(GPUShader *shader)
 
 void GPU_shader_bind(const int id)
 {
-  GPUShader *shader = get_shader(id);
+  GPUShader *const shader = get_shader(id);
 
   shader_check_unit_updates(shader);
   

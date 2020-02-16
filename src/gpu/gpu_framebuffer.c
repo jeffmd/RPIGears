@@ -104,7 +104,7 @@ static void gpu_framebuffer_init(GPUFrameBuffer *fb)
 
 void GPU_framebuffer_free(int id)
 {
-  GPUFrameBuffer *fb = get_framebuffer(id);
+  GPUFrameBuffer *const fb = get_framebuffer(id);
   
   fb->refcount--;
 
@@ -128,7 +128,7 @@ void GPU_framebuffer_free(int id)
 
 void GPU_framebuffer_texture_detach(const int id, const int tex)
 {
-  GPUFrameBuffer *fb = get_framebuffer(id);
+  GPUFrameBuffer *const fb = get_framebuffer(id);
 
   const GPUAttachmentType at_type = attachment_type_from_tex(tex);
 
@@ -148,7 +148,7 @@ void GPU_framebuffer_texture_detach_all(const int tex)
 
 void GPU_framebuffer_texture_attach(const int id, const int tex)
 {
-  GPUFrameBuffer *fb = get_framebuffer(id);
+  GPUFrameBuffer *const fb = get_framebuffer(id);
   const GPUAttachmentType type = attachment_type_from_tex(tex);
 
   if (fb->attachments[type] != tex)
@@ -221,7 +221,7 @@ void GPU_framebuffer_done(void)
 void GPU_framebuffer_bind(const int id)
 {
   GPU_framebuffer_done();
-  GPUFrameBuffer *fb = get_framebuffer(id);
+  GPUFrameBuffer *const fb = get_framebuffer(id);
 
   if (fb->object == 0)
     gpu_framebuffer_init(fb);

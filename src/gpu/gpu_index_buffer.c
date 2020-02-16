@@ -8,7 +8,7 @@
 #include "static_array.h"
 
 typedef struct {
-  uint8_t active;          // not zero if vertex buffer is not deleted
+  uint8_t active;           // not zero if vertex buffer is not deleted
   GLuint alloc_count;       // number of verts allocated in data buffer
   GLuint add_count;         // number of verts to add to data buffer when resize occurs
   GLuint idx;               // index into data during update
@@ -16,7 +16,7 @@ typedef struct {
   GLvoid *index;            // pointer(vertex array) or 0(using vbo) to index data
   GLuint ibo_id;            // 0 indicates using client ram or not allocated yet
   GLenum usage;             // usage hint for GL optimisation
-  uint8_t ready;           // not zero if ready for adding data to buffer
+  uint8_t ready;            // not zero if ready for adding data to buffer
 } GPUIndexBuffer;
 
 #define INDEX_BUFFER_MAX_COUNT 10
@@ -72,7 +72,7 @@ static void indexbuf_init(GPUIndexBuffer *ibuff)
 int GPU_indexbuf_create(void)
 {
   const int id = find_deleted_index_buffer_id();
-  GPUIndexBuffer *ibuff = get_index_buffer(id);
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
   ibuff->active = 1;
   indexbuf_init(ibuff);
 
@@ -81,7 +81,7 @@ int GPU_indexbuf_create(void)
 
 void GPU_indexbuf_delete(const int id)
 {
-  GPUIndexBuffer *ibuff = get_index_buffer(id);
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
 
   ibuff->active = 0;
   indexbuf_init(ibuff);
@@ -146,7 +146,7 @@ static GLuint indexbuf_idx(GPUIndexBuffer *ibuff)
 
 void GPU_indexbuf_add(const int id, const GLshort val)
 {
-  GPUIndexBuffer *ibuff = get_index_buffer(id);
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
 
   if (!ibuff->ready) {
     indexbuf_make_ready(ibuff);
@@ -162,7 +162,7 @@ void GPU_indexbuf_add(const int id, const GLshort val)
 
 void GPU_indexbuf_use_BO(const int id)
 {
-  GPUIndexBuffer *ibuff = get_index_buffer(id);
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
 
   if (!ibuff->ibo_id) {
     glGenBuffers(1, &ibuff->ibo_id);
@@ -177,7 +177,7 @@ void GPU_indexbuf_no_BO(const int id)
 // set VAO
 void GPU_indexbuf_bind(const int id)
 {
-  GPUIndexBuffer *ibuff = get_index_buffer(id);
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
 
   if (ibuff->ready) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuff->ibo_id);
