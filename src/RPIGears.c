@@ -101,6 +101,7 @@ static short text_id;
 static short render_tex;
 static short offscreen_fb;
 static short offscreen_draw;
+static short stats_draw;
 
 static void init_textures(void)
 {
@@ -122,6 +123,11 @@ static void toggle_useVSync(void)
 static void toggle_back_render(void)
 {
   offscreen_draw = !offscreen_draw;
+}
+
+static void toggle_stats_draw(void)
+{
+  stats_draw = !stats_draw;
 }
 
 static void update_fps(void)
@@ -159,8 +165,10 @@ static void run_gears(void)
 static void draw(void)
 {
   test_quad_draw();
-  update_fps();
-  text_draw(text_id);
+  if (stats_draw) {
+    update_fps();
+    text_draw(text_id);
+  }
   scene_draw();
 }
 
@@ -207,8 +215,8 @@ static void setup_render_texture(const int width, const int height)
 static void setup_test_quad(void)
 {
   test_quad();
-  test_quad_add_texture(font_texture(font_active()), 0.5f);
   test_quad_add_texture(render_tex, 0.0f);
+  test_quad_add_texture(font_texture(font_active()), 0.5f);
 }
 
 static void setup_text(void)
@@ -232,6 +240,7 @@ int main (int argc, char *argv[])
   print_info_init();
   key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   key_add_action('B', toggle_back_render, "toggle background render on/off");
+  key_add_action('S', toggle_stats_draw, "toggle stats render on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();
