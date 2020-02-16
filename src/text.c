@@ -58,6 +58,24 @@ static Text *get_text(int id)
   return texts + id;
 }
 
+static short text_vformat(void)
+{
+  if (!vformat) {
+    vformat = GPU_vertex_format_create();
+    GPU_vertex_format_add_attribute(vformat, "position_uv", 4, GL_HALF_FLOAT_OES);
+  }
+  return vformat;
+}
+
+static void text_default_settings(Text *text)
+{
+    text->ProjMatrix[0] = 1.0f/1280.0f;
+    text->ProjMatrix[1] = 1.0f/1024.0f;
+    text->ProjMatrix[2] = -0.49f;
+    text->ProjMatrix[3] = -0.49f;
+    text->alimit = 0.5f;
+}
+
 static void text_init(Text *text)
 {
   if (!text->batch) {
@@ -65,22 +83,15 @@ static void text_init(Text *text)
     const int ubuff = GPU_batch_uniform_buffer(text->batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", text->ProjMatrix);
     GPU_uniformbuffer_add_1f(ubuff, "alimit", text->alimit);
-    text->ProjMatrix[0] = 1.0f/1280.0f;
-    text->ProjMatrix[1] = 1.0f/1024.0f;
-    text->ProjMatrix[2] = -0.49f;
-    text->ProjMatrix[3] = -0.49f;
-    text->alimit = 0.5f;
+
     text->count = 0;
     text->index = 0;
+
+    text_default_settings(text);
   }
   
-  if (!vformat) {
-    vformat = GPU_vertex_format_create();
-    GPU_vertex_format_add_attribute(vformat, "position_uv", 4, GL_HALF_FLOAT_OES);
-  }
-
   const int vbuff = GPU_batch_vertex_buffer(text->batch);
-  GPU_vertbuf_set_vertex_format(vbuff, vformat);
+  GPU_vertbuf_set_vertex_format(vbuff, text_vformat());
   GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
   text->ready = 0;
 }
