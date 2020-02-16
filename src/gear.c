@@ -51,9 +51,9 @@ static gear_t *get_gear(int id)
  
  **/
 int gear( const GLfloat inner_radius, const GLfloat outer_radius,
-                     const GLfloat width, const GLint teeth,
-                     const GLfloat tooth_depth,
-                     const GLfloat color[])
+          const GLfloat width, const GLint teeth,
+          const GLfloat tooth_depth,
+          const GLfloat color[])
 {
   GLint i, j;
   GLfloat r0, r1, r2;
