@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #include "bcm_host.h"
-#include "vc_vchi_dispmanx.h"
+#include "interface/vmcs_host/vc_vchi_dispmanx.h"
 #include "gles3.h"
 #include "EGL/egl.h"
 #include "EGL/eglext.h"

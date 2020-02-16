@@ -7,14 +7,14 @@ OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o
 	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o \
         gpu_quad.o)
 	
-BIN = RPIGears.bin
-	
-CFLAGS += -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -Wall -DHAVE_LIBOPENMAX=2 -ftree-vectorize -ftree-vectorizer-verbose=6 -g -Og -pipe -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM -Wno-psabi -ffast-math -fsingle-precision-constant -mfloat-abi=hard
-LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lrt -lm -lX11 -lXext -lfreetype
+BIN = RPIGears
+# -ftree-vectorize -ftree-vectorizer-verbose=6
+CFLAGS += -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -Wall -DHAVE_LIBOPENMAX=2 -pipe -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM -Wno-psabi -ffast-math -fsingle-precision-constant -mfloat-abi=hard
+LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lvcsm -lrt -lm -lX11 -lXext -lfreetype
 
-INCLUDES+=-Iinclude -Iinclude/gpu -I/opt/vc/include/ -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host -I/opt/vc/include/interface/vmcs_host/linux -I/usr/include/freetype2
+INCLUDES+=-Iinclude -Iinclude/gpu -I/opt/vc/include/ -I/usr/include/freetype2
 
-CFLAGS +=$(INCLUDES) -MMD -MP
+CFLAGS +=$(INCLUDES) -g -Og -MMD -MP
 
 all: obj $(BIN)
 
@@ -33,7 +33,7 @@ DEPFILES = $(OBJS:.o=.d)
 $(DEPFILES):
 
 list: $(BIN)
-	objdump -d -S $(BIN) > list.txt
+	objdump -S $(BIN) > list.txt
 	
 -include $(DEPFILES)
 
