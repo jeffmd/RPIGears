@@ -80,7 +80,7 @@ void GPU_quad_delete(const int id)
 
 }
 
-static int get_quad_vformat(void)
+static int quad_vformat(void)
 {
   if (!vformat) {
     vformat = GPU_vertex_format_create();
@@ -101,7 +101,7 @@ static void gpu_quad_batch_init(GPUQuad *quad)
 
   const int vbuff = GPU_batch_vertex_buffer(quad->batch);
   GPU_batch_set_vertices_draw_count(quad->batch, 4);
-  GPU_vertbuf_set_vertex_format(vbuff, get_quad_vformat());
+  GPU_vertbuf_set_vertex_format(vbuff, quad_vformat());
   GPU_vertbuf_set_add_count(vbuff, 4);
   
 #define VERTEX(x, y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, ((x) + 1)*0.5, (-(y) + 1)*0.5))
