@@ -8,7 +8,7 @@
   void xwindow_init(const uint width, const uint height);
   void xwindow_close(void);
   void xwindow_check_events(void);
-  void xwindow_frame_update(void);
+  void xwindow_frame_update(void *buffer);
   int xwindow_minimized(void);
   int xwindow_is_clear(void); 
 

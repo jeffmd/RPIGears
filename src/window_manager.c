@@ -6,6 +6,7 @@
 #include "bcm_host.h"
 #include "gles3.h"
 #include "gpu_framebuffer.h"
+#include "gpu_texture.h"
 #include "window.h"
 #include "xwindow.h"
 #include "key_input.h"
@@ -31,8 +32,15 @@ static Action draw_fn;
 static void wm_frameClear(void)
 {
   GPU_framebuffer_done();
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
+  // if main screen is visible
+  {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
+  }
+  // else render to offscreen framebuffer 
+  {
+    // enable offscreen frame buffer
+  }
   glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);
@@ -57,10 +65,8 @@ static void window_manager_delete(void)
 
 static void wm_frameEnd(void)
 {
-  const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
-  glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
   window_swap_buffers();
-  xwindow_frame_update();
+  xwindow_frame_update(0);
 }
 
 int WM_minimized(void)
@@ -88,12 +94,11 @@ static void wm_update(void)
 
 static void wm_update_avgfps(const float fps)
 {
-  //printf("fps: %f\n", fps);
   if ( fabsf(avgfps - fps) > 0.1f ) {
     sprintf(fps_str, "%3.1f  ", fps);
     fps_strptr = fps_str;
-    period_rate = 1.0f / fps;
     avgfps = fps;
+    period_rate = 1.0f / avgfps;
     //update_angleFrame();
     key_input_set_rate_frame(period_rate);
   }
@@ -104,6 +109,8 @@ static void wm_do_frame_rate_task(void)
   const float dt = task_elapsed(frame_rate_task) / 1000.0f;
   if (dt > 0.0f) {
 	  
+    //printf("dt: %f\n", dt);
+    //printf("frames: %i\n", frames - lastFrames);
     wm_update_avgfps((float)(frames - lastFrames) / dt);
     lastFrames = frames;
   }

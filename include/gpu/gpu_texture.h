@@ -12,7 +12,8 @@ typedef enum {
 	GPU_STENCIL8,
 	GPU_DEPTH16,
 	GPU_DEPTH24,
-	GPU_DEPTH32
+	GPU_DEPTH32,
+        GPU_VCSM      // videocore shared memory
 } GPUTextureFormat;
 
 int GPU_texture_create(const int w, const int h,
@@ -32,5 +33,7 @@ GLuint GPU_texture_opengl_bindcode(int id);
 void GPU_texture_sub_image(int id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels);
 void GPU_texture_mipmap(int id);
+unsigned char *GPU_texture_vcsm_lock(void);
+void GPU_texture_vcsm_unlock(void);
 
 #endif // _GPU_TEXTURE_H_

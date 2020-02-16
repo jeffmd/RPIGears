@@ -2,7 +2,12 @@
 
 #include <stdio.h>
 
+#include "interface/vcsm/user-vcsm.h"
+
 #include "gles3.h"
+#include "EGL/egl.h"
+#include "EGL/eglext.h"
+
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
 #include "static_array.h"
@@ -26,6 +31,10 @@ typedef struct GPUTexture {
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
 static short next_deleted_texture;
+
+static struct egl_image_brcm_vcsm_info vcsm_info;
+static EGLImageKHR eglFbImage = EGL_NO_IMAGE_KHR;
+static unsigned char *vcsm_buffer;
 
 static const GLenum data_format[] = {
   0,
@@ -103,13 +112,7 @@ static void init_texture(GPUTexture *tex, const void *pixels)
   tex->is_texture = 1;
   tex->target = GL_TEXTURE_2D;
   /* Generate Texture object */
-  if(!tex->bindcode) glGenTextures(1, &tex->bindcode);//GPU_tex_alloc();
-
-  //if (!tex->bindcode) {
-    //printf("GPUTexture: texture create failed\n");
-    //GPU_texture_free(tex);
-    //return NULL;
-  //}
+  if(!tex->bindcode) glGenTextures(1, &tex->bindcode);
 
   glBindTexture(GL_TEXTURE_2D, tex->bindcode);
 
@@ -127,11 +130,35 @@ static void init_texture(GPUTexture *tex, const void *pixels)
 
 }
 
+static void init_texture_vcsm(GPUTexture *tex)
+{
+  tex->is_texture = 1;
+  tex->target = GL_TEXTURE_2D;
+  /* Generate Texture object */
+  if(!tex->bindcode) glGenTextures(1, &tex->bindcode);
+
+  glBindTexture(GL_TEXTURE_2D, tex->bindcode);
+  if (eglFbImage == EGL_NO_IMAGE_KHR) {
+    vcsm_init();
+    vcsm_info.width = tex->width;
+    vcsm_info.height = tex->height;
+    eglFbImage = eglCreateImageKHR(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_NO_CONTEXT,
+            EGL_IMAGE_BRCM_VCSM, &vcsm_info, NULL);
+  }
+
+  if (eglFbImage == EGL_NO_IMAGE_KHR || vcsm_info.vcsm_handle == 0) {
+    printf("*** Failed to create EGL VCSM image\n");
+  }
+  else {
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, eglFbImage);
+  }
+}
+
 int GPU_texture_create(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
   const int id = find_deleted_texture_id();
-  GPUTexture *tex = get_texture(id);
+  GPUTexture *const tex = get_texture(id);
 
   tex->width = w;
   tex->height = h;
@@ -141,8 +168,12 @@ int GPU_texture_create(const int w, const int h,
 
   if (tex_format < GPU_STENCIL8)
     init_texture(tex, pixels);
-  else
-    init_renderbuffer(tex);
+  else {
+    if (tex_format < GPU_VCSM)
+      init_renderbuffer(tex);
+    else
+      init_texture_vcsm(tex);
+  }
 
   gpu_texture_memory_footprint_add(tex);
 
@@ -260,4 +291,23 @@ GLboolean GPU_texture_cube(int id)
 GLuint GPU_texture_opengl_bindcode(int id)
 {
   return get_texture(id)->bindcode;
+}
+
+unsigned char *GPU_texture_vcsm_lock(void)
+{
+  VCSM_CACHE_TYPE_T cache_type;
+
+  if (!vcsm_buffer && vcsm_info.vcsm_handle) {
+    vcsm_buffer = (unsigned char *) vcsm_lock_cache(vcsm_info.vcsm_handle, VCSM_CACHE_TYPE_HOST, &cache_type);
+  }
+
+  return vcsm_buffer;
+}
+
+void GPU_texture_vcsm_unlock(void)
+{
+  if (vcsm_buffer) {
+    vcsm_unlock_ptr(vcsm_buffer);
+    vcsm_buffer = 0;
+  }
 }

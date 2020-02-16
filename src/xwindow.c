@@ -229,7 +229,7 @@ static inline void bufferLineFlipRGB(char *buffer, const int stride)
   }
 }
 
-static void buffer_flip_vertical(const int stride, const int height, char *buffer)
+static void buffer_flip_vertical(const int stride, const int height, char *buffer, char *source_buff)
 {
   char *topBuffer = &buffer[(height - 1) * stride];
 
@@ -254,7 +254,9 @@ static void init_XimageBuffer(int width, int height, int depth)
 }
 #endif
 
-void xwindow_frame_update(void)
+//int xwindow_needs_update(void)
+
+void xwindow_frame_update(void *buffer)
 {
   
   if(window_inFocus() | minimized) {
@@ -280,8 +282,11 @@ void xwindow_frame_update(void)
       img->bytes_per_line = width * BYTESPIXEL;
       resized = 0;
     }
-    window_snapshot(width, height, img->data);
-    buffer_flip_vertical(img->bytes_per_line, height, img->data);
+    if (!buffer) {
+      window_snapshot(width, height, img->data);
+      buffer = img->data;
+    }
+    buffer_flip_vertical(img->bytes_per_line, height, img->data, buffer);
     XShmPutImage(dis, win, gc, img, 0, 0, 0, 0, width, height, False);
   //}
 #if 0
