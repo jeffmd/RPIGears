@@ -37,6 +37,17 @@ static gear_t *get_gear(int id)
   return gears + id;
 }
 
+static short gear_vformat(void)
+{
+  if (!vformat) {
+    vformat = GPU_vertex_format_create();
+    GPU_vertex_format_add_attribute(vformat, "position", 3, GL_FLOAT);
+    GPU_vertex_format_add_attribute(vformat, "normal", 3, GL_HALF_FLOAT_OES);
+    GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
+  }
+  return vformat;
+}
+
 /**
  
   build a gear wheel.  You'll probably want to call this function when
@@ -80,20 +91,13 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   const int ibuff = GPU_batch_index_buffer(gear->batch);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_set_add_count(ibuff, nindices);
-    
-  if (!vformat) {
-    vformat = GPU_vertex_format_create();
-    GPU_vertex_format_add_attribute(vformat, "position", 3, GL_FLOAT);
-    GPU_vertex_format_add_attribute(vformat, "normal", 3, GL_HALF_FLOAT_OES);
-    GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
-  }
   
   const int ubuff = GPU_batch_uniform_buffer(gear->batch);
   GPU_uniformbuffer_add_4f(ubuff, "MaterialColor", gear->color);
   
   const int vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
-  GPU_vertbuf_set_vertex_format(vbuff, vformat);
+  GPU_vertbuf_set_vertex_format(vbuff, gear_vformat());
   GPU_vertbuf_set_add_count(vbuff, nvertices);
   
   r0 = inner_radius;
