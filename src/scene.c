@@ -23,6 +23,7 @@ static struct {
    GLfloat projection_matrix[16];
 } UBO_Data;
 
+static GLfloat tm[16];
 static short diffuseMap_Data = 0;
 static short uniform_buffer;
 
@@ -37,9 +38,8 @@ static short uniform_buffer;
 static void draw_gear(const int gear, const GLfloat x, const GLfloat y, const GLfloat angle)
 {
    /* Translate and rotate the gear */
-   m4x4_copy(UBO_Data.model_view, camera_view_matrix());
-   m4x4_translate(UBO_Data.model_view, x, y, 0);
-   m4x4_rotate(UBO_Data.model_view, angle, 0, 0, 1);
+   m4x4_translate(tm, camera_view_matrix(), x, y, 0);
+   m4x4_rotate(UBO_Data.model_view, tm, angle, 0, 0, 1);
 
    gear_draw(gear, options_drawMode(), state_instances());
 }

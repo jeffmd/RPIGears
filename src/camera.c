@@ -21,6 +21,7 @@ typedef struct {
 
 } CAMERA_T;
 
+static GLfloat tm[16];
 static CAMERA_T _camera;
 static CAMERA_T * const camera = &_camera; 
 
@@ -94,18 +95,18 @@ GLboolean camera_isDirty(void)
 
 GLfloat *camera_view_matrix(void)
 {
-   if (camera->dirty == GL_TRUE) {
-	   printf("camera Recalc\n");
-	   m4x4_identity(camera->ViewMatrix);
-	   /* Translate and rotate the view */
-	   m4x4_translate(camera->ViewMatrix, camera->x, camera->y, camera->z);
-	   m4x4_rotate(camera->ViewMatrix, camera->view_rotx, 1, 0, 0);
-	   m4x4_rotate(camera->ViewMatrix, camera->view_roty, 0, 1, 0);
-	   m4x4_rotate(camera->ViewMatrix, camera->view_rotz, 0, 0, 1);
-	   camera->dirty = GL_FALSE;
-	}
-	
-	return camera->ViewMatrix;
+  if (camera->dirty == GL_TRUE) {
+    printf("camera Recalc\n");
+    m4x4_identity(camera->ViewMatrix);
+    /* Translate and rotate the view */
+    m4x4_translate(tm, camera->ViewMatrix, camera->x, camera->y, camera->z);
+    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotx, 1, 0, 0);
+    m4x4_rotate(tm, camera->ViewMatrix, camera->view_roty, 0, 1, 0);
+    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotz, 0, 0, 1);
+    camera->dirty = GL_FALSE;
+  }
+
+  return camera->ViewMatrix;
 }
 
 static void camera_key_reverse(void)

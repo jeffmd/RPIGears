@@ -29,29 +29,24 @@ void m4x4_copy(GLfloat *md, const GLfloat *ms)
  * @param m the first matrix to multiply
  * @param n the second matrix to multiply
  */
-void m4x4_multiply(GLfloat m0[16], const GLfloat m1[16])
+void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
 {
-   GLfloat d[16];
-
-	d[0] = m0[0]*m1[0] + m0[4]*m1[1] + m0[8]*m1[2] + m0[12]*m1[3];
-	d[1] = m0[1]*m1[0] + m0[5]*m1[1] + m0[9]*m1[2] + m0[13]*m1[3];
-	d[2] = m0[2]*m1[0] + m0[6]*m1[1] + m0[10]*m1[2] + m0[14]*m1[3];
-	d[3] = m0[3]*m1[0] + m0[7]*m1[1] + m0[11]*m1[2] + m0[15]*m1[3];
-	d[4] = m0[0]*m1[4] + m0[4]*m1[5] + m0[8]*m1[6] + m0[12]*m1[7];
-	d[5] = m0[1]*m1[4] + m0[5]*m1[5] + m0[9]*m1[6] + m0[13]*m1[7];
-	d[6] = m0[2]*m1[4] + m0[6]*m1[5] + m0[10]*m1[6] + m0[14]*m1[7];
-	d[7] = m0[3]*m1[4] + m0[7]*m1[5] + m0[11]*m1[6] + m0[15]*m1[7];
-	d[8] = m0[0]*m1[8] + m0[4]*m1[9] + m0[8]*m1[10] + m0[12]*m1[11];
-	d[9] = m0[1]*m1[8] + m0[5]*m1[9] + m0[9]*m1[10] + m0[13]*m1[11];
-	d[10] = m0[2]*m1[8] + m0[6]*m1[9] + m0[10]*m1[10] + m0[14]*m1[11];
-	d[11] = m0[3]*m1[8] + m0[7]*m1[9] + m0[11]*m1[10] + m0[15]*m1[11];
-	d[12] = m0[0]*m1[12] + m0[4]*m1[13] + m0[8]*m1[14] + m0[12]*m1[15];
-	d[13] = m0[1]*m1[12] + m0[5]*m1[13] + m0[9]*m1[14] + m0[13]*m1[15];
-	d[14] = m0[2]*m1[12] + m0[6]*m1[13] + m0[10]*m1[14] + m0[14]*m1[15];
-	d[15] = m0[3]*m1[12] + m0[7]*m1[13] + m0[11]*m1[14] + m0[15]*m1[15];
-
-	
-   m4x4_copy(m0, d);
+  d[0] = m0[0]*m1[0] + m0[4]*m1[1] + m0[8]*m1[2] + m0[12]*m1[3];
+  d[1] = m0[1]*m1[0] + m0[5]*m1[1] + m0[9]*m1[2] + m0[13]*m1[3];
+  d[2] = m0[2]*m1[0] + m0[6]*m1[1] + m0[10]*m1[2] + m0[14]*m1[3];
+  d[3] = m0[3]*m1[0] + m0[7]*m1[1] + m0[11]*m1[2] + m0[15]*m1[3];
+  d[4] = m0[0]*m1[4] + m0[4]*m1[5] + m0[8]*m1[6] + m0[12]*m1[7];
+  d[5] = m0[1]*m1[4] + m0[5]*m1[5] + m0[9]*m1[6] + m0[13]*m1[7];
+  d[6] = m0[2]*m1[4] + m0[6]*m1[5] + m0[10]*m1[6] + m0[14]*m1[7];
+  d[7] = m0[3]*m1[4] + m0[7]*m1[5] + m0[11]*m1[6] + m0[15]*m1[7];
+  d[8] = m0[0]*m1[8] + m0[4]*m1[9] + m0[8]*m1[10] + m0[12]*m1[11];
+  d[9] = m0[1]*m1[8] + m0[5]*m1[9] + m0[9]*m1[10] + m0[13]*m1[11];
+  d[10] = m0[2]*m1[8] + m0[6]*m1[9] + m0[10]*m1[10] + m0[14]*m1[11];
+  d[11] = m0[3]*m1[8] + m0[7]*m1[9] + m0[11]*m1[10] + m0[15]*m1[11];
+  d[12] = m0[0]*m1[12] + m0[4]*m1[13] + m0[8]*m1[14] + m0[12]*m1[15];
+  d[13] = m0[1]*m1[12] + m0[5]*m1[13] + m0[9]*m1[14] + m0[13]*m1[15];
+  d[14] = m0[2]*m1[12] + m0[6]*m1[13] + m0[10]*m1[14] + m0[14]*m1[15];
+  d[15] = m0[3]*m1[12] + m0[7]*m1[13] + m0[11]*m1[14] + m0[15]*m1[15];
 }
 
 /** 
@@ -63,7 +58,7 @@ void m4x4_multiply(GLfloat m0[16], const GLfloat m1[16])
  * @param y the y component of the direction to rotate to
  * @param z the z component of the direction to rotate to
  */
-void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
+void m4x4_rotate(GLfloat *d, const GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
 {
    float s, c;
    
@@ -78,7 +73,7 @@ void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, co
       0, 0, 0, 1
    };
 
-   m4x4_multiply(m, r);
+   m4x4_multiply(d, m, r);
 }
 
 
@@ -90,11 +85,17 @@ void m4x4_rotate(GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, co
  * @param y the y component of the direction to translate to
  * @param z the z component of the direction to translate to
  */
-void m4x4_translate(GLfloat *m, const GLfloat x, const GLfloat y, const GLfloat z)
+void m4x4_translate(GLfloat *d, const GLfloat *m, const GLfloat x, const GLfloat y, const GLfloat z)
 {
-   const GLfloat t[16] = { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
+  //   0  1  2  3   4  5  6  7   8  9 10 11  12 13 14 15
+  // { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
 
-   m4x4_multiply(m, t);
+  m4x4_copy(d, m);  
+
+  d[12] += m[0]*x + m[4]*y + m[8]*z;
+  d[13] += m[1]*x + m[5]*y + m[9]*z;
+  d[14] += m[2]*x + m[6]*y + m[10]*z;
+  d[15] += m[3]*x + m[7]*y + m[11]*z;
 }
 
 /** 
@@ -139,7 +140,7 @@ void m4x4_transpose(GLfloat *m)
  * Read http://www.gamedev.net/community/forums/topic.asp?topic_id=425118
  * for an explanation.
  */
-void m4x4_invert(GLfloat *m)
+void m4x4_invert(GLfloat *d, GLfloat *m)
 {
    GLfloat t[16];
    m4x4_identity(t);
@@ -154,14 +155,14 @@ void m4x4_invert(GLfloat *m)
    m[12] = m[13] = m[14] = 0;
    m4x4_transpose(m);
 
-   m4x4_multiply(m, t);
+   m4x4_multiply(d, m, t);
 }
 
 void m4xv3(float r[3], const float mat[16], const float vec[3])
 {
-	r[0] = vec[0] * mat[0] + vec[1] * mat[4] + mat[8] * vec[2] + mat[12];
-	r[1] = vec[0] * mat[1] + vec[1] * mat[5] + mat[9] * vec[2] + mat[13];
-	r[2] = vec[0] * mat[2] + vec[1] * mat[6] + mat[10] * vec[2] + mat[14];
+  r[0] = vec[0] * mat[0] + vec[1] * mat[4] + mat[8] * vec[2] + mat[12];
+  r[1] = vec[0] * mat[1] + vec[1] * mat[5] + mat[9] * vec[2] + mat[13];
+  r[2] = vec[0] * mat[2] + vec[1] * mat[6] + mat[10] * vec[2] + mat[14];
 }
 
 /** 
