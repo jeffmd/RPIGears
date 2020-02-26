@@ -132,7 +132,7 @@ static void toggle_stats_draw(void)
 
 static void update_fps(void)
 {
-  char *fps_str = WM_has_fps();
+  const char *fps_str = WM_has_fps();
   
   if (fps_str) {
     text_set_start(text_id, fps_start);
