@@ -193,24 +193,24 @@ static gl_vao *new_vao(GLuint name)
  */
 static GLint find_deleted_vao()
 {
-	GLint id = ctx.Array.NextDeletedVAO;
+  GLint id = ctx.Array.NextDeletedVAO;
 	
-	if ((id == 0) || (id >= ARRAY_OBJECT_MAX))
-	  id = 1;
+  if ((id == 0) || (id >= ARRAY_OBJECT_MAX))
+    id = 1;
 	  
-	for ( ; id < ARRAY_OBJECT_MAX; id++) {
-	  if (ctx.Array.Objects[id].Active == GL_FALSE) {
-		ctx.Array.NextDeletedVAO = id + 1;
-	    break;
-	  }
-	}
+  for ( ; id < ARRAY_OBJECT_MAX; id++) {
+    if (ctx.Array.Objects[id].Active == GL_FALSE) {
+      ctx.Array.NextDeletedVAO = id + 1;
+      break;
+    }
+  }
     
   if (id >= ARRAY_OBJECT_MAX) {
     printf("WARNING: No VAO available\n");
     id = 0;
   }
     
-	return id;
+  return id;
 }
 
 /**
