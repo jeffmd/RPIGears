@@ -53,15 +53,24 @@ void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
   d[15] = m0[3]*m1[12] + m0[7]*m1[13] + m0[11]*m1[14] + m0[15]*m1[15];
   */
 
+  // make vfp vector friendly
   for (int i=0; i<16; i+=4) {
-    const float ma = m1[i];
-    const float mb = m1[i+1];
-    const float mc = m1[i+2];
-    const float md = m1[i+3];
+    float s0 = 0.0f;
+    float s1 = 0.0f;
+    float s2 = 0.0f;
+    float s3 = 0.0f;
 
     for (int j=0; j<4; j++) {
-      d[i+j] = m0[j]*ma + m0[j+4]*mb + m0[j+8]*mc + m0[j+12]*md;
+      s0 += m1[j+i] * m0[0 + j*4];
+      s1 += m1[j+i] * m0[1 + j*4];
+      s2 += m1[j+i] * m0[2 + j*4];
+      s3 += m1[j+i] * m0[3 + j*4];
     }
+    
+    d[i] = s0;
+    d[i+1] = s1;
+    d[i+2] = s2;
+    d[i+3] = s3;
   }
 }
 
@@ -105,10 +114,26 @@ void m4x4_translate(GLfloat *d, const GLfloat *m, const GLfloat x, const GLfloat
   //   0  1  2  3   4  5  6  7   8  9 10 11  12 13 14 15
   // { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
 
-  m4x4_copy(d, m);  
-  for (int i=0; i<4; i++) {
-    d[i+12] += m[i]*x + m[i+4]*y + m[i+8]*z;
+  m4x4_copy(d, m);
+  float vec[3] = {x, y, z};  
+
+  float s0 = m[12];
+  float s1 = m[13];
+  float s2 = m[14];
+  float s3 = m[15];
+
+  for (int j=0; j<3; j++) {
+    float vs = vec[j];
+    s0 += vs * m[0 + j*4];
+    s1 += vs * m[1 + j*4];
+    s2 += vs * m[2 + j*4];
+    s3 += vs * m[3 + j*4];
   }
+
+  d[12] = s0;
+  d[13] = s1;
+  d[14] = s2;
+  d[15] = s3;
 }
 
 /** 
@@ -173,12 +198,20 @@ void m4x4_invert(GLfloat *d, GLfloat *m)
 
 void m4xv3(float r[3], const float mat[16], const float vec[3])
 {
-  const float v0 = vec[0];
-  const float v1 = vec[1];
-  const float v2 = vec[2];
-  for (int i=0; i<3; i++ ) {
-    r[i] = v0 * mat[i] + v1 * mat[i+4] + mat[i+8] * v2 + mat[i+12];
+  float s0 = mat[12];
+  float s1 = mat[13];
+  float s2 = mat[14];
+
+  for (int j=0; j<3; j++) {
+    float vs = vec[j];
+    s0 += vs * mat[j*4];
+    s1 += vs * mat[j*4+1];
+    s2 += vs * mat[j*4+2];
   }
+
+  r[0] = s0;
+  r[1] = s1;
+  r[2] = s2;
 }
 
 /** 
