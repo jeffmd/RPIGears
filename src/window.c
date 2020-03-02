@@ -71,7 +71,7 @@ static void updateSrcSize(void)
   window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
 }
 
-void window_update(void)
+static void window_update(void)
 {
   DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
   assert(update != 0);
@@ -92,13 +92,18 @@ void window_update(void)
   assert(result == 0);
 }
 
-void window_hide(void)
+static void window_size_reset(void)
 {
-  window_update_old();
   window->dst_rect.width = 1;
   window->dst_rect.height = 1;
   window->dst_rect.x = 0;
   window->dst_rect.y = 0;
+}
+
+void window_hide(void)
+{
+  window_update_old();
+  window_size_reset();
   window->inFocus = 0;
   printf("hiding window \n");
   window_update();
@@ -112,7 +117,6 @@ void window_show(void)
   window->dst_rect.y = window->old_rect.y;
   window->inFocus = 1;
   printf("showing window \n");
-  window_update();
 }
 
 void window_size(const int width, const int height)
@@ -145,15 +149,7 @@ static void createSurface(void)
   int32_t success = graphics_get_display_size(0 /* LCD */, (uint32_t *)&window->nativewindow.width, (uint32_t *)&window->nativewindow.height);
   assert( success >= 0 );
 
-  window->dst_rect.x = 0;
-  window->dst_rect.y = 0;
-  window->dst_rect.width = 1;
-  window->dst_rect.height = 1;
-
-  window->src_rect.x = 0;
-  window->src_rect.y = 0;
-  window->src_rect.width = 1;
-  window->src_rect.height = 1;
+  window_size_reset();
 
   window->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
 

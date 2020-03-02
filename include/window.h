@@ -13,7 +13,6 @@
   void window_show(void);
   void window_hide(void);
   void window_size(const int width, const int height);
-  void window_update(void);
   void window_init(void);
   void window_swap_buffers(void);
   void window_release(void);
