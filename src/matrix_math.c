@@ -61,10 +61,12 @@ void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
     float s3 = 0.0f;
 
     for (int j=0; j<4; j++) {
-      s0 += m1[j+i] * m0[0 + j*4];
-      s1 += m1[j+i] * m0[1 + j*4];
-      s2 += m1[j+i] * m0[2 + j*4];
-      s3 += m1[j+i] * m0[3 + j*4];
+      const float s4 = m1[j+i];
+
+      s0 += s4 * m0[0 + j*4];
+      s1 += s4 * m0[1 + j*4];
+      s2 += s4 * m0[2 + j*4];
+      s3 += s4 * m0[3 + j*4];
     }
     
     d[i] = s0;
@@ -86,16 +88,58 @@ void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
 void m4x4_rotate(GLfloat *d, const GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
 {
    angle = 2.0f * M_PI * angle / 360.0f;
-   const float s = sinf(angle);
    const float c = cosf(angle);
    const float mc = 1.0f - c;
+   const float s = sinf(angle);
 
-   GLfloat r[16] = {
-      x * x * mc + c,     y * x * mc + z * s, x * z * mc - y * s, 0.0f,
-      x * y * mc - z * s, y * y * mc + c,     y * z * mc + x * s, 0.0f, 
-      x * z * mc + y * s, y * z * mc - x * s, z * z * mc + c,     0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f
-   };
+   GLfloat r[16];
+   const float zmc = z * mc;
+   const float xmc = x * mc;
+   const float ymc = y * mc;
+   const float ys = y * s;
+   const float zs = z * s;
+   const float xs = x * s;
+   const float yzmc = y * zmc;
+   const float yxmc = y * xmc;
+   const float xzmc = x * zmc;
+
+   float s0 = c;
+   float s1 = yxmc + zs;
+   float s2 = xzmc - ys;
+
+   s0 += x * xmc;
+
+   r[3] = 0.0f;
+   r[0] = s0;
+   r[1] = s1;
+   r[2] = s2;
+
+   float s5 = c;
+
+   float s4 = yxmc - zs;
+   float s6 = yzmc + xs;
+   s5 += y * ymc;
+
+   r[7] = 0.0f;
+   r[4] = s4;
+   r[5] = s5;
+   r[6] = s6;
+   
+   float s10 = c;
+   
+   float s8 = xzmc + ys;
+   float s9 = yzmc - xs;
+   s10 += z * zmc;
+   
+   r[11] = 0.0f;
+   r[8] = s8;
+   r[9] = s9;
+   r[10] = s10;
+
+   r[12] = 0.0f;
+   r[13] = 0.0f;
+   r[14] = 0.0f;
+   r[15] = 1.0f;
 
    m4x4_multiply(d, m, r);
 }
