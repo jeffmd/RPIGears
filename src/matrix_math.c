@@ -16,7 +16,7 @@
  * @param md the destination matrix
  * @param ms the matrix to copy
  */
-void m4x4_copy(GLfloat *md, const GLfloat *ms)
+void m4x4_copy(GLfloat * restrict md, const GLfloat * restrict ms)
 {
    memcpy(md, ms, sizeof(GLfloat) * 16);
 }
@@ -79,13 +79,13 @@ void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
 /** 
  * Rotates a 4x4 matrix.
  * 
- * @param[in,out] m the matrix to rotate
+ * @param[in] m the matrix to rotate
  * @param angle the angle to rotate in degrees
  * @param x the x component of the direction to rotate to
  * @param y the y component of the direction to rotate to
  * @param z the z component of the direction to rotate to
  */
-void m4x4_rotate(GLfloat *d, const GLfloat *m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
+void m4x4_rotate(GLfloat * restrict d, const GLfloat * restrict m, GLfloat angle, const GLfloat x, const GLfloat y, const GLfloat z)
 {
    angle = 2.0f * M_PI * angle / 360.0f;
    const float c = cosf(angle);
@@ -148,12 +148,12 @@ void m4x4_rotate(GLfloat *d, const GLfloat *m, GLfloat angle, const GLfloat x, c
 /** 
  * Translates a 4x4 matrix.
  * 
- * @param[in,out] m the matrix to translate
+ * @param[in] m the matrix to translate
  * @param x the x component of the direction to translate to
  * @param y the y component of the direction to translate to
  * @param z the z component of the direction to translate to
  */
-void m4x4_translate(GLfloat *d, const GLfloat *m, const GLfloat x, const GLfloat y, const GLfloat z)
+void m4x4_translate(GLfloat * restrict d, const GLfloat * restrict m, const GLfloat x, const GLfloat y, const GLfloat z)
 {
   //   0  1  2  3   4  5  6  7   8  9 10 11  12 13 14 15
   // { 1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, y, z, 1 };
@@ -222,7 +222,7 @@ void m4x4_transpose(GLfloat *m)
  * Read http://www.gamedev.net/community/forums/topic.asp?topic_id=425118
  * for an explanation.
  */
-void m4x4_invert(GLfloat *d, GLfloat *m)
+void m4x4_invert(GLfloat * restrict d, GLfloat *m)
 {
    GLfloat t[16];
    m4x4_identity(t);
@@ -272,7 +272,7 @@ void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, cons
    m4x4_identity(m);
 
    float sine, cosine, cotangent, deltaZ;
-   GLfloat radians = fovy / 2.0 * M_PI / 180.0;
+   GLfloat radians = fovy / 2.0f * M_PI / 180.0f;
 
    deltaZ = zFar - zNear;
    sine = sinf(radians);
@@ -286,6 +286,6 @@ void m4x4_perspective(GLfloat *m, const GLfloat fovy, const GLfloat aspect, cons
    m[0] = cotangent / aspect;
    m[5] = cotangent;
    m[10] = -(zFar + zNear) / deltaZ;
-   m[11] = -1.0;
-   m[14] = -2.0 * zNear * zFar / deltaZ;
+   m[11] = -1.0f;
+   m[14] = -2.0f * zNear * zFar / deltaZ;
 }
