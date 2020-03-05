@@ -107,7 +107,7 @@ void xwindow_init(const uint width, const uint height)
     /*| SubstructureRedirectMask*/
     | FocusChangeMask
     /*| EnterWindowMask*/
-    /*| PointerMotionMask*/
+    | PointerMotionMask
     | KeyReleaseMask
     | VisibilityChangeMask
     | StructureNotifyMask);
@@ -194,6 +194,11 @@ static void do_ClientMessage(const XClientMessageEvent* event)
   else {
     printf("unhandled client message event \n");
   }
+}
+
+static void do_PointerMove(const XMotionEvent* event)
+{
+
 }
 
 #define BYTESPIXEL 4
@@ -348,6 +353,14 @@ void xwindow_check_events(void)
 
       case FocusIn:
         window_show();
+        break;
+
+      case MotionNotify:
+        do_PointerMove(&event.xmotion);
+        break;
+
+      case ButtonPress:
+      case ButtonRelease: 
         break;
 
       case VisibilityNotify:
