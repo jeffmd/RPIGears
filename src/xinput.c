@@ -3,9 +3,10 @@
 */
 
 #include <X11/Xutil.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "key_input.h"
+#include "ui_area.h"
 
 void xinput_check_keys(XEvent *event)
 {
@@ -17,5 +18,10 @@ void xinput_check_keys(XEvent *event)
 	
   if (event->type == KeyPress)
     key_input_action(key);
+}
+
+void xinput_pointer_move(const XMotionEvent* event)
+{
+  UI_area_select_active(event->x, event->y);
 }
 

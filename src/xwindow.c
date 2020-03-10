@@ -196,11 +196,6 @@ static void do_ClientMessage(const XClientMessageEvent* event)
   }
 }
 
-static void do_PointerMove(const XMotionEvent* event)
-{
-
-}
-
 #define BYTESPIXEL 4
 
 static inline void byteBufferSwap(char *bottomBuffer, char *topBuffer)
@@ -321,7 +316,7 @@ void xwindow_check_events(void)
   XEvent event;
 
   int cnt = XPending(dis);
-  if (cnt > 0) {
+  while (cnt--) {
     XNextEvent(dis, &event);
     /* keyboard events */
     switch(event.type)
@@ -356,7 +351,7 @@ void xwindow_check_events(void)
         break;
 
       case MotionNotify:
-        do_PointerMove(&event.xmotion);
+        xinput_pointer_move(&event.xmotion);
         break;
 
       case ButtonPress:

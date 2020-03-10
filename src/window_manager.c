@@ -11,6 +11,7 @@
 #include "xwindow.h"
 #include "key_input.h"
 #include "tasks.h"
+#include "ui_area.h"
 
 typedef void (* Action)(void);
 
