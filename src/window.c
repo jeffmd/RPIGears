@@ -117,6 +117,7 @@ void window_show(void)
   window->dst_rect.y = window->old_rect.y;
   window->inFocus = 1;
   printf("showing window \n");
+  window_update();
 }
 
 void window_size(const int width, const int height)
