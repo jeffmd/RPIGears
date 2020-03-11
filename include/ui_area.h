@@ -4,7 +4,8 @@
   #define _UI_AREA_H_
 
   int UI_area_create(void);
-  void UI_area_add(const int area_id, const int child_id);
+  void UI_area_remove_parent(const int area_id);
+  void UI_area_add(const int parent_id, const int child_id);
   void UI_area_set_active(const int area_id);
   int UI_area_is_active(const int area_id);
   void UI_area_set_root(const int area_id);
