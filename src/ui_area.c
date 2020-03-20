@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 #include "static_array.h"
+#include "action_table.h"
+#include "handler.h"
 
 typedef struct UI_Area {
   uint8_t active;
@@ -15,10 +17,18 @@ typedef struct UI_Area {
   short pos[2];
   short size[2];
 
-  // action link
-  short action;
+  // handler link
+  short handler;
 
 } UI_Area;
+
+enum Events {
+  OnEnter,
+  OnLeave,
+  OnMove,
+  OnDraw,
+  EventsMax
+};
 
 #define UI_AREA_MAX_COUNT 100
 
@@ -56,6 +66,7 @@ static void area_init(UI_Area *area)
   area->sibling = 0;
   area->parent = 0;
   area->child = 0;
+  area->handler = 0;
 }
 
 int UI_area_create(void)
@@ -101,16 +112,34 @@ void UI_area_add(const int parent_id, const int child_id)
     UI_area_remove_parent(child_id);
 
     UI_Area * parent = get_area(parent_id);
-    short sibling_id = parent->child;
-    parent->child = child_id;
+    child->sibling = parent->child;
     child->parent = parent_id;
-    child->sibling = sibling_id;
+    parent->child = child_id;
   }
+}
+
+static void area_enter(const int area_id)
+{
+  UI_Area * const area = get_area(area_id);
+  Handler_execute(area->handler, OnEnter);
+ 
+}
+
+static void area_leave(const int area_id)
+{
+  UI_Area * const area = get_area(area_id);
+  Handler_execute(area->handler, OnLeave);
 }
 
 void UI_area_set_active(const int area_id)
 {
-  active_area_id = area_id;
+  if (active_area_id != area_id) {
+    area_leave(active_area_id);
+    active_area_id = area_id;
+    area_enter(active_area_id);
+    printf("inside area: %i\n", area_id);
+
+  }
 }
 
 int UI_area_is_active(const int area_id)
@@ -160,7 +189,6 @@ static int area_inside(UI_Area* area, const int x, const int y)
 
   if ( (x >= pos[0]) && ( x <= (pos[0] + area->size[0]))) {
     if ((y >= pos[1]) && ( y <= (pos[1] + area->size[1]))) {
-      printf("inside x: %i, y: %i \n", x, y);
       is_inside = 1;
     }
   }
@@ -193,4 +221,28 @@ static short area_find(int area_id, const int check_sibling, const int x, const 
 void UI_area_select_active(const int x, const int y)
 {
   UI_area_set_active(area_find(get_active_area_id(), 0, x, y));
+}
+
+int UI_area_create_action_table(void)
+{
+  const int table_id = Action_table_create();
+  Action_table_allocate_slots(table_id, EventsMax);
+
+  return table_id;
+}
+
+void UI_area_action_set_enter(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnEnter, action);
+}
+
+void UI_area_action_set_leave(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnLeave, action);
+}
+
+void UI_area_set_handler(const short area_id, const short handler_id)
+{
+  UI_Area * const area = get_area(area_id);
+  area->handler = handler_id;
 }

@@ -16,7 +16,6 @@
 #include "gpu_shader.h"
 #include "gpu_uniform_buffer.h"
 #include "key_input.h"
-#include "ui_area.h"
 
 static struct {
    GLfloat model_view[16];
@@ -27,7 +26,6 @@ static struct {
 static GLfloat tm[16];
 static short diffuseMap_Data = 0;
 static short uniform_buffer;
-static short scene_area;
 
 /**
  * Draws a gear in GLES 2 mode.
@@ -75,10 +73,6 @@ void scene_init(void)
   camera_init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
   key_add_action('R', shaders_load_programs, "reload shaders");
   m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
-
-  scene_area = UI_area_create();
-  UI_area_set_root(scene_area);
-  UI_area_set_size(scene_area, 500, 500);
 
   uniform_buffer = GPU_uniformbuffer_create();
   GPU_uniformbuffer_add_4f(uniform_buffer, "UBO", UBO_Data);
