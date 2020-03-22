@@ -137,8 +137,7 @@ void UI_area_set_active(const int area_id)
     area_leave(active_area_id);
     active_area_id = area_id;
     area_enter(active_area_id);
-    printf("inside area: %i\n", area_id);
-
+    //printf("inside area: %i\n", area_id);
   }
 }
 
@@ -241,8 +240,11 @@ void UI_area_action_set_leave(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnLeave, action);
 }
 
-void UI_area_set_handler(const short area_id, const short handler_id)
+void UI_area_set_handler(const short area_id, const short destination_id, const short table_id)
 {
   UI_Area * const area = get_area(area_id);
-  area->handler = handler_id;
+  if (!area->handler)
+    area->handler = Handler_create();
+  Handler_set_source_destination(area->handler, area_id, destination_id);
+  Handler_set_action_table(area->handler, table_id);
 }

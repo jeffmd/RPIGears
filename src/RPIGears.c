@@ -88,7 +88,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.h"
 #include "window_manager.h"
 #include "gldebug.h"
-#include "ui_scene.h"
+#include "ui_view3d.h"
 
 extern IMAGE_T rpi_image;
 
@@ -260,7 +260,7 @@ int main (int argc, char *argv[])
   setup_test_quad();
   setup_text();
 
-  UI_scene_create();
+  UI_view3d_create();
 
   // animate the gears
   run_gears();
