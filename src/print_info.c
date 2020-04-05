@@ -121,9 +121,19 @@ void print_CLoptions_help(void)
     );
 }
 
+static void print_GLInfo_key(const short souce_id, const short destination_id)
+{
+  print_GLInfo();
+}
+
+static void print_CLoptions_help_key(const short souce_id, const short destination_id)
+{
+  print_CLoptions_help();
+}
+
 void print_info_init(void)
 {
-  key_add_action('i', print_GLInfo, "print GL info");
-  key_add_action('o', print_CLoptions_help, "print command line options");
+  key_add_action('i', print_GLInfo_key, "print GL info");
+  key_add_action('o', print_CLoptions_help_key, "print command line options");
   
 }

@@ -10,6 +10,7 @@
 
 #include "print_info.h"
 #include "tasks.h"
+#include "action_table.h"
 
 extern void toggle_useVSync(void);
 
@@ -27,10 +28,11 @@ static int initialized = 0;
 
 static short KeyScan_task;
 
-typedef void (*Action)(void);
+typedef void (*ActionFn)(const short souce_id, const short destination_id);
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
-static Action keyActions[KEY_COUNT];
+//static ActionFn keyActions[KEY_COUNT];
+static short key_action_table=0;
 static const char *keyHelp[KEY_COUNT];
 
 // keyboard data
@@ -40,6 +42,15 @@ short rate_enabled; // if enabled the change_rate will increase each frame
 float rate_direction; // direction and scale for rate change
 float rate_frame; // how much the rate changes each frame
 
+static short get_key_action_table(void)
+{
+  if (!key_action_table) {
+    key_action_table = Action_table_create();
+    Action_table_allocate_slots(key_action_table, KEY_COUNT);
+  }
+
+  return key_action_table;
+}
 
 static void reset_input_mode(void)
 {
@@ -142,19 +153,16 @@ static void check_esckey(const int inpkey)
 void key_input_action(const int inpkey)
 {
   if ((inpkey >= KEY_START) && (inpkey <= KEY_END)) {
-     const Action action = keyActions[inpkey - KEY_START];
-     if (action) {
-       action();
-     }
-     else
-       print_keyhelp();
+     const short key_id = inpkey - KEY_START;
+     Action_table_execute(get_key_action_table(), key_id, 0, 0);
   }
 }
 
-void key_add_action(const int key, void (*action)(void), const char *help)
+void key_add_action(const int key, ActionFn action, const char *help)
 {
   if ((key >= KEY_START) && (key <= KEY_END)) {
-    keyActions[key - KEY_START] = action;
+    const short key_id = key - KEY_START;
+    Action_table_set_action(get_key_action_table(), key_id, action);
     keyHelp[key - KEY_START] = help;
   }
   else

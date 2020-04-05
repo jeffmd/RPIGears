@@ -109,32 +109,32 @@ GLfloat *camera_view_matrix(void)
   return camera->ViewMatrix;
 }
 
-static void camera_key_reverse(void)
+static void camera_key_reverse(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_z, -1.0f);
 }
 
-static void camera_key_forward(void)
+static void camera_key_forward(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_z, 1.0f);
 }
 
-static void camera_key_right(void)
+static void camera_key_right(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_x, -1.0f);
 }
 
-static void camera_key_left(void)
+static void camera_key_left(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_x, 1.0f);
 }
           
-static void camera_key_down(void)
+static void camera_key_down(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_y, 1.0f);
 }
 
-static void camera_key_up(void)
+static void camera_key_up(const short souce_id, const short destination_id)
 {
   key_input_set_update(camera_change_y, -1.0f);
 }

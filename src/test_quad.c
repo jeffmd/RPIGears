@@ -27,12 +27,12 @@ typedef struct {
 
 static TQuad quad;
 
-static void test_quad_toggle(void)
+static void test_quad_toggle(const short souce_id, const short destination_id)
 {
   quad.toggle = !quad.toggle;
 }
 
-static void test_quad_next_texture(void)
+static void test_quad_next_texture(const short souce_id, const short destination_id)
 {
   quad.texture_index++;
   if (quad.texture_index >= quad.texture_count)

@@ -11,7 +11,7 @@
 #include "xwindow.h"
 #include "key_input.h"
 #include "tasks.h"
-#include "ui_area.h"
+#include "ui_area_action.h"
 
 typedef void (* Action)(void);
 
@@ -91,6 +91,8 @@ static void wm_update(void)
   key_input_down_update();
   key_input_inc_rate();
   wm_do_draw_fn();
+  UI_area_root_draw();
+  
 }
 
 static void wm_update_avgfps(const float fps)

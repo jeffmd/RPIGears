@@ -6,6 +6,9 @@
   int UI_area_create_action_table(void);
   void UI_area_action_set_enter(const short table_id, ActionFn action);
   void UI_area_action_set_leave(const short table_id, ActionFn action);
+  void UI_area_action_set_draw(const short table_id, ActionFn action);
   void UI_area_set_handler(const short area_id, const short destination_id, const short table_id);
+  void UI_area_draw(const short area_id);
+  void UI_area_root_draw(void);
 
 #endif

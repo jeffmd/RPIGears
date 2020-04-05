@@ -18,7 +18,7 @@ typedef struct ActionTable {
 } ActionTable;
 
 #define ACTION_TABLE_MAX_COUNT 50
-#define ACTION_SLOT_MAX_COUNT 500
+#define ACTION_SLOT_MAX_COUNT 1000
 
 static ActionSlot action_slots[ACTION_SLOT_MAX_COUNT];
 static short next_action_slot = 0;
@@ -93,7 +93,7 @@ void Action_table_set_action(const short table_id, const short slot_id, ActionFn
   }
 }
 
-void Action_table_execute(const short table_id, const short slot_id, const uint32_t source_id, const uint32_t destination_id)
+void Action_table_execute(const short table_id, const short slot_id, const short source_id, const short destination_id)
 {
   ActionTable *const action_table = get_action_table(table_id);
 

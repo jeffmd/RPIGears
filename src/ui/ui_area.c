@@ -240,6 +240,11 @@ void UI_area_action_set_leave(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnLeave, action);
 }
 
+void UI_area_action_set_draw(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnDraw, action);
+}
+
 void UI_area_set_handler(const short area_id, const short destination_id, const short table_id)
 {
   UI_Area * const area = get_area(area_id);
@@ -247,4 +252,34 @@ void UI_area_set_handler(const short area_id, const short destination_id, const 
     area->handler = Handler_create();
   Handler_set_source_destination(area->handler, area_id, destination_id);
   Handler_set_action_table(area->handler, table_id);
+}
+
+static void area_draw_siblings(short area_id)
+{
+  while (area_id) {
+    UI_Area *area = get_area(area_id);
+    // draw children first
+    area_draw_siblings(area->child);
+    // draw self
+    Handler_execute(area->handler, OnDraw);;
+    // get sibling
+    area_id = area->sibling;
+    
+  }
+}
+
+void UI_area_draw(const short area_id)
+{
+  if (area_id) {
+    UI_Area *area = get_area(area_id);
+    // draw children first
+    area_draw_siblings(area->child);
+    // draw self
+    Handler_execute(area->handler, OnDraw);;
+  }
+}
+
+void UI_area_root_draw(void)
+{
+  UI_area_draw(root_area_id);
 }

@@ -57,6 +57,11 @@ void demo_state_toggle_VBO(void)
   update_gear_VBO_use();
 }
 
+static void demo_state_toggle_VBO_key(const short souce_id, const short destination_id)
+{
+  demo_state_toggle_VBO();
+}
+
 GLuint state_timeToRun(void)
 {
   return state->timeToRun;
@@ -112,12 +117,12 @@ GLuint state_instances(void)
   return state->instances;
 }
 
-static void inc_instances(void)
+static void inc_instances(const short souce_id, const short destination_id)
 {
   state->instances++;
 }
 
-static void dec_instances(void)
+static void dec_instances(const short souce_id, const short destination_id)
 {
   state->instances--;
   if (state->instances < 1) 
@@ -187,17 +192,17 @@ static void demo_state_delete(void)
 
 }
 
-static void key_angleVel_down(void)
+static void key_angleVel_down(const short souce_id, const short destination_id)
 {
   key_input_set_update(change_angleVel, -10.0f);
 }
 
-static void key_angleVel_up(void)
+static void key_angleVel_up(const short souce_id, const short destination_id)
 {
   key_input_set_update(change_angleVel, 10.0f);
 }
 
-static void key_angleVel_pause(void)
+static void key_angleVel_pause(const short souce_id, const short destination_id)
 {
   update_angleVel(0.0);
 }
@@ -214,7 +219,7 @@ void demo_state_init(void)
   state->instances = 1;
   
   key_input_set_update(0, 0.0f);
-  key_add_action('b', demo_state_toggle_VBO, "toggle use of Buffer Objects for gear vertex data");
+  key_add_action('b', demo_state_toggle_VBO_key, "toggle use of Buffer Objects for gear vertex data");
   key_add_action('I', inc_instances, "add another draw instance of the gears");
   key_add_action('O', dec_instances, "remove an instance of the gears");
   key_add_action('<', key_angleVel_down, "decrease gear spin rate");

@@ -113,7 +113,7 @@ static void init_textures(void)
    update_tex(tex);
 }
 
-static void toggle_useVSync(void)
+static void toggle_useVSync(const short souce_id, const short destination_id)
 {
   const int sync = options_useVSync() ? 0 : 1;
   update_useVSync(sync);
@@ -121,12 +121,12 @@ static void toggle_useVSync(void)
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
-static void toggle_back_render(void)
+static void toggle_back_render(const short souce_id, const short destination_id)
 {
   offscreen_draw = !offscreen_draw;
 }
 
-static void toggle_stats_draw(void)
+static void toggle_stats_draw(const short souce_id, const short destination_id)
 {
   stats_draw = !stats_draw;
 }
@@ -170,7 +170,6 @@ static void draw(void)
     update_fps();
     text_draw(text_id);
   }
-  scene_draw();
 }
 
 //==============================================================================

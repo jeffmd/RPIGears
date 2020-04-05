@@ -83,9 +83,14 @@ void toggle_drawmode(void)
   printf("\ndraw mode is %s\n", modestr);
 }
 
+static void toggle_drawmode_key(const short souce_id, const short destination_id)
+{
+  toggle_drawmode();
+}
+
 void user_options_init(void)
 {
-  key_add_action('l', toggle_drawmode, "toggle draw mode: GL_TRIANGLES / GL_LINES / GL_POINT");
+  key_add_action('l', toggle_drawmode_key, "toggle draw mode: GL_TRIANGLES / GL_LINES / GL_POINT");
 
 }
 
