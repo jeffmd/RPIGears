@@ -71,8 +71,8 @@ static void text_default_settings(Text *text)
 {
     text->ProjMatrix[0] = 1.0f/1280.0f;
     text->ProjMatrix[1] = 1.0f/1024.0f;
-    text->ProjMatrix[2] = -0.49f;
-    text->ProjMatrix[3] = -0.49f;
+    text->ProjMatrix[2] = -0.5f;
+    text->ProjMatrix[3] = -0.5f;
     text->alimit = 0.5f;
 }
 

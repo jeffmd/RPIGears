@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "window.h"
 #include "static_array.h"
 #include "action_table.h"
 #include "handler.h"
@@ -254,6 +255,15 @@ void UI_area_set_handler(const short area_id, const short destination_id, const 
   Handler_set_action_table(area->handler, table_id);
 }
 
+static void area_draw(UI_Area *area)
+{
+  int pos[2];
+
+  area_root_pos(area, pos);
+  window_ui_viewport(pos[0], pos[1], area->size[0], area->size[1]);
+  Handler_execute(area->handler, OnDraw);
+}
+
 static void area_draw_siblings(short area_id)
 {
   while (area_id) {
@@ -261,7 +271,7 @@ static void area_draw_siblings(short area_id)
     // draw children first
     area_draw_siblings(area->child);
     // draw self
-    Handler_execute(area->handler, OnDraw);;
+    area_draw(area);
     // get sibling
     area_id = area->sibling;
     
@@ -275,7 +285,7 @@ void UI_area_draw(const short area_id)
     // draw children first
     area_draw_siblings(area->child);
     // draw self
-    Handler_execute(area->handler, OnDraw);;
+    area_draw(area);
   }
 }
 

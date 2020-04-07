@@ -43,7 +43,7 @@ void UI_view3d_create(void)
   view3d_area = UI_area_create();
   UI_area_set_root(view3d_area);
   UI_area_set_position(view3d_area, 1, 1);
-  UI_area_set_size(view3d_area, 500, 500);
+  UI_area_set_size(view3d_area, 600, 500);
 
   UI_area_set_handler(view3d_area, 0, ui_view3d_get_action_table());
   

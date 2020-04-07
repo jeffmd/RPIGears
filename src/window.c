@@ -28,6 +28,8 @@ typedef  struct {
    VC_RECT_T dst_rect;
    VC_RECT_T src_rect;
    VC_RECT_T old_rect;
+   int offsetx;
+   int offsety;
    int inFocus:1;
 } WINDOW_T;
 
@@ -67,8 +69,10 @@ static void updateSrcSize(void)
 {
   window->src_rect.width = (window->dst_rect.width) << 16;
   window->src_rect.height = (window->dst_rect.height) << 16;
-  window->src_rect.x = ((window->nativewindow.width - window->dst_rect.width) / 2) << 16;
-  window->src_rect.y = ((window->nativewindow.height - window->dst_rect.height) / 2) << 16;
+  window->offsetx = (window->nativewindow.width - window->dst_rect.width) / 2;
+  window->src_rect.x = window->offsetx << 16;
+  window->offsety = (window->nativewindow.height - window->dst_rect.height) / 2;
+  window->src_rect.y = window->offsety << 16;
 }
 
 static void window_update(void)
@@ -296,6 +300,16 @@ void window_swap_buffers(void)
 {
   assert(egl_chk(eglSwapBuffers(window->display, window->surface)));
   //assert(egl_chk(eglCopyBuffers(window->display, window->surface, &window->nativewindow)));
+}
+
+void window_ui_viewport(int x, int y, int width, int height)
+{
+  y = window->old_rect.height - y - height;
+  const int ox = x + (width - window->old_rect.width ) / 2 ;
+  const int oy = y + (height - window->old_rect.height) / 2;
+  glViewport(ox, oy, window->nativewindow.width, window->nativewindow.height);
+  glScissor(window->offsetx + x, window->offsety + y, width, height);
+  glEnable(GL_SCISSOR_TEST);
 }
 
 void window_release(void)
