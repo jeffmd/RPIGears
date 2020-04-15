@@ -88,9 +88,7 @@ short UI_text_area_handler(const short ui_text_id)
 {
   UI_Text *const text = get_text(ui_text_id);
   if (!text->area_handler_id) {
-    text->area_handler_id = Handler_create();
-    Handler_set_destination(text->area_handler_id, ui_text_id);
-    Handler_set_action_table(text->area_handler_id, get_area_action_table());
+    text->area_handler_id = Handler_create(ui_text_id, get_area_action_table());
   }
 
   return text->area_handler_id;

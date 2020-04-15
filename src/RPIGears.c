@@ -151,6 +151,7 @@ static void update_fps(void)
 static void offscreen_refresh(void)
 {
   if (offscreen_draw) {
+    window_viewport_reset();
     GPU_framebuffer_bind(offscreen_fb);
     glDepthMask(GL_TRUE);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -287,7 +288,7 @@ int main (int argc, char *argv[])
   UI_view3d_create();
 
   UI_area_set_handler(view3d_area, UI_view3d_area_handler());
-  //UI_view3d_attach_area(view3d_area_2);
+  //UI_area_set_handler(view3d_area_2, UI_view3d_area_handler());
 
   UI_area_add(view3d_area, text_area_id);
 

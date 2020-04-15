@@ -37,28 +37,17 @@ static void handler_init(Handler *handler)
   //action_table->action_slot = 0;
 }
 
-int Handler_create(void)
+short Handler_create(const short destination_id, const short table_id)
 {
   const int id = find_deleted_handler_id();
   Handler *const handler = get_handler(id);
   handler->active = 1;
   handler_init(handler);
 
-  return id;
-}
-
-void Handler_set_destination(const short handler_id, const short destination_id)
-{
-  Handler *const handler = get_handler(handler_id);
-
   handler->destination_id = destination_id;
-}
-
-void Handler_set_action_table(const short handler_id, const short table_id)
-{
-  Handler *const handler = get_handler(handler_id);
-
   handler->action_table = table_id;
+
+  return id;
 }
 
 void Handler_execute(const short handler_id, const short slot_id, const short source_id)

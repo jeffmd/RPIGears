@@ -39,17 +39,6 @@ static short get_action_table(void)
   return area_action_table;
 }
 
-static short get_area_handler(void)
-{
-  if (!area_handler) {
-    area_handler = Handler_create();
-    Handler_set_destination(area_handler, 0);
-    Handler_set_action_table(area_handler, get_action_table());
-  }
-  
-  return area_handler;
-}
-
 void UI_view3d_create(void)
 {
 
@@ -57,5 +46,9 @@ void UI_view3d_create(void)
 
 short UI_view3d_area_handler(void)
 {
-  return get_area_handler();
+  if (!area_handler) {
+    area_handler = Handler_create(0, get_action_table());
+  }
+  
+  return area_handler;
 }

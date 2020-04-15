@@ -302,6 +302,12 @@ void window_swap_buffers(void)
   //assert(egl_chk(eglCopyBuffers(window->display, window->surface, &window->nativewindow)));
 }
 
+void window_viewport_reset(void)
+{
+  glViewport(0, 0, window->nativewindow.width, window->nativewindow.height);
+  glDisable(GL_SCISSOR_TEST);
+}
+
 void window_ui_viewport(int x, int y, int width, int height)
 {
   y = window->old_rect.height - y - height;
