@@ -89,6 +89,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window_manager.h"
 #include "gldebug.h"
 #include "ui_view3d.h"
+#include "ui_text.h"
+#include "ui_area.h"
+#include "ui_area_action.h"
 
 extern IMAGE_T rpi_image;
 
@@ -99,10 +102,14 @@ static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
 static int fps_start; 
 static short text_id;
+static short text_area_id;
+static short ver_ui_text_id;
 static short render_tex;
 static short offscreen_fb;
 static short offscreen_draw;
 static short stats_draw;
+static short view3d_area;
+static short view3d_area_2;
 
 static void init_textures(void)
 {
@@ -168,7 +175,7 @@ static void draw(void)
   test_quad_draw();
   if (stats_draw) {
     update_fps();
-    text_draw(text_id);
+    //text_draw(text_id);
   }
 }
 
@@ -225,6 +232,14 @@ static void setup_text(void)
   text_add(text_id, 0, 0, ver_text);
   text_add(text_id, 0, FPS_Y, fps_text);
   fps_start = text_start(text_id);
+
+  ver_ui_text_id = UI_text_create();
+  UI_text_set_text_id(ver_ui_text_id, text_id);
+
+  text_area_id = UI_area_create();
+  UI_area_set_position(text_area_id, 10, 10);
+  UI_area_set_size(text_area_id, 200, 10);
+  UI_area_set_handler(text_area_id, UI_text_area_handler(ver_ui_text_id));
 }
 
 int main (int argc, char *argv[])
@@ -259,7 +274,22 @@ int main (int argc, char *argv[])
   setup_test_quad();
   setup_text();
 
+  view3d_area = UI_area_create();
+  UI_area_set_root(view3d_area);
+  UI_area_set_position(view3d_area, 1, 1);
+  UI_area_set_size(view3d_area, 600, 500);
+
+  //view3d_area_2 = UI_area_create();
+  //UI_area_add(view3d_area, view3d_area_2);
+  //UI_area_set_position(view3d_area_2, 1, 1);
+  //UI_area_set_size(view3d_area_2, 300, 100);
+
   UI_view3d_create();
+
+  UI_area_set_handler(view3d_area, UI_view3d_area_handler());
+  //UI_view3d_attach_area(view3d_area_2);
+
+  UI_area_add(view3d_area, text_area_id);
 
   // animate the gears
   run_gears();

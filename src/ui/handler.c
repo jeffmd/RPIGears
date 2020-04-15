@@ -8,7 +8,6 @@
 
 typedef struct Handler {
   uint8_t active;
-  short source_id;
   short destination_id;
   short action_table;
 } Handler;
@@ -48,11 +47,10 @@ int Handler_create(void)
   return id;
 }
 
-void Handler_set_source_destination(const short handler_id, const short source_id, const short destination_id)
+void Handler_set_destination(const short handler_id, const short destination_id)
 {
   Handler *const handler = get_handler(handler_id);
 
-  handler->source_id = source_id;
   handler->destination_id = destination_id;
 }
 
@@ -63,9 +61,9 @@ void Handler_set_action_table(const short handler_id, const short table_id)
   handler->action_table = table_id;
 }
 
-void Handler_execute(const short handler_id, const short slot_id)
+void Handler_execute(const short handler_id, const short slot_id, const short source_id)
 {
   Handler *const handler = get_handler(handler_id);
-  Action_table_execute(handler->action_table, slot_id, handler->source_id, handler->destination_id);
+  Action_table_execute(handler->action_table, slot_id, source_id, handler->destination_id);
 }
 

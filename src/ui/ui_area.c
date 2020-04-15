@@ -122,14 +122,14 @@ void UI_area_add(const int parent_id, const int child_id)
 static void area_enter(const int area_id)
 {
   UI_Area * const area = get_area(area_id);
-  Handler_execute(area->handler, OnEnter);
+  Handler_execute(area->handler, OnEnter, area_id);
  
 }
 
 static void area_leave(const int area_id)
 {
   UI_Area * const area = get_area(area_id);
-  Handler_execute(area->handler, OnLeave);
+  Handler_execute(area->handler, OnLeave, area_id);
 }
 
 void UI_area_set_active(const int area_id)
@@ -246,22 +246,19 @@ void UI_area_action_set_draw(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnDraw, action);
 }
 
-void UI_area_set_handler(const short area_id, const short destination_id, const short table_id)
+void UI_area_set_handler(const short area_id, const short handler_id)
 {
   UI_Area * const area = get_area(area_id);
-  if (!area->handler)
-    area->handler = Handler_create();
-  Handler_set_source_destination(area->handler, area_id, destination_id);
-  Handler_set_action_table(area->handler, table_id);
+  area->handler = handler_id;
 }
 
-static void area_draw(UI_Area *area)
+static void area_draw(UI_Area *area, const short source_id)
 {
   int pos[2];
 
   area_root_pos(area, pos);
   window_ui_viewport(pos[0], pos[1], area->size[0], area->size[1]);
-  Handler_execute(area->handler, OnDraw);
+  Handler_execute(area->handler, OnDraw, source_id);
 }
 
 static void area_draw_siblings(short area_id)
@@ -271,7 +268,7 @@ static void area_draw_siblings(short area_id)
     // draw children first
     area_draw_siblings(area->child);
     // draw self
-    area_draw(area);
+    area_draw(area, area_id);
     // get sibling
     area_id = area->sibling;
     
@@ -285,7 +282,7 @@ void UI_area_draw(const short area_id)
     // draw children first
     area_draw_siblings(area->child);
     // draw self
-    area_draw(area);
+    area_draw(area, area_id);
   }
 }
 
