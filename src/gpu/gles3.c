@@ -51,14 +51,14 @@
  */
 typedef struct 
 {
-   const GLubyte *Ptr;      // pointer or offset to first element
-   GLuint BufferObj;        // GL_ARB_vertex_buffer_object
-   GLshort Stride;          // Stride as specified with gl*Pointer()
-   GLenum Type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
-   uint8_t Enabled;         /**< Whether the array is enabled */
-   uint8_t Size;            /**< Components per element (1,2,3,4) */
-   uint8_t Normalized;      /**< Fixed-point values are normalized when converted to floats */
-   GLuint divisor;          // divisor used in instancing
+  const GLubyte *Ptr;      // pointer or offset to first element
+  GLuint BufferObj;        // GL_ARB_vertex_buffer_object
+  GLshort Stride;          // Stride as specified with gl*Pointer()
+  GLenum Type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
+  uint8_t Enabled;         /**< Whether the array is enabled */
+  uint8_t Size;            /**< Components per element (1,2,3,4) */
+  uint8_t Normalized;      /**< Fixed-point values are normalized when converted to floats */
+  GLuint divisor;          // divisor used in instancing
 } gl_array_attributes;
 
 /**
@@ -67,11 +67,11 @@ typedef struct
  */
 typedef struct 
 {
-   unsigned char Active;
-   /** Vertex attribute arrays */
-   gl_array_attributes VertexAttrib[VERT_ATTRIB_MAX];
-   /** The index buffer (also known as the element array buffer in OpenGL). */
-   GLuint ElementBuffer;
+  unsigned char Active;
+  /** Vertex attribute arrays */
+  gl_array_attributes VertexAttrib[VERT_ATTRIB_MAX];
+  /** The index buffer (also known as the element array buffer in OpenGL). */
+  GLuint ElementBuffer;
 } gl_vao;
 
 /**
@@ -79,11 +79,11 @@ typedef struct
  */
 typedef struct
 {
-   /** Currently bound array object. */
-   GLuint VAO;
-   GLuint NextDeletedVAO;
-   /** Array objects (GL_ARB_vertex_array_object) */
-   gl_vao Objects[ARRAY_OBJECT_MAX];
+  /** Currently bound array object. */
+  GLuint VAO;
+  GLuint NextDeletedVAO;
+  /** Array objects (GL_ARB_vertex_array_object) */
+  gl_vao Objects[ARRAY_OBJECT_MAX];
 } gl_vao_manager;
 
 
@@ -94,7 +94,6 @@ typedef struct
  */
 typedef struct
 {
-
   gl_vao_manager Array;	    /**< Vertex arrays */
 
   uint8_t instanced_attributes[VERT_ATTRIB_MAX];
@@ -112,14 +111,14 @@ static gl_context ctx;
 
 void glBindBufferMod(GLenum target, GLuint buffer)
 {
-	GLuint *buff = (target == GL_ARRAY_BUFFER) ? &ctx.Buffer : &ctx.ElementBuffer;
+  GLuint *buff = (target == GL_ARRAY_BUFFER) ? &ctx.Buffer : &ctx.ElementBuffer;
 
-	if (*buff != buffer) {
-	    *buff = buffer;
-	    glBindBuffer(target, buffer);
-	    if (target == GL_ELEMENT_ARRAY_BUFFER)
-	       ctx.Array.Objects[ctx.Array.VAO].ElementBuffer = buffer;
-	}
+  if (*buff != buffer) {
+    *buff = buffer;
+    glBindBuffer(target, buffer);
+    if (target == GL_ELEMENT_ARRAY_BUFFER)
+       ctx.Array.Objects[ctx.Array.VAO].ElementBuffer = buffer;
+  }
 }
 
 static gl_vao *get_vao(GLuint name)
@@ -134,10 +133,10 @@ static gl_vao *get_vao(GLuint name)
 
 static void delete_vao(GLuint name)
 {
-   gl_vao *obj = get_vao(name);
-   obj->Active = GL_FALSE;
-   if (name < ctx.Array.NextDeletedVAO)
-		ctx.Array.NextDeletedVAO = name;
+  gl_vao *obj = get_vao(name);
+  obj->Active = GL_FALSE;
+  if (name < ctx.Array.NextDeletedVAO)
+    ctx.Array.NextDeletedVAO = name;
 }
 
 /**
@@ -148,17 +147,17 @@ static void delete_vao(GLuint name)
 static void init_array_attributes(gl_vao *vao,
            GLuint index)
 {
-   assert(index < VERT_ATTRIB_MAX);
-   gl_array_attributes *array = &vao->VertexAttrib[index];
+  assert(index < VERT_ATTRIB_MAX);
+  gl_array_attributes *array = &vao->VertexAttrib[index];
 
-   array->Size = 4;
-   array->Type = GL_FLOAT;
-   array->Stride = 0;
-   array->Ptr = NULL;
-   array->Enabled = GL_FALSE;
-   array->Normalized = GL_FALSE;
-   array->BufferObj = 0;
-   array->divisor = 0;
+  array->Size = 4;
+  array->Type = GL_FLOAT;
+  array->Stride = 0;
+  array->Ptr = NULL;
+  array->Enabled = GL_FALSE;
+  array->Normalized = GL_FALSE;
+  array->BufferObj = 0;
+  array->divisor = 0;
 }
 
 /**
@@ -166,14 +165,15 @@ static void init_array_attributes(gl_vao *vao,
  */
 static gl_vao *init_vao(GLuint name)
 {
-   gl_vao *vao = get_vao(name);
-   vao->ElementBuffer = 0;
+  gl_vao *vao = get_vao(name);
+  vao->ElementBuffer = 0;
 
-   /* Init the individual arrays */
-   for (GLuint i = 0; i < VERT_ATTRIB_MAX; i++) {
-     init_array_attributes(vao, i);
-   }
-   return vao;
+  /* Init the individual arrays */
+  for (GLuint i = 0; i < VERT_ATTRIB_MAX; i++) {
+    init_array_attributes(vao, i);
+  }
+  
+  return vao;
 }
 
 
@@ -182,10 +182,11 @@ static gl_vao *init_vao(GLuint name)
  */
 static gl_vao *new_vao(GLuint name)
 {
-   assert(name < ARRAY_OBJECT_MAX);
-   gl_vao *vao = init_vao(name);
-   vao->Active = GL_TRUE;
-   return vao;
+  assert(name < ARRAY_OBJECT_MAX);
+  gl_vao *vao = init_vao(name);
+  vao->Active = GL_TRUE;
+  
+  return vao;
 }
 
 /**
