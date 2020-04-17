@@ -8,7 +8,7 @@
 #include "action_table.h"
 #include "handler.h"
 
-typedef struct UI_Area {
+typedef struct {
   uint8_t active;
   // area id links
   short parent;
@@ -28,6 +28,7 @@ enum Events {
   OnLeave,
   OnMove,
   OnDraw,
+  OnResize,
   EventsMax
 };
 
@@ -132,6 +133,12 @@ static void area_leave(const int area_id)
   Handler_execute(area->handler, OnLeave, area_id);
 }
 
+static void area_resize(const int area_id)
+{
+  UI_Area * const area = get_area(area_id);
+  Handler_execute(area->handler, OnResize, area_id);
+}
+
 void UI_area_set_active(const int area_id)
 {
   if (active_area_id != area_id) {
@@ -164,6 +171,7 @@ void UI_area_set_size(const int area_id, const int width, const int height)
   UI_Area * const area = get_area(area_id);
   area->size[0] = width;
   area->size[1] = height;
+  area_resize(area_id);
 }
 
 static void area_root_pos(UI_Area *area, int pos[2])
@@ -246,6 +254,11 @@ void UI_area_action_set_draw(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnDraw, action);
 }
 
+void UI_area_action_set_resize(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnResize, action);
+}
+
 void UI_area_set_handler(const short area_id, const short handler_id)
 {
   UI_Area * const area = get_area(area_id);
@@ -271,7 +284,6 @@ static void area_draw_siblings(short area_id)
     area_draw(area, area_id);
     // get sibling
     area_id = area->sibling;
-    
   }
 }
 

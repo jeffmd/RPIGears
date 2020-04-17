@@ -6,7 +6,7 @@
 #include "static_array.h"
 #include "action_table.h"
 
-typedef struct Handler {
+typedef struct {
   uint8_t active;
   short destination_id;
   short action_table;
@@ -34,7 +34,7 @@ static Handler *get_handler(int id)
 
 static void handler_init(Handler *handler)
 {
-  //action_table->action_slot = 0;
+
 }
 
 short Handler_create(const short destination_id, const short table_id)

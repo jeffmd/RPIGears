@@ -7,11 +7,11 @@
 
 typedef void (*ActionFn)(const short source_id, const short destination_id);
 
-typedef struct ActionSlot {
+typedef struct {
   ActionFn action;
 } ActionSlot;
 
-typedef struct ActionTable {
+typedef struct {
   uint8_t active;
   uint8_t count;
   short action_slot;

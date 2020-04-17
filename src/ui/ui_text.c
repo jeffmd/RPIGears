@@ -10,7 +10,7 @@
 #include "static_array.h"
 #include "text.h"
 
-typedef struct UI_Text {
+typedef struct {
   uint8_t active;
   short text_id;
   short area_handler_id;
