@@ -7,12 +7,12 @@
 
   typedef void (*Action)(void);
 
-  int task_create(void);
-  void task_set_action(const int id, Action dofunc);
-  void task_set_interval(const int id, const uint interval);
-  void task_pause(const int id);
-  void task_run(const int id);
-  uint task_elapsed(const int id);
+  short task_create(void);
+  void task_set_action(const short id, Action dofunc);
+  void task_set_interval(const short id, const uint interval);
+  void task_pause(const short id);
+  void task_run(const short id);
+  uint task_elapsed(const short id);
   uint getMilliseconds();
 
   void do_tasks(void);

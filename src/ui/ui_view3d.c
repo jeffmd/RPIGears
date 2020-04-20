@@ -30,6 +30,7 @@ static void ui_view3d_draw(const short source_id, const short destination_id)
 static short get_action_table(void)
 {
   if (!area_action_table) {
+    printf("create ui view3d area action table: ");
     area_action_table = UI_area_create_action_table();
     UI_area_action_set_enter(area_action_table, ui_view3d_enter);
     UI_area_action_set_leave(area_action_table, ui_view3d_leave);

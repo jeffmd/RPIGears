@@ -24,11 +24,12 @@ typedef struct {
 } UI_Area;
 
 enum Events {
+  OnAttach,
   OnEnter,
   OnLeave,
   OnMove,
-  OnDraw,
   OnResize,
+  OnDraw,
   EventsMax
 };
 
@@ -48,7 +49,7 @@ static short get_active_area_id(void)
     return root_area_id;
 }
 
-static inline int find_deleted_area_id(void)
+static inline short find_deleted_area_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_area, areas, UI_AREA_MAX_COUNT, UI_Area, "UI area");
 }
@@ -71,7 +72,7 @@ static void area_init(UI_Area *area)
   area->handler = 0;
 }
 
-int UI_area_create(void)
+short UI_area_create(void)
 {
   const int id = find_deleted_area_id();
   UI_Area *const area = get_area(id);
@@ -81,7 +82,7 @@ int UI_area_create(void)
   return id;
 }
 
-void UI_area_remove_parent(const int area_id)
+void UI_area_remove_parent(const short area_id)
 {
   UI_Area * const area = get_area(area_id);
   if (area->parent) {
@@ -107,7 +108,7 @@ void UI_area_remove_parent(const int area_id)
   area->parent = 0;
 }
 
-void UI_area_add(const int parent_id, const int child_id)
+void UI_area_add(const short parent_id, const short child_id)
 {
   UI_Area * child = get_area(child_id);
   if (child->parent != parent_id) {
@@ -120,58 +121,42 @@ void UI_area_add(const int parent_id, const int child_id)
   }
 }
 
-static void area_enter(const int area_id)
-{
-  UI_Area * const area = get_area(area_id);
-  Handler_execute(area->handler, OnEnter, area_id);
- 
-}
-
-static void area_leave(const int area_id)
-{
-  UI_Area * const area = get_area(area_id);
-  Handler_execute(area->handler, OnLeave, area_id);
-}
-
-static void area_resize(const int area_id)
-{
-  UI_Area * const area = get_area(area_id);
-  Handler_execute(area->handler, OnResize, area_id);
-}
-
-void UI_area_set_active(const int area_id)
+void UI_area_set_active(const short area_id)
 {
   if (active_area_id != area_id) {
-    area_leave(active_area_id);
+    UI_Area *area = get_area(active_area_id);
+    Handler_execute(area->handler, OnLeave, active_area_id);
     active_area_id = area_id;
-    area_enter(active_area_id);
+    area = get_area(area_id);
+    Handler_execute(area->handler, OnEnter, area_id);
     //printf("inside area: %i\n", area_id);
   }
 }
 
-int UI_area_is_active(const int area_id)
+int UI_area_is_active(const short area_id)
 {
   return (area_id == active_area_id);
 }
 
-void UI_area_set_root(const int area_id)
+void UI_area_set_root(const short area_id)
 {
   root_area_id = area_id;
 }
 
-void UI_area_set_position(const int area_id, const int x, const int y)
+void UI_area_set_position(const short area_id, const int x, const int y)
 {
   UI_Area * const area = get_area(area_id);
   area->pos[0] = x;
   area->pos[1] = y;
+  Handler_execute(area->handler, OnMove, area_id);
 }
 
-void UI_area_set_size(const int area_id, const int width, const int height)
+void UI_area_set_size(const short area_id, const int width, const int height)
 {
   UI_Area * const area = get_area(area_id);
   area->size[0] = width;
   area->size[1] = height;
-  area_resize(area_id);
+  Handler_execute(area->handler, OnResize, area_id);
 }
 
 static void area_root_pos(UI_Area *area, int pos[2])
@@ -203,7 +188,7 @@ static int area_inside(UI_Area* area, const int x, const int y)
   return is_inside;
 }
 
-static short area_find(int area_id, const int check_sibling, const int x, const int y)
+static short area_find(short area_id, const int check_sibling, const int x, const int y)
 {
   short newhit = 0;
 
@@ -231,9 +216,9 @@ void UI_area_select_active(const int x, const int y)
   UI_area_set_active(area_find(get_active_area_id(), 0, x, y));
 }
 
-int UI_area_create_action_table(void)
+short UI_area_create_action_table(void)
 {
-  const int table_id = Action_table_create();
+  const short table_id = Action_table_create();
   Action_table_allocate_slots(table_id, EventsMax);
 
   return table_id;
@@ -259,10 +244,21 @@ void UI_area_action_set_resize(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnResize, action);
 }
 
+void UI_area_action_set_move(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnMove, action);
+}
+
+void UI_area_action_set_attach(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnAttach, action);
+}
+
 void UI_area_set_handler(const short area_id, const short handler_id)
 {
   UI_Area * const area = get_area(area_id);
   area->handler = handler_id;
+  Handler_execute(area->handler, OnAttach, area_id);
 }
 
 static void area_draw(UI_Area *area, const short source_id)

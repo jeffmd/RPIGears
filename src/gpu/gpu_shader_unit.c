@@ -25,13 +25,13 @@ typedef struct {
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
 static short next_deleted_shader_unit;
 
-static inline int find_deleted_shader_unit_id(void)
+static inline short find_deleted_shader_unit_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_shader_unit, shader_units,
                             SHADER_UNIT_MAX_COUNT, GPUShaderUnit, "shader unit");
 }
 
-static GPUShaderUnit *get_shader_unit(int id)
+static GPUShaderUnit *get_shader_unit(short id)
 {
   if ((id < 0) | (id >= SHADER_UNIT_MAX_COUNT)) {
     id = 0;
@@ -86,9 +86,9 @@ static int find_shader_unit_id(const char *file_name, const GLuint type)
   return 0;
 }
 
-int GPU_shader_unit(const char *file_name, const GLuint type)
+short GPU_shader_unit(const char *file_name, const GLuint type)
 {
-  int id = find_shader_unit_id(file_name, type);
+  short id = find_shader_unit_id(file_name, type);
   GPUShaderUnit *shader;
   
   if (!id) {
@@ -128,7 +128,7 @@ static void shader_unit_build(GPUShaderUnit *shader)
 
 }
 
-GLuint GPU_shader_unit_globj(const int id)
+GLuint GPU_shader_unit_globj(const short id)
 {
   GPUShaderUnit *const shader = get_shader_unit(id);
   
@@ -138,17 +138,17 @@ GLuint GPU_shader_unit_globj(const int id)
   return shader->glShaderObj;
 }
 
-void GPU_shader_unit_reset(const int id)
+void GPU_shader_unit_reset(const short id)
 {
   shader_unit_init(get_shader_unit(id));
 }
 
-int GPU_shader_unit_modid(const int id)
+int GPU_shader_unit_modid(const short id)
 {
   return get_shader_unit(id)->modid;
 }
 
-const char *GPU_shader_unit_file_name(const int id)
+const char *GPU_shader_unit_file_name(const short id)
 {
   return get_shader_unit(id)->fileName;
 }

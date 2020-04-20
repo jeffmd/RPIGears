@@ -34,13 +34,13 @@ static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
 static short next_deleted_framebuffer;
 static short active_framebuffer;
 
-static inline int find_deleted_framebuffer_id(void)
+static inline short find_deleted_framebuffer_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_framebuffer, framebuffers, 
                             GPU_FRAMEBUFFER_MAX_COUNT, GPUFrameBuffer, "Frame Buffer");
 }
 
-static GPUFrameBuffer *get_framebuffer(int id)
+static GPUFrameBuffer *get_framebuffer(short id)
 {
   if ((id < 0) | (id >= GPU_FRAMEBUFFER_MAX_COUNT)) {
     id = 0;
@@ -75,17 +75,17 @@ static GPUAttachmentType attachment_type_from_tex(const int tex)
   }
 }
 
-int GPU_framebuffer_active_get(void)
+short GPU_framebuffer_active(void)
 {
   return active_framebuffer;
 }
 
-static void gpu_framebuffer_current_set(const int id)
+static void gpu_framebuffer_set_active(const short id)
 {
   active_framebuffer = id;
 }
 
-int GPU_framebuffer_create(void)
+short GPU_framebuffer_create(void)
 {
   /* We generate the FB object later at first use in order to
    * create the framebuffer in the right opengl context. */
@@ -102,7 +102,7 @@ static void gpu_framebuffer_init(GPUFrameBuffer *fb)
   fb->object = obj;
 }
 
-void GPU_framebuffer_free(int id)
+void GPU_framebuffer_free(const short id)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
   
@@ -116,8 +116,8 @@ void GPU_framebuffer_free(int id)
       fb->attachments[type] = 0;
     }
 
-    if (GPU_framebuffer_active_get() == id) {
-      gpu_framebuffer_current_set(0);
+    if (GPU_framebuffer_active() == id) {
+      gpu_framebuffer_set_active(0);
     }
     /* This restores the framebuffer if it was bound */
     //GLuint obj = fb->object;
@@ -126,7 +126,7 @@ void GPU_framebuffer_free(int id)
   }
 }
 
-void GPU_framebuffer_texture_detach(const int id, const int tex)
+void GPU_framebuffer_texture_detach(const short id, const short tex)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
 
@@ -138,7 +138,7 @@ void GPU_framebuffer_texture_detach(const int id, const int tex)
   }
 }
 
-void GPU_framebuffer_texture_detach_all(const int tex)
+void GPU_framebuffer_texture_detach_all(const short tex)
 {
   for (int id = 1; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
     GPU_framebuffer_texture_detach(id, tex);
@@ -146,7 +146,7 @@ void GPU_framebuffer_texture_detach_all(const int tex)
 
 }
 
-void GPU_framebuffer_texture_attach(const int id, const int tex)
+void GPU_framebuffer_texture_attach(const short id, const short tex)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
   const GPUAttachmentType type = attachment_type_from_tex(tex);
@@ -159,7 +159,7 @@ void GPU_framebuffer_texture_attach(const int id, const int tex)
 
 }
 
-static void gpu_framebuffer_attachment_attach(const int tex, const GPUAttachmentType attach_type)
+static void gpu_framebuffer_attachment_attach(const short tex, const GPUAttachmentType attach_type)
 {
   const int tex_bind = GPU_texture_opengl_bindcode(tex);
   const GLenum target = GPU_texture_target(tex);
@@ -218,7 +218,7 @@ void GPU_framebuffer_done(void)
   glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
 }
 
-void GPU_framebuffer_bind(const int id)
+void GPU_framebuffer_bind(const short id)
 {
   GPU_framebuffer_done();
   GPUFrameBuffer *const fb = get_framebuffer(id);
@@ -229,7 +229,7 @@ void GPU_framebuffer_bind(const int id)
   //if (GPU_framebuffer_active_get() != fbID)
     glBindFramebuffer(GL_FRAMEBUFFER, fb->object);
 
-  gpu_framebuffer_current_set(id);
+  gpu_framebuffer_set_active(id);
 
   if (fb->dirty_flag)
     gpu_framebuffer_update_attachments(fb);

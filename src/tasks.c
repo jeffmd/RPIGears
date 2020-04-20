@@ -54,13 +54,13 @@ static void update_current_ms(void)
   current_ms = getMilliseconds();
 }
 
-static inline int find_deleted_task_id(void)
+static inline short find_deleted_task_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_task, tasks,
                             TASKS_MAX_COUNT, Task, "task");
 }
 
-static Task *get_task(int id)
+static Task *get_task(short id)
 {
   if ((id < 0) | (id >= TASKS_MAX_COUNT)) {
     id = 0;
@@ -77,24 +77,23 @@ static void task_init(Task * const task)
   task->elapsed_ms = 0.0f;
 }
 
-int task_create(void)
+short task_create(void)
 {
-  const int id = find_deleted_task_id();
+  const short id = find_deleted_task_id();
   Task * const task = get_task(id);
 
   task->active = 1;
   task_init(task);
 
-	return id;
+  return id;
 }
 
-
-void task_set_action(const int id, Action dofunc)
+void task_set_action(const short id, Action dofunc)
 {
   get_task(id)->dofunc = dofunc;
 }
 
-void task_set_interval(const int id, const uint interval)
+void task_set_interval(const short id, const uint interval)
 {
   get_task(id)->interval_ms = interval;
   const uint new_dtime = interval / 2;
@@ -103,7 +102,7 @@ void task_set_interval(const int id, const uint interval)
   }
 }
 
-uint task_elapsed(const int id)
+uint task_elapsed(const short id)
 {
   return get_task(id)->elapsed_ms;
 }
@@ -125,12 +124,12 @@ static void task_do(Task * const task)
   }  
 }
 
-void task_pause(const int id)
+void task_pause(const short id)
 {
   get_task(id)->state = TS_PAUSED;
 }
 
-void task_run(const int id)
+void task_run(const short id)
 {
   get_task(id)->state = TS_RUN;
 }

@@ -18,7 +18,7 @@
 typedef struct {
   GLfloat color[4];
   short batch; 
-} gear_t;
+} Gear;
 
 #define GEARS_MAX_COUNT 3
 
@@ -29,10 +29,10 @@ enum {
 };
   
 static short gearID = 0;
-static gear_t gears[GEARS_MAX_COUNT];
+static Gear gears[GEARS_MAX_COUNT];
 static short vformat = 0;
 
-static gear_t *get_gear(int id)
+static Gear *get_gear(short id)
 {
   return gears + id;
 }
@@ -61,7 +61,7 @@ static short gear_vformat(void)
           tooth_depth - depth of tooth
  
  **/
-int gear( const GLfloat inner_radius, const GLfloat outer_radius,
+short gear( const GLfloat inner_radius, const GLfloat outer_radius,
           const GLfloat width, const GLint teeth,
           const GLfloat tooth_depth,
           const GLfloat color[])
@@ -78,8 +78,8 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat r2_sin_ta_1da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
   
-  const int id = gearID++;
-  gear_t *gear = get_gear(id);
+  const short id = gearID++;
+  Gear *gear = get_gear(id);
   
   const int nvertices = teeth * 38;
   const int nindices = teeth * 64 * 3;
@@ -254,22 +254,22 @@ int gear( const GLfloat inner_radius, const GLfloat outer_radius,
   return id;
 }
 
-void gear_delete(const int id)
+void gear_delete(const short id)
 {
   GPU_batch_delete(get_gear(id)->batch, 1);
 }
 
-void gear_draw(const int id, const GLenum drawMode, const GLuint instances)
+void gear_draw(const short id, const GLenum drawMode, const GLuint instances)
 {
   GPU_batch_draw(get_gear(id)->batch, drawMode, instances);
 }
 
-void gear_use_BO(const int id)
+void gear_use_BO(const short id)
 {
   GPU_batch_use_BO(get_gear(id)->batch);
 }
 
-void gear_no_BO(const int id)
+void gear_no_BO(const short id)
 {
   GPU_batch_no_BO(get_gear(id)->batch);
 }

@@ -34,12 +34,12 @@ static short vformat = 0;
 static GPUQuad quads[QUAD_MAX_COUNT];
 static short next_deleted_quad;
 
-static inline int find_deleted_quad_id(void)
+static inline short find_deleted_quad_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_quad, quads, QUAD_MAX_COUNT, GPUQuad, "quad");
 }
 
-static GPUQuad *get_quad(int id)
+static GPUQuad *get_quad(short id)
 {
   if ((id < 0) | (id >= QUAD_MAX_COUNT)) {
     id = 0;
@@ -68,7 +68,7 @@ static void gpu_quad_init(GPUQuad *quad)
   quad->alimit = 0.5f;
 }
 
-void GPU_quad_delete(const int id)
+void GPU_quad_delete(const short id)
 {
   GPUQuad *const quad = get_quad(id);
 
@@ -110,9 +110,9 @@ static void gpu_quad_batch_init(GPUQuad *quad)
   QUAD(-1, -1, 2, 2)
 }
 
-int GPU_quad_create(void)
+short GPU_quad_create(void)
 {
-  const int id = find_deleted_quad_id();
+  const short id = find_deleted_quad_id();
   GPUQuad *const quad = get_quad(id);
   quad->active = 1;
   gpu_quad_init(quad);
@@ -121,7 +121,7 @@ int GPU_quad_create(void)
   return id;
 }
 
-void GPU_quad_draw(const int id)
+void GPU_quad_draw(const short id)
 {
   GPUQuad *const quad = get_quad(id);
 
@@ -131,17 +131,17 @@ void GPU_quad_draw(const int id)
   GPU_batch_draw(quad->batch, GL_TRIANGLE_STRIP, 1);  
 }
 
-void GPU_quad_set_texture(const int id, const int tex_id)
+void GPU_quad_set_texture(const short id, const short tex_id)
 {
   get_quad(id)->texture = tex_id;
 }
 
-void GPU_quad_set_shader(const int id, const int shader_id)
+void GPU_quad_set_shader(const short id, const short shader_id)
 {
   get_quad(id)->shader = shader_id;
 }
 
-void GPU_quad_set_alimit(const int id, const float val)
+void GPU_quad_set_alimit(const short id, const float val)
 {
   get_quad(id)->alimit = val;
 }

@@ -16,23 +16,23 @@ typedef enum {
         GPU_VCSM      // videocore shared memory
 } GPUTextureFormat;
 
-int GPU_texture_create(const int w, const int h,
+short GPU_texture_create(const int w, const int h,
         const GPUTextureFormat tex_format, const void *pixels);
 
-void GPU_texture_bind(int id, const int slot);
-void GPU_texture_unbind(int id);
-void GPU_texture_free(int id);
-int GPU_texture_bound_slot(int id);
-void GPU_texture_ref(int id);
-int GPU_texture_target(int id);
-int GPU_texture_width(int id);
-int GPU_texture_height(int id);
-GPUTextureFormat GPU_texture_format(int id);
-GLboolean GPU_texture_cube(int id);
-GLuint GPU_texture_opengl_bindcode(int id);
-void GPU_texture_sub_image(int id, const GLint xoffset,
+void GPU_texture_bind(const short id, const int slot);
+void GPU_texture_unbind(const short id);
+void GPU_texture_free(const short id);
+int GPU_texture_bound_slot(const short id);
+void GPU_texture_ref(const short id);
+int GPU_texture_target(const short id);
+int GPU_texture_width(const short id);
+int GPU_texture_height(const short id);
+GPUTextureFormat GPU_texture_format(const short id);
+GLboolean GPU_texture_cube(const short id);
+GLuint GPU_texture_opengl_bindcode(const short id);
+void GPU_texture_sub_image(const short id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels);
-void GPU_texture_mipmap(int id);
+void GPU_texture_mipmap(const short id);
 unsigned char *GPU_texture_vcsm_lock(void);
 void GPU_texture_vcsm_unlock(void);
 

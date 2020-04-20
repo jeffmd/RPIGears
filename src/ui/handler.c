@@ -19,7 +19,7 @@ static short next_deleted_handler;
 
 static inline int find_deleted_handler_id(void)
 {
-  return ARRAY_FIND_DELETED_ID(next_deleted_handler, handlers, HANDLER_MAX_COUNT, Handler, "Action Table");
+  return ARRAY_FIND_DELETED_ID(next_deleted_handler, handlers, HANDLER_MAX_COUNT, Handler, "Handler");
 }
 
 static Handler *get_handler(int id)

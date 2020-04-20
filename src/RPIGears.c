@@ -143,8 +143,8 @@ static void update_fps(void)
   const char *fps_str = WM_has_fps();
   
   if (fps_str) {
-    text_set_start(text_id, fps_start);
-    text_add(text_id, FPS_X, FPS_Y, fps_str);
+    Text_set_start(text_id, fps_start);
+    Text_add(text_id, FPS_X, FPS_Y, fps_str);
   }
 }
 
@@ -224,15 +224,15 @@ static void setup_test_quad(void)
 {
   test_quad();
   test_quad_add_texture(render_tex, 0.0f);
-  test_quad_add_texture(font_texture(font_active()), 0.5f);
+  test_quad_add_texture(Font_texture(Font_active()), 0.5f);
 }
 
 static void setup_text(void)
 {
-  text_id = text_create();
-  text_add(text_id, 0, 0, ver_text);
-  text_add(text_id, 0, FPS_Y, fps_text);
-  fps_start = text_start(text_id);
+  text_id = Text_create();
+  Text_add(text_id, 0, 0, ver_text);
+  Text_add(text_id, 0, FPS_Y, fps_text);
+  fps_start = Text_start(text_id);
 
   ver_ui_text_id = UI_text_create();
   UI_text_set_text_id(ver_ui_text_id, text_id);
@@ -267,9 +267,9 @@ int main (int argc, char *argv[])
 
   camera_init();
   scene_init();
-  //font_set_active(font_create("liberation2/LiberationMono-Regular.ttf"));
-  //font_set_active(font_create("dejavu/DejaVuSans.ttf"));
-  font_set_active(font_create("noto/NotoMono-Regular.ttf"));
+  //Font_set_active(Font_create("liberation2/LiberationMono-Regular.ttf"));
+  //Font_set_active(Font_create("dejavu/DejaVuSans.ttf"));
+  Font_set_active(Font_create("noto/NotoMono-Regular.ttf"));
 
   setup_render_texture(128, 128);
   setup_test_quad();

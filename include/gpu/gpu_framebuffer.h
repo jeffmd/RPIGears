@@ -8,12 +8,12 @@ typedef enum GPUFrameBufferBits {
 	GPU_STENCIL_BIT  = GL_STENCIL_BUFFER_BIT
 } GPUFrameBufferBits;
 
-int GPU_framebuffer_create(void);
-void GPU_framebuffer_free(const int id);
-void GPU_framebuffer_texture_detach(const int id, const int tex);
-void GPU_framebuffer_texture_detach_all(const int tex);
-void GPU_framebuffer_texture_attach(const int id, const int tex);
-void GPU_framebuffer_bind(const int id);
+short GPU_framebuffer_create(void);
+void GPU_framebuffer_free(const short id);
+void GPU_framebuffer_texture_detach(const short id, const short tex);
+void GPU_framebuffer_texture_detach_all(const short tex);
+void GPU_framebuffer_texture_attach(const short id, const short tex);
+void GPU_framebuffer_bind(const short id);
 void GPU_framebuffer_done(void);
 
 #endif  /* __GPU_FRAMEBUFFER_H__ */

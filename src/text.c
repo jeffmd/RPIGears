@@ -96,7 +96,7 @@ static void text_init(Text *text)
   text->ready = 0;
 }
 
-int text_create(void)
+short Text_create(void)
 {
   const int id = find_deleted_text_id();
   Text * const text = get_text(id);
@@ -107,7 +107,7 @@ int text_create(void)
   return id;
 }
 
-void text_delete(int id)
+void Text_delete(const short id)
 {
   Text * const text = get_text(id);
   text->active = 0;
@@ -116,7 +116,7 @@ void text_delete(int id)
     next_deleted_text = id; 
 }
 
-void text_set_font(const int id, const int font)
+void Text_set_font(const short id, const short font)
 {
   Text * const text = get_text(id);
   text->font = font;
@@ -126,7 +126,7 @@ void text_set_font(const int id, const int font)
 static int text_font(Text *text)
 {
   if (!text->font) {
-    text->font = font_active();    
+    text->font = Font_active();    
   }
   
   return text->font;
@@ -138,21 +138,21 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 
   int advance = 0;
   
-  const int vbuff = GPU_batch_vertex_buffer(text->batch);
-  const int font = text->font;
+  const short vbuff = GPU_batch_vertex_buffer(text->batch);
+  const short font = text->font;
   
-  const int dx = glyph_width(font, ch);
-  const int dy = glyph_height(font, ch);
-  const float u1 = glyph_u1(font, ch);
-  const float v1 = glyph_v1(font, ch);
-  const float u2 = glyph_u2(font, ch);
-  const float v2 = glyph_v2(font, ch);
+  const int dx = Glyph_width(font, ch);
+  const int dy = Glyph_height(font, ch);
+  const float u1 = Glyph_u1(font, ch);
+  const float v1 = Glyph_v1(font, ch);
+  const float u2 = Glyph_u2(font, ch);
+  const float v2 = Glyph_v2(font, ch);
 
   if (ch !=' ') {
     advance = dx + 2;
   }
   else {
-    advance = glyph_advance(font, ch);
+    advance = Glyph_advance(font, ch);
   }
   
   // build two triangles in vertex buffer
@@ -175,7 +175,6 @@ static void text_update_draw_count(Text *text)
     text->count = text->index + 1;
     GPU_batch_set_vertices_draw_count(text->batch, text->count * QUAD_SZE);
   }
-  
 }
 
 static void text_update_start(Text *text)
@@ -185,7 +184,7 @@ static void text_update_start(Text *text)
   GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
 }
 
-void text_add(const int id, int x, int y, const char *str)
+void Text_add(const short id, int x, int y, const char *str)
 {
   if (str) {
     Text * const text = get_text(id);
@@ -205,21 +204,21 @@ void text_add(const int id, int x, int y, const char *str)
   }
 }
 
-void text_set_start(const int id, const int index)
+void Text_set_start(const short id, const int index)
 {
   get_text(id)->index = index;
 }
 
-int text_start(const int id)
+int Text_start(const short id)
 {
   return get_text(id)->index;
 }
 
-void text_draw(const int id)
+void Text_draw(const short id)
 {
   Text * const text = get_text(id);
   if (text->ready) {
-    GPU_texture_bind(font_texture(text->font), 0);
+    GPU_texture_bind(Font_texture(text->font), 0);
     GPU_shader_bind(shaders_test_quad());
     GPU_uniformbuffer_activate(0);
     //glEnable(GL_BLEND);

@@ -14,7 +14,7 @@
 
 #define GPU_TEXTURE_MAX_COUNT 200
 
-typedef struct GPUTexture {
+typedef struct {
   uint8_t refcount;  /* reference count */
   int width, height;
 
@@ -80,13 +80,13 @@ static void gpu_texture_memory_footprint_remove(GPUTexture *tex)
   memory_usage -= gpu_texture_memory_footprint_compute(tex);
 }
 
-static inline int find_deleted_texture_id(void)
+static inline short find_deleted_texture_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_texture, textures,
                             GPU_TEXTURE_MAX_COUNT, GPUTexture, "Texture");;
 }
 
-static GPUTexture *get_texture(int id)
+static GPUTexture *get_texture(short id)
 {
   if ((id < 0) | (id >= GPU_TEXTURE_MAX_COUNT)) {
     id = 0;
@@ -154,10 +154,10 @@ static void init_texture_vcsm(GPUTexture *tex)
   }
 }
 
-int GPU_texture_create(const int w, const int h,
+short GPU_texture_create(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
-  const int id = find_deleted_texture_id();
+  const short id = find_deleted_texture_id();
   GPUTexture *const tex = get_texture(id);
 
   tex->width = w;
@@ -182,7 +182,7 @@ int GPU_texture_create(const int w, const int h,
   return id;
 }
 
-void GPU_texture_sub_image(int id, const GLint xoffset,
+void GPU_texture_sub_image(const short id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels)
 {
   GPUTexture * const tex = get_texture(id);
@@ -196,9 +196,8 @@ void GPU_texture_sub_image(int id, const GLint xoffset,
   }
 }
 
-void GPU_texture_bind(int id, const int slot)
+void GPU_texture_bind(const short id, const int slot)
 {
-
   if (slot >= 8) {
     printf("Not enough texture slots.\n");
     return;
@@ -212,7 +211,7 @@ void GPU_texture_bind(int id, const int slot)
   tex->slot = slot;
 }
 
-void GPU_texture_mipmap(int id)
+void GPU_texture_mipmap(const short id)
 {
   GPUTexture * const tex = get_texture(id);
   if (tex->format < GPU_STENCIL8) {
@@ -222,7 +221,7 @@ void GPU_texture_mipmap(int id)
   }
 }
 
-void GPU_texture_unbind(int id)
+void GPU_texture_unbind(const short id)
 {
   GPUTexture * const tex = get_texture(id);
   if (tex->slot == -1)
@@ -234,7 +233,7 @@ void GPU_texture_unbind(int id)
   tex->slot = -1;
 }
 
-void GPU_texture_free(int id)
+void GPU_texture_free(const short id)
 {
   GPUTexture * const tex = get_texture(id);
   tex->refcount--;
@@ -252,43 +251,43 @@ void GPU_texture_free(int id)
   }
 }
 
-int GPU_texture_bound_slot(int id)
+int GPU_texture_bound_slot(const short id)
 {
   return get_texture(id)->slot;
 }
 
 
-void GPU_texture_ref(int id)
+void GPU_texture_ref(const short id)
 {
   get_texture(id)->refcount++;
 }
 
-int GPU_texture_target(int id)
+int GPU_texture_target(const short id)
 {
   return get_texture(id)->target;
 }
 
-int GPU_texture_width(int id)
+int GPU_texture_width(const short id)
 {
   return get_texture(id)->width;
 }
 
-int GPU_texture_height(int id)
+int GPU_texture_height(const short id)
 {
   return get_texture(id)->height;
 }
 
-GPUTextureFormat GPU_texture_format(int id)
+GPUTextureFormat GPU_texture_format(const short id)
 {
   return get_texture(id)->format;
 }
 
-GLboolean GPU_texture_cube(int id)
+GLboolean GPU_texture_cube(const short id)
 {
   return (get_texture(id)->target == GL_TEXTURE_CUBE_MAP);
 }
 
-GLuint GPU_texture_opengl_bindcode(int id)
+GLuint GPU_texture_opengl_bindcode(const short id)
 {
   return get_texture(id)->bindcode;
 }
