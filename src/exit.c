@@ -44,7 +44,7 @@ void exit_init(const int time_to_run)
     task_pause(exit_task);
   }
   
-  key_add_action(10, exit_enable_key, 0);
-  key_add_action(13, exit_enable_key, 0);
-  key_add_action(27, exit_enable_key, exit_help);
+  Key_add_action(10, exit_enable_key, 0);
+  Key_add_action(13, exit_enable_key, 0);
+  Key_add_action(27, exit_enable_key, exit_help);
 }

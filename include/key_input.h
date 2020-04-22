@@ -9,15 +9,15 @@
 
   typedef void (*UPDATE_KEY_DOWN)(const float);
   
-  void key_input_init(void);
-  void key_input_action(const int inpkey);
-  void key_add_action(const int key, ActionFn action, const char *help);
-  void key_input_print_help(void);
-  void key_input_set_update(UPDATE_KEY_DOWN fn, const float val);
-  void key_input_down_update(void);
-  void key_input_set_rate_frame(const float period_rate);
-  void key_input_rate_on(void);
-  void key_input_rate_off(void);
-  void key_input_inc_rate(void);
+  void Key_input_init(void);
+  void Key_input_action(const int inpkey);
+  void Key_add_action(const int key, ActionFn action, const char *help);
+  void Key_input_print_help(void);
+  void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val);
+  void Key_input_down_update(void);
+  void Key_input_set_rate_frame(const float period_rate);
+  void Key_input_rate_on(void);
+  void Key_input_rate_off(void);
+  void Key_input_inc_rate(void);
   
 #endif

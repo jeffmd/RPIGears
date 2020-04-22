@@ -75,7 +75,7 @@ void scene_init(void)
 {
   // setup the scene based on rendering mode
   camera_init_ProjectionMatrix((float)window_screen_width() / (float)window_screen_height());
-  key_add_action('R', shaders_load_programs_key, "reload shaders");
+  Key_add_action('R', shaders_load_programs_key, "reload shaders");
   m4x4_copy(UBO_Data.projection_matrix, camera_ProjectionMatrixPtr());
 
   uniform_buffer = GPU_uniformbuffer_create();

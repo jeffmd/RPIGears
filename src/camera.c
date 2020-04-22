@@ -111,32 +111,32 @@ GLfloat *camera_view_matrix(void)
 
 static void camera_key_reverse(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_z, -1.0f);
+  Key_input_set_update(camera_change_z, -1.0f);
 }
 
 static void camera_key_forward(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_z, 1.0f);
+  Key_input_set_update(camera_change_z, 1.0f);
 }
 
 static void camera_key_right(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_x, -1.0f);
+  Key_input_set_update(camera_change_x, -1.0f);
 }
 
 static void camera_key_left(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_x, 1.0f);
+  Key_input_set_update(camera_change_x, 1.0f);
 }
           
 static void camera_key_down(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_y, 1.0f);
+  Key_input_set_update(camera_change_y, 1.0f);
 }
 
 static void camera_key_up(const short souce_id, const short destination_id)
 {
-  key_input_set_update(camera_change_y, -1.0f);
+  Key_input_set_update(camera_change_y, -1.0f);
 }
 
 void camera_init(void)
@@ -149,11 +149,11 @@ void camera_init(void)
   camera->view_rotz = 0.0f;
   camera->dirty = GL_TRUE;
   
-  key_add_action('r', camera_key_reverse, "move camera back from gears");
-  key_add_action('f', camera_key_forward, "move camera toward gears");
-  key_add_action('a', camera_key_left, "move camera left");
-  key_add_action('d', camera_key_right, "move camera right");
-  key_add_action('w', camera_key_up, "move camera up");
-  key_add_action('s', camera_key_down, "move camera down");
+  Key_add_action('r', camera_key_reverse, "move camera back from gears");
+  Key_add_action('f', camera_key_forward, "move camera toward gears");
+  Key_add_action('a', camera_key_left, "move camera left");
+  Key_add_action('d', camera_key_right, "move camera right");
+  Key_add_action('w', camera_key_up, "move camera up");
+  Key_add_action('s', camera_key_down, "move camera down");
   
 }

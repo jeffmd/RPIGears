@@ -104,7 +104,7 @@ void print_keyhelp(void)
    "end - move window off screen\n"
    
    );
-   key_input_print_help();
+   Key_input_print_help();
 }
 
 void print_CLoptions_help(void)
@@ -133,7 +133,7 @@ static void print_CLoptions_help_key(const short souce_id, const short destinati
 
 void print_info_init(void)
 {
-  key_add_action('i', print_GLInfo_key, "print GL info");
-  key_add_action('o', print_CLoptions_help_key, "print command line options");
+  Key_add_action('i', print_GLInfo_key, "print GL info");
+  Key_add_action('o', print_CLoptions_help_key, "print command line options");
   
 }

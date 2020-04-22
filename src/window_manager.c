@@ -88,8 +88,8 @@ static void wm_update(void)
 {
   do_tasks();
   xwindow_check_events();
-  key_input_down_update();
-  key_input_inc_rate();
+  Key_input_down_update();
+  Key_input_inc_rate();
   wm_do_draw_fn();
   UI_area_root_draw();
   
@@ -103,7 +103,7 @@ static void wm_update_avgfps(const float fps)
     avgfps = fps;
     period_rate = 1.0f / avgfps;
     //update_angleFrame();
-    key_input_set_rate_frame(period_rate);
+    Key_input_set_rate_frame(period_rate);
   }
 }
 
@@ -161,7 +161,7 @@ void window_manager_init(void)
   gles3_init();
   window_init();
   xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
-  key_input_init();
+  Key_input_init();
   atexit(window_manager_delete);
   avgfps = 50.0f;
   period_rate = 1.0f / avgfps;

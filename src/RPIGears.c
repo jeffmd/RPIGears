@@ -254,9 +254,9 @@ int main (int argc, char *argv[])
   window_update_VSync(options_useVSync());
   exit_init(state_timeToRun());
   print_info_init();
-  key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
-  key_add_action('B', toggle_back_render, "toggle background render on/off");
-  key_add_action('S', toggle_stats_draw, "toggle stats render on/off");
+  Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
+  Key_add_action('B', toggle_back_render, "toggle background render on/off");
+  Key_add_action('S', toggle_stats_draw, "toggle stats render on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();

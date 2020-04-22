@@ -17,7 +17,7 @@ void xinput_check_keys(XEvent *event)
 	//printf( "Key: %x %c\n", (int)key, key );
 	
   if (event->type == KeyPress)
-    key_input_action(key);
+    Key_input_action(key);
 }
 
 void xinput_pointer_move(const XMotionEvent* event)

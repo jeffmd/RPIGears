@@ -150,7 +150,7 @@ static void check_esckey(const int inpkey)
   
 }
 
-void key_input_action(const int inpkey)
+void Key_input_action(const int inpkey)
 {
   if ((inpkey >= KEY_START) && (inpkey <= KEY_END)) {
      const short key_id = inpkey - KEY_START;
@@ -158,7 +158,7 @@ void key_input_action(const int inpkey)
   }
 }
 
-void key_add_action(const int key, ActionFn action, const char *help)
+void Key_add_action(const int key, ActionFn action, const char *help)
 {
   if ((key >= KEY_START) && (key <= KEY_END)) {
     const short key_id = key - KEY_START;
@@ -169,13 +169,13 @@ void key_add_action(const int key, ActionFn action, const char *help)
     printf("key binding out of range: %i\n", key);
 }
 
-void key_input_set_update(UPDATE_KEY_DOWN fn, const float val)
+void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val)
 {
   key_down_update = fn;
   rate_direction = val;
 }
 
-void key_input_down_update(void)
+void Key_input_down_update(void)
 {
   if (key_down_update) {
     key_down_update(rate_direction * rate_frame);
@@ -183,7 +183,7 @@ void key_input_down_update(void)
 }
 
 
-void key_input_print_help(void)
+void Key_input_print_help(void)
 {
   for (int key = 0; key < KEY_COUNT; key++) {
     if (keyHelp[key]) {
@@ -192,24 +192,24 @@ void key_input_print_help(void)
   }  
 }
 
-void key_input_set_rate_frame(const float period_rate)
+void Key_input_set_rate_frame(const float period_rate)
 {
   rate_frame = rate * period_rate;
 }
 
-void key_input_rate_on(void)
+void Key_input_rate_on(void)
 {
   rate_enabled = 1;
 }
 
-void key_input_rate_off(void)
+void Key_input_rate_off(void)
 {
   rate_enabled = 0;
   rate = 1.0f;
   key_down_update = 0;
 }
 
-void key_input_inc_rate(void)
+void Key_input_inc_rate(void)
 {
   // increase movement speed if not at max
   //if (rate_enabled) rate += 10 * state->period_rate;
@@ -225,18 +225,18 @@ static int detect_keypress(void)
     int key = getchar();
     if (key == 27) {
       if (_kbhit()) check_esckey(getchar());
-      else key_input_action(key);
+      else Key_input_action(key);
     }
     else {
-      key_input_action(key);
+      Key_input_action(key);
     }
     // if falling behind in key processing then speed it up
     if (_kbhit()) active = 2; 
-    key_input_rate_on();
+    Key_input_rate_on();
   }
   else {
     // reset move_rate since no keys are being pressed
-    key_input_rate_off();
+    Key_input_rate_off();
   }
   
   return active;  
@@ -252,11 +252,17 @@ static void do_KeyScan_task(void)
   }
 }
 
-void key_input_init(void)
+static void print_help(const short souce_id, const short destination_id)
+{
+  Key_input_print_help();
+}
+
+void Key_input_init(void)
 {
   KeyScan_task = task_create();
   task_set_action(KeyScan_task, do_KeyScan_task);
   task_set_interval(KeyScan_task, 100);
-  key_input_rate_off();
+  Key_input_rate_off();
+  Key_add_action('h', print_help, "print help");
 }
 
