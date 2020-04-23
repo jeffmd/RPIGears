@@ -238,9 +238,9 @@ static void setup_text(void)
   UI_text_set_text_id(ver_ui_text_id, text_id);
 
   text_area_id = UI_area_create();
+  UI_area_set_handler(text_area_id, UI_text_area_handler(ver_ui_text_id));
   UI_area_set_position(text_area_id, 10, 10);
   UI_area_set_size(text_area_id, 200, 10);
-  UI_area_set_handler(text_area_id, UI_text_area_handler(ver_ui_text_id));
 }
 
 int main (int argc, char *argv[])

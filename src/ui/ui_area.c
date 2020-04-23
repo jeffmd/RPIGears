@@ -159,6 +159,13 @@ void UI_area_set_size(const short area_id, const int width, const int height)
   Handler_execute(area->handler, OnResize, area_id);
 }
 
+void UI_area_size(const short area_id, int size[2])
+{
+  UI_Area * const area = get_area(area_id);
+  size[0] = area->size[0];
+  size[1] = area->size[1];
+}
+
 static void area_root_pos(UI_Area *area, int pos[2])
 {
   short area_id = area->parent;

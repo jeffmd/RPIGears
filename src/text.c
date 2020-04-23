@@ -22,7 +22,7 @@ typedef struct {
   short font;
   const char *str;
   uint8_t ready;           // 1 if ready to draw
-  GLfloat ProjMatrix[4];
+  GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;
   uint16_t index;          // current index into vertex buffer
   uint16_t count;          // mumber of characters in text vertex buffer
@@ -71,8 +71,8 @@ static void text_default_settings(Text *text)
 {
     text->ProjMatrix[0] = 1.0f/1280.0f;
     text->ProjMatrix[1] = 1.0f/1024.0f;
-    text->ProjMatrix[2] = -200.0f * text->ProjMatrix[0];
-    text->ProjMatrix[3] = -10.0f * text->ProjMatrix[1];
+    //text->ProjMatrix[2] = -200.0f * text->ProjMatrix[0];
+    //text->ProjMatrix[3] = -10.0f * text->ProjMatrix[1];
     text->alimit = 0.5f;
 }
 
@@ -212,6 +212,21 @@ void Text_set_start(const short id, const int index)
 int Text_start(const short id)
 {
   return get_text(id)->index;
+}
+
+void Text_set_offset(const short id, const int width, const int height)
+{
+  Text * const text = get_text(id);
+  const float s0 = width;
+  const float m0 = text->ProjMatrix[0];
+  const float s1 = height;
+  const float m1 = text->ProjMatrix[1];
+
+  const float s2 = -s0 * m0;
+  const float s3 = -s1 * m1;
+
+  text->ProjMatrix[2] = s2;
+  text->ProjMatrix[3] = s3;
 }
 
 void Text_draw(const short id)

@@ -59,7 +59,12 @@ static void update_dimensions(UI_Text *text, const short source_id)
 {
   if (text->area_id != source_id)
   {
+    int size[2];
+
     text->area_id = source_id;
+    UI_area_size(source_id, size);
+    Text_set_offset(text->text_id, size[0], size[1]);
+    printf("update text offset %i\n", text->text_id);
   }
 }
 
@@ -72,14 +77,22 @@ static void ui_text_draw(const short source_id, const short destination_id)
   //printf("draw text area %i\n", source_id);
 }
 
+static void area_clear(const short id)
+{
+  UI_Text *const text = get_text(id);
+  text->area_id = 0;
+}
+
 static void ui_text_area_attach(const short source_id, const short destination_id)
 {
   printf("attach text area %i\n", source_id);
+  area_clear(destination_id);
 }
 
-static void ui_text_resize(const short source_id, const short destination_id)
+static void ui_text_area_resize(const short source_id, const short destination_id)
 {
   printf("resize text area %i\n", source_id);
+  area_clear(destination_id);
 }
 
 static short get_area_action_table(void)
@@ -90,7 +103,7 @@ static short get_area_action_table(void)
     UI_area_action_set_enter(area_action_table, ui_text_enter);
     UI_area_action_set_leave(area_action_table, ui_text_leave);
     UI_area_action_set_draw(area_action_table, ui_text_draw);
-    UI_area_action_set_resize(area_action_table, ui_text_resize);
+    UI_area_action_set_resize(area_action_table, ui_text_area_resize);
     UI_area_action_set_attach(area_action_table, ui_text_area_attach);
   }
 
@@ -121,4 +134,5 @@ void UI_text_set_text_id(const short id, const short text_id)
 {
   UI_Text *const text = get_text(id);
   text->text_id = text_id;
+  text->area_id = 0;
 }
