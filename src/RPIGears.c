@@ -95,15 +95,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern IMAGE_T rpi_image;
 
-#define FPS_Y 980
+#define FPS_Y 400
 #define FPS_X 60
 
 static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_text[] = "FPS:";
-static int fps_start; 
-static short text_id;
-static short text_area_id;
+static const char num_text[] = "000.00";
+static int fps_start;
+static short fps_text_id; 
+static short ver_area_id;
+static short fps_area_id;
 static short ver_ui_text_id;
+static short fps_ui_text_id;
 static short render_tex;
 static short offscreen_fb;
 static short offscreen_draw;
@@ -143,8 +146,8 @@ static void update_fps(void)
   const char *fps_str = WM_has_fps();
   
   if (fps_str) {
-    Text_set_start(text_id, fps_start);
-    Text_add(text_id, FPS_X, FPS_Y, fps_str);
+    Text_set_start(fps_text_id, fps_start);
+    Text_add(fps_text_id, FPS_X, 0, fps_str);
   }
 }
 
@@ -229,18 +232,23 @@ static void setup_test_quad(void)
 
 static void setup_text(void)
 {
-  text_id = Text_create();
-  Text_add(text_id, 0, 0, ver_text);
-  Text_add(text_id, 0, FPS_Y, fps_text);
-  fps_start = Text_start(text_id);
-
   ver_ui_text_id = UI_text_create();
-  UI_text_set_text_id(ver_ui_text_id, text_id);
+  UI_text_add(ver_ui_text_id, ver_text);
 
-  text_area_id = UI_area_create();
-  UI_area_set_handler(text_area_id, UI_text_area_handler(ver_ui_text_id));
-  UI_area_set_position(text_area_id, 10, 10);
-  UI_area_set_size(text_area_id, 200, 10);
+  ver_area_id = UI_area_create();
+  UI_area_set_handler(ver_area_id, UI_text_area_handler(ver_ui_text_id));
+  UI_area_set_position(ver_area_id, 10, 10);
+
+  fps_ui_text_id = UI_text_create();
+  UI_text_add(fps_ui_text_id, fps_text);
+  fps_text_id = UI_text_text_id(fps_ui_text_id);
+  fps_start = Text_start(fps_text_id);
+  Text_add(fps_ui_text_id, FPS_X, 0, num_text);
+
+  fps_area_id = UI_area_create();
+  UI_area_set_handler(fps_area_id, UI_text_area_handler(fps_ui_text_id));
+  UI_area_set_position(fps_area_id, 10, FPS_Y);
+
 }
 
 int main (int argc, char *argv[])
@@ -290,7 +298,8 @@ int main (int argc, char *argv[])
   UI_area_set_handler(view3d_area, UI_view3d_area_handler());
   //UI_area_set_handler(view3d_area_2, UI_view3d_area_handler());
 
-  UI_area_add(view3d_area, text_area_id);
+  UI_area_add(view3d_area, ver_area_id);
+  UI_area_add(view3d_area, fps_area_id);
 
   // animate the gears
   run_gears();

@@ -10,5 +10,6 @@
   void Text_set_start(const short id, const int index);
   int Text_start(const short id);
   void Text_draw(const short id);
+  void Text_extent(const short id, int extent[2]);
   
 #endif

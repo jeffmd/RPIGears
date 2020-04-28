@@ -24,6 +24,7 @@ typedef struct {
   uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;
+  int extent[2];           // text x and y extent 
   uint16_t index;          // current index into vertex buffer
   uint16_t count;          // mumber of characters in text vertex buffer
 } Text;
@@ -71,8 +72,6 @@ static void text_default_settings(Text *text)
 {
     text->ProjMatrix[0] = 1.0f/1280.0f;
     text->ProjMatrix[1] = 1.0f/1024.0f;
-    //text->ProjMatrix[2] = -200.0f * text->ProjMatrix[0];
-    //text->ProjMatrix[3] = -10.0f * text->ProjMatrix[1];
     text->alimit = 0.5f;
 }
 
@@ -132,6 +131,15 @@ static int text_font(Text *text)
   return text->font;
 }
 
+static void update_extent(Text *text, int x, int y)
+{
+  if (x > text->extent[0])
+    text->extent[0] = x;
+
+  if (y > text->extent[1])
+    text->extent[1] = y;
+}
+
 static int add_quad_char(Text *text, const int x, const int y, const char ch)
 {
 #define VERTEX(x1, y1, u, v) GPU_vertbuf_add_4(vbuff, ATTR_POSITION, (x1), (y1), u, v)
@@ -165,7 +173,7 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   VERTEX(x, y+dy,    u1, v2);
   
   text->index++;
-    
+  update_extent(text, x+dx, y+dy);
   return advance;
 }
 
@@ -241,4 +249,11 @@ void Text_draw(const short id)
     GPU_batch_draw(text->batch, GL_TRIANGLES, 1);  
     //glDisable(GL_BLEND);
   }    
+}
+
+void Text_extent(const short id, int extent[2])
+{
+  Text * const text = get_text(id);
+  extent[0] = text->extent[0]/2 + 4;
+  extent[1] = text->extent[1]/2 + 4;
 }

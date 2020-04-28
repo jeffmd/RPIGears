@@ -77,10 +77,10 @@ static void transfer_glyphs(Font *font)
     
     init_texture(font);
     
-    //int roww = 0;
-		int rowh = 0;
+    int rowh = 0;
     int ox = GLYPHSPC;
-		int oy = DEFAULT_GLYPH_HEIGHT + GLYPHSPC;
+    int oy = DEFAULT_GLYPH_HEIGHT + GLYPHSPC;
+    int oyt;
     const float tex_width = GPU_texture_width(font->texture);
     const float tex_height = GPU_texture_height(font->texture);
 
@@ -99,7 +99,8 @@ static void transfer_glyphs(Font *font)
         ox = GLYPHSPC;
       }
 
-      GPU_texture_sub_image(font->texture, ox, oy - glyph->bitmap_top, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
+      oyt = oy - glyph->bitmap_top;
+      GPU_texture_sub_image(font->texture, ox, oyt, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
       
       Glyph *glyphc = &font->glyphs[i - CHAR_START];
       
@@ -107,9 +108,9 @@ static void transfer_glyphs(Font *font)
       glyphc->height = glyph->bitmap.rows;
       glyphc->width = glyph->bitmap.width;
       glyphc->u1 = (float)ox / tex_width;
-      glyphc->v1 = (float)(oy - glyph->bitmap_top + glyphc->height) / tex_height;
+      glyphc->v1 = (float)(oyt + glyphc->height) / tex_height;
       glyphc->u2 = (float)(ox + glyphc->width) / tex_width;
-      glyphc->v2 = (float)(oy - glyph->bitmap_top) / tex_height;
+      glyphc->v2 = (float)oyt / tex_height;
       
       printf("glyph: %c, width: %i height: %i left: %i. top: %i, advance: %i\n", i,
              glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap_left, glyph->bitmap_top, glyphc->advance);
@@ -250,6 +251,7 @@ static Glyph *get_glyph(const short id, const char ch)
     idx = ch - CHAR_START;
   else
     idx = 0;
+
   return get_font(id)->glyphs + idx;
 }
 
