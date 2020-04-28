@@ -14,7 +14,7 @@ LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lvcsm -lrt -lm -lX1
 
 INCLUDES+=-Iinclude -Iinclude/gpu -Iinclude/ui -I/opt/vc/include/ -I/usr/include/freetype2
 
-CFLAGS +=$(INCLUDES) -g -O2 -MMD -MP
+CFLAGS +=$(INCLUDES) -g -Og -MMD -MP
 
 all: obj $(BIN)
 
