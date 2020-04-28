@@ -62,17 +62,23 @@ void m4x4_multiply(GLfloat d[16], const GLfloat m0[16], const GLfloat m1[16])
 
     for (int j=0; j<4; j++) {
       const float s4 = m1[j+i];
+      const float *mk = m0 + j*4;
+      const float s5 = mk[0];
+      const float s6 = mk[1];
+      const float s7 = mk[2];
+      const float s8 = mk[3];
 
-      s0 += s4 * m0[0 + j*4];
-      s1 += s4 * m0[1 + j*4];
-      s2 += s4 * m0[2 + j*4];
-      s3 += s4 * m0[3 + j*4];
+      s0 += s4 * s5;
+      s1 += s4 * s6;
+      s2 += s4 * s7;
+      s3 += s4 * s8;
     }
     
-    d[i] = s0;
-    d[i+1] = s1;
-    d[i+2] = s2;
-    d[i+3] = s3;
+    GLfloat *r = d + i; 
+    r[0] = s0;
+    r[1] = s1;
+    r[2] = s2;
+    r[3] = s3;
   }
 }
 
@@ -167,11 +173,17 @@ void m4x4_translate(GLfloat * restrict d, const GLfloat * restrict m, const GLfl
   float s3 = m[15];
 
   for (int j=0; j<3; j++) {
-    float vs = vec[j];
-    s0 += vs * m[0 + j*4];
-    s1 += vs * m[1 + j*4];
-    s2 += vs * m[2 + j*4];
-    s3 += vs * m[3 + j*4];
+    const float vs = vec[j];
+    const float *mk = m + j*4;
+    const float s4 = mk[0];
+    const float s5 = mk[1];
+    const float s6 = mk[2];
+    const float s7 = mk[3];
+
+    s0 += vs * s4;
+    s1 += vs * s5;
+    s2 += vs * s6;
+    s3 += vs * s7;
   }
 
   d[12] = s0;
@@ -247,10 +259,15 @@ void m4xv3(float r[3], const float mat[16], const float vec[3])
   float s2 = mat[14];
 
   for (int j=0; j<3; j++) {
-    float vs = vec[j];
-    s0 += vs * mat[j*4];
-    s1 += vs * mat[j*4+1];
-    s2 += vs * mat[j*4+2];
+    const float vs = vec[j];
+    const float *mk = mat + j*4;
+    const float s3 = mk[0];
+    const float s4 = mk[1];
+    const float s5 = mk[2];
+
+    s0 += vs * s3;
+    s1 += vs * s4;
+    s2 += vs * s5;
   }
 
   r[0] = s0;
