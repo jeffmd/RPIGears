@@ -151,6 +151,13 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   
   const int dx = Glyph_width(font, ch);
   const int dy = Glyph_height(font, ch);
+
+  const float x1 = x;
+  const float y1 = y;
+
+  const float x2 = x + dx;
+  const float y2 = y + dy;
+
   const float u1 = Glyph_u1(font, ch);
   const float v1 = Glyph_v1(font, ch);
   const float u2 = Glyph_u2(font, ch);
@@ -164,13 +171,14 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   }
   
   // build two triangles in vertex buffer
-  VERTEX(x+dx, y, u2, v1);
-  VERTEX(x, y+dy, u1, v2);
-  VERTEX(x, y,    u1, v1);
+
+  VERTEX(x2, y1, u2, v1);
+  VERTEX(x1, y2, u1, v2);
+  VERTEX(x1, y1,  u1, v1);
   
-  VERTEX(x+dx, y,    u2, v1);
-  VERTEX(x+dx, y+dy, u2, v2);
-  VERTEX(x, y+dy,    u1, v2);
+  VERTEX(x2, y1,  u2, v1);
+  VERTEX(x2, y2, u2, v2);
+  VERTEX(x1, y2,  u1, v2);
   
   text->index++;
   update_extent(text, x+dx, y+dy);
