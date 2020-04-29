@@ -9,7 +9,10 @@ OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o
 	
 BIN = RPIGears
 # -ftree-vectorize -ftree-vectorizer-verbose=6
-CFLAGS += -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -Wall -DHAVE_LIBOPENMAX=2 -pipe -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM -Wno-psabi -ffast-math -fsingle-precision-constant -mfloat-abi=hard
+# -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -DHAVE_LIBOPENMAX=2 
+# -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM
+# -Wno-psabi -mfloat-abi=hard
+CFLAGS += -pipe -Wall -ffast-math -fsingle-precision-constant
 LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lvcsm -lrt -lm -lX11 -lXext -lfreetype
 
 INCLUDES+=-Iinclude -Iinclude/gpu -Iinclude/ui -I/opt/vc/include/ -I/usr/include/freetype2
