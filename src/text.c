@@ -20,7 +20,6 @@ typedef struct {
   uint8_t active;           // zero if deleted
   short batch;
   short font;
-  const char *str;
   uint8_t ready;           // 1 if ready to draw
   GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;
@@ -182,6 +181,7 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   
   text->index++;
   update_extent(text, x+dx, y+dy);
+
   return advance;
 }
 

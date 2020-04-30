@@ -21,6 +21,11 @@ typedef struct {
   // handler link
   short handler;
 
+  // flags
+  unsigned hide:1;
+  unsigned visible:1;
+  unsigned selectable:1;
+
 } UI_Area;
 
 enum Events {
@@ -202,7 +207,7 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
   while (area_id) {
     UI_Area *area = get_area(area_id);
 
-    if (area_inside(area, x, y)) {
+    if (!area->hide && area_inside(area, x, y)) {
       // check children
       newhit = area_find(area->child, 1, x, y);
       if (!newhit) {
@@ -268,6 +273,12 @@ void UI_area_set_handler(const short area_id, const short handler_id)
   Handler_execute(area->handler, OnAttach, area_id);
 }
 
+void UI_area_set_hide(const short area_id, const int state)
+{
+  UI_Area * const area = get_area(area_id);
+  area->hide = state;
+}
+
 static void area_draw(UI_Area *area, const short source_id)
 {
   int pos[2];
@@ -282,9 +293,11 @@ static void area_draw_siblings(short area_id)
   while (area_id) {
     UI_Area *area = get_area(area_id);
     // draw children first
-    area_draw_siblings(area->child);
-    // draw self
-    area_draw(area, area_id);
+    if (!area->hide) {
+      area_draw_siblings(area->child);
+      // draw self
+      area_draw(area, area_id);
+    }
     // get sibling
     area_id = area->sibling;
   }

@@ -13,5 +13,6 @@
   void UI_area_set_size(const short area_id, const int width, const int height);
   void UI_area_select_active(const int x, const int y);
   void UI_area_size(const short area_id, int size[2]);
+  void UI_area_set_hide(const short area_id, const int state);
 
 #endif

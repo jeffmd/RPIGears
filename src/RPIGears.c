@@ -112,7 +112,7 @@ static short offscreen_fb;
 static short offscreen_draw;
 static short stats_draw;
 static short view3d_area;
-static short view3d_area_2;
+//static short view3d_area_2;
 
 static void init_textures(void)
 {
@@ -136,9 +136,16 @@ static void toggle_back_render(const short souce_id, const short destination_id)
   offscreen_draw = !offscreen_draw;
 }
 
+static void update_stats_hide(void)
+{
+  UI_area_set_hide(ver_area_id, !stats_draw);
+  UI_area_set_hide(fps_area_id, !stats_draw);
+}
+
 static void toggle_stats_draw(const short souce_id, const short destination_id)
 {
   stats_draw = !stats_draw;
+  update_stats_hide();
 }
 
 static void update_fps(void)
@@ -179,7 +186,6 @@ static void draw(void)
   test_quad_draw();
   if (stats_draw) {
     update_fps();
-    //text_draw(text_id);
   }
 }
 
@@ -248,6 +254,8 @@ static void setup_text(void)
   fps_area_id = UI_area_create();
   UI_area_set_handler(fps_area_id, UI_text_area_handler(fps_ui_text_id));
   UI_area_set_position(fps_area_id, 10, FPS_Y);
+
+  update_stats_hide();
 
 }
 
