@@ -52,7 +52,9 @@ short Handler_create(const short destination_id, const short table_id)
 
 void Handler_execute(const short handler_id, const short slot_id, const short source_id)
 {
-  Handler *const handler = get_handler(handler_id);
-  Action_table_execute(handler->action_table, slot_id, source_id, handler->destination_id);
+  if (handler_id) {
+    Handler *const handler = get_handler(handler_id);
+    Action_table_execute(handler->action_table, slot_id, source_id, handler->destination_id);
+  }
 }
 

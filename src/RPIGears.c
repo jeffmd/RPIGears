@@ -105,6 +105,7 @@ static int fps_start;
 static short fps_text_id; 
 static short ver_area_id;
 static short fps_area_id;
+static short stats_area_id;
 static short ver_ui_text_id;
 static short fps_ui_text_id;
 static short render_tex;
@@ -138,8 +139,7 @@ static void toggle_back_render(const short souce_id, const short destination_id)
 
 static void update_stats_hide(void)
 {
-  UI_area_set_hide(ver_area_id, !stats_draw);
-  UI_area_set_hide(fps_area_id, !stats_draw);
+  UI_area_set_hide(stats_area_id, !stats_draw);
 }
 
 static void toggle_stats_draw(const short souce_id, const short destination_id)
@@ -255,6 +255,12 @@ static void setup_text(void)
   UI_area_set_handler(fps_area_id, UI_text_area_handler(fps_ui_text_id));
   UI_area_set_position(fps_area_id, 10, FPS_Y);
 
+  stats_area_id = UI_area_create();
+  UI_area_set_position(stats_area_id, 2, 2);
+  UI_area_set_size(stats_area_id, 400, 500);
+  UI_area_add(stats_area_id, ver_area_id);
+  UI_area_add(stats_area_id, fps_area_id);
+
   update_stats_hide();
 
 }
@@ -306,8 +312,7 @@ int main (int argc, char *argv[])
   UI_area_set_handler(view3d_area, UI_view3d_area_handler());
   //UI_area_set_handler(view3d_area_2, UI_view3d_area_handler());
 
-  UI_area_add(view3d_area, ver_area_id);
-  UI_area_add(view3d_area, fps_area_id);
+  UI_area_add(view3d_area, stats_area_id);
 
   // animate the gears
   run_gears();
