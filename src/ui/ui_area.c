@@ -15,8 +15,13 @@ typedef struct {
   short child;
   short sibling;
 
-  short pos[2];
+  short rel_pos[2];
   short size[2];
+  short abs_pos[2];
+  short vis_pos[4];
+
+  uint8_t modid;
+  uint8_t parent_modid;
 
   // handler link
   short handler;
@@ -75,31 +80,63 @@ static void area_init(UI_Area *area)
   area->parent = 0;
   area->child = 0;
   area->handler = 0;
+  area->modid++;
 }
 
-static void area_root_pos(UI_Area *area, int pos[2])
+static void clip_pos(const short clip_pos[4], short pos[2])
 {
-  short area_id = area->parent;
-
-  pos[0] = area->pos[0];
-  pos[1] = area->pos[1];
-
-  while (area_id) {
-    area = get_area(area_id);
-    area_id = area->parent;
-    pos[0] += area->pos[0];
-    pos[1] += area->pos[1];
+  if (pos[0] < clip_pos[0]) {
+    pos[0] = clip_pos[0];
   }
+  else {
+    if (pos[0] > clip_pos[2])
+      pos[0] = clip_pos[2];
+  }
+
+  if (pos[1] < clip_pos[1]) {
+    pos[1] = clip_pos[1];
+  }
+  else {
+    if (pos[1] > clip_pos[3])
+      pos[1] = clip_pos[3];
+  }
+}
+
+static void update_vis_pos(UI_Area *area)
+{
+  const short parent_id = area->parent;
+  short *pos = area->vis_pos;
+  pos[0] = area->rel_pos[0];
+  pos[1] = area->rel_pos[1];
+  pos[2] = pos[0] + area->size[0];
+  pos[3] = pos[1] + area->size[1];
+
+  if (parent_id) {
+    UI_Area *parent_area = get_area(parent_id);
+    pos[0] += parent_area->abs_pos[0];
+    pos[2] += parent_area->abs_pos[0];
+    pos[1] += parent_area->abs_pos[1];
+    pos[3] += parent_area->abs_pos[1];
+
+    area->abs_pos[0] = pos[0];
+    area->abs_pos[1] = pos[1];
+    // clip pos to parent vis_pos
+    clip_pos(parent_area->vis_pos, pos);
+    clip_pos(parent_area->vis_pos, pos + 2);
+
+    area->parent_modid = parent_area->modid;
+  }
+  
+  area->modid++;
 }
 
 static int area_inside(UI_Area *area, const int x, const int y)
 {
   int is_inside = 0;
-  int pos[2];
-  area_root_pos(area, pos);
+  short *pos = area->vis_pos;
 
-  if ( (x >= pos[0]) && ( x <= (pos[0] + area->size[0]))) {
-    if ((y >= pos[1]) && ( y <= (pos[1] + area->size[1]))) {
+  if ( (x >= pos[0]) && (x <= pos[2]) ) {
+    if ((y >= pos[1]) && (y <= pos[3]) ) {
       is_inside = 1;
     }
   }
@@ -109,22 +146,9 @@ static int area_inside(UI_Area *area, const int x, const int y)
 static int child_inside_parent(UI_Area *area)
 {
   int is_inside = 0;
-  int pos[2];
-  area_root_pos(area, pos);
+  short *pos = area->vis_pos;
 
-  if (area->parent) {
-    UI_Area *parent = get_area(area->parent);
-
-    if (
-      area_inside(parent, pos[0], pos[1]) ||
-      area_inside(parent, pos[0] + area->size[0], pos[1]) ||
-      area_inside(parent, pos[0] + area->size[0], pos[1] + area->size[1]) ||
-      area_inside(parent, pos[0], pos[1] + area->size[1])
-
-      ) {
-        is_inside = 1;
-    }
-  } else {
+  if ( (pos[2] - pos[0]) && (pos[3] - pos[1]) ) {
     is_inside = 1;
   }
   
@@ -133,12 +157,32 @@ static int child_inside_parent(UI_Area *area)
 
 static void update_visibility(UI_Area *area)
 {
+  update_vis_pos(area);
+
+  int new_visible;
+ 
   if (!area->hide) {
-    area->visible = child_inside_parent(area);
+    new_visible = child_inside_parent(area);
   }
   else {
-    area->visible = !area->hide;
+    new_visible = !area->hide;
   }
+
+  if (new_visible != area->visible) {
+    area->visible = new_visible;
+  }
+}
+
+static int is_visible(UI_Area *area)
+{
+  if (area->parent) {
+    if (area->parent_modid != get_area(area->parent)->modid) {
+      update_visibility(area);
+      printf("udate visibility\n");
+    }
+  }
+
+  return area->visible;
 }
 
 short UI_area_create(void)
@@ -180,9 +224,9 @@ void UI_area_remove_parent(const short area_id)
 void UI_area_add(const short parent_id, const short child_id)
 {
   UI_Area * child = get_area(child_id);
+
   if (child->parent != parent_id) {
     UI_area_remove_parent(child_id);
-
     UI_Area * parent = get_area(parent_id);
     child->sibling = parent->child;
     child->parent = parent_id;
@@ -200,7 +244,6 @@ void UI_area_set_active(const short area_id)
     active_area_id = area_id;
     area = get_area(area_id);
     Handler_execute(area->handler, OnEnter, area_id);
-    //printf("inside area: %i\n", area_id);
   }
 }
 
@@ -217,8 +260,8 @@ void UI_area_set_root(const short area_id)
 void UI_area_set_position(const short area_id, const int x, const int y)
 {
   UI_Area * const area = get_area(area_id);
-  area->pos[0] = x;
-  area->pos[1] = y;
+  area->rel_pos[0] = x;
+  area->rel_pos[1] = y;
   update_visibility(area);
   Handler_execute(area->handler, OnMove, area_id);
 }
@@ -246,7 +289,7 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
   while (area_id) {
     UI_Area *area = get_area(area_id);
 
-    if (area->visible && area_inside(area, x, y)) {
+    if (is_visible(area) && area_inside(area, x, y)) {
       // check children
       newhit = area_find(area->child, 1, x, y);
       if (!newhit) {
@@ -321,10 +364,7 @@ void UI_area_set_hide(const short area_id, const int state)
 
 static void area_draw(UI_Area *area, const short source_id)
 {
-  int pos[2];
-
-  area_root_pos(area, pos);
-  window_ui_viewport(pos[0], pos[1], area->size[0], area->size[1]);
+  window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
   Handler_execute(area->handler, OnDraw, source_id);
 }
 
@@ -332,8 +372,8 @@ static void area_draw_siblings(short area_id)
 {
   while (area_id) {
     UI_Area *area = get_area(area_id);
-    // draw children first
-    if (area->visible) {
+    if (is_visible(area)) {
+      // draw children first
       area_draw_siblings(area->child);
       // draw self
       area_draw(area, area_id);
@@ -347,7 +387,7 @@ void UI_area_draw(const short area_id)
 {
   if (area_id) {
     UI_Area *area = get_area(area_id);
-    if (area->visible) {
+    if (is_visible(area)) {
       // draw children first
       area_draw_siblings(area->child);
       // draw self
@@ -359,4 +399,9 @@ void UI_area_draw(const short area_id)
 void UI_area_root_draw(void)
 {
   UI_area_draw(root_area_id);
+}
+
+uint8_t UI_area_modid(const short area_id)
+{
+  return get_area(area_id)->modid;
 }

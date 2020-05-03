@@ -18,7 +18,7 @@
   void window_release(void);
   void window_update_VSync(const int sync);
   void window_snapshot(const int width, const int height, void *buffer);
-  void window_ui_viewport(int x, int y, int width, int height);
+  void window_ui_viewport(short pos[2], short size[2], short vis_pos[4]);
   void window_viewport_reset(void);
   int window_inFocus(void);
 

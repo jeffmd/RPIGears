@@ -257,7 +257,7 @@ static void setup_text(void)
 
   stats_area_id = UI_area_create();
   UI_area_set_position(stats_area_id, 2, 2);
-  UI_area_set_size(stats_area_id, 400, 500);
+  UI_area_set_size(stats_area_id, 300, 450);
   UI_area_add(stats_area_id, ver_area_id);
   UI_area_add(stats_area_id, fps_area_id);
 

@@ -3,7 +3,7 @@
 */
 
 #include <X11/Xutil.h>
-//#include <stdio.h>
+#include <stdint.h>
 
 #include "key_input.h"
 #include "ui_area.h"
