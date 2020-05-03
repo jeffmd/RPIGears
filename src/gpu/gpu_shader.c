@@ -36,11 +36,11 @@ typedef struct {
 typedef struct {
   uint8_t active;
   GLint linked;
-  int modid;
+  uint8_t modid;
   short vert_unit;
-  int vert_modid;
+  uint8_t vert_modid;
   short frag_unit;
-  int frag_modid;
+  uint8_t frag_modid;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
   ShaderInputArrayTracker attributes;
@@ -54,7 +54,7 @@ static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
 static uint16_t shader_inputs_count = 0;
 
 static short active_shader = 0;
-static int active_shader_modid = 0;
+static uint8_t active_shader_modid = 0;
 
 static inline short find_deleted_shader_id(void)
 {
@@ -92,7 +92,7 @@ static void shader_attach(GPUShader *shader)
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->vert_unit));
   shader->vert_modid = GPU_shader_unit_modid(shader->vert_unit);
   glAttachShader(shader->glProgramObj, GPU_shader_unit_globj(shader->frag_unit));
-    shader->frag_modid = GPU_shader_unit_modid(shader->frag_unit);
+  shader->frag_modid = GPU_shader_unit_modid(shader->frag_unit);
 
   shader->modid++;
 }
@@ -239,12 +239,12 @@ void GPU_shader_bind(const short id)
   }
 }
 
-int GPU_shader_modid(const short id)
+uint8_t GPU_shader_modid(const short id)
 {
   return get_shader(id)->modid;
 }
 
-int GPU_shader_active_shader(void)
+short GPU_shader_active_shader(void)
 {
   return active_shader;
 }

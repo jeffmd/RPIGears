@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
   short shader;            // the shader used for binding
-  int modid;
+  uint8_t modid;
   GLint locations[UNIFORM_MAX_COUNT];  // uniform bind location
 } ShaderUniformIndex;
 
@@ -74,7 +74,7 @@ static int uniformbuffer_needs_binding(GPUUniformBuffer *ubuff, short shader)
 {
   int index = 0;
   int needs_binding = 1;
-  int modid = GPU_shader_modid(shader);
+  uint8_t modid = GPU_shader_modid(shader);
   
   for ( ; index < SHADER_CACHE_MAX_COUNT; index++) {
     if (ubuff->shaders[index].shader == shader) {

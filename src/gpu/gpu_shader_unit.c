@@ -19,7 +19,7 @@ typedef struct {
   const char *fileName; // if null then represents deleted object
   GLuint type;
   uint16_t glShaderObj;
-  int modid;
+  uint8_t modid;
 } GPUShaderUnit;
 
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
@@ -143,7 +143,7 @@ void GPU_shader_unit_reset(const short id)
   shader_unit_init(get_shader_unit(id));
 }
 
-int GPU_shader_unit_modid(const short id)
+uint8_t GPU_shader_unit_modid(const short id)
 {
   return get_shader_unit(id)->modid;
 }

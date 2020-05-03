@@ -7,7 +7,7 @@
   void GPU_shader_reset(const short id);
 
   short GPU_shader_active_shader(void);
-  int GPU_shader_modid(const short id);
+  uint8_t GPU_shader_modid(const short id);
   void GPU_shader_bind(const short id);
   GLint GPU_shader_uniform_location(const short id, const char *name);
   GLint GPU_shader_attribute_location(const short id, const char *name);

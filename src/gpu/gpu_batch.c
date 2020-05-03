@@ -13,7 +13,7 @@
 
 typedef struct {
   short shader;               // the shader used for binding
-  int modid;
+  uint8_t modid;
   GLuint vaoId;               // ID for vertex array object
 } ShaderVAO;
 
@@ -71,7 +71,7 @@ static int batch_needs_binding(GPUBatch *batch, int shader)
 {
   int index = 0;
   int needs_binding = 1;
-  int modid = GPU_shader_modid(shader);
+  uint8_t modid = GPU_shader_modid(shader);
   
   for ( ; index < SHADER_CACHE_MAX_COUNT; index++) {
     if (batch->shaders[index].shader == shader) {
