@@ -130,10 +130,9 @@ static void update_vis_pos(UI_Area *area)
   area->modid++;
 }
 
-static int area_inside(UI_Area *area, const int x, const int y)
+static int area_inside(const short pos[4], const int x, const int y)
 {
   int is_inside = 0;
-  short *pos = area->vis_pos;
 
   if ( (x >= pos[0]) && (x <= pos[2]) ) {
     if ((y >= pos[1]) && (y <= pos[3]) ) {
@@ -289,7 +288,7 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
   while (area_id) {
     UI_Area *area = get_area(area_id);
 
-    if (is_visible(area) && area_inside(area, x, y)) {
+    if (is_visible(area) && area_inside(area->vis_pos, x, y)) {
       // check children
       newhit = area_find(area->child, 1, x, y);
       if (!newhit) {
