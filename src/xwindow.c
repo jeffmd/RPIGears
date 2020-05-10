@@ -101,12 +101,13 @@ void xwindow_init(const uint width, const uint height)
   */
   XSelectInput(dis, win,
     ExposureMask
-    |  ButtonPressMask
+    | ButtonPressMask
     | Button1MotionMask
     | KeyPressMask
     /*| SubstructureRedirectMask*/
     | FocusChangeMask
-    /*| EnterWindowMask*/
+    | EnterWindowMask
+    | LeaveWindowMask
     | PointerMotionMask
     | KeyReleaseMask
     | VisibilityChangeMask
@@ -354,8 +355,15 @@ void xwindow_check_events(void)
         xinput_pointer_move(&event.xmotion);
         break;
 
+      case EnterNotify:
+      case LeaveNotify:
+        break;
+
       case ButtonPress:
-      case ButtonRelease: 
+        xinput_button_event(&event.xbutton);
+        break;
+      case ButtonRelease:
+        //xinput_button_event(&event.xbutton);
         break;
 
       case VisibilityNotify:

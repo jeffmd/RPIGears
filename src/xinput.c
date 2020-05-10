@@ -25,3 +25,8 @@ void xinput_pointer_move(const XMotionEvent* event)
   UI_area_select_active(event->x, event->y);
 }
 
+void xinput_button_event(const XButtonEvent *event)
+{
+
+}
+

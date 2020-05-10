@@ -11,7 +11,9 @@
   
   void Key_input_init(void);
   void Key_input_action(const int inpkey);
+  void Key_input_button_action(const int button);
   void Key_add_action(const int key, ActionFn action, const char *help);
+  void Key_add_button_action(int button, ActionFn action, const char *help);
   void Key_input_print_help(void);
   void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val);
   void Key_input_down_update(void);

@@ -11,29 +11,26 @@
 #include "print_info.h"
 #include "tasks.h"
 #include "action_table.h"
+#include "key_action.h"
+#include "key_map.h"
 
-extern void toggle_useVSync(void);
+// programmable keys ascii 0 to 127
 
-// programmable keys ascii 32 to 127
-
-#define KEY_START 10
 #define KEY_END 127
-#define KEY_COUNT KEY_END - KEY_START
+#define MAX_BUTTON 3
 
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
- 
+
+typedef void (*ActionFn)(const short souce_id, const short destination_id);
+typedef void (*UPDATE_KEY_DOWN)(const float);
+
 static struct termios saved_attributes;
 static int initialized = 0;
 
 static short KeyScan_task;
 
-typedef void (*ActionFn)(const short souce_id, const short destination_id);
-typedef void (*UPDATE_KEY_DOWN)(const float);
-
-//static ActionFn keyActions[KEY_COUNT];
-static short key_action_table=0;
-static const char *keyHelp[KEY_COUNT];
+static short key_map = 0;
 
 // keyboard data
 UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
@@ -42,14 +39,13 @@ short rate_enabled; // if enabled the change_rate will increase each frame
 float rate_direction; // direction and scale for rate change
 float rate_frame; // how much the rate changes each frame
 
-static short get_key_action_table(void)
+static short get_key_map(void)
 {
-  if (!key_action_table) {
-    key_action_table = Action_table_create();
-    Action_table_allocate_slots(key_action_table, KEY_COUNT);
+  if (!key_map) {
+    key_map = Key_Map_create();
   }
 
-  return key_action_table;
+  return key_map;
 }
 
 static void reset_input_mode(void)
@@ -87,86 +83,30 @@ static int _kbhit(void) {
   return bytesWaiting;
 }
 
-
-static void check_movekey(const int inpkey)
-{
-  //printf("input %i\n", inpkey);
-  
-  switch (inpkey)
-  {
-    case 'A': // move light up
-      //set_key_down_update(light_move_y, 10.0f);
-      break;
-      
-    case 'B': // move light down
-      //set_key_down_update(light_move_y, -10.0f);
-      break;
-      
-    case 'C': // move light left
-      //set_key_down_update(light_move_x, 10.0f);
-      break;
-      
-    case 'D': // move light right
-      //set_key_down_update(light_move_x, -10.0f);
-      break;
-
-  }
-   
-}
-
-static void check_editkey(const int inpkey)
-{
-  //printf("input %i\n", inpkey);
-  
-  switch (inpkey)
-  {
-
-    case 'F': // move window off screen
-      //window_hide();
-      break;
-
-    case 'H': // move window to center of screen
-      //window_center();
-      break;
-  }
-  
-}
-
-
-static void check_esckey(const int inpkey)
-{
-  //printf("input %i\n", inpkey);
-
-  switch (inpkey)
-  {
-    case 'O': // process edit keys
-      check_editkey(getchar());
-      break;
-
-    case '[': // process arrow keys
-      check_movekey(getchar());
-      break;
-  }
-  
-}
-
 void Key_input_action(const int inpkey)
 {
-  if ((inpkey >= KEY_START) && (inpkey <= KEY_END)) {
-     const short key_id = inpkey - KEY_START;
-     Action_table_execute(get_key_action_table(), key_id, 0, 0);
+  Key_Map_action(get_key_map(), inpkey, 0, 0);
+}
+
+void Key_input_button_action(const int button)
+{
+  if ((button >= 1) && (button <= MAX_BUTTON)) {
+    Key_input_action(KEY_END + button);
   }
 }
 
 void Key_add_action(const int key, ActionFn action, const char *help)
 {
-  if ((key >= KEY_START) && (key <= KEY_END)) {
-    const short key_id = key - KEY_START;
-    Action_table_set_action(get_key_action_table(), key_id, action);
-    keyHelp[key - KEY_START] = help;
+  Key_Map_add(get_key_map(), Key_Action_create(key, action, help));
+}
+
+void Key_add_button_action(int button, ActionFn action, const char *help)
+{
+  if ((button >= 1) && (button <= 3)) {
+    Key_add_action(KEY_END + button, action, help);
   }
   else
-    printf("key binding out of range: %i\n", key);
+    printf("button binding out of range: %i\n", button);
 }
 
 void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val)
@@ -182,14 +122,9 @@ void Key_input_down_update(void)
   }
 }
 
-
 void Key_input_print_help(void)
 {
-  for (int key = 0; key < KEY_COUNT; key++) {
-    if (keyHelp[key]) {
-      printf("%c - %s\n", key + KEY_START, keyHelp[key]);
-    }
-  }  
+  Key_Action_print_help();
 }
 
 void Key_input_set_rate_frame(const float period_rate)
@@ -224,7 +159,9 @@ static int detect_keypress(void)
     //printf("keys waiting: %i\n", keyswaiting);
     int key = getchar();
     if (key == 27) {
-      if (_kbhit()) check_esckey(getchar());
+      if (_kbhit()) {
+        //check_esckey(getchar());
+      }
       else Key_input_action(key);
     }
     else {
