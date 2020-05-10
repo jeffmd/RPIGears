@@ -1,16 +1,11 @@
-
-/*
- * key_input.c 
- */
+// key_input.c 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <termio.h>
 #include <unistd.h>
 
-#include "print_info.h"
 #include "tasks.h"
-#include "action_table.h"
 #include "key_action.h"
 #include "key_map.h"
 
