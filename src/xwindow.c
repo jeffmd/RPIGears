@@ -322,14 +322,10 @@ void xwindow_check_events(void)
     /* keyboard events */
     switch(event.type)
     {
-	    case KeyRelease:
+      case KeyRelease:
       case KeyPress:
-        xinput_check_keys(&event);
+        xinput_check_keys(&event.xkey);
         break;
-
-      //case KeyRelease:
-      //  printf( "KeyRelease: %x\n", event.xkey.keycode );
-      //  break;
 
       case ConfigureNotify:
         do_ConfigureNotify(&event.xconfigure);
@@ -359,11 +355,9 @@ void xwindow_check_events(void)
       case LeaveNotify:
         break;
 
+      case ButtonRelease:
       case ButtonPress:
         xinput_button_event(&event.xbutton);
-        break;
-      case ButtonRelease:
-        //xinput_button_event(&event.xbutton);
         break;
 
       case VisibilityNotify:

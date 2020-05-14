@@ -277,8 +277,8 @@ int main (int argc, char *argv[])
   exit_init(state_timeToRun());
   print_info_init();
   Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
-  Key_add_action('B', toggle_back_render, "toggle background render on/off");
-  Key_add_action('S', toggle_stats_draw, "toggle stats render on/off");
+  Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
+  Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();

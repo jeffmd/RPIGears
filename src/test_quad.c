@@ -56,8 +56,8 @@ void test_quad(void)
 
   quad.texture_count = 0;
   GPU_quad_set_shader(quad.quad, shaders_test_quad());
-  Key_add_action('T', test_quad_toggle, "toggle test quad visibility");
-  Key_add_action('Y', test_quad_next_texture, "next test quad texture");
+  Key_add_action(SHIFT_KEY('T'), test_quad_toggle, "toggle test quad visibility");
+  Key_add_action(SHIFT_KEY('Y'), test_quad_next_texture, "next test quad texture");
   atexit(test_quad_delete);
   
 }

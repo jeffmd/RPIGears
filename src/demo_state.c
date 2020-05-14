@@ -220,10 +220,10 @@ void demo_state_init(void)
   
   Key_input_set_update(0, 0.0f);
   Key_add_action('b', demo_state_toggle_VBO_key, "toggle use of Buffer Objects for gear vertex data");
-  Key_add_action('I', inc_instances, "add another draw instance of the gears");
-  Key_add_action('O', dec_instances, "remove an instance of the gears");
-  Key_add_action('<', key_angleVel_down, "decrease gear spin rate");
-  Key_add_action('>', key_angleVel_up, "increase gear spin rate");
+  Key_add_action(SHIFT_KEY('I'), inc_instances, "add another draw instance of the gears");
+  Key_add_action(SHIFT_KEY('O'), dec_instances, "remove an instance of the gears");
+  Key_add_action(SHIFT_KEY('<'), key_angleVel_down, "decrease gear spin rate");
+  Key_add_action(SHIFT_KEY('>'), key_angleVel_up, "increase gear spin rate");
   Key_add_action('p', key_angleVel_pause, "stop gear spin");
   
   atexit(demo_state_delete);
