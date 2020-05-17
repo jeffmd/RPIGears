@@ -1,7 +1,7 @@
 RPIGears
 ========
 
-OpengGL ES port of the classic gl gears demo for the Raspberry Pi.
+OpengGL ES port of the classic gl gears demo for the Raspberry Pi written in c.
 
 Building
 --------
@@ -10,48 +10,16 @@ The following files should be in the build directory:
 * LICENSE
 * Makefile
 * README.md
-* RPIGears.c
-* RPi_Logo256.c
-* image.h
-* camera.c
-* camera.h
-* fp16.c
-* fp16.h
-* matrix_math.c
-* matrix_math.h
-* key_input.c
-* key_input.h
-* tasks.c
-* tasks.h
-* shaders.c
-* shaders.h
-* print_info.c
-* print_info.h
-* gles2.c
-* gles3.c
-* gles3.h
-* gear.c
-* gear.h
-* scene.c
-* user_options.c
-* user_options.h
-* demo_state.c
-* demo_state.h
-* window.h
-* window.c
-* xwindow.h
-* xwindow.c
-* xinput.h
-* xinput.c
-* blinn_phong_vert.glsl
-* blinn_phong_frag.glsl
+
+The c source files are in the src directory, c header files are in the include directory.
+GLSL vertex and fragment shader source files are located in the shaders directory. 
 
 
 In a terminal session, change directory to the build directory where the 
-RPIGears source files are located.  Use make at the commandline to build
+RPIGears Makefile file is located.  Use make at the commandline to build
 RPIGears:
 
-`make -j4`
+`make`
 
 No special libraries/packages are required to build if using Raspbian.
 
@@ -59,7 +27,7 @@ No special libraries/packages are required to build if using Raspbian.
 Running
 -------
 
-To run the demo type `./RPIGears.bin.`  The demo runs in a X11 window.  To
+To run the demo type `./RPIGears`  The demo runs in a X11 window.  To
 exit the demo press esc or enter key on the keyboard.
 
 
@@ -90,17 +58,13 @@ Speed keys while demo is running
 -----------------------------
 i - print GL info to console
 
-h or any invalid key - print help info
+h - print help info
 
 l - toggle draw mode GL_TRIAGLES/GL_LINES/GL_POINTS
 
 o - print command line options to console
 
 v - toggle vertical sync on/off
-
-z - increase window size (zoom in)
-
-Z - decrease window size (zoom out)
 
 < - decrease gear spin rate
 
@@ -119,18 +83,6 @@ s - move camera down
 r - move camera away from gears
 
 f - move camera toward gears
-
-up arrow - move light up
-
-down arrow - move light down
-
-left arrow - move light left
-
-right arrow - move light right
-
-home - move window to centre of screen
-
-end - move window off screen
 
 I - add another draw instance of the gears
 
