@@ -11,7 +11,7 @@ typedef void (*ActionFn)(const short souce_id, const short destination_id);
 
 typedef struct {
   uint8_t active;
-  short key;       // includes shift, ctrl, alt status in high bits
+  int key;       // includes shift, ctrl, alt status in high bits
   ActionFn action;
   const char *help;
 } KeyAction;
@@ -39,7 +39,7 @@ static void key_action_init(KeyAction *key_action)
 
 }
 
-short Key_Action_create(const short key, ActionFn action, const char* help)
+short Key_Action_create(const int key, ActionFn action, const char* help)
 {
   const short id = find_deleted_key_action_id();
   KeyAction *const key_action = get_key_action(id);
@@ -53,7 +53,7 @@ short Key_Action_create(const short key, ActionFn action, const char* help)
   return id;
 }
 
-short Key_Action_key(const short key_action_id)
+int Key_Action_key(const short key_action_id)
 {
   return get_key_action(key_action_id)->key;
 }
@@ -66,7 +66,7 @@ void Key_Action_execute(const short key_action_id, const short source_id,  const
 void Key_Action_print_help(void)
 {
   for (int id = 0; id < KEY_ACTION_MAX_COUNT; id++) {
-    KeyAction * key_action = get_key_action(id);
+    KeyAction *key_action = get_key_action(id);
     if (key_action->active && key_action->help) {
       printf("%c - %s\n", (key_action->key & 0xff), key_action->help);
     }

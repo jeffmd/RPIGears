@@ -7,6 +7,7 @@
 #include "static_array.h"
 #include "action_table.h"
 #include "handler.h"
+#include "key_input.h"
 
 typedef struct {
   uint8_t active;
@@ -29,7 +30,8 @@ typedef struct {
   // flags
   unsigned hide:1;
   unsigned visible:1;
-  unsigned selectable:1;
+  //unsigned selectable:1;
+  unsigned handled:1;
 
 } UI_Area;
 
@@ -40,6 +42,7 @@ enum Events {
   OnMove,
   OnResize,
   OnDraw,
+  OnKeyChange,
   EventsMax
 };
 
@@ -50,6 +53,7 @@ static short next_deleted_area;
 
 static short root_area_id = 0;
 static short active_area_id = 0;
+static int active_key;
 
 static short get_active_area_id(void)
 {
@@ -309,6 +313,30 @@ void UI_area_select_active(const int x, const int y)
   UI_area_set_active(area_find(get_active_area_id(), 0, x, y));
 }
 
+void UI_area_key_change(const int key)
+{
+  int handled = 0;
+  short area_id = get_active_area_id();
+  active_key = key;
+
+  while (area_id) {
+    UI_Area *area = get_area(area_id);
+    area->handled = 0;
+    Handler_execute(area->handler, OnKeyChange, area_id);
+    handled = area->handled;
+    if (handled) {
+      area_id = 0;
+    }
+    else {
+      area_id = area->parent;
+    }
+  }
+
+  if (!handled) {
+    Key_input_action(key);
+  }
+}
+
 short UI_area_create_action_table(void)
 {
   const short table_id = Action_table_create();
@@ -345,6 +373,11 @@ void UI_area_action_set_move(const short table_id, ActionFn action)
 void UI_area_action_set_attach(const short table_id, ActionFn action)
 {
   Action_table_set_action(table_id, OnAttach, action);
+}
+
+void UI_area_action_set_keyChange(const short table_id, ActionFn action)
+{
+  Action_table_set_action(table_id, OnKeyChange, action);
 }
 
 void UI_area_set_handler(const short area_id, const short handler_id)
@@ -403,4 +436,14 @@ void UI_area_root_draw(void)
 uint8_t UI_area_modid(const short area_id)
 {
   return get_area(area_id)->modid;
+}
+
+void UI_area_set_handled(const short area_id)
+{
+  get_area(area_id)->handled = 1;
+}
+
+int UI_area_active_key(void)
+{
+  return active_key;
 }

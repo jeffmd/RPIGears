@@ -88,7 +88,7 @@ void Key_Map_add(const short key_map_id, const short key_action_id)
   key_map->links[link_idx] = key_link_id;  
 }
 
-void Key_Map_action(const short key_map_id, const short key, const short source_id,  const short destination_id)
+void Key_Map_action(const short key_map_id, const int key, const short source_id,  const short destination_id)
 {
   KeyMap *key_map = get_key_map(key_map_id); 
   const uint8_t link_idx = get_link_id(key);

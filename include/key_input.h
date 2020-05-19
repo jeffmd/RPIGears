@@ -15,6 +15,7 @@
   #define ALT_KEY(key) STATE_KEY(ALTK, key)
   #define SHIFT_ALT_KEY(key) STATE_KEY((SHIFTK | ALTK), key)
   #define CTRL_ALT_KEY(key) STATE_KEY((CTRLK | ALTK), key)
+  #define KEY_BUTTON(key) (127 + key) 
 
 
   typedef void (*ActionFn)(const short souce_id, const short destination_id);
@@ -22,9 +23,7 @@
   
   void Key_input_init(void);
   void Key_input_action(const int inpkey);
-  void Key_input_button_action(const int button);
   void Key_add_action(const int key, ActionFn action, const char *help);
-  void Key_add_button_action(int button, ActionFn action, const char *help);
   void Key_input_print_help(void);
   void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val);
   void Key_input_down_update(void);

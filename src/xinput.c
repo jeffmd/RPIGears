@@ -2,8 +2,9 @@
 *  xinput.c
 */
 
-#include <X11/Xutil.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <X11/Xutil.h>
 
 #include "key_input.h"
 #include "ui_area.h"
@@ -15,10 +16,10 @@ void xinput_check_keys(XKeyEvent *event)
   XLookupString(event, &key, 1, 0, 0);
 	//printf("keycode: %x, ", event->keycode);
 	//printf( "Key: %x %c\n", (int)key, key );
-        //printf( "Key state: %x\n", event.xkey.state );
+        //printf( "Key state: %x\n", event->state );
 	
   if (event->type == KeyPress)
-    Key_input_action((event->state << 8) + key);
+    UI_area_key_change(STATE_KEY(event->state, key));
 }
 
 void xinput_pointer_move(const XMotionEvent* event)
@@ -28,6 +29,8 @@ void xinput_pointer_move(const XMotionEvent* event)
 
 void xinput_button_event(const XButtonEvent *event)
 {
-
+  if (event->type == ButtonPress)
+    UI_area_key_change(STATE_KEY(event->state, KEY_BUTTON(event->button)));
+  printf( "Key state: %x\n", event->state );
 }
 

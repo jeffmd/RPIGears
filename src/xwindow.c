@@ -102,6 +102,7 @@ void xwindow_init(const uint width, const uint height)
   XSelectInput(dis, win,
     ExposureMask
     | ButtonPressMask
+    | ButtonReleaseMask
     | Button1MotionMask
     | KeyPressMask
     /*| SubstructureRedirectMask*/

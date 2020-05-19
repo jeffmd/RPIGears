@@ -83,25 +83,9 @@ void Key_input_action(const int inpkey)
   Key_Map_action(get_key_map(), inpkey, 0, 0);
 }
 
-void Key_input_button_action(const int button)
-{
-  if ((button >= 1) && (button <= MAX_BUTTON)) {
-    Key_input_action(KEY_END + button);
-  }
-}
-
 void Key_add_action(const int key, ActionFn action, const char *help)
 {
   Key_Map_add(get_key_map(), Key_Action_create(key, action, help));
-}
-
-void Key_add_button_action(int button, ActionFn action, const char *help)
-{
-  if ((button >= 1) && (button <= 3)) {
-    Key_add_action(KEY_END + button, action, help);
-  }
-  else
-    printf("button binding out of range: %i\n", button);
 }
 
 void Key_input_set_update(UPDATE_KEY_DOWN fn, const float val)
