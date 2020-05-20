@@ -375,7 +375,7 @@ void UI_area_action_set_attach(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnAttach, action);
 }
 
-void UI_area_action_set_keyChange(const short table_id, ActionFn action)
+void UI_area_action_set_key_change(const short table_id, ActionFn action)
 {
   Action_table_set_action(table_id, OnKeyChange, action);
 }

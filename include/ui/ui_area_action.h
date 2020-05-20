@@ -10,7 +10,7 @@
   void UI_area_action_set_draw(const short table_id, ActionFn action);
   void UI_area_action_set_resize(const short table_id, ActionFn action);
   void UI_area_action_set_move(const short table_id, ActionFn action);
-  void UI_area_action_set_keyChange(const short table_id, ActionFn action);
+  void UI_area_action_set_key_change(const short table_id, ActionFn action);
   void UI_area_set_handler(const short area_id, const short handler_id);
   void UI_area_set_handled(const short area_id);
   void UI_area_draw(const short area_id);

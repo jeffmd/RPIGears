@@ -40,11 +40,6 @@ static short get_action_table(void)
   return area_action_table;
 }
 
-void UI_view3d_create(void)
-{
-
-}
-
 short UI_view3d_area_handler(void)
 {
   if (!area_handler) {

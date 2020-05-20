@@ -82,37 +82,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scene.h"
 #include "font.h"
 #include "test_quad.h"
-#include "text.h"
 #include "exit.h"
 #include "key_input.h"
 #include "window.h"
 #include "window_manager.h"
 #include "gldebug.h"
 #include "ui_view3d.h"
-#include "ui_text.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
+#include "stats_ui.h"
 
 extern IMAGE_T rpi_image;
 
-#define FPS_Y 400
-#define FPS_X 60
-
-static const char ver_text[] = "RPIGears ver: 1.0 GLES2.0";
-static const char fps_text[] = "FPS:";
-static const char num_text[] = "000.00";
-static int fps_start;
-static short fps_text_id; 
-static short ver_area_id;
-static short fps_area_id;
-static short stats_area_id;
-static short ver_ui_text_id;
-static short fps_ui_text_id;
 static short render_tex;
 static short offscreen_fb;
 static short offscreen_draw;
-static short stats_draw;
 static short view3d_area;
+
 //static short view3d_area_2;
 
 static void init_textures(void)
@@ -135,27 +121,6 @@ static void toggle_useVSync(const short souce_id, const short destination_id)
 static void toggle_back_render(const short souce_id, const short destination_id)
 {
   offscreen_draw = !offscreen_draw;
-}
-
-static void update_stats_hide(void)
-{
-  UI_area_set_hide(stats_area_id, !stats_draw);
-}
-
-static void toggle_stats_draw(const short souce_id, const short destination_id)
-{
-  stats_draw = !stats_draw;
-  update_stats_hide();
-}
-
-static void update_fps(void)
-{
-  const char *fps_str = WM_has_fps();
-  
-  if (fps_str) {
-    Text_set_start(fps_text_id, fps_start);
-    Text_add(fps_text_id, FPS_X, 0, fps_str);
-  }
 }
 
 static void offscreen_refresh(void)
@@ -184,9 +149,6 @@ static void run_gears(void)
 static void draw(void)
 {
   test_quad_draw();
-  if (stats_draw) {
-    update_fps();
-  }
 }
 
 //==============================================================================
@@ -236,33 +198,16 @@ static void setup_test_quad(void)
   test_quad_add_texture(Font_texture(Font_active()), 0.5f);
 }
 
-static void setup_text(void)
+static short get_view3d_area(void)
 {
-  ver_ui_text_id = UI_text_create();
-  UI_text_add(ver_ui_text_id, ver_text);
+  if (!view3d_area) {
+    view3d_area = UI_area_create();
+    UI_area_set_root(view3d_area);
+    UI_area_set_position(view3d_area, 1, 1);
+    UI_area_set_size(view3d_area, 600, 500);
+  }
 
-  ver_area_id = UI_area_create();
-  UI_area_set_handler(ver_area_id, UI_text_area_handler(ver_ui_text_id));
-  UI_area_set_position(ver_area_id, 10, 10);
-
-  fps_ui_text_id = UI_text_create();
-  UI_text_add(fps_ui_text_id, fps_text);
-  fps_text_id = UI_text_text_id(fps_ui_text_id);
-  fps_start = Text_start(fps_text_id);
-  Text_add(fps_ui_text_id, FPS_X, 0, num_text);
-
-  fps_area_id = UI_area_create();
-  UI_area_set_handler(fps_area_id, UI_text_area_handler(fps_ui_text_id));
-  UI_area_set_position(fps_area_id, 10, FPS_Y);
-
-  stats_area_id = UI_area_create();
-  UI_area_set_position(stats_area_id, 2, 2);
-  UI_area_set_size(stats_area_id, 300, 450);
-  UI_area_add(stats_area_id, ver_area_id);
-  UI_area_add(stats_area_id, fps_area_id);
-
-  update_stats_hide();
-
+  return view3d_area;
 }
 
 int main (int argc, char *argv[])
@@ -278,7 +223,6 @@ int main (int argc, char *argv[])
   print_info_init();
   Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
-  Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   
   if (options_wantInfo()) {
    print_GLInfo();
@@ -295,24 +239,16 @@ int main (int argc, char *argv[])
 
   setup_render_texture(128, 128);
   setup_test_quad();
-  setup_text();
-
-  view3d_area = UI_area_create();
-  UI_area_set_root(view3d_area);
-  UI_area_set_position(view3d_area, 1, 1);
-  UI_area_set_size(view3d_area, 600, 500);
 
   //view3d_area_2 = UI_area_create();
   //UI_area_add(view3d_area, view3d_area_2);
   //UI_area_set_position(view3d_area_2, 1, 1);
   //UI_area_set_size(view3d_area_2, 300, 100);
 
-  UI_view3d_create();
-
-  UI_area_set_handler(view3d_area, UI_view3d_area_handler());
+  UI_area_set_handler(get_view3d_area(), UI_view3d_area_handler());
   //UI_area_set_handler(view3d_area_2, UI_view3d_area_handler());
 
-  UI_area_add(view3d_area, stats_area_id);
+  Stats_ui_set_parent_area(get_view3d_area());
 
   // animate the gears
   run_gears();
