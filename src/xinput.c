@@ -7,7 +7,7 @@
 #include <X11/Xutil.h>
 
 #include "key_input.h"
-#include "ui_area.h"
+#include "ui_area_action.h"
 
 void xinput_check_keys(XKeyEvent *event)
 {

@@ -17,7 +17,6 @@
 // number of frames to draw before checking if a key on the keyboard was hit
 #define FRAMES 30
 
-typedef void (*ActionFn)(const short souce_id, const short destination_id);
 typedef void (*UPDATE_KEY_DOWN)(const float);
 
 static struct termios saved_attributes;
@@ -163,8 +162,8 @@ static void do_KeyScan_task(void)
   switch (detect_keypress())
   {
     // speed up key processing if more keys in buffer
-    case 2: task_set_interval(KeyScan_task, 10); break;
-    default: task_set_interval(KeyScan_task, 100);
+    case 2: Task_set_interval(KeyScan_task, 10); break;
+    default: Task_set_interval(KeyScan_task, 100);
   }
 }
 
@@ -175,9 +174,7 @@ static void print_help(const short souce_id, const short destination_id)
 
 void Key_input_init(void)
 {
-  KeyScan_task = task_create();
-  task_set_action(KeyScan_task, do_KeyScan_task);
-  task_set_interval(KeyScan_task, 100);
+  KeyScan_task = Task_create(100, do_KeyScan_task);
   Key_input_rate_off();
   Key_add_action('h', print_help, "print help");
 }

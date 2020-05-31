@@ -11,8 +11,7 @@ static const char exit_help[] = "esc or Enter - end program";
 
 void exit_enable(void)
 {
-  task_run(exit_task);
-  task_set_interval(exit_task, 0);
+  Task_run(exit_task);
 }
 
 static void exit_enable_key(const short souce_id, const short destination_id)
@@ -33,15 +32,13 @@ int exit_is_now(void)
 void exit_init(const int time_to_run)
 {
   exit_now = 0;  
-  exit_task = task_create();
-  task_set_action(exit_task, exit_task_do);
+  exit_task = Task_create(time_to_run, exit_task_do);
   
   if (time_to_run > 0) {
-    task_run(exit_task);
-    task_set_interval(exit_task, time_to_run);
+    Task_run(exit_task);
   }
   else {
-    task_pause(exit_task);
+    Task_pause(exit_task);
   }
   
   Key_add_action(10, exit_enable_key, 0);

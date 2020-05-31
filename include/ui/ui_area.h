@@ -11,7 +11,6 @@
   void UI_area_set_root(const short area_id);
   void UI_area_set_position(const short area_id, const int x, const int y);
   void UI_area_set_size(const short area_id, const int width, const int height);
-  void UI_area_select_active(const int x, const int y);
   void UI_area_size(const short area_id, int size[2]);
   void UI_area_set_hide(const short area_id, const int state);
   uint8_t UI_area_modid(const short area_id);

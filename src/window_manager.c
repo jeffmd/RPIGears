@@ -86,7 +86,7 @@ static void wm_do_draw_fn(void)
 
 static void wm_update(void)
 {
-  do_tasks();
+  Task_do();
   xwindow_check_events();
   Key_input_down_update();
   Key_input_inc_rate();
@@ -109,7 +109,7 @@ static void wm_update_avgfps(const float fps)
 
 static void wm_do_frame_rate_task(void)
 {
-  const float dt = task_elapsed(frame_rate_task) / 1000.0f;
+  const float dt = Task_elapsed(frame_rate_task) / 1000.0f;
   if (dt > 0.0f) {
 	  
     //printf("dt: %f\n", dt);
@@ -121,7 +121,7 @@ static void wm_do_frame_rate_task(void)
 
 static void wm_do_FPS_task(void)
 {
-  const float dt = task_elapsed(FPS_task) / 1000.0f;
+  const float dt = Task_elapsed(FPS_task) / 1000.0f;
   const float fps = (float)frames / dt;
 
   printf("%d frames in %3.1f seconds = %3.1f FPS\n", frames, dt, fps);
@@ -168,11 +168,6 @@ void window_manager_init(void)
   
   frames = lastFrames = 0;
   
-  FPS_task = task_create();
-  task_set_action(FPS_task, wm_do_FPS_task);
-  task_set_interval(FPS_task, 5000);
-  
-  frame_rate_task = task_create();
-  task_set_action(frame_rate_task, wm_do_frame_rate_task);
-  task_set_interval(frame_rate_task, 100);
+  FPS_task = Task_create(5000, wm_do_FPS_task);
+  frame_rate_task = Task_create(100, wm_do_frame_rate_task);
 }
