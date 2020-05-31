@@ -24,42 +24,42 @@ typedef struct {
 static OPTIONS_T _options;
 static OPTIONS_T * const options = &_options;
 
-int options_useVBO(void)
+int Options_useVBO(void)
 {
   return options->useVBO;  
 }
 
-int options_useVSync(void)
+int Options_useVSync(void)
 {
   return options->useVSync;  
 }
 
-int options_wantInfo(void)
+int Options_wantInfo(void)
 {
   return options->wantInfo;  
 }
 
-GLenum options_drawMode(void)
+GLenum Options_drawMode(void)
 {
   return options->drawMode;
 }
 
-GLfloat options_angleVel(void)
+GLfloat Options_angleVel(void)
 {
   return options->angleVel;
 }
 
-GLuint options_timeToRun(void)
+GLuint Options_timeToRun(void)
 {
   return options->timeToRun;
 }
 
-void update_useVSync(const int sync)
+void Options_update_useVSync(const int sync)
 {
   options->useVSync = sync;
 }
 
-void toggle_drawmode(void)
+void Options_toggle_drawmode(void)
 {
   char *modestr = 0;
   
@@ -85,10 +85,10 @@ void toggle_drawmode(void)
 
 static void toggle_drawmode_key(const short souce_id, const short destination_id)
 {
-  toggle_drawmode();
+  Options_toggle_drawmode();
 }
 
-void user_options_init(void)
+static void user_options_init(void)
 {
   Key_add_action('l', toggle_drawmode_key, "toggle draw mode: GL_TRIANGLES / GL_LINES / GL_POINT");
 

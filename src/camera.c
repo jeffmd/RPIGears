@@ -25,32 +25,32 @@ static GLfloat tm[16];
 static CAMERA_T _camera;
 static CAMERA_T * const camera = &_camera; 
 
-GLfloat camera_z(void)
+GLfloat Camera_z(void)
 {
   return camera->z;
 }
 
-GLfloat camera_x(void)
+GLfloat Camera_x(void)
 {
   return camera->x;
 }
 
-GLfloat camera_y(void)
+GLfloat Camera_y(void)
 {
   return camera->y;
 }
 
-GLfloat camera_view_rotx(void)
+GLfloat Camera_view_rotx(void)
 {
   return camera->view_rotx;
 }
 
-GLfloat camera_view_roty(void)
+GLfloat Camera_view_roty(void)
 {
   return camera->view_roty;
 }
 
-GLfloat camera_view_rotz(void)
+GLfloat Camera_view_rotz(void)
 {
   return camera->view_rotz;
 }
@@ -73,27 +73,27 @@ static void camera_change_y(const float val)
   camera->dirty = GL_TRUE;
 }
 
-void camera_ProjectionMatrix(GLfloat *md)
+void Camera_ProjectionMatrix(GLfloat *md)
 {
    m4x4_copy(md, camera->ProjectionMatrix);
 }
 
-GLfloat *camera_ProjectionMatrixPtr(void)
+GLfloat *Camera_ProjectionMatrixPtr(void)
 {
    return camera->ProjectionMatrix;
 }
 
-void camera_init_ProjectionMatrix(const float aspectratio)
+void Camera_init_ProjectionMatrix(const float aspectratio)
 {
    m4x4_perspective(camera->ProjectionMatrix, 35.0, aspectratio, 0.0, 100.0);
 }
 
-GLboolean camera_isDirty(void)
+GLboolean Camera_isDirty(void)
 {
    return camera->dirty;	
 }
 
-GLfloat *camera_view_matrix(void)
+GLfloat *Camera_view_matrix(void)
 {
   if (camera->dirty == GL_TRUE) {
     printf("camera Recalc\n");
@@ -139,7 +139,7 @@ static void camera_key_up(const short souce_id, const short destination_id)
   Key_input_set_update(camera_change_y, -1.0f);
 }
 
-void camera_init(void)
+void Camera_init(void)
 {
   camera->z = -45.0f;
   camera->x = 2.0f;

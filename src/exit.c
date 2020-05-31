@@ -9,14 +9,14 @@ static short exit_task;
 static short exit_now;
 static const char exit_help[] = "esc or Enter - end program";
 
-void exit_enable(void)
+void Exit_enable(void)
 {
   Task_run(exit_task);
 }
 
 static void exit_enable_key(const short souce_id, const short destination_id)
 {
-  exit_enable();
+  Exit_enable();
 }
 
 static void exit_task_do(void)
@@ -24,12 +24,12 @@ static void exit_task_do(void)
   exit_now = 1;
 }
 
-int exit_is_now(void)
+int Exit_is_now(void)
 {
   return exit_now;
 }
 
-void exit_init(const int time_to_run)
+void Exit_init(const int time_to_run)
 {
   exit_now = 0;  
   exit_task = Task_create(time_to_run, exit_task_do);

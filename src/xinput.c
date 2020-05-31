@@ -9,7 +9,7 @@
 #include "key_input.h"
 #include "ui_area_action.h"
 
-void xinput_check_keys(XKeyEvent *event)
+void Xinput_check_keys(XKeyEvent *event)
 {
   char key;
 
@@ -22,12 +22,12 @@ void xinput_check_keys(XKeyEvent *event)
     UI_area_key_change(STATE_KEY(event->state, key));
 }
 
-void xinput_pointer_move(const XMotionEvent* event)
+void Xinput_pointer_move(const XMotionEvent* event)
 {
   UI_area_select_active(event->x, event->y);
 }
 
-void xinput_button_event(const XButtonEvent *event)
+void Xinput_button_event(const XButtonEvent *event)
 {
   if (event->type == ButtonPress)
     UI_area_key_change(STATE_KEY(event->state, KEY_BUTTON(event->button)));

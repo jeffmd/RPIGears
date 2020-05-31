@@ -38,15 +38,15 @@ static DEMO_STATE_T * const state = &_state;
 static void update_gear_VBO_use(void)
 {
   if (state->use_VBO) {
-    gear_use_BO(state->gear1);
-    gear_use_BO(state->gear2);
-    gear_use_BO(state->gear3);
+    Gear_use_BO(state->gear1);
+    Gear_use_BO(state->gear2);
+    Gear_use_BO(state->gear3);
     printf("using Buffer Objects for vertex/index data\n");
   }
   else {
-    gear_no_BO(state->gear1);
-    gear_no_BO(state->gear2);
-    gear_no_BO(state->gear3);
+    Gear_no_BO(state->gear1);
+    Gear_no_BO(state->gear2);
+    Gear_no_BO(state->gear3);
     printf("Not using Buffer Objects for vertex/index data\n");
   }
 }
@@ -174,9 +174,9 @@ void demo_state_build_gears(const int useVBO)
 
   state->use_VBO = useVBO;
   /* make the meshes for the gears */
-  state->gear1 = gear(1.0, 4.0, 1.25, 20, 0.7, red);
-  state->gear2 = gear(0.5, 2.0, 1.50, 10, 0.7, green);
-  state->gear3 = gear(1.3, 2.0, 0.75, 10, 0.7, blue);
+  state->gear1 = Gear_create(1.0, 4.0, 1.25, 20, 0.7, red);
+  state->gear2 = Gear_create(0.5, 2.0, 1.50, 10, 0.7, green);
+  state->gear3 = Gear_create(1.3, 2.0, 0.75, 10, 0.7, blue);
 
   update_gear_VBO_use();
 }
@@ -184,9 +184,9 @@ void demo_state_build_gears(const int useVBO)
 static void demo_state_delete(void)
 {
   // release memory used for gear and associated vertex arrays
-  gear_delete(state->gear1);
-  gear_delete(state->gear2);
-  gear_delete(state->gear3);
+  Gear_delete(state->gear1);
+  Gear_delete(state->gear2);
+  Gear_delete(state->gear3);
   
   printf("demo state has shut down\n");
 

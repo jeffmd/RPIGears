@@ -8,7 +8,7 @@
 #include "EGL/egl.h"
 #include "key_input.h"
 
-void print_GLInfo(void)
+void Print_GLInfo(void)
 {
   printf("\nGL_RENDERER   = %s\n", glGetString(GL_RENDERER));
   printf("GL_VERSION    = %s\n", glGetString(GL_VERSION));
@@ -17,7 +17,7 @@ void print_GLInfo(void)
   printf("GLSL VERSION  = %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
-void print_GL_Limits(void)
+void Print_GL_Limits(void)
 {
   GLint num[20];
 
@@ -68,7 +68,7 @@ void print_GL_Limits(void)
   printf("GL_MAX_VIEWPORT_DIMS: %i, %i\n", num[0], num[1]);
 }
 
-void print_EGL_info(void)
+void Print_EGL_info(void)
 {
   const EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   
@@ -77,7 +77,7 @@ void print_EGL_info(void)
   printf("EGL extensions : %s\n", eglQueryString(display, EGL_EXTENSIONS));
 }
 
-void print_EGLSurface_info(void *surface)
+void Print_EGLSurface_info(void *surface)
 {
   const EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   int value;
@@ -91,7 +91,7 @@ void print_EGLSurface_info(void *surface)
   }
 }
 
-void print_keyhelp(void)
+void Print_keyhelp(void)
 {
   printf(
    "\nspecial keys and what they do\n"
@@ -107,7 +107,7 @@ void print_keyhelp(void)
    Key_input_print_help();
 }
 
-void print_CLoptions_help(void)
+void Print_CLoptions_help(void)
 {
   printf(
     "\nusage: RPIGears [options]\n"
@@ -123,15 +123,15 @@ void print_CLoptions_help(void)
 
 static void print_GLInfo_key(const short souce_id, const short destination_id)
 {
-  print_GLInfo();
+  Print_GLInfo();
 }
 
 static void print_CLoptions_help_key(const short souce_id, const short destination_id)
 {
-  print_CLoptions_help();
+  Print_CLoptions_help();
 }
 
-void print_info_init(void)
+void Print_info_init(void)
 {
   Key_add_action('i', print_GLInfo_key, "print GL info");
   Key_add_action('o', print_CLoptions_help_key, "print command line options");

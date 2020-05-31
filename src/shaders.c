@@ -18,7 +18,7 @@ static short test_quad_prg = 0;
 static short active_gear_shader = 0;
 static short active_test_quad_shader = 0;
 
-void shaders_load_programs(void)
+void Shaders_load_programs(void)
 {
   if (!blinn_phong_prg) {
     blinn_phong_prg = GPU_shader(blinn_phong_vert, blinn_phong_frag);
@@ -34,17 +34,17 @@ void shaders_load_programs(void)
   active_test_quad_shader = test_quad_prg;
 }
 
-void shaders_bind_gear_shader(void)
+void Shaders_bind_gear_shader(void)
 {
   if (!active_gear_shader)
-    shaders_load_programs();
+    Shaders_load_programs();
   GPU_shader_bind(active_gear_shader);
 }
 
-int shaders_test_quad(void)
+int Shaders_test_quad(void)
 {
   if (!active_test_quad_shader)
-    shaders_load_programs();
+    Shaders_load_programs();
 
   return active_test_quad_shader;
 }

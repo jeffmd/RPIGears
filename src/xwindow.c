@@ -56,7 +56,7 @@ static void init_XShmImageBuffer(int width, int height, int depth)
   XShmAttach(dis, &shmSInfo);
 }
 
-void xwindow_init(const uint width, const uint height)
+void XWindow_init(const uint width, const uint height)
 {
   /* get the colors black and white (see section for details) */
   unsigned long black, white;
@@ -137,7 +137,7 @@ void xwindow_init(const uint width, const uint height)
   //XFlush(dis);
 }
 
-void xwindow_close(void)
+void XWindow_close(void)
 {
   XFreeGC(dis, gc);
   XDestroyWindow(dis, win);
@@ -162,12 +162,12 @@ static void do_ConfigureNotify(const XConfigureEvent* event)
 
   if (event->above==0)
   {
-    window_pos(event->x, event->y);
+    Window_pos(event->x, event->y);
     printf("positioning Window\n");
   }
   else
   {
-    window_size(event->width, event->height);
+    Window_size(event->width, event->height);
     resized = 1;
     printf("resizing Window\n");
   }
@@ -181,7 +181,7 @@ static void do_ClientMessage(const XClientMessageEvent* event)
   {
     if ((Atom)event->data.l[0] ==  wmprotocols[1])
     {
-      exit_enable();
+      Exit_enable();
     }
     else if ((Atom)event->data.l[0] ==  wmprotocols[2])
     {
@@ -258,10 +258,10 @@ static void init_XimageBuffer(int width, int height, int depth)
 
 //int xwindow_needs_update(void)
 
-void xwindow_frame_update(void *buffer)
+void XWindow_frame_update(void *buffer)
 {
   
-  if(window_inFocus() | minimized) {
+  if(Window_inFocus() | minimized) {
     if(dirty) {
       XClearWindow(dis, win);
       dirty = 0;
@@ -285,7 +285,7 @@ void xwindow_frame_update(void *buffer)
       resized = 0;
     }
     if (!buffer) {
-      window_snapshot(width, height, img->data);
+      Window_snapshot(width, height, img->data);
       buffer = img->data;
     }
     buffer_flip_vertical(img->bytes_per_line, height, img->data, buffer);
@@ -313,7 +313,7 @@ void xwindow_frame_update(void *buffer)
 #endif
 }
 
-void xwindow_check_events(void)
+void XWindow_check_events(void)
 {
   XEvent event;
 
@@ -325,7 +325,7 @@ void xwindow_check_events(void)
     {
       case KeyRelease:
       case KeyPress:
-        xinput_check_keys(&event.xkey);
+        Xinput_check_keys(&event.xkey);
         break;
 
       case ConfigureNotify:
@@ -341,15 +341,15 @@ void xwindow_check_events(void)
         break;
 
       case FocusOut:
-        window_hide();
+        Window_hide();
         break;
 
       case FocusIn:
-        window_show();
+        Window_show();
         break;
 
       case MotionNotify:
-        xinput_pointer_move(&event.xmotion);
+        Xinput_pointer_move(&event.xmotion);
         break;
 
       case EnterNotify:
@@ -358,7 +358,7 @@ void xwindow_check_events(void)
 
       case ButtonRelease:
       case ButtonPress:
-        xinput_button_event(&event.xbutton);
+        Xinput_button_event(&event.xbutton);
         break;
 
       case VisibilityNotify:
@@ -378,12 +378,12 @@ void xwindow_check_events(void)
   }
 }
 
-int xwindow_minimized(void)
+int XWindow_minimized(void)
 {
   return minimized;
 }
 
-int xwindow_is_clear(void)
+int XWindow_is_clear(void)
 {
   return !dirty;
 }

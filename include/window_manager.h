@@ -5,7 +5,7 @@
   
   typedef void (* Action)(void);
 
-  void window_manager_init(void);
+  void WM_init(void);
   int WM_minimized(void);
   void WM_refresh(void);
   void WM_set_draw(Action fn);

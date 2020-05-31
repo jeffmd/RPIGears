@@ -36,7 +36,7 @@ static void wm_frameClear(void)
   // if main screen is visible
   {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, (GLsizei)window_screen_width(), (GLsizei)window_screen_height());
+    glViewport(0, 0, (GLsizei)Window_screen_width(), (GLsizei)Window_screen_height());
   }
   // else render to offscreen framebuffer 
   {
@@ -57,22 +57,22 @@ static void window_manager_delete(void)
 
   wm_frameClear();
 
-  window_swap_buffers();
-  window_release();
-  xwindow_close();
+  Window_swap_buffers();
+  Window_release();
+  XWindow_close();
   bcm_host_deinit();
   printf("window manager has shut down\n"); 
 }
 
 static void wm_frameEnd(void)
 {
-  window_swap_buffers();
-  xwindow_frame_update(0);
+  Window_swap_buffers();
+  XWindow_frame_update(0);
 }
 
 int WM_minimized(void)
 {
-  return xwindow_minimized();
+  return XWindow_minimized();
 }
 
 static void wm_do_draw_fn(void)
@@ -87,7 +87,7 @@ static void wm_do_draw_fn(void)
 static void wm_update(void)
 {
   Task_do();
-  xwindow_check_events();
+  XWindow_check_events();
   Key_input_down_update();
   Key_input_inc_rate();
   wm_do_draw_fn();
@@ -155,12 +155,12 @@ void WM_refresh(void)
   wm_frameEnd();
 }
 
-void window_manager_init(void)
+void WM_init(void)
 {
   bcm_host_init();
   gles3_init();
-  window_init();
-  xwindow_init(window_screen_width() / 2, window_screen_height() / 2);
+  Window_init();
+  XWindow_init(Window_screen_width() / 2, Window_screen_height() / 2);
   Key_input_init();
   atexit(window_manager_delete);
   avgfps = 50.0f;

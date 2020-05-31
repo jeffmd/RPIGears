@@ -24,7 +24,7 @@ static void ui_view3d_leave(const short source_id, const short destination_id)
 
 static void ui_view3d_draw(const short source_id, const short destination_id)
 {
-  scene_draw();
+  Scene_draw();
 }
 
 static short get_action_table(void)

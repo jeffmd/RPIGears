@@ -37,27 +37,27 @@ typedef  struct {
 static WINDOW_T _window;
 static WINDOW_T * const window = &_window;
 
-int window_major(void)
+int Window_major(void)
 {
   return window->major;
 }
 
-int window_minor(void)
+int Window_minor(void)
 {
   return window->minor;
 }
 
-int window_screen_width(void)
+int Window_screen_width(void)
 {
   return window->nativewindow.width;
 }
 
-int window_screen_height(void)
+int Window_screen_height(void)
 {
   return window->nativewindow.height;
 }
 
-void window_update_old(void)
+static void window_update_old(void)
 {
   window->old_rect.width = window->dst_rect.width;
   window->old_rect.height = window->dst_rect.height;
@@ -104,7 +104,7 @@ static void window_size_reset(void)
   window->dst_rect.y = 0;
 }
 
-void window_hide(void)
+void Window_hide(void)
 {
   window_update_old();
   window_size_reset();
@@ -113,7 +113,7 @@ void window_hide(void)
   window_update();
 }
 
-void window_show(void)
+void Window_show(void)
 {
   window->dst_rect.width = window->old_rect.width;
   window->dst_rect.height = window->old_rect.height;
@@ -124,7 +124,7 @@ void window_show(void)
   window_update();
 }
 
-void window_size(const int width, const int height)
+void Window_size(const int width, const int height)
 {
   window->dst_rect.width = width;
   window->dst_rect.height = height;
@@ -133,7 +133,7 @@ void window_size(const int width, const int height)
   window_update();
 }
 
-void window_pos(const int x, const int y)
+void Window_pos(const int x, const int y)
 {
   window->dst_rect.y = y;
   window->dst_rect.x = x;
@@ -141,7 +141,7 @@ void window_pos(const int x, const int y)
   window_update();
 }
 
-void window_update_VSync(const int sync)
+void Window_update_VSync(const int sync)
 {
   const EGLBoolean result = eglSwapInterval(window->display, sync );
   assert(egl_chk(EGL_FALSE != result));
@@ -266,14 +266,14 @@ static void createContext(void)
  * Returns: void
  *
  ***********************************************************/
-void window_init(void)
+void Window_init(void)
 {
   EGLBoolean result;
 
   createContext();
   // create an EGL window surface based on current screen size
   createSurface();
-  window_hide();
+  Window_hide();
   // connect the context to the surface
   result = eglMakeCurrent(window->display, window->surface, window->surface, window->contextGLES2);
   assert(egl_chk(EGL_FALSE != result));
@@ -291,24 +291,24 @@ void window_init(void)
 
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
-  print_EGL_info();
-  print_EGLSurface_info(window->surface);
-  print_GL_Limits();
+  Print_EGL_info();
+  Print_EGLSurface_info(window->surface);
+  Print_GL_Limits();
 }
 
-void window_swap_buffers(void)
+void Window_swap_buffers(void)
 {
   assert(egl_chk(eglSwapBuffers(window->display, window->surface)));
   //assert(egl_chk(eglCopyBuffers(window->display, window->surface, &window->nativewindow)));
 }
 
-void window_viewport_reset(void)
+void Window_viewport_reset(void)
 {
   glViewport(0, 0, window->nativewindow.width, window->nativewindow.height);
   glDisable(GL_SCISSOR_TEST);
 }
 
-void window_ui_viewport(short pos[2], short size[2], short vis_pos[4])
+void Window_ui_viewport(short pos[2], short size[2], short vis_pos[4])
 {
   short y = window->old_rect.height - pos[1] - size[1];
   const int ox = pos[0] + (size[0] - window->old_rect.width ) / 2 ;
@@ -319,7 +319,7 @@ void window_ui_viewport(short pos[2], short size[2], short vis_pos[4])
   glEnable(GL_SCISSOR_TEST);
 }
 
-void window_release(void)
+void Window_release(void)
 {
   eglMakeCurrent( window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
   eglDestroySurface( window->display, window->surface );
@@ -334,7 +334,7 @@ void window_release(void)
 
 }
 
-void window_snapshot(const int width, const int height, void * buffer)
+void Window_snapshot(const int width, const int height, void * buffer)
 {
   const int x = (window->nativewindow.width - width) / 2;
   const int y = (window->nativewindow.height - height) / 2;
@@ -342,7 +342,7 @@ void window_snapshot(const int width, const int height, void * buffer)
 
 }
 
-int window_inFocus(void)
+int Window_inFocus(void)
 {
   return window->inFocus;
 }

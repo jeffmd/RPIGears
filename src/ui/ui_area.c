@@ -396,7 +396,7 @@ void UI_area_set_hide(const short area_id, const int state)
 
 static void area_draw(UI_Area *area, const short source_id)
 {
-  window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
+  Window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
   Handler_execute(area->handler, OnDraw, source_id);
 }
 

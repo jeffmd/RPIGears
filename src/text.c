@@ -250,7 +250,7 @@ void Text_draw(const short id)
   Text * const text = get_text(id);
   if (text->ready) {
     GPU_texture_bind(Font_texture(text->font), 0);
-    GPU_shader_bind(shaders_test_quad());
+    GPU_shader_bind(Shaders_test_quad());
     GPU_uniformbuffer_activate(0);
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

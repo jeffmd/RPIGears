@@ -2,8 +2,8 @@
 #ifndef _SHADERS_H_
   #define _SHADERS_H_
 
-void shaders_load_programs(void);
-void shaders_bind_gear_shader(void);
-int shaders_test_quad(void);
+void Shaders_load_programs(void);
+void Shaders_bind_gear_shader(void);
+int Shaders_test_quad(void);
 
 #endif

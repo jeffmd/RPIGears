@@ -6,18 +6,18 @@
   #define _CAMERA_H_
   
 
-GLfloat camera_z(void);
-GLfloat camera_x(void);
-GLfloat camera_y(void);
-GLfloat camera_rotx(void);
-GLfloat camera_roty(void);
-GLfloat camera_rotz(void);
-void camera_ProjectionMatrix(GLfloat *md);
-GLfloat *camera_ProjectionMatrixPtr(void);
-void camera_init_ProjectionMatrix(const float aspectratio);
-GLfloat *camera_view_matrix(void);
-GLboolean camera_isDirty(void);
-void camera_init(void);
+GLfloat Camera_z(void);
+GLfloat Camera_x(void);
+GLfloat Camera_y(void);
+GLfloat Camera_rotx(void);
+GLfloat Camera_roty(void);
+GLfloat Camera_rotz(void);
+void Camera_ProjectionMatrix(GLfloat *md);
+GLfloat *Camera_ProjectionMatrixPtr(void);
+void Camera_init_ProjectionMatrix(const float aspectratio);
+GLfloat *Camera_view_matrix(void);
+GLboolean Camera_isDirty(void);
+void Camera_init(void);
   
   
 #endif

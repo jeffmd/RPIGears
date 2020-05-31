@@ -61,7 +61,7 @@ static short gear_vformat(void)
           tooth_depth - depth of tooth
  
  **/
-short gear( const GLfloat inner_radius, const GLfloat outer_radius,
+short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
           const GLfloat width, const GLint teeth,
           const GLfloat tooth_depth,
           const GLfloat color[])
@@ -254,22 +254,22 @@ short gear( const GLfloat inner_radius, const GLfloat outer_radius,
   return id;
 }
 
-void gear_delete(const short id)
+void Gear_delete(const short id)
 {
   GPU_batch_delete(get_gear(id)->batch, 1);
 }
 
-void gear_draw(const short id, const GLenum drawMode, const GLuint instances)
+void Gear_draw(const short id, const GLenum drawMode, const GLuint instances)
 {
   GPU_batch_draw(get_gear(id)->batch, drawMode, instances);
 }
 
-void gear_use_BO(const short id)
+void Gear_use_BO(const short id)
 {
   GPU_batch_use_BO(get_gear(id)->batch);
 }
 
-void gear_no_BO(const short id)
+void Gear_no_BO(const short id)
 {
   GPU_batch_no_BO(get_gear(id)->batch);
 }

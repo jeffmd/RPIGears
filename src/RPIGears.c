@@ -112,9 +112,9 @@ static void init_textures(void)
 
 static void toggle_useVSync(const short souce_id, const short destination_id)
 {
-  const int sync = options_useVSync() ? 0 : 1;
-  update_useVSync(sync);
-  window_update_VSync(sync);
+  const int sync = Options_useVSync() ? 0 : 1;
+  Options_update_useVSync(sync);
+  Window_update_VSync(sync);
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
@@ -126,19 +126,19 @@ static void toggle_back_render(const short souce_id, const short destination_id)
 static void offscreen_refresh(void)
 {
   if (offscreen_draw) {
-    window_viewport_reset();
+    Window_viewport_reset();
     GPU_framebuffer_bind(offscreen_fb);
     glDepthMask(GL_TRUE);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    scene_draw();
+    Scene_draw();
   }
 }
 
 static void run_gears(void)
 {
   // keep doing the loop while no exit keys hit and exit timer not finished
-  while (!exit_is_now())
+  while (!Exit_is_now())
   {
     update_gear_rotation();
     offscreen_refresh();
@@ -155,11 +155,11 @@ static void draw(void)
 static void init_options(int argc, char *argv[])
 {
   if (! setup_user_options(argc, argv)) {
-    print_CLoptions_help();
+    Print_CLoptions_help();
   }
 
-  update_timeToRun(options_timeToRun());
-  update_angleVel(options_angleVel());
+  update_timeToRun(Options_timeToRun());
+  update_angleVel(Options_angleVel());
 }
 
 void sig_handler(int signo)
@@ -216,23 +216,23 @@ int main (int argc, char *argv[])
   demo_state_init();
   init_options(argc, argv);
   // Start OGLES
-  window_manager_init();
+  WM_init();
   WM_set_draw(draw);
-  window_update_VSync(options_useVSync());
-  exit_init(state_timeToRun());
-  print_info_init();
+  Window_update_VSync(Options_useVSync());
+  Exit_init(state_timeToRun());
+  Print_info_init();
   Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
   
-  if (options_wantInfo()) {
-   print_GLInfo();
+  if (Options_wantInfo()) {
+   Print_GLInfo();
   }
   
   init_textures();
-  demo_state_build_gears(options_useVBO());
+  demo_state_build_gears(Options_useVBO());
 
-  camera_init();
-  scene_init();
+  Camera_init();
+  Scene_init();
   //Font_set_active(Font_create("liberation2/LiberationMono-Regular.ttf"));
   //Font_set_active(Font_create("dejavu/DejaVuSans.ttf"));
   Font_set_active(Font_create("noto/NotoMono-Regular.ttf"));
