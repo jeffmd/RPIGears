@@ -10,7 +10,6 @@
 #include "scene.h"
 
 static short area_action_table;
-static short area_handler;
 
 static void ui_view3d_enter(const short source_id, const short destination_id)
 {
@@ -40,11 +39,7 @@ static short get_action_table(void)
   return area_action_table;
 }
 
-short UI_view3d_area_handler(void)
+int UI_view3d_area_handler(void)
 {
-  if (!area_handler) {
-    area_handler = Handler_create(0, get_action_table());
-  }
-  
-  return area_handler;
+  return Handler_create(0, get_action_table());
 }

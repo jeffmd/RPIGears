@@ -14,7 +14,6 @@ typedef struct {
   uint8_t active;
   short text_id;
   short area_id;
-  short area_handler_id;
 } UI_Text;
 
 #define UI_TEXT_MAX_COUNT 50
@@ -140,14 +139,9 @@ short UI_text_create(void)
   return id;
 }
 
-short UI_text_area_handler(const short ui_text_id)
+int UI_text_area_handler(const short ui_text_id)
 {
-  UI_Text *const text = get_text(ui_text_id);
-  if (!text->area_handler_id) {
-    text->area_handler_id = Handler_create(ui_text_id, get_area_action_table());
-  }
-
-  return text->area_handler_id;
+  return Handler_create(ui_text_id, get_area_action_table());
 }
 
 short UI_text_text_id(const short id)

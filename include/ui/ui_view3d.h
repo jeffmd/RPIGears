@@ -3,6 +3,6 @@
 #ifndef _UI_VIEW3D_H_
   #define _UI_VIEW3D_H_
 
-  short UI_view3d_area_handler(void);
+  int UI_view3d_area_handler(void);
 
 #endif

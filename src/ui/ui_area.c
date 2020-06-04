@@ -24,14 +24,14 @@ typedef struct {
   uint8_t modid;
   uint8_t parent_modid;
 
-  // handler link
-  short handler;
+  // handler ID
+  int handler;
 
   // flags
-  unsigned hide:1;
-  unsigned visible:1;
+  unsigned char hide:1;
+  unsigned char visible:1;
   //unsigned selectable:1;
-  unsigned handled:1;
+  unsigned char handled:1;
 
 } UI_Area;
 
@@ -380,7 +380,7 @@ void UI_area_action_set_key_change(const short table_id, ActionFn action)
   Action_table_set_action(table_id, OnKeyChange, action);
 }
 
-void UI_area_set_handler(const short area_id, const short handler_id)
+void UI_area_set_handler(const short area_id, const int handler_id)
 {
   UI_Area * const area = get_area(area_id);
   area->handler = handler_id;

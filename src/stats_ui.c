@@ -31,7 +31,6 @@ static short fps_ui_text_id;
 
 static short stats_draw;
 static short stats_select_area_id;
-static short stats_area_handler;
 static short stats_action_table;
 
 static void update_stats_hide(void)
@@ -69,13 +68,9 @@ static short get_stats_action_table(void)
   return stats_action_table;
 }
 
-short get_stats_area_handler(void)
+static const int get_stats_area_handler(void)
 {
-  if (!stats_area_handler) {
-    stats_area_handler = Handler_create(0, get_stats_action_table());
-  }
-
-  return stats_area_handler;
+  return Handler_create(0, get_stats_action_table());
 }
 
 static short get_ver_ui_text_id(void)
