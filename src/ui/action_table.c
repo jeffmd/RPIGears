@@ -15,6 +15,8 @@ typedef struct {
   uint8_t active;
   uint8_t count;
   short action_slot;
+  short source_class;
+  short destination_class;
 } ActionTable;
 
 #define ACTION_TABLE_MAX_COUNT 50
@@ -25,6 +27,8 @@ static short next_action_slot = 0;
 
 static ActionTable action_tables[ACTION_TABLE_MAX_COUNT];
 static short next_deleted_action_table;
+
+static short next_class_id;
 
 static short action_slot_allocate(const int count)
 {
@@ -55,12 +59,14 @@ static void action_table_init(ActionTable *action_table)
   //action_table->action_slot = 0;
 }
 
-int Action_table_create(void)
+int Action_table_create(const short source_class, const short destination_class)
 {
   const int id = find_deleted_action_table_id();
   ActionTable *const action_table = get_action_table(id);
   action_table->active = 1;
   action_table_init(action_table);
+  action_table->source_class = source_class;
+  action_table->destination_class = destination_class;
 
   return id;
 }
@@ -103,4 +109,9 @@ void Action_table_execute(const short table_id, const short slot_id, const short
       slot->action(source_id, destination_id);
     }
   }
+}
+
+short Action_table_new_class_id(void)
+{
+  return ++next_class_id;
 }

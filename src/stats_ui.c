@@ -13,6 +13,7 @@
 #include "ui_area_action.h"
 #include "ui_text.h"
 #include "handler.h"
+#include "action_table.h"
 
 #define FPS_Y 400
 #define FPS_X 60
@@ -26,12 +27,13 @@ static short fps_text_id;
 static short ver_area_id;
 static short fps_area_id;
 static short stats_area_id;
-static short ver_ui_text_id;
-static short fps_ui_text_id;
+static int ver_ui_text_id;
+static int fps_ui_text_id;
 
 static short stats_draw;
 static short stats_select_area_id;
 static short stats_action_table;
+static short stats_class_id;
 
 static void update_stats_hide(void)
 {
@@ -57,10 +59,19 @@ static void update_fps(const short source_id, const short destination_id)
   }
 }
 
+static short get_class_id(void)
+{
+  if (!stats_class_id) {
+    stats_class_id = Action_table_new_class_id();
+  }
+
+  return stats_class_id;
+}
+
 static short get_stats_action_table(void)
 {
   if (!stats_action_table) {
-    stats_action_table = UI_area_create_action_table();
+    stats_action_table = UI_area_create_action_table(get_class_id());
     UI_area_action_set_key_change(stats_action_table, toggle_stats_draw);
     UI_area_action_set_draw(stats_action_table, update_fps);
   }
@@ -68,12 +79,12 @@ static short get_stats_action_table(void)
   return stats_action_table;
 }
 
-static const int get_stats_area_handler(void)
+static const int get_handler(void)
 {
   return Handler_create(0, get_stats_action_table());
 }
 
-static short get_ver_ui_text_id(void)
+static int get_ver_ui_text_id(void)
 {
   if (!ver_ui_text_id) {
     ver_ui_text_id = UI_text_create();
@@ -87,14 +98,14 @@ static short get_ver_area_id(void)
 {
   if (!ver_area_id) {
     ver_area_id = UI_area_create();
-    UI_area_set_handler(ver_area_id, UI_text_area_handler(get_ver_ui_text_id()));
+    UI_area_set_handler(ver_area_id, get_ver_ui_text_id());
     UI_area_set_position(ver_area_id, 10, 10);
   }
 
   return ver_area_id;
 }
 
-static short get_fps_ui_text_id(void)
+static int get_fps_ui_text_id(void)
 {
   if (!fps_ui_text_id) {
     fps_ui_text_id = UI_text_create();
@@ -111,7 +122,7 @@ static short get_fps_area_id(void)
 {
   if (!fps_area_id) {
     fps_area_id = UI_area_create();
-    UI_area_set_handler(fps_area_id, UI_text_area_handler(get_fps_ui_text_id()));
+    UI_area_set_handler(fps_area_id, get_fps_ui_text_id());
     UI_area_set_position(fps_area_id, 10, FPS_Y);
   }
 
@@ -138,7 +149,7 @@ static short get_stats_select_area_id(void)
     stats_select_area_id = UI_area_create();
     UI_area_set_position(stats_select_area_id, 0, 0);
     UI_area_set_size(stats_select_area_id, 10, 500);
-    UI_area_set_handler(stats_select_area_id, get_stats_area_handler());
+    UI_area_set_handler(stats_select_area_id, get_handler());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }

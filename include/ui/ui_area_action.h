@@ -3,7 +3,7 @@
 #ifndef _UI_AREA_ACTION_H_
   #define _UI_AREA_ACTION_H_
 
-  short UI_area_create_action_table(void);
+  short UI_area_create_action_table(const short destination_class);
   void UI_area_action_set_attach(const short table_id, ActionFn action);
   void UI_area_action_set_enter(const short table_id, ActionFn action);
   void UI_area_action_set_leave(const short table_id, ActionFn action);

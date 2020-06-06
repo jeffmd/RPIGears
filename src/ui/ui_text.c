@@ -22,7 +22,7 @@ static UI_Text texts[UI_TEXT_MAX_COUNT];
 static short next_deleted_text;
 
 static short area_action_table;
-//static short text_action_table;
+static short ui_text_class_id;
 
 static inline short find_deleted_text_id(void)
 {
@@ -114,11 +114,20 @@ static void ui_text_area_resize(const short source_id, const short destination_i
   area_clear(destination_id);
 }
 
+static short get_class_id(void)
+{
+  if(!ui_text_class_id) {
+    ui_text_class_id = Action_table_new_class_id();
+  }
+
+  return ui_text_class_id;
+}
+
 static short get_area_action_table(void)
 {
   if (!area_action_table) {
     printf("create ui text area action table: ");
-    area_action_table = UI_area_create_action_table();
+    area_action_table = UI_area_create_action_table(get_class_id());
     UI_area_action_set_enter(area_action_table, ui_text_enter);
     UI_area_action_set_leave(area_action_table, ui_text_leave);
     UI_area_action_set_draw(area_action_table, ui_text_draw);
@@ -129,19 +138,19 @@ static short get_area_action_table(void)
   return area_action_table;
 }
 
-short UI_text_create(void)
+static int get_handler(const short ui_text_id)
+{
+  return Handler_create(ui_text_id, get_area_action_table());
+}
+
+int UI_text_create(void)
 {
   const short id = find_deleted_text_id();
   UI_Text *const text = get_text(id);
   text->active = 1;
   text_init(text);
 
-  return id;
-}
-
-int UI_text_area_handler(const short ui_text_id)
-{
-  return Handler_create(ui_text_id, get_area_action_table());
+  return get_handler(id);
 }
 
 short UI_text_text_id(const short id)

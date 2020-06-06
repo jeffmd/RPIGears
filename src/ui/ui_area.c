@@ -54,6 +54,7 @@ static short next_deleted_area;
 static short root_area_id = 0;
 static short active_area_id = 0;
 static int active_key;
+static short ui_area_class_id;
 
 static short get_active_area_id(void)
 {
@@ -337,9 +338,18 @@ void UI_area_key_change(const int key)
   }
 }
 
-short UI_area_create_action_table(void)
+static short get_class_id(void)
 {
-  const short table_id = Action_table_create();
+  if (!ui_area_class_id) {
+    ui_area_class_id = Action_table_new_class_id();
+  }
+
+  return ui_area_class_id;
+}
+
+short UI_area_create_action_table(const short destination_class)
+{
+  const short table_id = Action_table_create(get_class_id(), destination_class);
   Action_table_allocate_slots(table_id, EventsMax);
 
   return table_id;

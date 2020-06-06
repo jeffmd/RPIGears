@@ -245,7 +245,7 @@ int main (int argc, char *argv[])
   //UI_area_set_position(view3d_area_2, 1, 1);
   //UI_area_set_size(view3d_area_2, 300, 100);
 
-  UI_area_set_handler(get_view3d_area(), UI_view3d_area_handler());
+  UI_area_set_handler(get_view3d_area(), UI_view3d_create());
   //UI_area_set_handler(view3d_area_2, UI_view3d_area_handler());
 
   Stats_ui_set_parent_area(get_view3d_area());
