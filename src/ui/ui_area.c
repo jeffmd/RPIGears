@@ -5,7 +5,7 @@
 
 #include "window.h"
 #include "static_array.h"
-#include "action_table.h"
+#include "connector.h"
 #include "handler.h"
 #include "key_input.h"
 
@@ -341,56 +341,56 @@ void UI_area_key_change(const int key)
 static short get_class(void)
 {
   if (!ui_area_class) {
-    ui_area_class = Action_table_register_class("ui_area");
+    ui_area_class = Connector_register_class("ui_area");
   }
 
   return ui_area_class;
 }
 
-short UI_area_create_action_table(const short destination_class)
+short UI_area_connector(const short destination_class)
 {
-  const short table_id = Action_table_create(get_class(), destination_class);
-  Action_table_allocate_slots(table_id, EventsMax);
+  const short connector_id = Connector_create(get_class(), destination_class);
+  Connector_allocate_slots(connector_id, EventsMax);
 
-  return table_id;
+  return connector_id;
 }
 
-void UI_area_action_set_enter(const short table_id, ActionFn action)
+void UI_area_connect_enter(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnEnter, action);
+  Connector_set_action(connector_id, OnEnter, action);
 }
 
-void UI_area_action_set_leave(const short table_id, ActionFn action)
+void UI_area_connect_leave(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnLeave, action);
+  Connector_set_action(connector_id, OnLeave, action);
 }
 
-void UI_area_action_set_draw(const short table_id, ActionFn action)
+void UI_area_connect_draw(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnDraw, action);
+  Connector_set_action(connector_id, OnDraw, action);
 }
 
-void UI_area_action_set_resize(const short table_id, ActionFn action)
+void UI_area_connect_resize(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnResize, action);
+  Connector_set_action(connector_id, OnResize, action);
 }
 
-void UI_area_action_set_move(const short table_id, ActionFn action)
+void UI_area_connect_move(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnMove, action);
+  Connector_set_action(connector_id, OnMove, action);
 }
 
-void UI_area_action_set_attach(const short table_id, ActionFn action)
+void UI_area_connect_attach(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnAttach, action);
+  Connector_set_action(connector_id, OnAttach, action);
 }
 
-void UI_area_action_set_key_change(const short table_id, ActionFn action)
+void UI_area_connect_key_change(const short connector_id, ActionFn action)
 {
-  Action_table_set_action(table_id, OnKeyChange, action);
+  Connector_set_action(connector_id, OnKeyChange, action);
 }
 
-void UI_area_set_handler(const short area_id, const int handler_id)
+void UI_area_connect(const short area_id, const int handler_id)
 {
   UI_Area * const area = get_area(area_id);
   area->handler = handler_id;

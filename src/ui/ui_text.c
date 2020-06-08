@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "action_table.h"
+#include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "handler.h"
@@ -21,7 +21,7 @@ typedef struct {
 static UI_Text ui_texts[UI_TEXT_MAX_COUNT];
 static short next_deleted_ui_text;
 
-static short area_action_table;
+static short area_connector;
 static short ui_text_class;
 
 static inline short find_deleted_ui_text(void)
@@ -117,30 +117,30 @@ static void ui_text_area_resize(const short source_id, const short destination_i
 static short get_class(void)
 {
   if(!ui_text_class) {
-    ui_text_class = Action_table_register_class("ui_text");
+    ui_text_class = Connector_register_class("ui_text");
   }
 
   return ui_text_class;
 }
 
-static short get_area_action_table(void)
+static short get_area_connector(void)
 {
-  if (!area_action_table) {
+  if (!area_connector) {
     printf("create ui text area action table: ");
-    area_action_table = UI_area_create_action_table(get_class());
-    UI_area_action_set_enter(area_action_table, ui_text_enter);
-    UI_area_action_set_leave(area_action_table, ui_text_leave);
-    UI_area_action_set_draw(area_action_table, ui_text_draw);
-    UI_area_action_set_resize(area_action_table, ui_text_area_resize);
-    UI_area_action_set_attach(area_action_table, ui_text_area_attach);
+    area_connector = UI_area_connector(get_class());
+    UI_area_connect_enter(area_connector, ui_text_enter);
+    UI_area_connect_leave(area_connector, ui_text_leave);
+    UI_area_connect_draw(area_connector, ui_text_draw);
+    UI_area_connect_resize(area_connector, ui_text_area_resize);
+    UI_area_connect_attach(area_connector, ui_text_area_attach);
   }
 
-  return area_action_table;
+  return area_connector;
 }
 
 static int get_handler(const short ui_text_id)
 {
-  return Handler_create(ui_text_id, get_area_action_table());
+  return Handler_create(ui_text_id, get_area_connector());
 }
 
 int UI_text_create(void)

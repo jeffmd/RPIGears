@@ -12,7 +12,7 @@
 #include "ui_area_action.h"
 #include "ui_text.h"
 #include "handler.h"
-#include "action_table.h"
+#include "connector.h"
 
 #define FPS_Y 400
 #define FPS_X 60
@@ -32,7 +32,7 @@ static int ver_ui_text;
 static short stats_draw;
 static short stats_area;
 static short stats_select_area;
-static short stats_action_table;
+static short stats_connector;
 static short stats_class;
 
 static void update_stats_hide(void)
@@ -62,26 +62,26 @@ static void update_fps(const short source_id, const short destination_id)
 static short get_class(void)
 {
   if (!stats_class) {
-    stats_class = Action_table_register_class("stats_ui");
+    stats_class = Connector_register_class("stats_ui");
   }
 
   return stats_class;
 }
 
-static short get_stats_action_table(void)
+static short get_stats_connector(void)
 {
-  if (!stats_action_table) {
-    stats_action_table = UI_area_create_action_table(get_class());
-    UI_area_action_set_key_change(stats_action_table, toggle_stats_draw);
-    UI_area_action_set_draw(stats_action_table, update_fps);
+  if (!stats_connector) {
+    stats_connector = UI_area_connector(get_class());
+    UI_area_connect_key_change(stats_connector, toggle_stats_draw);
+    UI_area_connect_draw(stats_connector, update_fps);
   }
 
-  return stats_action_table;
+  return stats_connector;
 }
 
 static const int get_handler(void)
 {
-  return Handler_create(0, get_stats_action_table());
+  return Handler_create(0, get_stats_connector());
 }
 
 static int get_ver_ui_text(void)
@@ -98,7 +98,7 @@ static short get_ver_area(void)
 {
   if (!ver_area) {
     ver_area = UI_area_create();
-    UI_area_set_handler(ver_area, get_ver_ui_text());
+    UI_area_connect(ver_area, get_ver_ui_text());
     UI_area_set_position(ver_area, 10, 10);
   }
 
@@ -122,7 +122,7 @@ static short get_fps_area(void)
 {
   if (!fps_area) {
     fps_area = UI_area_create();
-    UI_area_set_handler(fps_area, get_fps_ui_text());
+    UI_area_connect(fps_area, get_fps_ui_text());
     UI_area_set_position(fps_area, 10, FPS_Y);
   }
 
@@ -149,7 +149,7 @@ static short get_stats_select_area(void)
     stats_select_area = UI_area_create();
     UI_area_set_position(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
-    UI_area_set_handler(stats_select_area, get_handler());
+    UI_area_connect(stats_select_area, get_handler());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }

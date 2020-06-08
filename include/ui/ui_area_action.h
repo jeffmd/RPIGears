@@ -3,15 +3,15 @@
 #ifndef _UI_AREA_ACTION_H_
   #define _UI_AREA_ACTION_H_
 
-  short UI_area_create_action_table(const short destination_class);
-  void UI_area_action_set_attach(const short table_id, ActionFn action);
-  void UI_area_action_set_enter(const short table_id, ActionFn action);
-  void UI_area_action_set_leave(const short table_id, ActionFn action);
-  void UI_area_action_set_draw(const short table_id, ActionFn action);
-  void UI_area_action_set_resize(const short table_id, ActionFn action);
-  void UI_area_action_set_move(const short table_id, ActionFn action);
-  void UI_area_action_set_key_change(const short table_id, ActionFn action);
-  void UI_area_set_handler(const short area_id, const int handler_id);
+  short UI_area_connector(const short destination_class);
+  void UI_area_connect_attach(const short connector_id, ActionFn action);
+  void UI_area_connect_enter(const short connector_id, ActionFn action);
+  void UI_area_connect_leave(const short connector_id, ActionFn action);
+  void UI_area_connect_draw(const short connector_id, ActionFn action);
+  void UI_area_connect_resize(const short connector_id, ActionFn action);
+  void UI_area_connect_move(const short connector_id, ActionFn action);
+  void UI_area_connect_key_change(const short connector_id, ActionFn action);
+  void UI_area_connect(const short area_id, const int handler_id);
   void UI_area_set_handled(const short area_id);
   void UI_area_select_active(const int x, const int y);
   void UI_area_draw(const short area_id);
