@@ -19,6 +19,10 @@ typedef struct {
   short destination_class;
 } ActionTable;
 
+typedef struct {
+  const char *name;
+} ClassReg;
+
 #define ACTION_TABLE_MAX_COUNT 50
 #define ACTION_SLOT_MAX_COUNT 1000
 
@@ -28,6 +32,8 @@ static short next_action_slot = 0;
 static ActionTable action_tables[ACTION_TABLE_MAX_COUNT];
 static short next_deleted_action_table;
 
+#define CLASSREG_MAX_COUNT 50
+static ClassReg classes[CLASSREG_MAX_COUNT];
 static short next_class_id;
 
 static short action_slot_allocate(const int count)
@@ -111,7 +117,8 @@ void Action_table_execute(const short table_id, const short slot_id, const short
   }
 }
 
-short Action_table_new_class_id(void)
+short Action_table_register_class(const char *name)
 {
-  return ++next_class_id;
+  next_class_id++;
+  classes[next_class_id].name = name;
 }

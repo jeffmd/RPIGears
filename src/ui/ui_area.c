@@ -51,20 +51,20 @@ enum Events {
 static UI_Area areas[UI_AREA_MAX_COUNT];
 static short next_deleted_area;
 
-static short root_area_id = 0;
-static short active_area_id = 0;
+static short root_area = 0;
+static short active_area = 0;
 static int active_key;
-static short ui_area_class_id;
+static short ui_area_class;
 
-static short get_active_area_id(void)
+static short get_active_area(void)
 {
-  if (active_area_id)
-    return active_area_id;
+  if (active_area)
+    return active_area;
   else
-    return root_area_id;
+    return root_area;
 }
 
-static inline short find_deleted_area_id(void)
+static inline short find_deleted_area(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_area, areas, UI_AREA_MAX_COUNT, UI_Area, "UI area");
 }
@@ -191,7 +191,7 @@ static int is_visible(UI_Area *area)
 
 short UI_area_create(void)
 {
-  const int id = find_deleted_area_id();
+  const int id = find_deleted_area();
   UI_Area *const area = get_area(id);
   area->active = 1;
   area_init(area);
@@ -242,10 +242,10 @@ void UI_area_add(const short parent_id, const short child_id)
 
 void UI_area_set_active(const short area_id)
 {
-  if (active_area_id != area_id) {
-    UI_Area *area = get_area(active_area_id);
-    Handler_execute(area->handler, OnLeave, active_area_id);
-    active_area_id = area_id;
+  if (active_area != area_id) {
+    UI_Area *area = get_area(active_area);
+    Handler_execute(area->handler, OnLeave, active_area);
+    active_area = area_id;
     area = get_area(area_id);
     Handler_execute(area->handler, OnEnter, area_id);
   }
@@ -253,12 +253,12 @@ void UI_area_set_active(const short area_id)
 
 int UI_area_is_active(const short area_id)
 {
-  return (area_id == active_area_id);
+  return (area_id == active_area);
 }
 
 void UI_area_set_root(const short area_id)
 {
-  root_area_id = area_id;
+  root_area = area_id;
 }
 
 void UI_area_set_position(const short area_id, const int x, const int y)
@@ -311,13 +311,13 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
 
 void UI_area_select_active(const int x, const int y)
 {
-  UI_area_set_active(area_find(get_active_area_id(), 0, x, y));
+  UI_area_set_active(area_find(get_active_area(), 0, x, y));
 }
 
 void UI_area_key_change(const int key)
 {
   int handled = 0;
-  short area_id = get_active_area_id();
+  short area_id = get_active_area();
   active_key = key;
 
   while (area_id) {
@@ -338,18 +338,18 @@ void UI_area_key_change(const int key)
   }
 }
 
-static short get_class_id(void)
+static short get_class(void)
 {
-  if (!ui_area_class_id) {
-    ui_area_class_id = Action_table_new_class_id();
+  if (!ui_area_class) {
+    ui_area_class = Action_table_register_class("ui_area");
   }
 
-  return ui_area_class_id;
+  return ui_area_class;
 }
 
 short UI_area_create_action_table(const short destination_class)
 {
-  const short table_id = Action_table_create(get_class_id(), destination_class);
+  const short table_id = Action_table_create(get_class(), destination_class);
   Action_table_allocate_slots(table_id, EventsMax);
 
   return table_id;
@@ -440,7 +440,7 @@ void UI_area_draw(const short area_id)
 
 void UI_area_root_draw(void)
 {
-  UI_area_draw(root_area_id);
+  UI_area_draw(root_area);
 }
 
 uint8_t UI_area_modid(const short area_id)
