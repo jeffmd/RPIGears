@@ -6,7 +6,6 @@
 #include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
-#include "handler.h"
 #include "static_array.h"
 #include "text.h"
 
@@ -138,9 +137,9 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_handler(const short ui_text_id)
+static int get_handle(const short ui_text_id)
 {
-  return Handler_create(ui_text_id, get_area_connector());
+  return Connector_handle(get_area_connector(), ui_text_id);
 }
 
 int UI_text_create(void)
@@ -150,7 +149,7 @@ int UI_text_create(void)
   ui_text->active = 1;
   text_init(ui_text);
 
-  return get_handler(id);
+  return get_handle(id);
 }
 
 short UI_text_text_id(const short id)

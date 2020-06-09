@@ -11,7 +11,6 @@
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "ui_text.h"
-#include "handler.h"
 #include "connector.h"
 
 #define FPS_Y 400
@@ -79,9 +78,9 @@ static short get_stats_connector(void)
   return stats_connector;
 }
 
-static const int get_handler(void)
+static const int get_handle(void)
 {
-  return Handler_create(0, get_stats_connector());
+  return Connector_handle(get_stats_connector(), 0);
 }
 
 static int get_ver_ui_text(void)
@@ -149,7 +148,7 @@ static short get_stats_select_area(void)
     stats_select_area = UI_area_create();
     UI_area_set_position(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
-    UI_area_connect(stats_select_area, get_handler());
+    UI_area_connect(stats_select_area, get_handle());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }

@@ -6,7 +6,6 @@
 #include "window.h"
 #include "static_array.h"
 #include "connector.h"
-#include "handler.h"
 #include "key_input.h"
 
 typedef struct {
@@ -24,8 +23,8 @@ typedef struct {
   uint8_t modid;
   uint8_t parent_modid;
 
-  // handler ID
-  int handler;
+  // Connector handle
+  int handle;
 
   // flags
   unsigned char hide:1;
@@ -84,7 +83,7 @@ static void area_init(UI_Area *area)
   area->sibling = 0;
   area->parent = 0;
   area->child = 0;
-  area->handler = 0;
+  area->handle = 0;
   area->modid++;
 }
 
@@ -244,10 +243,10 @@ void UI_area_set_active(const short area_id)
 {
   if (active_area != area_id) {
     UI_Area *area = get_area(active_area);
-    Handler_execute(area->handler, OnLeave, active_area);
+    Connector_handle_execute(area->handle, OnLeave, active_area);
     active_area = area_id;
     area = get_area(area_id);
-    Handler_execute(area->handler, OnEnter, area_id);
+    Connector_handle_execute(area->handle, OnEnter, area_id);
   }
 }
 
@@ -267,7 +266,7 @@ void UI_area_set_position(const short area_id, const int x, const int y)
   area->rel_pos[0] = x;
   area->rel_pos[1] = y;
   update_visibility(area);
-  Handler_execute(area->handler, OnMove, area_id);
+  Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
 void UI_area_set_size(const short area_id, const int width, const int height)
@@ -276,7 +275,7 @@ void UI_area_set_size(const short area_id, const int width, const int height)
   area->size[0] = width;
   area->size[1] = height;
   update_visibility(area);
-  Handler_execute(area->handler, OnResize, area_id);
+  Connector_handle_execute(area->handle, OnResize, area_id);
 }
 
 void UI_area_size(const short area_id, int size[2])
@@ -323,7 +322,7 @@ void UI_area_key_change(const int key)
   while (area_id) {
     UI_Area *area = get_area(area_id);
     area->handled = 0;
-    Handler_execute(area->handler, OnKeyChange, area_id);
+    Connector_handle_execute(area->handle, OnKeyChange, area_id);
     handled = area->handled;
     if (handled) {
       area_id = 0;
@@ -390,11 +389,11 @@ void UI_area_connect_key_change(const short connector_id, ActionFn action)
   Connector_set_action(connector_id, OnKeyChange, action);
 }
 
-void UI_area_connect(const short area_id, const int handler_id)
+void UI_area_connect(const short area_id, const int handle)
 {
   UI_Area * const area = get_area(area_id);
-  area->handler = handler_id;
-  Handler_execute(area->handler, OnAttach, area_id);
+  area->handle = handle;
+  Connector_handle_execute(handle, OnAttach, area_id);
 }
 
 void UI_area_set_hide(const short area_id, const int state)
@@ -407,7 +406,7 @@ void UI_area_set_hide(const short area_id, const int state)
 static void area_draw(UI_Area *area, const short source_id)
 {
   Window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
-  Handler_execute(area->handler, OnDraw, source_id);
+  Connector_handle_execute(area->handle, OnDraw, source_id);
 }
 
 static void area_draw_siblings(short area_id)

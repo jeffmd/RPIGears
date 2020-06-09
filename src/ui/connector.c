@@ -23,6 +23,15 @@ typedef struct {
   const char *name;
 } ClassReg;
 
+typedef union {
+  int ID;
+  struct {
+    short destination_id;
+    short connector;
+  };
+} Handle;
+
+
 #define CONNECTOR_MAX_COUNT 50
 #define ACTION_SLOT_MAX_COUNT 1000
 
@@ -105,7 +114,7 @@ void Connector_set_action(const short connector_id, const short slot_id, ActionF
   }
 }
 
-void Connector_execute(const short connector_id, const short slot_id, const short source_id, const short destination_id)
+static void connector_execute(const short connector_id, const short slot_id, const short source_id, const short destination_id)
 {
   Connector *const connector = get_connector(connector_id);
 
@@ -124,3 +133,22 @@ short Connector_register_class(const char *name)
 
   return next_class_id;
 }
+
+int Connector_handle( const short connector, const short destination_id)
+{
+  Handle handle;
+
+  handle.destination_id = destination_id;
+  handle.connector = connector;
+
+  return handle.ID;
+}
+
+void Connector_handle_execute(const int handle, const short slot_id, const short source_id)
+{
+  if (handle) {
+    connector_execute(((Handle)handle).connector, slot_id, source_id, ((Handle)handle).destination_id);
+  }
+}
+
+

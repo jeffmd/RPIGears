@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "connector.h"
-#include "handler.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "scene.h"
@@ -49,12 +48,12 @@ static short get_connector(void)
   return area_connector;
 }
 
-static int get_handler(const short ui_view3d_id)
+static int get_handle(const short ui_view3d_id)
 {
-  return Handler_create(ui_view3d_id, get_connector());
+  return Connector_handle(get_connector(), ui_view3d_id);
 }
 
 int UI_view3d_create(void)
 {
-  return get_handler(0);
+  return get_handle(0);
 }
