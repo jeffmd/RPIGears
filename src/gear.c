@@ -15,27 +15,42 @@
 #include "gpu_uniform_buffer.h"
 #include "gpu_batch.h"
 
-typedef struct {
-  GLfloat color[4];
-  short batch; 
-} Gear;
+#include "static_array.h"
 
-#define GEARS_MAX_COUNT 3
+typedef struct {
+  uint8_t active;
+  short batch; 
+  GLfloat color[4];
+} Gear;
 
 enum {
   ATTR_POSITION,
   ATTR_NORMAL,
   ATTR_UV,
 };
+
+#define GEAR_MAX_COUNT 10
   
-static short gearID = 0;
-static Gear gears[GEARS_MAX_COUNT];
+static Gear gears[GEAR_MAX_COUNT];
+static short next_deleted_gear;
+
 static short vformat = 0;
+
+static inline short find_deleted_gear(void)
+{
+  return ARRAY_FIND_DELETED_ID(next_deleted_gear, gears, GEAR_MAX_COUNT, Gear, "Gear");
+}
 
 static Gear *get_gear(short id)
 {
+  if ((id < 0) | (id >= GEAR_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Gear id, using default id: 0\n");
+  }
+    
   return gears + id;
 }
+
 
 static short gear_vformat(void)
 {
@@ -64,7 +79,7 @@ static short gear_vformat(void)
 short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
           const GLfloat width, const GLint teeth,
           const GLfloat tooth_depth,
-          const GLfloat color[])
+          const GLfloat color[4])
 {
   GLint i, j;
   GLfloat r0, r1, r2;
@@ -78,7 +93,7 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat r2_sin_ta_1da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
   
-  const short id = gearID++;
+  const short id = find_deleted_gear();
   Gear *gear = get_gear(id);
   
   const int nvertices = teeth * 38;
@@ -101,9 +116,9 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   GPU_vertbuf_set_add_count(vbuff, nvertices);
   
   r0 = inner_radius;
-  r1 = outer_radius - tooth_depth / 2.0;
-  r2 = outer_radius + tooth_depth / 2.0;
-  da = 2.0 * M_PI / teeth / 4.0;
+  r1 = outer_radius - tooth_depth / 2.0f;
+  r2 = outer_radius + tooth_depth / 2.0f;
+  da = 2.0f * M_PI / teeth / 4.0f;
 
   idx = 0;
   
@@ -114,7 +129,7 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
 #define INDEX(a,b,c) GPU_indexbuf_add(ibuff, a); GPU_indexbuf_add(ibuff, b); GPU_indexbuf_add(ibuff, c)
 
   for (i = 0; i < teeth; i++) {
-    ta = i * 2.0 * M_PI / teeth;
+    ta = i * 2.0f * M_PI / teeth;
 
     cos_ta = cos(ta);
     cos_ta_1da = cos(ta + da);
@@ -153,100 +168,101 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
     v2 = r1_sin_ta_3da - r2_sin_ta_2da;
 
     /* front face */
-    ix0 = VERTEX(r1_cos_ta,          r1_sin_ta,          width);
-    ix1 = VERTEX(r0_cos_ta,          r0_sin_ta,          width);
-    ix2 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      width);
-    ix3 = VERTEX(r0_cos_ta_4da,      r0_sin_ta_4da,      width);
-    ix4 = VERTEX(r1_cos_ta_4da,      r1_sin_ta_4da,      width);
+    ix0 = VERTEX(r1_cos_ta,     r1_sin_ta,     width);
+    ix1 = VERTEX(r0_cos_ta,     r0_sin_ta,     width);
+    ix2 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, width);
+    ix3 = VERTEX(r0_cos_ta_4da, r0_sin_ta_4da, width);
+    ix4 = VERTEX(r1_cos_ta_4da, r1_sin_ta_4da, width);
     for (j = 0; j < 5; j++) {
-      NORMAL(0.0,                  0.0,                  1.0);
+      NORMAL(0.0f, 0.0f, 1.0f);
     }
     INDEX(ix0, ix2, ix1);
     INDEX(ix1, ix2, ix3);
     INDEX(ix2, ix4, ix3);
 
     /* front sides of teeth */
-    ix0 = VERTEX(r1_cos_ta,          r1_sin_ta,          width);
-    ix1 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      width);
-    ix2 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      width);
-    ix3 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      width);
+    ix0 = VERTEX(r1_cos_ta,     r1_sin_ta,     width);
+    ix1 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, width);
+    ix2 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, width);
+    ix3 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, width);
     for (j = 0; j < 4; j++) {
-      NORMAL(0.0,                  0.0,                  1.0);
+      NORMAL(0.0f, 0.0f, 1.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
+
     /* back face */
-    ix0 = VERTEX(r1_cos_ta,          r1_sin_ta,          -width);
-    ix1 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      -width);
-    ix2 = VERTEX(r0_cos_ta,          r0_sin_ta,          -width);
-    ix3 = VERTEX(r1_cos_ta_4da,      r1_sin_ta_4da,      -width);
-    ix4 = VERTEX(r0_cos_ta_4da,      r0_sin_ta_4da,      -width);
+    ix0 = VERTEX(r1_cos_ta,     r1_sin_ta,     -width);
+    ix1 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, -width);
+    ix2 = VERTEX(r0_cos_ta,     r0_sin_ta,     -width);
+    ix3 = VERTEX(r1_cos_ta_4da, r1_sin_ta_4da, -width);
+    ix4 = VERTEX(r0_cos_ta_4da, r0_sin_ta_4da, -width);
     for (j = 0; j < 5; j++) {
-      NORMAL(0.0,                  0.0,                  -1.0);
+      NORMAL(0.0f, 0.0f, -1.0f);
     }
     INDEX(ix0, ix2, ix1);
     INDEX(ix1, ix2, ix3);
     INDEX(ix2, ix4, ix3);
     
  /* back sides of teeth */
-    ix0 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      -width);
-    ix1 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      -width);
-    ix2 = VERTEX(r1_cos_ta,          r1_sin_ta,          -width);
-    ix3 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      -width);
+    ix0 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, -width);
+    ix1 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, -width);
+    ix2 = VERTEX(r1_cos_ta,     r1_sin_ta,     -width);
+    ix3 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, -width);
 
     for (j = 0; j < 4; j++) {
-      NORMAL(0.0,                  0.0,                  -1.0);
+      NORMAL(0.0f, 0.0f, -1.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
 
     /* draw outward faces of teeth */
-    ix0 = VERTEX(r1_cos_ta,          r1_sin_ta,          width);
-    ix1 = VERTEX(r1_cos_ta,          r1_sin_ta,          -width);
-    ix2 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      width);
-    ix3 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      -width);
+    ix0 = VERTEX(r1_cos_ta,     r1_sin_ta,     width);
+    ix1 = VERTEX(r1_cos_ta,     r1_sin_ta,     -width);
+    ix2 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, width);
+    ix3 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, -width);
 
     for (j = 0; j < 4; j++) {
-      NORMAL(v1,                   -u1,                  0.0);
+      NORMAL(v1, -u1, 0.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
-    ix0 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      width);
-    ix1 = VERTEX(r2_cos_ta_1da,      r2_sin_ta_1da,      -width);
-    ix2 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      width);
-    ix3 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      -width);
+    ix0 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, width);
+    ix1 = VERTEX(r2_cos_ta_1da, r2_sin_ta_1da, -width);
+    ix2 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, width);
+    ix3 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, -width);
     for (j = 0; j < 4; j++) {
-      NORMAL(cos_ta,               sin_ta,               0.0);
+      NORMAL(cos_ta, sin_ta, 0.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
-    ix0 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      width);
-    ix1 = VERTEX(r2_cos_ta_2da,      r2_sin_ta_2da,      -width);
-    ix2 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      width);
-    ix3 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      -width);
+    ix0 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, width);
+    ix1 = VERTEX(r2_cos_ta_2da, r2_sin_ta_2da, -width);
+    ix2 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, width);
+    ix3 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, -width);
     for (j = 0; j < 4; j++) {
-      NORMAL(v2,                   -u2,                  0.0);
+      NORMAL(v2, -u2, 0.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
-    ix0 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      width);
-    ix1 = VERTEX(r1_cos_ta_3da,      r1_sin_ta_3da,      -width);
-    ix2 = VERTEX(r1_cos_ta_4da,      r1_sin_ta_4da,      width);
-    ix3 = VERTEX(r1_cos_ta_4da,      r1_sin_ta_4da,      -width);
+    ix0 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, width);
+    ix1 = VERTEX(r1_cos_ta_3da, r1_sin_ta_3da, -width);
+    ix2 = VERTEX(r1_cos_ta_4da, r1_sin_ta_4da, width);
+    ix3 = VERTEX(r1_cos_ta_4da, r1_sin_ta_4da, -width);
     for (j = 0; j < 4; j++) {
-      NORMAL(cos_ta,               sin_ta,               0.0);
+      NORMAL(cos_ta, sin_ta, 0.0f);
     }
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
  /* draw inside radius cylinder */
-    ix0 = VERTEX(r0_cos_ta,          r0_sin_ta,          -width);
-    ix1 = VERTEX(r0_cos_ta,          r0_sin_ta,          width);
-    ix2 = VERTEX(r0_cos_ta_4da,      r0_sin_ta_4da,      -width);
-    ix3 = VERTEX(r0_cos_ta_4da,      r0_sin_ta_4da,      width);
-    NORMAL(-cos_ta,              -sin_ta,              0.0);
-    NORMAL(-cos_ta,              -sin_ta,              0.0);
-    NORMAL(-cos_ta_4da,          -sin_ta_4da,          0.0);
-    NORMAL(-cos_ta_4da,          -sin_ta_4da,          0.0);
+    ix0 = VERTEX(r0_cos_ta,     r0_sin_ta,     -width);
+    ix1 = VERTEX(r0_cos_ta,     r0_sin_ta,     width);
+    ix2 = VERTEX(r0_cos_ta_4da, r0_sin_ta_4da, -width);
+    ix3 = VERTEX(r0_cos_ta_4da, r0_sin_ta_4da, width);
+    NORMAL(-cos_ta, -sin_ta, 0.0f);
+    NORMAL(-cos_ta, -sin_ta, 0.0f);
+    NORMAL(-cos_ta_4da, -sin_ta_4da, 0.0f);
+    NORMAL(-cos_ta_4da, -sin_ta_4da, 0.0f);
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
   }

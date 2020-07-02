@@ -7,7 +7,7 @@
   short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
                        const GLfloat width, const GLint teeth,
                        const GLfloat tooth_depth,
-                       const GLfloat color[]);
+                       const GLfloat color[4]);
   
   void Gear_delete(const short id);
   void Gear_draw(const short id, const GLenum drawMode, const GLuint instances);
