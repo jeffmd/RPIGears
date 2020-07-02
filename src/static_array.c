@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 
-int array_find_deleted_id(short *next_deleted, void *array, const int maxId, const size_t size, const char *object_name)
+int array_find_deleted_id(short *next_deleted, void *array, const short maxId, const size_t size, const char *object_name)
 {
-  int id = *next_deleted;
+  short id = *next_deleted;
 
   if ((id <= 0) | (id >= maxId))
     id = 1;
