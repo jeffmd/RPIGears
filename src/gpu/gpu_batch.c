@@ -21,20 +21,32 @@ typedef struct {
 
 typedef struct {
   uint8_t active;
-  ShaderVAO shaders[SHADER_CACHE_MAX_COUNT];        // shader VAO cache
-  uint8_t next_index;         // next index to use for a new shader binding
-  uint8_t active_index;       // the index to the shader used for current binding
+  ShaderVAO shaders[SHADER_CACHE_MAX_COUNT]; // shader VAO cache
+  uint8_t next_shader;        // next index to use for a new shader binding
+  uint8_t active_shader;      // the index to the shader used for current binding
   short vbuff;                // ID for vert buffer
   short ibuff;                // ID for index buffer
   short ubuff;                // ID for uniform buffer
+  uint16_t start;             // start index in buffer for draw
   GLuint vertices_draw_count; // number of vertices to draw
   GLuint indices_draw_count;  // number of indices to draw
 } GPUBatch;
 
+typedef struct {
+  uint8_t active;
+  short batch;
+  uint16_t start;
+  uint16_t count;
+} GPUBatchPart;
+
 #define BATCH_MAX_COUNT 10
+#define BATCHPART_MAX_COUNT 100
 
 static GPUBatch batches[BATCH_MAX_COUNT];
 static short next_deleted_batch;
+
+static GPUBatchPart batch_parts[BATCHPART_MAX_COUNT];
+static short next_deleted_batchpart;
 
 static inline short find_deleted_batch_id(void)
 {
@@ -47,16 +59,16 @@ static GPUBatch *get_batch(short id)
     id = 0;
     printf("ERROR: Bad BATCH id, using default id: 0\n");
   }
-    
+
   return batches + id;
 }
 
-static int batch_next_index(GPUBatch *batch)
+static int batch_next_shader(GPUBatch *batch)
 {
-  if (batch->next_index >= SHADER_CACHE_MAX_COUNT)
-    batch->next_index = 0;
+  if (batch->next_shader >= SHADER_CACHE_MAX_COUNT)
+    batch->next_shader = 0;
       
-  return batch->next_index++;
+  return batch->next_shader++;
 }
 
 static void batch_clear_shaders(GPUBatch *batch)
@@ -86,19 +98,19 @@ static int batch_needs_binding(GPUBatch *batch, int shader)
   }
   
   if (index >= SHADER_CACHE_MAX_COUNT) {
-    index = batch_next_index(batch);
+    index = batch_next_shader(batch);
   }
   
   batch->shaders[index].shader = shader;
   batch->shaders[index].modid = modid;
-  batch->active_index = index;
+  batch->active_shader = index;
   
   return needs_binding;
 }
 
 static void batch_unbind(GPUBatch *batch)
 {
-  batch->shaders[batch->active_index].shader = 0;
+  batch->shaders[batch->active_shader].shader = 0;
 }
 
 static void batch_init(GPUBatch *batch)
@@ -107,8 +119,8 @@ static void batch_init(GPUBatch *batch)
   batch->ibuff = 0;
   batch->ubuff = 0;
 
-  batch->active_index = 0;
-  batch->next_index = 1;
+  batch->active_shader = 0;
+  batch->next_shader = 1;
   
   batch_unbind(batch);
 }
@@ -207,7 +219,7 @@ int GPU_batch_uniform_buffer(const short id)
 
 static void batch_update_bindings(GPUBatch *batch)
 {
-  ShaderVAO *const shadervao = &batch->shaders[batch->active_index];
+  ShaderVAO *const shadervao = &batch->shaders[batch->active_shader];
   
   if (!shadervao->vaoId)
     glGenVertexArrays(1, &shadervao->vaoId);
@@ -227,14 +239,14 @@ static void batch_bind(GPUBatch *batch)
 {
   const short shader = GPU_shader_active_shader();
   
-  if ((batch->shaders[batch->active_index].shader != shader)
-    || (batch->shaders[batch->active_index].modid != GPU_shader_modid(shader))) {
+  if ((batch->shaders[batch->active_shader].shader != shader)
+    || (batch->shaders[batch->active_shader].modid != GPU_shader_modid(shader))) {
     if (batch_needs_binding(batch, shader)) {
       batch_update_bindings(batch);
     }
   }
 
-  glBindVertexArray(batch->shaders[batch->active_index].vaoId);
+  glBindVertexArray(batch->shaders[batch->active_shader].vaoId);
 }
 
 void GPU_batch_use_BO(const short id)
@@ -276,9 +288,9 @@ void GPU_batch_draw(const short id, const GLenum drawMode, const GLuint instance
   
   if ((drawMode == GL_POINTS) || !batch->ibuff) {
     if (instances > 1 )
-      glDrawArraysInstanced(drawMode, 0, batch->vertices_draw_count, instances);
+      glDrawArraysInstanced(drawMode, batch->start, batch->vertices_draw_count, instances);
     else
-      glDrawArrays(drawMode, 0, batch->vertices_draw_count);
+      glDrawArrays(drawMode, batch->start, batch->vertices_draw_count);
   }
   else {
     if (instances > 1)
@@ -286,5 +298,77 @@ void GPU_batch_draw(const short id, const GLenum drawMode, const GLuint instance
     else
       glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuff));
   }
+}
+
+void GPU_batch_set_draw_start(const short id, uint16_t start)
+{
+  get_batch(id)->start = start;
+}
+
+static inline short find_deleted_batch_part(void)
+{
+  return ARRAY_FIND_DELETED_ID(next_deleted_batchpart, batch_parts, BATCHPART_MAX_COUNT, GPUBatchPart, "batch part");
+}
+
+static GPUBatchPart *get_batch_part(short id)
+{
+  if ((id < 0) | (id >= BATCHPART_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad BATCH PART id, using default id: 0\n");
+  }
+    
+  return batch_parts + id;
+}
+
+static void batch_part_init(GPUBatchPart *batch_part)
+{
+  GPUBatch *const batch = get_batch(batch_part->batch);
+  
+  if (!batch->ibuff) {
+    batch_part->start = GPU_vertbuf_index(batch->vbuff);
+  }
+  else {
+    //batch_part->start = GPU_indexbuf_index(batch->ibuff);
+  }
+
+}
+
+short GPU_batch_part_create(const short batch)
+{
+  const short id = find_deleted_batch_part();
+  GPUBatchPart *const batch_part = get_batch_part(id);
+  batch_part->active = 1;
+  batch_part->batch = batch;
+  batch_part_init(batch_part);
+
+  return id;
+}
+
+void GPU_batch_part_end(const short part)
+{
+  GPUBatchPart *const batch_part = get_batch_part(part);
+  GPUBatch *const batch = get_batch(batch_part->batch);
+
+  if (!batch->ibuff) {
+    batch_part->count = GPU_vertbuf_index(batch->vbuff) - batch_part->start;
+  }
+  else {
+   // batch_part->count = GPU_indexbuf_index(batch->ibuff) - batch_part->start;
+  }
+}
+
+void GPU_batch_part_draw(const short part, const GLenum drawMode, const GLuint instances)
+{
+  GPUBatchPart *const batch_part = get_batch_part(part);
+  GPUBatch *const batch = get_batch(batch_part->batch);
+
+  batch->start = batch_part->start;
+  if (!batch->ibuff) {
+    batch->vertices_draw_count = batch_part->count;
+  }
+  else {
+    batch->indices_draw_count = batch_part->count;
+  }
+  GPU_batch_draw(batch_part->batch, drawMode, instances);
 }
 

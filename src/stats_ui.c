@@ -52,7 +52,7 @@ static void update_fps(const short source_id, const short destination_id)
     const char *fps_str = WM_has_fps();
 
     if (fps_str) {
-      Text_set_start(fps_text, fps_start);
+      Text_set_index(fps_text, fps_start);
       Text_add(fps_text, FPS_X, 0, fps_str);
     }
   }
@@ -110,7 +110,7 @@ static int get_fps_ui_text(void)
     fps_ui_text = UI_text_create();
     UI_text_add(fps_ui_text, fps_str);
     fps_text = UI_text_text_id(fps_ui_text);
-    fps_start = Text_start(fps_text);
+    fps_start = Text_index(fps_text);
     Text_add(fps_ui_text, FPS_X, 0, num_str);
   }
 

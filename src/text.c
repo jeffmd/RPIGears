@@ -18,13 +18,13 @@
 typedef struct {
 
   uint8_t active;           // zero if deleted
-  short batch;
-  short font;
   uint8_t ready;           // 1 if ready to draw
+  short font;
   GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;
-  int extent[2];           // text x and y extent 
-  uint16_t index;          // current index into vertex buffer
+  int extent[2];           // text x and y extent
+  uint16_t start;          // start index in vertex buffer
+  uint16_t index;          // index for next char
   uint16_t count;          // mumber of characters in text vertex buffer
 } Text;
 
@@ -39,13 +39,16 @@ enum {
 static Text texts[TEXT_MAX_COUNT];
 static short next_deleted_text;
 
-static short vformat = 0;
+static short vformat;
+static short batch;
+static GLfloat ProjMatrix[4];   // scale and offset
+static GLfloat alimit;
+static uint16_t index;          // current master index into vertex buffer
 
 
 static inline int find_deleted_text_id(void)
 {
-  return ARRAY_FIND_DELETED_ID(next_deleted_text, texts,
-                            TEXT_MAX_COUNT, Text,"text");
+  return ARRAY_FIND_DELETED_ID(next_deleted_text, texts, TEXT_MAX_COUNT, Text,"text");
 }
 
 static Text *get_text(int id)
@@ -74,24 +77,32 @@ static void text_default_settings(Text *text)
     text->alimit = 0.5f;
 }
 
+static short get_batch(void)
+{
+  if (!batch) {
+    batch = GPU_batch_create();
+    const int ubuff = GPU_batch_uniform_buffer(batch);
+    GPU_uniformbuffer_add_4f(ubuff, "ProjMat", ProjMatrix);
+    GPU_uniformbuffer_add_1f(ubuff, "alimit", alimit);
+
+    const int vbuff = GPU_batch_vertex_buffer(batch);
+    GPU_vertbuf_set_vertex_format(vbuff, text_vformat());
+    GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
+    
+  }
+
+  return batch;
+}
+
 static void text_init(Text *text)
 {
-  if (!text->batch) {
-    text->batch = GPU_batch_create();
-    const int ubuff = GPU_batch_uniform_buffer(text->batch);
-    GPU_uniformbuffer_add_4f(ubuff, "ProjMat", text->ProjMatrix);
-    GPU_uniformbuffer_add_1f(ubuff, "alimit", text->alimit);
+  text_default_settings(text);
 
-    text->count = 0;
-    text->index = 0;
-
-    text_default_settings(text);
-  }
-  
-  const int vbuff = GPU_batch_vertex_buffer(text->batch);
-  GPU_vertbuf_set_vertex_format(vbuff, text_vformat());
-  GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
+  text->start = index;
+  text->index = index;
+  text->count = 0;
   text->ready = 0;
+  
 }
 
 short Text_create(void)
@@ -139,13 +150,21 @@ static void update_extent(Text *text, int x, int y)
     text->extent[1] = y;
 }
 
+static void increment_index(Text *text)
+{
+  text->index++;
+  if (text->index > index) {
+    index = text->index;
+  }
+}
+
 static int add_quad_char(Text *text, const int x, const int y, const char ch)
 {
 #define VERTEX(x1, y1, u, v) GPU_vertbuf_add_4(vbuff, ATTR_POSITION, (x1), (y1), u, v)
 
   int advance = 0;
   
-  const short vbuff = GPU_batch_vertex_buffer(text->batch);
+  const short vbuff = GPU_batch_vertex_buffer(get_batch());
   const short font = text->font;
   
   const int dx = Glyph_width(font, ch);
@@ -179,7 +198,7 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
   VERTEX(x2, y2, u2, v2);
   VERTEX(x1, y2,  u1, v2);
   
-  text->index++;
+  increment_index(text);
   update_extent(text, x+dx, y+dy);
 
   return advance;
@@ -187,17 +206,18 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 
 static void text_update_draw_count(Text *text)
 {
-  if (text->index >= text->count) {
-    text->count = text->index + 1;
-    GPU_batch_set_vertices_draw_count(text->batch, text->count * QUAD_SZE);
+  const uint16_t new_count = text->index - text->start + 1;
+
+  if (new_count > text->count) {
+    text->count = new_count;
   }
 }
 
 static void text_update_start(Text *text)
 {
-  const int vbuff = GPU_batch_vertex_buffer(text->batch);
+  const int vbuff = GPU_batch_vertex_buffer(get_batch());
   
-  GPU_vertbuf_set_start(vbuff, text->index * QUAD_SZE);
+  GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE);
 }
 
 void Text_add(const short id, int x, int y, const char *str)
@@ -220,12 +240,12 @@ void Text_add(const short id, int x, int y, const char *str)
   }
 }
 
-void Text_set_start(const short id, const int index)
+void Text_set_index(const short id, const int index)
 {
   get_text(id)->index = index;
 }
 
-int Text_start(const short id)
+int Text_index(const short id)
 {
   return get_text(id)->index;
 }
@@ -245,16 +265,37 @@ void Text_set_offset(const short id, const int width, const int height)
   text->ProjMatrix[3] = s3;
 }
 
+static void update_uniforms(Text *text)
+{
+  const GLfloat val1 = text->ProjMatrix[0];
+  const GLfloat val2 = text->ProjMatrix[1];
+  const GLfloat val3 = text->ProjMatrix[2];
+  const GLfloat val4 = text->ProjMatrix[3];
+  const GLfloat val5 = text->alimit;
+
+  ProjMatrix[0] = val1;
+  ProjMatrix[1] = val2;
+  ProjMatrix[2] = val3;
+  ProjMatrix[3] = val4;
+
+  alimit = val5;
+}
+
 void Text_draw(const short id)
 {
   Text * const text = get_text(id);
   if (text->ready) {
+    update_uniforms(text);
     GPU_texture_bind(Font_texture(text->font), 0);
     GPU_shader_bind(Shaders_test_quad());
     GPU_uniformbuffer_activate(0);
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    GPU_batch_draw(text->batch, GL_TRIANGLES, 1);  
+
+    // batch has been setup so safe to use var
+    GPU_batch_set_vertices_draw_count(batch, text->count * QUAD_SZE);
+    GPU_batch_set_draw_start(batch, text->start * QUAD_SZE);
+    GPU_batch_draw(batch, GL_TRIANGLES, 1);  
     //glDisable(GL_BLEND);
   }    
 }
