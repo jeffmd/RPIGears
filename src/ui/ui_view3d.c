@@ -38,7 +38,7 @@ static short get_class(void)
 static short get_connector(void)
 {
   if (!area_connector) {
-    printf("create ui view3d area action table: ");
+    printf("create ui view3d area connector: ");
     area_connector = UI_area_connector(get_class());
     UI_area_connect_enter(area_connector, ui_view3d_enter);
     UI_area_connect_leave(area_connector, ui_view3d_leave);
