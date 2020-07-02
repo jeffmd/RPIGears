@@ -9,14 +9,14 @@
 
 typedef struct {
   uint8_t active;            // not zero if vertex buffer is not deleted
+  uint8_t ready;             // not zero if ready for adding data to buffer
+  short vformat;             // vertex format ID
   GLuint data_idx[VERT_ATTRIB_MAX];     // current index in data buffer for writing
   GLuint alloc_count;        // number of verts allocated in data buffer
   GLuint add_count;          // number of verts to add to data buffer when resize occurs
   void *data;                // pointer to data buffer in cpu ram
-  short vformat;             // vertex format ID
   GLuint vbo_id;             // 0 indicates using client ram or not allocated yet
   GLenum usage;              // usage hint for GL optimisation
-  uint8_t ready;             // not zero if ready for adding data to buffer
 } GPUVertBuffer;
 
 #define VERT_BUFFER_MAX_COUNT 10
@@ -56,7 +56,6 @@ static void delete_vbo(GPUVertBuffer *vbuff)
     vbuff->vbo_id = 0;
   }
 }
-
 
 static void vertbuf_init(GPUVertBuffer *vbuff)
 {
@@ -100,12 +99,17 @@ void GPU_vertbuf_set_add_count(const short id, const GLuint count)
   get_vert_buffer(id)->add_count = count;
 }
 
-void GPU_vertbuf_set_start(const short id, const GLuint start)
+GLuint GPU_vertbuf_index(const short id)
+{
+  return get_vert_buffer(id)->data_idx[0];
+}
+
+void GPU_vertbuf_set_index(const short id, const GLuint index)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
   for (GLuint Idx = 0; Idx < VERT_ATTRIB_MAX; Idx++) {
-    vbuff->data_idx[Idx] = start;
+    vbuff->data_idx[Idx] = index;
   }
 }
 

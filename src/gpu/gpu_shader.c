@@ -21,9 +21,9 @@ extern char msg[512];
 typedef struct {
   //GLuint name_offset;
   char name[INPUT_NAME_LENGTH];
+  GLenum type;
   uint8_t location;
   uint8_t size;
-  GLenum type;
 } GPUShaderInput;
 
 typedef struct {
@@ -35,12 +35,12 @@ typedef struct {
 
 typedef struct {
   uint8_t active;
-  GLint linked;
   uint8_t modid;
-  short vert_unit;
   uint8_t vert_modid;
-  short frag_unit;
   uint8_t frag_modid;
+  GLint linked;
+  short vert_unit;
+  short frag_unit;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
   ShaderInputArrayTracker attributes;

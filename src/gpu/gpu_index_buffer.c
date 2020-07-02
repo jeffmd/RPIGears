@@ -9,6 +9,7 @@
 
 typedef struct {
   uint8_t active;           // not zero if vertex buffer is not deleted
+  uint8_t ready;            // not zero if ready for adding data to buffer
   GLuint alloc_count;       // number of verts allocated in data buffer
   GLuint add_count;         // number of verts to add to data buffer when resize occurs
   GLuint idx;               // index into data during update
@@ -16,7 +17,6 @@ typedef struct {
   GLvoid *index;            // pointer(vertex array) or 0(using vbo) to index data
   GLuint ibo_id;            // 0 indicates using client ram or not allocated yet
   GLenum usage;             // usage hint for GL optimisation
-  uint8_t ready;            // not zero if ready for adding data to buffer
 } GPUIndexBuffer;
 
 #define INDEX_BUFFER_MAX_COUNT 10

@@ -10,6 +10,14 @@
 
 typedef struct {
   uint8_t active;
+  uint8_t modid;
+  uint8_t parent_modid;
+  // flags
+  unsigned char hide:1;
+  unsigned char visible:1;
+  //unsigned selectable:1;
+  unsigned char handled:1;
+
   // area id links
   short parent;
   short child;
@@ -20,18 +28,8 @@ typedef struct {
   short abs_pos[2];
   short vis_pos[4];
 
-  uint8_t modid;
-  uint8_t parent_modid;
-
   // Connector handle
   int handle;
-
-  // flags
-  unsigned char hide:1;
-  unsigned char visible:1;
-  //unsigned selectable:1;
-  unsigned char handled:1;
-
 } UI_Area;
 
 enum Events {

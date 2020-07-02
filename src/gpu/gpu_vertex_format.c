@@ -9,17 +9,17 @@
 
 typedef struct {
   GLenum type;             // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_FIXED, or GL_FLOAT
-  uint8_t size;            // Components per element (1,2,3,4)
-  uint8_t normalized;      // Fixed-point values are normalized when converted to floats
   const char *name;        // attribute name in vertex shader
   GLuint offset;           // offset from start of data
+  uint8_t size;            // Components per element (1,2,3,4)
+  uint8_t normalized;      // Fixed-point values are normalized when converted to floats
 } VertAttribute;
 
 typedef struct {
   uint8_t active;           // not zero if vertex format is not deleted
-  VertAttribute vertex_attributes[VERT_ATTRIB_MAX];
   uint8_t attribute_count;  // count of active attributes in vertex_attributes array
   uint8_t stride;           // size in bytes of vertex data - only valid after attributes added and ready is not zero
+  VertAttribute vertex_attributes[VERT_ATTRIB_MAX];
 } GPUVertFormat;
 
 #define VERT_FORMAT_MAX_COUNT 5

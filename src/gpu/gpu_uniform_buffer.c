@@ -32,11 +32,11 @@ typedef struct {
 
 typedef struct {
   uint8_t active;           // not zero if uniform buffer is not deleted
-  UniformAttribute uniforms[UNIFORM_MAX_COUNT];
   uint8_t uniform_count;    // count of active attributes in vertex_attributes array
-  ShaderUniformIndex shaders[SHADER_CACHE_MAX_COUNT];
   uint8_t next_index;       // next index to use for a new shader binding
   uint8_t active_index;     // the index to the shader used for current binding
+  UniformAttribute uniforms[UNIFORM_MAX_COUNT];
+  ShaderUniformIndex shaders[SHADER_CACHE_MAX_COUNT];
 } GPUUniformBuffer;
 
 #define UNIFORM_BUFFER_MAX_COUNT 10

@@ -16,10 +16,10 @@ char msg[512];
 
 typedef struct {
   uint8_t active;
+  uint8_t modid;
+  uint16_t glShaderObj;
   const char *fileName; // if null then represents deleted object
   GLuint type;
-  uint16_t glShaderObj;
-  uint8_t modid;
 } GPUShaderUnit;
 
 static GPUShaderUnit shader_units[SHADER_UNIT_MAX_COUNT];
