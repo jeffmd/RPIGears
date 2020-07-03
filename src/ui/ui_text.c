@@ -125,7 +125,7 @@ static short get_class(void)
 static short get_area_connector(void)
 {
   if (!area_connector) {
-    printf("create ui text area action table: ");
+    printf("create ui text area connector: ");
     area_connector = UI_area_connector(get_class());
     UI_area_connect_enter(area_connector, ui_text_enter);
     UI_area_connect_leave(area_connector, ui_text_leave);
