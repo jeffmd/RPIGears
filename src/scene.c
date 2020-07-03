@@ -35,7 +35,7 @@ static short uniform_buffer;
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
  */
-static void draw_gear(const int gear, const GLfloat x, const GLfloat y, const GLfloat angle)
+static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const GLfloat angle)
 {
    /* Translate and rotate the gear */
    m4x4_translate(tm, Camera_view_matrix(), x, y, 0);

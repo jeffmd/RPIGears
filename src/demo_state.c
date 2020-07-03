@@ -17,9 +17,9 @@ typedef struct
 // number of seconds to run the demo
    GLuint timeToRun;
    short tex;
+   short gear1, gear2, gear3;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
-   short gear1, gear2, gear3;
 
 // current angle of the gear
    GLfloat angle;
@@ -67,22 +67,22 @@ GLuint state_timeToRun(void)
   return state->timeToRun;
 }
 
-int state_tex(void)
+short state_tex(void)
 {
   return state->tex;
 }
 
-int state_gear1(void)
+short state_gear1(void)
 {
   return state->gear1;
 }
 
-int state_gear2(void)
+short state_gear2(void)
 {
   return state->gear2;
 }
 
-int state_gear3(void)
+short state_gear3(void)
 {
   return state->gear3;
 }
