@@ -58,7 +58,7 @@ static void update_fps(const short source_id, const short destination_id)
   }
 }
 
-static short get_class(void)
+static short get_stats_class(void)
 {
   if (!stats_class) {
     stats_class = Connector_register_class("stats_ui");
@@ -70,7 +70,7 @@ static short get_class(void)
 static short get_stats_connector(void)
 {
   if (!stats_connector) {
-    stats_connector = UI_area_connector(get_class());
+    stats_connector = UI_area_connector(get_stats_class());
     UI_area_connect_key_change(stats_connector, toggle_stats_draw);
     UI_area_connect_draw(stats_connector, update_fps);
   }
@@ -78,7 +78,7 @@ static short get_stats_connector(void)
   return stats_connector;
 }
 
-static const int get_handle(void)
+static const int get_stats_handle(void)
 {
   return Connector_handle(get_stats_connector(), 0);
 }
@@ -111,7 +111,7 @@ static int get_fps_ui_text(void)
     UI_text_add(fps_ui_text, fps_str);
     fps_text = UI_text_text_id(fps_ui_text);
     fps_start = Text_index(fps_text);
-    Text_add(fps_ui_text, FPS_X, 0, num_str);
+    Text_add(fps_text, FPS_X, 0, num_str);
   }
 
   return fps_ui_text;
@@ -148,7 +148,7 @@ static short get_stats_select_area(void)
     stats_select_area = UI_area_create();
     UI_area_set_position(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
-    UI_area_connect(stats_select_area, get_handle());
+    UI_area_connect(stats_select_area, get_stats_handle());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }
