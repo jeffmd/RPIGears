@@ -54,12 +54,12 @@ static short action_slot_allocate(const int count)
   return new_action_slot;
 }
  
-static inline int find_deleted_connector(void)
+static inline short find_deleted_connector(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_connector, connectors, CONNECTOR_MAX_COUNT, Connector, "Connector");
 }
 
-static Connector *get_connector(int id)
+static Connector *get_connector(short id)
 {
   if ((id < 0) | (id >= CONNECTOR_MAX_COUNT)) {
     id = 0;
@@ -74,9 +74,9 @@ static void connector_init(Connector *connector)
   //action_table->action_slot = 0;
 }
 
-int Connector_create(const short source_class, const short destination_class)
+short Connector_create(const short source_class, const short destination_class)
 {
-  const int id = find_deleted_connector();
+  const short id = find_deleted_connector();
   Connector *const connector = get_connector(id);
   connector->active = 1;
   connector_init(connector);
