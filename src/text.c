@@ -17,11 +17,11 @@
 
 typedef struct {
 
-  uint8_t active;           // zero if deleted
+  uint8_t active;          // zero if deleted
   uint8_t ready;           // 1 if ready to draw
   short font;
   GLfloat ProjMatrix[4];   // scale and offset
-  GLfloat alimit;
+  GLfloat alimit;          // alpha limit
   int extent[2];           // text x and y extent
   uint16_t start;          // start index in vertex buffer
   uint16_t index;          // index for next char
