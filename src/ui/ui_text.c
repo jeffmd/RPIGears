@@ -113,7 +113,7 @@ static void ui_text_area_resize(const short source_id, const short destination_i
   area_clear(destination_id);
 }
 
-static short get_class(void)
+static short get_ui_text_class(void)
 {
   if(!ui_text_class) {
     ui_text_class = Connector_register_class("ui_text");
@@ -126,7 +126,7 @@ static short get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui text area connector: ");
-    area_connector = UI_area_connector(get_class());
+    area_connector = UI_area_connector(get_ui_text_class());
     UI_area_connect_enter(area_connector, ui_text_enter);
     UI_area_connect_leave(area_connector, ui_text_leave);
     UI_area_connect_draw(area_connector, ui_text_draw);
