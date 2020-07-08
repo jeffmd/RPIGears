@@ -26,7 +26,7 @@ static void ui_view3d_draw(const short source_id, const short destination_id)
   Scene_draw();
 }
 
-static short get_class(void)
+static short get_ui_view3d_class(void)
 {
   if (!ui_view3d_class) {
     ui_view3d_class = Connector_register_class("ui_view3d");
@@ -39,7 +39,7 @@ static short get_connector(void)
 {
   if (!area_connector) {
     printf("create ui view3d area connector: ");
-    area_connector = UI_area_connector(get_class());
+    area_connector = UI_area_connector(get_ui_view3d_class());
     UI_area_connect_enter(area_connector, ui_view3d_enter);
     UI_area_connect_leave(area_connector, ui_view3d_leave);
     UI_area_connect_draw(area_connector, ui_view3d_draw);
