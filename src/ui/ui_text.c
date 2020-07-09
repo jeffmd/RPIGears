@@ -38,7 +38,7 @@ static UI_Text *get_ui_text(short id)
   return ui_texts + id;
 }
 
-static void text_init(UI_Text *ui_text)
+static void ui_text_init(UI_Text *ui_text)
 {
   ui_text->area = 0;
 }
@@ -137,7 +137,7 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_handle(const short ui_text_id)
+static int get_ui_text_handle(const short ui_text_id)
 {
   return Connector_handle(get_area_connector(), ui_text_id);
 }
@@ -147,9 +147,9 @@ int UI_text_create(void)
   const short id = find_deleted_ui_text();
   UI_Text *const ui_text = get_ui_text(id);
   ui_text->active = 1;
-  text_init(ui_text);
+  ui_text_init(ui_text);
 
-  return get_handle(id);
+  return get_ui_text_handle(id);
 }
 
 short UI_text_text_id(const short id)
