@@ -230,7 +230,6 @@ int main (int argc, char *argv[])
   init_textures();
   demo_state_build_gears(Options_useVBO());
 
-  Scene_init();
   //Font_set_active(Font_create("liberation2/LiberationMono-Regular.ttf"));
   //Font_set_active(Font_create("dejavu/DejaVuSans.ttf"));
   Font_set_active(Font_create("noto/NotoMono-Regular.ttf"));

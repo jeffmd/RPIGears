@@ -44,11 +44,32 @@ static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const 
    Gear_draw(gear, Options_drawMode(), state_instances());
 }
 
+static void shaders_load_programs_key(const short souce_id, const short destination_id)
+{
+  Shaders_load_programs();
+}
+
+static void scene_init(void)
+{
+  // setup the scene based on rendering mode
+  Camera_init_ProjectionMatrix((float)Window_screen_width() / (float)Window_screen_height());
+  Key_add_action(SHIFT_KEY('R'), shaders_load_programs_key, "reload shaders");
+  m4x4_copy(UBO_Data.projection_matrix, Camera_ProjectionMatrixPtr());
+
+  uniform_buffer = GPU_uniformbuffer_create();
+  GPU_uniformbuffer_add_4f(uniform_buffer, "UBO", UBO_Data);
+  GPU_uniformbuffer_add_1i(uniform_buffer, "DiffuseMap", diffuseMap_Data);
+}
+
 /**
  * Draws the gears in the scene.
  */
 void Scene_draw(void)
 {
+  if (!uniform_buffer) {
+    scene_init();
+  }
+
   if (light_isDirty() || Camera_isDirty()) {
      m4xv3(UBO_Data.LightSourcePosition, Camera_view_matrix(), state_LightSourcePosition());
      printf("Recalc Light Position\n");
@@ -64,21 +85,4 @@ void Scene_draw(void)
   draw_gear(state_gear1(), -3.0, -2.0, state_angle());
   draw_gear(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);
   draw_gear(state_gear3(), -3.1, 4.2, -2 * state_angle() - 25.0);
-}
-
-static void shaders_load_programs_key(const short souce_id, const short destination_id)
-{
-  Shaders_load_programs();
-}
-
-void Scene_init(void)
-{
-  // setup the scene based on rendering mode
-  Camera_init_ProjectionMatrix((float)Window_screen_width() / (float)Window_screen_height());
-  Key_add_action(SHIFT_KEY('R'), shaders_load_programs_key, "reload shaders");
-  m4x4_copy(UBO_Data.projection_matrix, Camera_ProjectionMatrixPtr());
-
-  uniform_buffer = GPU_uniformbuffer_create();
-  GPU_uniformbuffer_add_4f(uniform_buffer, "UBO", UBO_Data);
-  GPU_uniformbuffer_add_1i(uniform_buffer, "DiffuseMap", diffuseMap_Data);
 }
