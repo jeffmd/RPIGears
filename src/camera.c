@@ -7,8 +7,10 @@
 #include "gles3.h"
 #include "matrix_math.h"
 #include "key_input.h"
+#include "static_array.h"
 
 typedef struct {
+  uint8_t active;
   GLfloat z;
   GLfloat x;
   GLfloat y;
@@ -19,82 +21,131 @@ typedef struct {
   GLfloat ViewMatrix[16];
   GLfloat ProjectionMatrix[16];
 
-} CAMERA_T;
+} Camera;
+
+#define CAMERA_MAX_COUNT 10
 
 static GLfloat tm[16];
-static CAMERA_T _camera;
-static CAMERA_T * const camera = &_camera; 
+static Camera cameras[CAMERA_MAX_COUNT];
+static short next_deleted_camera;
+
+
+static Camera *active_camera;
+static short default_camera;
+
+static inline short find_deleted_camera(void)
+{
+  return ARRAY_FIND_DELETED_ID(next_deleted_camera, cameras, CAMERA_MAX_COUNT, Camera, "Camera");
+}
+
+static Camera *get_camera(short id)
+{
+  if ((id < 0) | (id >= CAMERA_MAX_COUNT)) {
+    id = 0;
+    printf("ERROR: Bad Camera id, using default id: 0\n");
+  }
+    
+  return cameras + id;
+}
+
+static void camera_init(Camera *camera)
+{
+  camera->z = -45.0f;
+  camera->x = 2.0f;
+  camera->y = 0.0f;
+  camera->view_rotx = 15.0f;
+  camera->view_roty = 25.0f;
+  camera->view_rotz = 0.0f;
+  camera->dirty = GL_TRUE;
+}
+
+short Camera_create(void)
+{
+  const short id = find_deleted_camera();
+  Camera *const camera = get_camera(id);
+  camera->active = 1;
+  camera_init(camera);
+
+  return id;
+}
+
+static Camera *get_active_camera(void);
 
 GLfloat Camera_z(void)
 {
-  return camera->z;
+  return get_active_camera()->z;
 }
 
 GLfloat Camera_x(void)
 {
-  return camera->x;
+  return get_active_camera()->x;
 }
 
 GLfloat Camera_y(void)
 {
-  return camera->y;
+  return get_active_camera()->y;
 }
 
 GLfloat Camera_view_rotx(void)
 {
-  return camera->view_rotx;
+  return get_active_camera()->view_rotx;
 }
 
 GLfloat Camera_view_roty(void)
 {
-  return camera->view_roty;
+  return get_active_camera()->view_roty;
 }
 
 GLfloat Camera_view_rotz(void)
 {
-  return camera->view_rotz;
+  return get_active_camera()->view_rotz;
 }
 
 static void camera_change_z(const float val)
 {
-  camera->z += val;  
+  Camera *camera = get_active_camera();
+  camera->z += val;
   camera->dirty = GL_TRUE;
 }
 
 static void camera_change_x(const float val)
 {
+  Camera *camera = get_active_camera();
   camera->x += val;
   camera->dirty = GL_TRUE;
 }
 
 static void camera_change_y(const float val)
 {
+  Camera *camera = get_active_camera();
   camera->y += val;  
   camera->dirty = GL_TRUE;
 }
 
 void Camera_ProjectionMatrix(GLfloat *md)
 {
-   m4x4_copy(md, camera->ProjectionMatrix);
+   m4x4_copy(md, active_camera->ProjectionMatrix);
 }
 
 GLfloat *Camera_ProjectionMatrixPtr(void)
 {
-   return camera->ProjectionMatrix;
+   return get_active_camera()->ProjectionMatrix;
 }
 
 void Camera_init_ProjectionMatrix(const float aspectratio)
 {
-   m4x4_perspective(camera->ProjectionMatrix, 35.0, aspectratio, 0.0, 100.0);
+   m4x4_perspective(get_active_camera()->ProjectionMatrix, 35.0, aspectratio, 0.0, 100.0);
 }
 
 GLboolean Camera_isDirty(void)
 {
-   return camera->dirty;	
+   return get_active_camera()->dirty;
 }
 
 GLfloat *Camera_view_matrix(void)
 {
+  Camera *camera = get_active_camera();
+
   if (camera->dirty == GL_TRUE) {
     printf("camera Recalc\n");
     m4x4_identity(camera->ViewMatrix);
@@ -139,21 +190,37 @@ static void camera_key_up(const short souce_id, const short destination_id)
   Key_input_set_update(camera_change_y, -1.0f);
 }
 
-void Camera_init(void)
+static void camera_set_keys(void)
 {
-  camera->z = -45.0f;
-  camera->x = 2.0f;
-  camera->y = 0.0f;
-  camera->view_rotx = 15.0f;
-  camera->view_roty = 25.0f;
-  camera->view_rotz = 0.0f;
-  camera->dirty = GL_TRUE;
-  
   Key_add_action('r', camera_key_reverse, "move camera back from gears");
   Key_add_action('f', camera_key_forward, "move camera toward gears");
   Key_add_action('a', camera_key_left, "move camera left");
   Key_add_action('d', camera_key_right, "move camera right");
   Key_add_action('w', camera_key_up, "move camera up");
-  Key_add_action('s', camera_key_down, "move camera down");
-  
+  Key_add_action('s', camera_key_down, "move camera down");  
 }
+
+static short get_default_camera(void)
+{
+  if (!default_camera) {
+    default_camera = Camera_create();
+    camera_set_keys();
+  }
+
+  return default_camera;
+}
+
+static Camera *get_active_camera(void)
+{
+  if (!active_camera) {
+    active_camera = get_camera(get_default_camera());
+  }
+
+  return active_camera;
+}
+
+void Camera_set_active(const short id)
+{
+  active_camera = get_camera(id);
+}
+

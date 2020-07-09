@@ -17,7 +17,8 @@ GLfloat *Camera_ProjectionMatrixPtr(void);
 void Camera_init_ProjectionMatrix(const float aspectratio);
 GLfloat *Camera_view_matrix(void);
 GLboolean Camera_isDirty(void);
-void Camera_init(void);
+short Camera_create(void);
+void Camera_set_active(const short id);
   
   
 #endif

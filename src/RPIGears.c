@@ -77,7 +77,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpu_framebuffer.h"
 #include "demo_state.h"
 #include "image.h"
-#include "camera.h"
 #include "print_info.h"
 #include "scene.h"
 #include "font.h"
@@ -231,7 +230,6 @@ int main (int argc, char *argv[])
   init_textures();
   demo_state_build_gears(Options_useVBO());
 
-  Camera_init();
   Scene_init();
   //Font_set_active(Font_create("liberation2/LiberationMono-Regular.ttf"));
   //Font_set_active(Font_create("dejavu/DejaVuSans.ttf"));
