@@ -32,164 +32,52 @@ typedef struct
 
 
 static DEMO_STATE_T _state;
-static DEMO_STATE_T * const state = &_state;
-
+static DEMO_STATE_T *demo_state;
 
 static void update_gear_VBO_use(void)
 {
-  if (state->use_VBO) {
-    Gear_use_BO(state->gear1);
-    Gear_use_BO(state->gear2);
-    Gear_use_BO(state->gear3);
+  if (demo_state->use_VBO) {
+    Gear_use_BO(demo_state->gear1);
+    Gear_use_BO(demo_state->gear2);
+    Gear_use_BO(demo_state->gear3);
     printf("using Buffer Objects for vertex/index data\n");
   }
   else {
-    Gear_no_BO(state->gear1);
-    Gear_no_BO(state->gear2);
-    Gear_no_BO(state->gear3);
+    Gear_no_BO(demo_state->gear1);
+    Gear_no_BO(demo_state->gear2);
+    Gear_no_BO(demo_state->gear3);
     printf("Not using Buffer Objects for vertex/index data\n");
   }
 }
 
-void demo_state_toggle_VBO(void)
+static void ds_toggle_VBO(void)
 {
-  state->use_VBO = state->use_VBO ? GL_FALSE : GL_TRUE;
-  update_gear_VBO_use();
+  if (demo_state) {
+    demo_state->use_VBO = demo_state->use_VBO ? GL_FALSE : GL_TRUE;
+    update_gear_VBO_use();
+  }
 }
 
 static void demo_state_toggle_VBO_key(const short souce_id, const short destination_id)
 {
-  demo_state_toggle_VBO();
-}
-
-GLuint state_timeToRun(void)
-{
-  return state->timeToRun;
-}
-
-short state_tex(void)
-{
-  return state->tex;
-}
-
-short state_gear1(void)
-{
-  return state->gear1;
-}
-
-short state_gear2(void)
-{
-  return state->gear2;
-}
-
-short state_gear3(void)
-{
-  return state->gear3;
-}
-
-GLfloat state_angle(void)
-{
-  return state->angle;
-}
-
-void update_timeToRun(const GLuint val)
-{
-  state->timeToRun = val;
-}
-
-void update_angleVel(const GLfloat val)
-{
-  state->angleVel = val;
-}
-
-static void change_angleVel(const float val)
-{
-  state->angleVel += val;
-}
-
-void update_tex(const int id)
-{
-  state->tex = id;
-}
-
-GLuint state_instances(void)
-{
-  return state->instances;
+  ds_toggle_VBO();
 }
 
 static void inc_instances(const short souce_id, const short destination_id)
 {
-  state->instances++;
+  demo_state->instances++;
 }
 
 static void dec_instances(const short souce_id, const short destination_id)
 {
-  state->instances--;
-  if (state->instances < 1) 
-    state->instances = 1;	
+  demo_state->instances--;
+  if (demo_state->instances < 1) 
+    demo_state->instances = 1;	
 }
 
-void update_gear_rotation(void)
+static void change_angleVel(const float val)
 {
-  /* advance gear rotation for next frame */
-  state->angle += state->angleVel * WM_period_rate();
-  if (state->angle > 360.0)
-    state->angle -= 360.0;
-}
-
-void light_move_y(const float val)
-{
-  state->LightSourcePosition[1] += val;
-  state->LightDirty = GL_TRUE;
-  printf("Light Y= %f\n", state->LightSourcePosition[1]);
-}
-
-void light_move_x(const float val)
-{
-  state->LightSourcePosition[0] += val;
-  state->LightDirty = GL_TRUE;
-  printf("Light X= %f\n", state->LightSourcePosition[0]);
-}
-
-GLboolean light_isDirty(void)
-{
-  return state->LightDirty;
-}
-
-void light_clean(void)
-{
-  state->LightDirty = GL_FALSE;
-}
-
-GLfloat *state_LightSourcePosition(void)
-{
-  return state->LightSourcePosition;
-}
-
-void demo_state_build_gears(const int useVBO)
-{
-  const GLfloat red[4] = {0.8, 0.2, 0.2, 1.0};
-  const GLfloat green[4] = {0.2, 0.8, 0.2, 1.0};
-  const GLfloat blue[4] = {0.2, 0.2, 0.8, 1.0};
-
-  state->use_VBO = useVBO;
-  /* make the meshes for the gears */
-  state->gear1 = Gear_create(1.0, 4.0, 1.25, 20, 0.7, red);
-  state->gear2 = Gear_create(0.5, 2.0, 1.50, 10, 0.7, green);
-  state->gear3 = Gear_create(1.3, 2.0, 0.75, 10, 0.7, blue);
-
-  update_gear_VBO_use();
-}
-
-static void demo_state_delete(void)
-{
-  // release memory used for gear and associated vertex arrays
-  Gear_delete(state->gear1);
-  Gear_delete(state->gear2);
-  Gear_delete(state->gear3);
-  
-  printf("demo state has shut down\n");
-
+  demo_state->angleVel += val;
 }
 
 static void key_angleVel_down(const short souce_id, const short destination_id)
@@ -204,17 +92,30 @@ static void key_angleVel_up(const short souce_id, const short destination_id)
 
 static void key_angleVel_pause(const short souce_id, const short destination_id)
 {
-  update_angleVel(0.0);
+  demo_state->angleVel = 0.0f;
 }
 
-void demo_state_init(void)
+static void demo_state_delete(void)
+{
+  if (!demo_state) {
+  // release memory used for gear and associated vertex arrays
+    Gear_delete(demo_state->gear1);
+    Gear_delete(demo_state->gear2);
+    Gear_delete(demo_state->gear3);
+    demo_state = 0;
+  }
+  printf("demo state has shut down\n");
+
+}
+
+static void demo_state_init(DEMO_STATE_T *state)
 {
   //state->rate = 1.0f;
   state->angleVel = -30.0f;
-  state->LightSourcePosition[0] = -8.0;
-  state->LightSourcePosition[1] = 5.0;
-  state->LightSourcePosition[2] = 15.0;
-  state->LightSourcePosition[3] = 1.0;
+  state->LightSourcePosition[0] = -8.0f;
+  state->LightSourcePosition[1] = 5.0f;
+  state->LightSourcePosition[2] = 15.0f;
+  state->LightSourcePosition[3] = 1.0f;
   state->LightDirty = GL_TRUE;
   state->instances = 1;
   
@@ -228,4 +129,146 @@ void demo_state_init(void)
   
   atexit(demo_state_delete);
 
+}
+
+static DEMO_STATE_T *get_demo_state(void)
+{
+  if (!demo_state) {
+    demo_state = &_state;
+    demo_state_init(demo_state);
+  }
+
+  return demo_state;
+}
+
+static void ds_build_gear1()
+{
+  const GLfloat red[4] = {0.8f, 0.2f, 0.2f, 1.0f};
+
+  DEMO_STATE_T *state = get_demo_state();
+  state->gear1 = Gear_create(1.0f, 4.0f, 1.25f, 20, 0.7f, red);
+}
+
+static void ds_build_gear2()
+{
+  const GLfloat green[4] = {0.2f, 0.8f, 0.2f, 1.0f};
+
+  DEMO_STATE_T *state = get_demo_state();
+  state->gear2 = Gear_create(0.5f, 2.0f, 1.50f, 10, 0.7f, green);
+}
+
+static void ds_build_gear3()
+{
+  const GLfloat blue[4] = {0.2f, 0.2f, 0.8f, 1.0f};
+
+  DEMO_STATE_T *state = get_demo_state();
+  state->gear3 = Gear_create(1.3f, 2.0f, 0.75f, 10, 0.7f, blue);
+}
+
+short DS_gear1(void)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  
+  if (!state->gear1) {
+    ds_build_gear1();
+  }
+  
+  return state->gear1;
+}
+
+short DS_gear2(void)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  
+  if (!state->gear2) {
+    ds_build_gear2();
+  }
+  
+  return state->gear2;
+}
+
+short DS_gear3(void)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  
+  if (!state->gear3) {
+    ds_build_gear3();
+  }
+  
+  return state->gear3;
+}
+
+GLuint DS_timeToRun(void)
+{
+  return get_demo_state()->timeToRun;
+}
+
+short DS_tex(void)
+{
+  return get_demo_state()->tex;
+}
+
+GLfloat DS_angle(void)
+{
+  return get_demo_state()->angle;
+}
+
+void DS_update_timeToRun(const GLuint val)
+{
+  get_demo_state()->timeToRun = val;
+}
+
+void DS_update_angleVel(const GLfloat val)
+{
+  get_demo_state()->angleVel = val;
+}
+
+void DS_update_tex(const int id)
+{
+  get_demo_state()->tex = id;
+}
+
+GLuint DS_instances(void)
+{
+  return get_demo_state()->instances;
+}
+
+void DS_update_gear_rotation(void)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  /* advance gear rotation for next frame */
+  state->angle += state->angleVel * WM_period_rate();
+  if (state->angle > 360.0)
+    state->angle -= 360.0;
+}
+
+void DS_light_move_y(const float val)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  state->LightSourcePosition[1] += val;
+  state->LightDirty = GL_TRUE;
+  printf("Light Y= %f\n", state->LightSourcePosition[1]);
+}
+
+void DS_light_move_x(const float val)
+{
+  DEMO_STATE_T *state = get_demo_state();
+  state->LightSourcePosition[0] += val;
+  state->LightDirty = GL_TRUE;
+  printf("Light X= %f\n", state->LightSourcePosition[0]);
+}
+
+GLboolean DS_light_isDirty(void)
+{
+  return get_demo_state()->LightDirty;
+}
+
+void DS_light_clean(void)
+{
+  get_demo_state()->LightDirty = GL_FALSE;
+}
+
+GLfloat *DS_LightSourcePosition(void)
+{
+  return get_demo_state()->LightSourcePosition;
 }

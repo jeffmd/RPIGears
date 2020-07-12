@@ -106,7 +106,7 @@ static void init_textures(void)
    printf("creating Textures\n");
    int tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
-   update_tex(tex);
+   DS_update_tex(tex);
 }
 
 static void toggle_useVSync(const short souce_id, const short destination_id)
@@ -139,7 +139,7 @@ static void run_gears(void)
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!Exit_is_now())
   {
-    update_gear_rotation();
+    DS_update_gear_rotation();
     offscreen_refresh();
     WM_refresh();
   }
@@ -157,8 +157,8 @@ static void init_options(int argc, char *argv[])
     Print_CLoptions_help();
   }
 
-  update_timeToRun(Options_timeToRun());
-  update_angleVel(Options_angleVel());
+  DS_update_timeToRun(Options_timeToRun());
+  DS_update_angleVel(Options_angleVel());
 }
 
 void sig_handler(int signo)
@@ -212,13 +212,12 @@ static short get_view3d_area(void)
 int main (int argc, char *argv[])
 {
   signal(SIGINT, sig_handler);
-  demo_state_init();
   init_options(argc, argv);
   // Start OGLES
   WM_init();
   WM_set_draw(draw);
   Window_update_VSync(Options_useVSync());
-  Exit_init(state_timeToRun());
+  Exit_init(DS_timeToRun());
   Print_info_init();
   Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
@@ -228,7 +227,6 @@ int main (int argc, char *argv[])
   }
   
   init_textures();
-  demo_state_build_gears(Options_useVBO());
 
   //Font_set_active(Font_create("liberation2/LiberationMono-Regular.ttf"));
   //Font_set_active(Font_create("dejavu/DejaVuSans.ttf"));

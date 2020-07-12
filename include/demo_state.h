@@ -5,29 +5,24 @@
 #ifndef _demo_state_h_
   #define _demo_state_h_
 
-// a procedure that takes a value representing the rate change to apply to an update
-
-void demo_state_init(void);
-void demo_state_build_gears(const int useVBO);
-void demo_state_toggle_VBO(void);
-GLuint state_timeToRun(void);
-short state_tex(void);
-short state_gear1(void);
-short state_gear2(void);
-short state_gear3(void);
-GLfloat state_angle(void);
-GLuint state_instances(void);
-void demo_state_next_frame(void);
-char *demo_state_has_fps(void);
+GLuint DS_timeToRun(void);
+short DS_tex(void);
+short DS_gear1(void);
+short DS_gear2(void);
+short DS_gear3(void);
+GLfloat DS_angle(void);
+GLuint DS_instances(void);
+void DS_state_next_frame(void);
+char *DS_has_fps(void);
   
-void update_timeToRun(const GLuint val);
-void update_angleVel(const GLfloat val);
-void update_gear_rotation(void);
-void light_move_y(const float val);
-void light_move_x(const float val);
-GLfloat *state_LightSourcePosition(void);
-GLboolean light_isDirty(void);
-void light_clean(void);
-void update_tex(const int id);
+void DS_update_timeToRun(const GLuint val);
+void DS_update_angleVel(const GLfloat val);
+void DS_update_gear_rotation(void);
+void DS_light_move_y(const float val);
+void DS_light_move_x(const float val);
+GLfloat *DS_LightSourcePosition(void);
+GLboolean DS_light_isDirty(void);
+void DS_light_clean(void);
+void DS_update_tex(const int id);
 
 #endif

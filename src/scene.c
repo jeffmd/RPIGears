@@ -41,7 +41,7 @@ static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const 
    m4x4_translate(tm, Camera_view_matrix(), x, y, 0);
    m4x4_rotate(UBO_Data.model_view, tm, angle, 0, 0, 1);
 
-   Gear_draw(gear, Options_drawMode(), state_instances());
+   Gear_draw(gear, Options_drawMode(), DS_instances());
 }
 
 static void shaders_load_programs_key(const short souce_id, const short destination_id)
@@ -70,19 +70,19 @@ void Scene_draw(void)
     scene_init();
   }
 
-  if (light_isDirty() || Camera_isDirty()) {
-     m4xv3(UBO_Data.LightSourcePosition, Camera_view_matrix(), state_LightSourcePosition());
+  if (DS_light_isDirty() || Camera_isDirty()) {
+     m4xv3(UBO_Data.LightSourcePosition, Camera_view_matrix(), DS_LightSourcePosition());
      printf("Recalc Light Position\n");
-     light_clean();
+     DS_light_clean();
   }
   
   // Bind texture surface to current vertices
-  GPU_texture_bind(state_tex(), 0);
+  GPU_texture_bind(DS_tex(), 0);
   Shaders_bind_gear_shader();
   // make uniform_buffer active so that it gets used for all active gears
   GPU_uniformbuffer_activate(uniform_buffer);
   /* Draw the gears */
-  draw_gear(state_gear1(), -3.0, -2.0, state_angle());
-  draw_gear(state_gear2(), 3.1, -2.0, -2 * state_angle() - 9.0);
-  draw_gear(state_gear3(), -3.1, 4.2, -2 * state_angle() - 25.0);
+  draw_gear(DS_gear1(), -3.0, -2.0, DS_angle());
+  draw_gear(DS_gear2(), 3.1, -2.0, -2 * DS_angle() - 9.0);
+  draw_gear(DS_gear3(), -3.1, 4.2, -2 * DS_angle() - 25.0);
 }
