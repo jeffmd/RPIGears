@@ -111,8 +111,8 @@ static void init_textures(void)
 
 static void toggle_useVSync(const short souce_id, const short destination_id)
 {
-  const int sync = Options_useVSync() ? 0 : 1;
-  Options_update_useVSync(sync);
+  const int sync = User_Options_useVSync() ? 0 : 1;
+  User_Options_update_useVSync(sync);
   Window_update_VSync(sync);
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
@@ -153,12 +153,12 @@ static void draw(void)
 //==============================================================================
 static void init_options(int argc, char *argv[])
 {
-  if (! setup_user_options(argc, argv)) {
+  if (! User_Options_setup(argc, argv)) {
     Print_CLoptions_help();
   }
 
-  DS_update_timeToRun(Options_timeToRun());
-  DS_update_angleVel(Options_angleVel());
+  DS_update_timeToRun(User_Options_timeToRun());
+  DS_update_angleVel(User_Options_angleVel());
 }
 
 void sig_handler(int signo)
@@ -216,13 +216,13 @@ int main (int argc, char *argv[])
   // Start OGLES
   WM_init();
   WM_set_draw(draw);
-  Window_update_VSync(Options_useVSync());
+  Window_update_VSync(User_Options_useVSync());
   Exit_init(DS_timeToRun());
   Print_info_init();
   Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
   
-  if (Options_wantInfo()) {
+  if (User_Options_wantInfo()) {
    Print_GLInfo();
   }
   

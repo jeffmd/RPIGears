@@ -4,13 +4,13 @@
 #ifndef _USER_OPTIONS_H_
   #define _USER_OPTIONS_H_
   
-  int Options_useVBO(void);
-  int Options_useVSync(void);
-  int Options_wantInfo(void);
-  GLenum Options_drawMode(void);
-  GLfloat Options_angleVel(void);
-  GLuint Options_timeToRun(void);
-  int setup_user_options(int argc, char *argv[]);
-  void Options_toggle_drawmode(void);
-  void Options_update_useVSync(const int sync);
+  int User_Options_useVBO(void);
+  int User_Options_useVSync(void);
+  int User_Options_wantInfo(void);
+  GLenum User_Options_drawMode(void);
+  GLfloat User_Options_angleVel(void);
+  GLuint User_Options_timeToRun(void);
+  int User_Options_setup(int argc, char *argv[]);
+  void User_Options_toggle_drawmode(void);
+  void User_Options_update_useVSync(const int sync);
 #endif

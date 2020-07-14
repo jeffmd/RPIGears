@@ -41,7 +41,7 @@ static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const 
    m4x4_translate(tm, Camera_view_matrix(), x, y, 0);
    m4x4_rotate(UBO_Data.model_view, tm, angle, 0, 0, 1);
 
-   Gear_draw(gear, Options_drawMode(), DS_instances());
+   Gear_draw(gear, User_Options_drawMode(), DS_instances());
 }
 
 static void shaders_load_programs_key(const short souce_id, const short destination_id)

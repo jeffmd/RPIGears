@@ -24,42 +24,42 @@ typedef struct {
 static OPTIONS_T _options;
 static OPTIONS_T * const options = &_options;
 
-int Options_useVBO(void)
+int User_Options_useVBO(void)
 {
   return options->useVBO;  
 }
 
-int Options_useVSync(void)
+int User_Options_useVSync(void)
 {
   return options->useVSync;  
 }
 
-int Options_wantInfo(void)
+int User_Options_wantInfo(void)
 {
   return options->wantInfo;  
 }
 
-GLenum Options_drawMode(void)
+GLenum User_Options_drawMode(void)
 {
   return options->drawMode;
 }
 
-GLfloat Options_angleVel(void)
+GLfloat User_Options_angleVel(void)
 {
   return options->angleVel;
 }
 
-GLuint Options_timeToRun(void)
+GLuint User_Options_timeToRun(void)
 {
   return options->timeToRun;
 }
 
-void Options_update_useVSync(const int sync)
+void User_Options_update_useVSync(const int sync)
 {
   options->useVSync = sync;
 }
 
-void Options_toggle_drawmode(void)
+void User_Options_toggle_drawmode(void)
 {
   char *modestr = 0;
   
@@ -85,7 +85,7 @@ void Options_toggle_drawmode(void)
 
 static void toggle_drawmode_key(const short souce_id, const short destination_id)
 {
-  Options_toggle_drawmode();
+  User_Options_toggle_drawmode();
 }
 
 static void user_options_init(void)
@@ -94,7 +94,7 @@ static void user_options_init(void)
 
 }
 
-int setup_user_options(int argc, char *argv[])
+int User_Options_setup(int argc, char *argv[])
 {
   int i, optionsgood = 1;
 
