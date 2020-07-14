@@ -20,8 +20,8 @@ static int lastFrames;
 static char fps_str[12];
 static char *fps_strptr;
 
-static int frame_rate_task;
-static int FPS_task;
+static short frame_rate_task;
+static short FPS_task;
 
 // Average Frames Per Second
 static float avgfps;
