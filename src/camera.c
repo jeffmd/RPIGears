@@ -69,95 +69,22 @@ short Camera_create(void)
   return id;
 }
 
-static Camera *get_active_camera(void);
-
-GLfloat Camera_z(void)
-{
-  return get_active_camera()->z;
-}
-
-GLfloat Camera_x(void)
-{
-  return get_active_camera()->x;
-}
-
-GLfloat Camera_y(void)
-{
-  return get_active_camera()->y;
-}
-
-GLfloat Camera_view_rotx(void)
-{
-  return get_active_camera()->view_rotx;
-}
-
-GLfloat Camera_view_roty(void)
-{
-  return get_active_camera()->view_roty;
-}
-
-GLfloat Camera_view_rotz(void)
-{
-  return get_active_camera()->view_rotz;
-}
-
 static void camera_change_z(const float val)
 {
-  Camera *camera = get_active_camera();
-  camera->z += val;
-  camera->dirty = GL_TRUE;
+  active_camera->z += val;
+  active_camera->dirty = GL_TRUE;
 }
 
 static void camera_change_x(const float val)
 {
-  Camera *camera = get_active_camera();
-  camera->x += val;
-  camera->dirty = GL_TRUE;
+  active_camera->x += val;
+  active_camera->dirty = GL_TRUE;
 }
 
 static void camera_change_y(const float val)
 {
-  Camera *camera = get_active_camera();
-  camera->y += val;  
-  camera->dirty = GL_TRUE;
-}
-
-void Camera_ProjectionMatrix(GLfloat *md)
-{
-   m4x4_copy(md, active_camera->ProjectionMatrix);
-}
-
-GLfloat *Camera_ProjectionMatrixPtr(void)
-{
-   return get_active_camera()->ProjectionMatrix;
-}
-
-void Camera_init_ProjectionMatrix(const float aspectratio)
-{
-   m4x4_perspective(get_active_camera()->ProjectionMatrix, 35.0, aspectratio, 0.0, 100.0);
-}
-
-GLboolean Camera_isDirty(void)
-{
-   return get_active_camera()->dirty;
-}
-
-GLfloat *Camera_view_matrix(void)
-{
-  Camera *camera = get_active_camera();
-
-  if (camera->dirty == GL_TRUE) {
-    printf("camera Recalc\n");
-    m4x4_identity(camera->ViewMatrix);
-    /* Translate and rotate the view */
-    m4x4_translate(tm, camera->ViewMatrix, camera->x, camera->y, camera->z);
-    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotx, 1, 0, 0);
-    m4x4_rotate(tm, camera->ViewMatrix, camera->view_roty, 0, 1, 0);
-    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotz, 0, 0, 1);
-    camera->dirty = GL_FALSE;
-  }
-
-  return camera->ViewMatrix;
+  active_camera->y += val;  
+  active_camera->dirty = GL_TRUE;
 }
 
 static void camera_key_reverse(const short souce_id, const short destination_id)
@@ -217,6 +144,74 @@ static Camera *get_active_camera(void)
   }
 
   return active_camera;
+}
+
+GLfloat Camera_z(void)
+{
+  return get_active_camera()->z;
+}
+
+GLfloat Camera_x(void)
+{
+  return get_active_camera()->x;
+}
+
+GLfloat Camera_y(void)
+{
+  return get_active_camera()->y;
+}
+
+GLfloat Camera_view_rotx(void)
+{
+  return get_active_camera()->view_rotx;
+}
+
+GLfloat Camera_view_roty(void)
+{
+  return get_active_camera()->view_roty;
+}
+
+GLfloat Camera_view_rotz(void)
+{
+  return get_active_camera()->view_rotz;
+}
+
+void Camera_ProjectionMatrix(GLfloat *md)
+{
+   m4x4_copy(md, get_active_camera()->ProjectionMatrix);
+}
+
+GLfloat *Camera_ProjectionMatrixPtr(void)
+{
+   return get_active_camera()->ProjectionMatrix;
+}
+
+void Camera_init_ProjectionMatrix(const float aspectratio)
+{
+   m4x4_perspective(get_active_camera()->ProjectionMatrix, 35.0, aspectratio, 0.0, 100.0);
+}
+
+GLboolean Camera_isDirty(void)
+{
+   return get_active_camera()->dirty;
+}
+
+GLfloat *Camera_view_matrix(void)
+{
+  Camera *camera = get_active_camera();
+
+  if (camera->dirty == GL_TRUE) {
+    printf("camera Recalc\n");
+    m4x4_identity(camera->ViewMatrix);
+    /* Translate and rotate the view */
+    m4x4_translate(tm, camera->ViewMatrix, camera->x, camera->y, camera->z);
+    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotx, 1, 0, 0);
+    m4x4_rotate(tm, camera->ViewMatrix, camera->view_roty, 0, 1, 0);
+    m4x4_rotate(camera->ViewMatrix, tm, camera->view_rotz, 0, 0, 1);
+    camera->dirty = GL_FALSE;
+  }
+
+  return camera->ViewMatrix;
 }
 
 void Camera_set_active(const short id)
