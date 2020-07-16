@@ -179,7 +179,7 @@ static int is_visible(UI_Area *area)
   if (area->parent) {
     if (area->parent_modid != get_area(area->parent)->modid) {
       update_visibility(area);
-      printf("udate visibility\n");
+      //printf("udate visibility\n");
     }
   }
 
