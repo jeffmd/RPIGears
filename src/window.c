@@ -316,7 +316,6 @@ void Window_ui_viewport(short pos[2], short size[2], short vis_pos[4])
   glViewport(ox, oy, window->nativewindow.width, window->nativewindow.height);
   y = window->old_rect.height - vis_pos[3];
   glScissor(window->offsetx + vis_pos[0], window->offsety + y, vis_pos[2] - vis_pos[0], vis_pos[3] - vis_pos[1]);
-  glEnable(GL_SCISSOR_TEST);
 }
 
 void Window_release(void)

@@ -91,6 +91,7 @@ static void wm_update(void)
   Key_input_down_update();
   Key_input_inc_rate();
   wm_do_draw_fn();
+  glEnable(GL_SCISSOR_TEST);
   UI_area_root_draw();
   
 }
