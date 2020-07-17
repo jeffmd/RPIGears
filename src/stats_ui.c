@@ -11,6 +11,7 @@
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "ui_text.h"
+#include "ui_checkbox.h"
 #include "connector.h"
 
 #define FPS_Y 400
@@ -19,6 +20,7 @@
 static const char ver_str[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_str[] = "FPS:";
 static const char num_str[] = "000.00";
+static const char vsync_str[] = "vsync";
 static int fps_start;
 
 static short fps_text; 
@@ -27,6 +29,9 @@ static int fps_ui_text;
 
 static short ver_area;
 static int ver_ui_text;
+
+static short vsync_area;
+static int vsync_ui_checkbox;
 
 static short stats_draw;
 static short stats_area;
@@ -93,6 +98,15 @@ static int get_ver_ui_text(void)
   return ver_ui_text;
 }
 
+static int get_vsync_ui_checkbox(void)
+{
+  if (!vsync_ui_checkbox) {
+    vsync_ui_checkbox = UI_checkbox_create(vsync_str);
+  }
+
+  return vsync_ui_checkbox;
+}
+
 static short get_ver_area(void)
 {
   if (!ver_area) {
@@ -102,6 +116,17 @@ static short get_ver_area(void)
   }
 
   return ver_area;
+}
+
+static short get_vsync_area(void)
+{
+  if (!vsync_area) {
+    vsync_area = UI_area_create();
+    UI_area_connect(vsync_area, get_vsync_ui_checkbox());
+    UI_area_set_position(vsync_area, 10, 30);
+  }
+
+  return vsync_area;
 }
 
 static int get_fps_ui_text(void)
@@ -135,6 +160,7 @@ static short get_stats_area(void)
     UI_area_set_position(stats_area, 2, 2);
     UI_area_set_size(stats_area, 300, 450);
     UI_area_add(stats_area, get_ver_area());
+    UI_area_add(stats_area, get_vsync_area());
     UI_area_add(stats_area, get_fps_area());
     update_stats_hide();
   }

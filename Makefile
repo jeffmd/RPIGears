@@ -5,7 +5,7 @@ OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
 	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o \
-	gpu_quad.o ui_area.o connector.o ui_view3d.o ui_text.o \
+	gpu_quad.o ui_area.o connector.o ui_view3d.o ui_text.o ui_checkbox.o\
 	key_action.o key_map.o stats_ui.o)
 	
 BIN = RPIGears
