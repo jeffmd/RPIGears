@@ -43,15 +43,17 @@ static void ui_text_init(UI_Text *ui_text)
   ui_text->area = 0;
 }
 
+/*
 static void ui_text_enter(const short source_id, const short destination_id)
 {
-  printf("enter text area %i\n", source_id);
+  //printf("enter text area %i\n", source_id);
 }
 
 static void ui_text_leave(const short source_id, const short destination_id)
 {
-  printf("leave text area %i\n", source_id);
+  //printf("leave text area %i\n", source_id);
 }
+*/
 
 static short get_text(UI_Text *ui_text)
 {
@@ -96,12 +98,12 @@ static void update_area_size(UI_Text *ui_text, const short area_id)
 
   Text_extent(get_text(ui_text), extent);
   UI_area_set_size(area_id, extent[0], extent[1]);
-  printf("text area size x: %i, y: %i\n", extent[0], extent[1]); 
+  //printf("text area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
 static void ui_text_area_attach(const short source_id, const short destination_id)
 {
-  printf("attach text area %i\n", source_id);
+  //printf("attach text area %i\n", source_id);
   UI_Text *const ui_text = get_ui_text(destination_id);
   update_area_size(ui_text, source_id);
   area_clear(destination_id);
@@ -109,7 +111,7 @@ static void ui_text_area_attach(const short source_id, const short destination_i
 
 static void ui_text_area_resize(const short source_id, const short destination_id)
 {
-  printf("resize text area %i\n", source_id);
+  //printf("resize text area %i\n", source_id);
   area_clear(destination_id);
 }
 
@@ -127,8 +129,8 @@ static short get_area_connector(void)
   if (!area_connector) {
     printf("create ui text area connector: ");
     area_connector = UI_area_connector(get_ui_text_class());
-    UI_area_connect_enter(area_connector, ui_text_enter);
-    UI_area_connect_leave(area_connector, ui_text_leave);
+    //UI_area_connect_enter(area_connector, ui_text_enter);
+    //UI_area_connect_leave(area_connector, ui_text_leave);
     UI_area_connect_draw(area_connector, ui_text_draw);
     UI_area_connect_resize(area_connector, ui_text_area_resize);
     UI_area_connect_attach(area_connector, ui_text_area_attach);
