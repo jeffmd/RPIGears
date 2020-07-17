@@ -109,7 +109,7 @@ void Window_hide(void)
   window_update_old();
   window_size_reset();
   window->inFocus = 0;
-  printf("hiding window \n");
+  //printf("hiding window \n");
   window_update();
 }
 
@@ -120,7 +120,7 @@ void Window_show(void)
   window->dst_rect.x = window->old_rect.x;
   window->dst_rect.y = window->old_rect.y;
   window->inFocus = 1;
-  printf("showing window \n");
+  //printf("showing window \n");
   window_update();
 }
 
