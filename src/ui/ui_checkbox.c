@@ -25,14 +25,14 @@ static short ui_checkbox_class;
 
 static inline short find_deleted_ui_checkbox(void)
 {
-  return ARRAY_FIND_DELETED_ID(next_deleted_ui_checkbox, ui_checkboxes, UI_CHECKBOX_MAX_COUNT, UI_CheckBox, "UI text");
+  return ARRAY_FIND_DELETED_ID(next_deleted_ui_checkbox, ui_checkboxes, UI_CHECKBOX_MAX_COUNT, UI_CheckBox, "UI checkbox");
 }
 
 static UI_CheckBox *get_ui_checkbox(short id)
 {
   if ((id < 0) | (id >= UI_CHECKBOX_MAX_COUNT)) {
     id = 0;
-    printf("ERROR: Bad UI text id, using default id: 0\n");
+    printf("ERROR: Bad UI checkbox id, using default id: 0\n");
   }
     
   return ui_checkboxes + id;
