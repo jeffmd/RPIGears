@@ -206,7 +206,7 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 
 static void text_update_draw_count(Text *text)
 {
-  const uint16_t new_count = text->index - text->start + 1;
+  const uint16_t new_count = text->index - text->start;
 
   if (new_count > text->count) {
     text->count = new_count;
