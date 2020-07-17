@@ -32,7 +32,7 @@ enum {
   ATTR_POSITION,
 };
 
-#define TEXT_MAX_COUNT 5
+#define TEXT_MAX_COUNT 50
 #define QUAD_SZE 6
 #define MAX_CHAR_LENGTH 100
 
