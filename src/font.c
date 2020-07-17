@@ -44,9 +44,10 @@ static short next_deleted_font;
 static short active_font = 0;
 
 #define TEXTURE_GLYPH_SLOTS 8
-#define DEFAULT_GLYPH_HEIGHT 30
+#define DEFAULT_GLYPH_SIZE 30
+#define DEFAULT_GLYPH_TOP DEFAULT_GLYPH_SIZE - 9 
 #define GLYPHSPC 2
-#define TEXTURE_SIZE TEXTURE_GLYPH_SLOTS * (font->size + GLYPHSPC)
+#define TEXTURE_SIZE TEXTURE_GLYPH_SLOTS * (DEFAULT_GLYPH_SIZE + GLYPHSPC)
 
 static FT_Library ft_lib;
 static FT_Face face;
@@ -77,9 +78,8 @@ static void transfer_glyphs(Font *font)
     
     init_texture(font);
     
-    int rowh = 0;
     int ox = GLYPHSPC;
-    int oy = DEFAULT_GLYPH_HEIGHT + GLYPHSPC;
+    int oy = GLYPHSPC;
     int oyt;
     const float tex_width = GPU_texture_width(font->texture);
     const float tex_height = GPU_texture_height(font->texture);
@@ -90,27 +90,23 @@ static void transfer_glyphs(Font *font)
         continue;
       }
 
-      if (glyph->bitmap.rows > rowh)
-        rowh = glyph->bitmap.rows;
-
       if ((ox + glyph->bitmap.width + GLYPHSPC) >= TEXTURE_SIZE) {
-        oy += rowh + GLYPHSPC;
-        rowh = 0;
+        oy += DEFAULT_GLYPH_SIZE + GLYPHSPC;
         ox = GLYPHSPC;
       }
 
-      oyt = oy - glyph->bitmap_top;
+      oyt = oy + (DEFAULT_GLYPH_TOP - glyph->bitmap_top);
       GPU_texture_sub_image(font->texture, ox, oyt, glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer);
       
       Glyph *glyphc = &font->glyphs[i - CHAR_START];
       
       glyphc->advance = glyph->advance.x >> 6;
-      glyphc->height = glyph->bitmap.rows;
+      glyphc->height = DEFAULT_GLYPH_SIZE;
       glyphc->width = glyph->bitmap.width;
       glyphc->u1 = (float)ox / tex_width;
-      glyphc->v1 = (float)(oyt + glyphc->height) / tex_height;
+      glyphc->v1 = (float)(oy + DEFAULT_GLYPH_SIZE) / tex_height;
       glyphc->u2 = (float)(ox + glyphc->width) / tex_width;
-      glyphc->v2 = (float)oyt / tex_height;
+      glyphc->v2 = (float)oy / tex_height;
       
       printf("glyph: %c, width: %i height: %i left: %i. top: %i, advance: %i\n", i,
              glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap_left, glyph->bitmap_top, glyphc->advance);
@@ -176,7 +172,7 @@ static short find_font(const char *filename)
 static void font_init(Font *font)
 {
   if (!font->size) {
-    font->size = DEFAULT_GLYPH_HEIGHT;
+    font->size = DEFAULT_GLYPH_SIZE;
   }
   
   font->ready = 0; 
