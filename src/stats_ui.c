@@ -29,9 +29,6 @@ static int vsync_ui_checkbox;
 
 
 static short fps_text; 
-static short fps_area;
-static short ver_area;
-static short vsync_area;
 
 static short stats_draw;
 static short stats_area;
@@ -91,8 +88,7 @@ static const int get_stats_handle(void)
 static int get_ver_ui_text(void)
 {
   if (!ver_ui_text) {
-    ver_ui_text = UI_text_create();
-    UI_text_add(ver_ui_text, ver_str);
+    ver_ui_text = UI_text_create(ver_str);
   }
 
   return ver_ui_text;
@@ -107,33 +103,10 @@ static int get_vsync_ui_checkbox(void)
   return vsync_ui_checkbox;
 }
 
-static short get_ver_area(void)
-{
-  if (!ver_area) {
-    ver_area = UI_area_create();
-    UI_area_connect(ver_area, get_ver_ui_text());
-    UI_area_set_position(ver_area, 10, 10);
-  }
-
-  return ver_area;
-}
-
-static short get_vsync_area(void)
-{
-  if (!vsync_area) {
-    vsync_area = UI_area_create();
-    UI_area_connect(vsync_area, get_vsync_ui_checkbox());
-    UI_area_set_position(vsync_area, 10, 30);
-  }
-
-  return vsync_area;
-}
-
 static int get_fps_ui_text(void)
 {
   if (!fps_ui_text) {
-    fps_ui_text = UI_text_create();
-    UI_text_add(fps_ui_text, fps_str);
+    fps_ui_text = UI_text_create(fps_str);
     fps_text = UI_text_text_id(fps_ui_text);
     fps_start = Text_index(fps_text);
     Text_add(fps_text, FPS_X, 0, num_str);
@@ -142,16 +115,6 @@ static int get_fps_ui_text(void)
   return fps_ui_text;
 }
 
-static short get_fps_area(void)
-{
-  if (!fps_area) {
-    fps_area = UI_area_create();
-    UI_area_connect(fps_area, get_fps_ui_text());
-    UI_area_set_position(fps_area, 10, FPS_Y);
-  }
-
-  return fps_area;
-}
 
 static short get_stats_area(void)
 {
@@ -159,9 +122,9 @@ static short get_stats_area(void)
     stats_area = UI_area_create();
     UI_area_set_position(stats_area, 2, 2);
     UI_area_set_size(stats_area, 300, 450);
-    UI_area_add(stats_area, get_ver_area());
-    UI_area_add(stats_area, get_fps_area());
-    UI_area_add(stats_area, get_vsync_area());
+    UI_area_add_handle(stats_area, get_ver_ui_text(), 10, 10);
+    UI_area_add_handle(stats_area, get_fps_ui_text(), 10, FPS_Y);
+    UI_area_add_handle(stats_area, get_vsync_ui_checkbox(), 10, 30);
     update_stats_hide();
   }
 

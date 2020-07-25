@@ -394,6 +394,16 @@ void UI_area_connect(const short area_id, const int handle)
   Connector_handle_execute(handle, OnAttach, area_id);
 }
 
+short UI_area_add_handle(const short parent_id, const int handle, const int x, const int y)
+{
+  const short child_area = UI_area_create();
+  UI_area_connect(child_area, handle);
+  UI_area_set_position(child_area, x, y);
+  UI_area_add(parent_id, child_area);
+
+  return child_area;
+}
+
 void UI_area_set_hide(const short area_id, const int state)
 {
   UI_Area * const area = get_area(area_id);

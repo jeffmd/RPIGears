@@ -144,13 +144,14 @@ static int get_ui_text_handle(const short ui_text_id)
   return Connector_handle(get_area_connector(), ui_text_id);
 }
 
-int UI_text_create(void)
+int UI_text_create(const char *str)
 {
   const short id = find_deleted_ui_text();
   UI_Text *const ui_text = get_ui_text(id);
   ui_text->active = 1;
   ui_text_init(ui_text);
 
+  Text_add(get_text(ui_text), 0, 0, str);
   return get_ui_text_handle(id);
 }
 
