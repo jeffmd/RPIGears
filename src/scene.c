@@ -82,7 +82,7 @@ void Scene_draw(void)
   // make uniform_buffer active so that it gets used for all active gears
   GPU_uniformbuffer_activate(uniform_buffer);
   /* Draw the gears */
-  draw_gear(DS_gear1(), -3.0, -2.0, DS_angle());
-  draw_gear(DS_gear2(), 3.1, -2.0, -2 * DS_angle() - 9.0);
-  draw_gear(DS_gear3(), -3.1, 4.2, -2 * DS_angle() - 25.0);
+  draw_gear(DS_gear1(), -3.0f, -2.0f, DS_angle());
+  draw_gear(DS_gear2(), 3.1f, -2.0f, -2.0f * DS_angle() - 9.0f);
+  draw_gear(DS_gear3(), -3.1f, 4.2f, -2.0f * DS_angle() - 25.0f);
 }
