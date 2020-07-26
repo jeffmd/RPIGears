@@ -46,12 +46,12 @@ static GLfloat alimit;
 static uint16_t index;          // current master index into vertex buffer
 
 
-static inline int find_deleted_text_id(void)
+static inline short find_deleted_text_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_text, texts, TEXT_MAX_COUNT, Text,"text");
 }
 
-static Text *get_text(int id)
+static Text *get_text(short id)
 {
   if ((id < 0) | (id >= TEXT_MAX_COUNT)) {
     id = 0;
@@ -81,14 +81,13 @@ static short get_batch(void)
 {
   if (!batch) {
     batch = GPU_batch_create();
-    const int ubuff = GPU_batch_uniform_buffer(batch);
+    const short ubuff = GPU_batch_uniform_buffer(batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", ProjMatrix);
     GPU_uniformbuffer_add_1f(ubuff, "alimit", alimit);
 
-    const int vbuff = GPU_batch_vertex_buffer(batch);
+    const short vbuff = GPU_batch_vertex_buffer(batch);
     GPU_vertbuf_set_vertex_format(vbuff, text_vformat());
     GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
-    
   }
 
   return batch;
@@ -107,7 +106,7 @@ static void text_init(Text *text)
 
 short Text_create(void)
 {
-  const int id = find_deleted_text_id();
+  const short id = find_deleted_text_id();
   Text * const text = get_text(id);
 
   text->active = 1;
@@ -215,7 +214,7 @@ static void text_update_draw_count(Text *text)
 
 static void text_update_start(Text *text)
 {
-  const int vbuff = GPU_batch_vertex_buffer(get_batch());
+  const short vbuff = GPU_batch_vertex_buffer(get_batch());
   
   GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE);
 }
@@ -224,10 +223,8 @@ void Text_add(const short id, int x, int y, const char *str)
 {
   if (str) {
     Text * const text = get_text(id);
-    int font = text_font(text);
     
-    if (font) {
-      
+    if (text_font(text)) {
       text_update_start(text);
       
       for (; *str; str++) {
