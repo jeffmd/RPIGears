@@ -69,11 +69,11 @@ void test_quad_draw(void)
   }
 }
 
-void test_quad_add_texture(const int id, const float alimit)
+void test_quad_add_texture(const short tex_id, const float alimit)
 {
-  GPU_quad_set_texture(quad.quad, id);
+  GPU_quad_set_texture(quad.quad, tex_id);
   quad.texture_index = quad.texture_count;
-  quad.textures[quad.texture_index] = id;
+  quad.textures[quad.texture_index] = tex_id;
   quad.alimits[quad.texture_index] = alimit;
 
   quad.texture_count++;
