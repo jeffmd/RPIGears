@@ -94,7 +94,7 @@ static void gpu_quad_batch_init(GPUQuad *quad)
 {
   if (!quad->batch) {
     quad->batch = GPU_batch_create();
-    const int ubuff = GPU_batch_uniform_buffer(quad->batch);
+    const short ubuff = GPU_batch_uniform_buffer(quad->batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", quad->ProjMatrix);    
     GPU_uniformbuffer_add_1f(ubuff, "alimit", quad->alimit);    
   }
@@ -104,7 +104,7 @@ static void gpu_quad_batch_init(GPUQuad *quad)
   GPU_vertbuf_set_vertex_format(vbuff, quad_vformat());
   GPU_vertbuf_set_add_count(vbuff, 4);
   
-#define VERTEX(x, y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, ((x) + 1)*0.5, (-(y) + 1)*0.5))
+#define VERTEX(x, y) (GPU_vertbuf_add_4(vbuff, ATTR_POSITION, x, y, ((x) + 1)*0.5f, (-(y) + 1)*0.5f))
 #define QUAD(x, y, dx, dy) VERTEX(x, y); VERTEX(x+dx, y); VERTEX(x, y+dy); VERTEX(x+dx, y+dy);
   
   QUAD(-1, -1, 2, 2)
