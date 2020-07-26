@@ -103,14 +103,14 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  const int ibuff = GPU_batch_index_buffer(gear->batch);
+  const short ibuff = GPU_batch_index_buffer(gear->batch);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_set_add_count(ibuff, nindices);
   
-  const int ubuff = GPU_batch_uniform_buffer(gear->batch);
+  const short ubuff = GPU_batch_uniform_buffer(gear->batch);
   GPU_uniformbuffer_add_4f(ubuff, "MaterialColor", gear->color);
   
-  const int vbuff = GPU_batch_vertex_buffer(gear->batch);
+  const short vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuff, gear_vformat());
   GPU_vertbuf_set_add_count(vbuff, nvertices);
@@ -123,7 +123,7 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   idx = 0;
   
 #define VERTEX(x,y,z) (GPU_vertbuf_add_3(vbuff, ATTR_POSITION, x, y, z), \
-    GPU_vertbuf_add_2(vbuff, ATTR_UV, (x / r2 * 0.8 + 0.5), (y / r2 * 0.8 + 0.5)), \
+    GPU_vertbuf_add_2(vbuff, ATTR_UV, (x / r2 * 0.8f + 0.5f), (y / r2 * 0.8f + 0.5f)), \
     idx++)
 #define NORMAL(x,y,z) GPU_vertbuf_add_3(vbuff, ATTR_NORMAL, x, y, z)
 #define INDEX(a,b,c) GPU_indexbuf_add(ibuff, a); GPU_indexbuf_add(ibuff, b); GPU_indexbuf_add(ibuff, c)
