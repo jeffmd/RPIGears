@@ -37,15 +37,11 @@ static DEMO_STATE_T *demo_state;
 static void update_gear_VBO_use(void)
 {
   if (demo_state->use_VBO) {
-    Gear_use_BO(demo_state->gear1);
-    Gear_use_BO(demo_state->gear2);
-    Gear_use_BO(demo_state->gear3);
+    Gear_all_use_BO();
     printf("using Buffer Objects for vertex/index data\n");
   }
   else {
-    Gear_no_BO(demo_state->gear1);
-    Gear_no_BO(demo_state->gear2);
-    Gear_no_BO(demo_state->gear3);
+    Gear_all_no_BO();
     printf("Not using Buffer Objects for vertex/index data\n");
   }
 }
@@ -99,9 +95,10 @@ static void demo_state_delete(void)
 {
   if (!demo_state) {
   // release memory used for gear and associated vertex arrays
-    Gear_delete(demo_state->gear1);
-    Gear_delete(demo_state->gear2);
-    Gear_delete(demo_state->gear3);
+    Gear_delete_all();
+    demo_state->gear1 = 0;
+    demo_state->gear2 = 0;
+    demo_state->gear3 = 0;
     demo_state = 0;
   }
   printf("demo state has shut down\n");

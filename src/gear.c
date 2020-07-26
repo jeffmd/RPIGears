@@ -95,6 +95,7 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   
   const short id = find_deleted_gear();
   Gear *gear = get_gear(id);
+  gear->active = 1;
   
   const int nvertices = teeth * 38;
   const int nindices = teeth * 64 * 3;
@@ -272,7 +273,18 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
 
 void Gear_delete(const short id)
 {
-  GPU_batch_delete(get_gear(id)->batch, 1);
+  Gear *gear = get_gear(id);
+  if (gear->active) {
+    GPU_batch_delete(gear->batch, 1);
+    gear->active = 0;
+  }
+}
+
+void Gear_delete_all(void)
+{
+  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+    Gear_delete(id);
+  }
 }
 
 void Gear_draw(const short id, const GLenum drawMode, const GLuint instances)
@@ -289,3 +301,25 @@ void Gear_no_BO(const short id)
 {
   GPU_batch_no_BO(get_gear(id)->batch);
 }
+
+void Gear_all_use_BO(void)
+{
+  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+    Gear *gear = get_gear(id);
+    if (gear->active) {
+      GPU_batch_use_BO(gear->batch);
+    }
+  }
+}
+
+void Gear_all_no_BO(void)
+{
+  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+    Gear *gear = get_gear(id);
+    if (gear->active) {
+      GPU_batch_no_BO(gear->batch);
+    }
+  }
+}
+
+
