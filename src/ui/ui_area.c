@@ -346,8 +346,7 @@ static short get_class(void)
 
 short UI_area_connector(const short destination_class)
 {
-  const short connector_id = Connector_create(get_class(), destination_class);
-  Connector_allocate_slots(connector_id, EventsMax);
+  const short connector_id = Connector_create(get_class(), destination_class, EventsMax);
 
   return connector_id;
 }

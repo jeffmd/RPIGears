@@ -153,7 +153,6 @@ static void createSurface(void)
 
   int32_t success = graphics_get_display_size(0 /* LCD */, (uint32_t *)&window->nativewindow.width, (uint32_t *)&window->nativewindow.height);
   assert( success >= 0 );
-
   window_size_reset();
 
   window->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);

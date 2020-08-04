@@ -74,18 +74,6 @@ static void connector_init(Connector *connector)
   //action_table->action_slot = 0;
 }
 
-short Connector_create(const short source_class, const short destination_class)
-{
-  const short id = find_deleted_connector();
-  Connector *const connector = get_connector(id);
-  connector->active = 1;
-  connector_init(connector);
-  connector->source_class = source_class;
-  connector->destination_class = destination_class;
-
-  return id;
-}
-
 static void action_slots_init(const short id, const short count)
 {
   const short last_id = id + count;
@@ -94,16 +82,28 @@ static void action_slots_init(const short id, const short count)
   }
 }
 
-void Connector_allocate_slots(const short connector_id, const short count)
+static void allocate_slots(Connector *const connector, const short count)
 {
-  Connector *const connector = get_connector(connector_id);
-  
   connector->action_slot = action_slot_allocate(count);
   connector->count = count;
 
   action_slots_init(connector->action_slot, count);
 }
 
+
+short Connector_create(const short source_class, const short destination_class, const short count)
+{
+  const short id = find_deleted_connector();
+  Connector *const connector = get_connector(id);
+  connector->active = 1;
+  connector_init(connector);
+  connector->source_class = source_class;
+  connector->destination_class = destination_class;
+
+  allocate_slots(connector, count);
+
+  return id;
+}
 
 void Connector_set_action(const short connector_id, const short slot_id, ActionFn action)
 {

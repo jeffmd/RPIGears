@@ -13,7 +13,16 @@ typedef struct {
   uint8_t active;
   short text;
   short area;
+  // Connector handle
+  int handle;
 } UI_CheckBox;
+
+enum Events {
+  OnSelect,
+  OnUpdate,
+  EventsMax
+};
+
 
 #define UI_CHECKBOX_MAX_COUNT 50
 
@@ -115,6 +124,13 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
   area_clear(destination_id);
 }
 
+static void ui_checkbox_area_key_change(const short source_id, const short destination_id)
+{
+  printf("key change in checkbox area %i\n", source_id);
+  UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
+  Connector_handle_execute(ui_checkbox->handle, OnSelect, destination_id);
+}
+
 static short get_ui_checkbox_class(void)
 {
   if(!ui_checkbox_class) {
@@ -134,6 +150,7 @@ static short get_area_connector(void)
     UI_area_connect_draw(area_connector, ui_checkbox_draw);
     UI_area_connect_resize(area_connector, ui_checkbox_area_resize);
     UI_area_connect_attach(area_connector, ui_checkbox_area_attach);
+    UI_area_connect_key_change(area_connector, ui_checkbox_area_key_change);
   }
 
   return area_connector;
@@ -154,3 +171,29 @@ int UI_checkbox_create(const char *str)
 
   return get_ui_checkbox_handle(id);
 }
+
+short UI_checkbox_connector(const short destination_class)
+{
+  const short connector_id = Connector_create(get_ui_checkbox_class(), destination_class, EventsMax);
+
+  return connector_id;
+}
+
+void UI_checkbox_connect(const short checkbox_id, const int handle)
+{
+  UI_CheckBox *const checkbox = get_ui_checkbox(checkbox_id);
+  checkbox->handle = handle;
+}
+
+void UI_checkbox_connect_select(const short connector_id, ActionFn action)
+{
+  Connector_set_action(connector_id, OnSelect, action);
+}
+
+void UI_checkbox_connect_update(const short connector_id, ActionFn action)
+{
+  Connector_set_action(connector_id, OnUpdate, action);
+}
+
+
+

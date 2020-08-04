@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "gles3.h"
-#include "key_input.h"
 
 typedef struct {
 
@@ -83,14 +82,8 @@ void User_Options_toggle_drawmode(void)
   printf("\ndraw mode is %s\n", modestr);
 }
 
-static void toggle_drawmode_key(const short souce_id, const short destination_id)
-{
-  User_Options_toggle_drawmode();
-}
-
 static void user_options_init(void)
 {
-  Key_add_action('l', toggle_drawmode_key, "toggle draw mode: GL_TRIANGLES / GL_LINES / GL_POINT");
 
 }
 

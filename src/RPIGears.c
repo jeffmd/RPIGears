@@ -64,8 +64,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 // three rotating gears rendered with OpenGL ES 2.0.
 
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -73,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gles3.h"
 
 #include "user_options.h"
+#include "user_options_ui.h"
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
 #include "demo_state.h"
@@ -107,14 +106,6 @@ static void init_textures(void)
    int tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
    DS_update_tex(tex);
-}
-
-static void toggle_useVSync(const short souce_id, const short destination_id)
-{
-  const int sync = User_Options_useVSync() ? 0 : 1;
-  User_Options_update_useVSync(sync);
-  Window_update_VSync(sync);
-  printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
 static void toggle_back_render(const short souce_id, const short destination_id)
@@ -219,7 +210,7 @@ int main (int argc, char *argv[])
   Window_update_VSync(User_Options_useVSync());
   Exit_init(DS_timeToRun());
   Print_info_init();
-  Key_add_action('v', toggle_useVSync, "toggle vertical sync on/off");
+  User_options_ui_init();
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
   
   if (User_Options_wantInfo()) {

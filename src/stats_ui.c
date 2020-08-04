@@ -13,6 +13,7 @@
 #include "ui_text.h"
 #include "ui_checkbox.h"
 #include "connector.h"
+#include "user_options_ui.h"
 
 #define FPS_Y 400
 #define FPS_X 60
@@ -20,20 +21,18 @@
 static const char ver_str[] = "RPIGears ver: 1.0 GLES2.0";
 static const char fps_str[] = "FPS:";
 static const char num_str[] = "000.000";
-static const char vsync_str[] = "vsync";
 
 static int fps_start;
 static int fps_ui_text;
 static int ver_ui_text;
-static int vsync_ui_checkbox;
-
 
 static short fps_text; 
 
 static short stats_draw;
 static short stats_area;
 static short stats_select_area;
-static short stats_connector;
+static short stats_area_connector;
+//static short stats_checkbox_connector;
 static short stats_class;
 
 static void update_stats_hide(void)
@@ -69,20 +68,20 @@ static short get_stats_class(void)
   return stats_class;
 }
 
-static short get_stats_connector(void)
+static short get_stats_area_connector(void)
 {
-  if (!stats_connector) {
-    stats_connector = UI_area_connector(get_stats_class());
-    UI_area_connect_key_change(stats_connector, toggle_stats_draw);
-    UI_area_connect_draw(stats_connector, update_fps);
+  if (!stats_area_connector) {
+    stats_area_connector = UI_area_connector(get_stats_class());
+    UI_area_connect_key_change(stats_area_connector, toggle_stats_draw);
+    UI_area_connect_draw(stats_area_connector, update_fps);
   }
 
-  return stats_connector;
+  return stats_area_connector;
 }
 
-static const int get_stats_handle(void)
+static const int get_stats_area_handle(void)
 {
-  return Connector_handle(get_stats_connector(), 0);
+  return Connector_handle(get_stats_area_connector(), 0);
 }
 
 static int get_ver_ui_text(void)
@@ -92,15 +91,6 @@ static int get_ver_ui_text(void)
   }
 
   return ver_ui_text;
-}
-
-static int get_vsync_ui_checkbox(void)
-{
-  if (!vsync_ui_checkbox) {
-    vsync_ui_checkbox = UI_checkbox_create(vsync_str);
-  }
-
-  return vsync_ui_checkbox;
 }
 
 static int get_fps_ui_text(void)
@@ -124,7 +114,7 @@ static short get_stats_area(void)
     UI_area_set_size(stats_area, 300, 450);
     UI_area_add_handle(stats_area, get_ver_ui_text(), 10, 10);
     UI_area_add_handle(stats_area, get_fps_ui_text(), 10, FPS_Y);
-    UI_area_add_handle(stats_area, get_vsync_ui_checkbox(), 10, 30);
+    UI_area_add_handle(stats_area, User_options_ui_vsync(), 10, 30);
     update_stats_hide();
   }
 
@@ -137,7 +127,7 @@ static short get_stats_select_area(void)
     stats_select_area = UI_area_create();
     UI_area_set_position(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
-    UI_area_connect(stats_select_area, get_stats_handle());
+    UI_area_connect(stats_select_area, get_stats_area_handle());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }
