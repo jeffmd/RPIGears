@@ -56,8 +56,7 @@ static const int get_vsync_checkbox_handle(void)
 int User_options_ui_vsync(void)
 {
   if (!vsync_ui_checkbox) {
-    vsync_ui_checkbox = UI_checkbox_create(vsync_str);
-    UI_checkbox_connect(vsync_ui_checkbox, get_vsync_checkbox_handle());
+    vsync_ui_checkbox = UI_checkbox_create(vsync_str, get_vsync_checkbox_handle());
   }
 
   return vsync_ui_checkbox;

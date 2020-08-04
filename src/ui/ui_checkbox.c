@@ -156,20 +156,21 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_checkbox_handle(const short ui_checkbox_id)
+static int get_ui_checkbox_area_handle(const short ui_checkbox_id)
 {
   return Connector_handle(get_area_connector(), ui_checkbox_id);
 }
 
-int UI_checkbox_create(const char *str)
+int UI_checkbox_create(const char *str, const int handle)
 {
   const short id = find_deleted_ui_checkbox();
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(id);
   ui_checkbox->active = 1;
   ui_checkbox_init(ui_checkbox);
   Text_add(get_text(ui_checkbox), 0, 0, str);
+  ui_checkbox->handle = handle;
 
-  return get_ui_checkbox_handle(id);
+  return get_ui_checkbox_area_handle(id);
 }
 
 short UI_checkbox_connector(const short destination_class)
@@ -181,8 +182,8 @@ short UI_checkbox_connector(const short destination_class)
 
 void UI_checkbox_connect(const short checkbox_id, const int handle)
 {
-  UI_CheckBox *const checkbox = get_ui_checkbox(checkbox_id);
-  checkbox->handle = handle;
+  UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
+  ui_checkbox->handle = handle;
 }
 
 void UI_checkbox_connect_select(const short connector_id, ActionFn action)
@@ -194,6 +195,4 @@ void UI_checkbox_connect_update(const short connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnUpdate, action);
 }
-
-
 
