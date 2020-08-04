@@ -114,18 +114,6 @@ void Connector_set_action(const short connector_id, const short slot_id, ActionF
   }
 }
 
-static void connector_execute(const short connector_id, const short slot_id, const short source_id, const short destination_id)
-{
-  Connector *const connector = get_connector(connector_id);
-
-  if (slot_id < connector->count) {
-    ActionSlot *slot = action_slots + connector->action_slot + slot_id;
-    if (slot->action) {
-      slot->action(source_id, destination_id);
-    }
-  }
-}
-
 short Connector_register_class(const char *name)
 {
   next_class_id++;
@@ -147,7 +135,14 @@ int Connector_handle( const short connector, const short destination_id)
 void Connector_handle_execute(const int handle, const short slot_id, const short source_id)
 {
   if (handle) {
-    connector_execute(((Handle)handle).connector, slot_id, source_id, ((Handle)handle).destination_id);
+    Connector *const connector = get_connector(((Handle)handle).connector);
+
+    if (slot_id < connector->count) {
+      ActionSlot *slot = action_slots + connector->action_slot + slot_id;
+      if (slot->action) {
+        slot->action(source_id, ((Handle)handle).destination_id);
+      }
+    }
   }
 }
 
