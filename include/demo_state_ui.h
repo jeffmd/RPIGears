@@ -4,5 +4,6 @@
   #define _DEMO_STATE_UI_H_
 
   void DS_ui_init(void);
+  int DS_ui_vbo(void);
 
 #endif

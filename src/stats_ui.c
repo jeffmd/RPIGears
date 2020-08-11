@@ -14,6 +14,7 @@
 #include "ui_checkbox.h"
 #include "connector.h"
 #include "user_options_ui.h"
+#include "demo_state_ui.h"
 
 #define FPS_Y 400
 #define FPS_X 60
@@ -115,6 +116,7 @@ static short get_stats_area(void)
     UI_area_add_handle(stats_area, get_ver_ui_text(), 10, 10);
     UI_area_add_handle(stats_area, get_fps_ui_text(), 10, FPS_Y);
     UI_area_add_handle(stats_area, User_options_ui_vsync(), 10, 30);
+    UI_area_add_handle(stats_area, DS_ui_vbo(), 10, 50);
     update_stats_hide();
   }
 

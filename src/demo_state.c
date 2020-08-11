@@ -51,6 +51,17 @@ void DS_toggle_VBO(void)
   }
 }
 
+int DS_use_VBO(void)
+{
+  int result = 0;
+
+  if (demo_state) {
+    result = demo_state->use_VBO;
+  }
+
+  return result;
+}
+
 void DS_inc_instances(void)
 {
   demo_state->instances++;

@@ -13,6 +13,7 @@
   GLfloat DS_angle(void);
   GLuint DS_instances(void);
   void DS_toggle_VBO(void);
+  int DS_use_VBO(void);
   void DS_inc_instances(void);
   void DS_dec_instances(void);
   void DS_change_angleVel(const float val);
