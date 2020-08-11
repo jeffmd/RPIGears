@@ -75,6 +75,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
 #include "demo_state.h"
+#include "demo_state_ui.h"
 #include "image.h"
 #include "print_info.h"
 #include "scene.h"
@@ -210,6 +211,7 @@ int main (int argc, char *argv[])
   Window_update_VSync(User_Options_useVSync());
   Exit_init(DS_timeToRun());
   Print_info_init();
+  DS_ui_init();
   User_options_ui_init();
   Key_add_action(SHIFT_KEY('B'), toggle_back_render, "toggle background render on/off");
   

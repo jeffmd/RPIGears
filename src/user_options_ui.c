@@ -1,7 +1,6 @@
 // user_options_ui.c
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "gles3.h"
 #include "user_options.h"

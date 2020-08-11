@@ -4,12 +4,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "gles3.h"
 #include "gear.h"
-#include "gpu_texture.h"
-#include "key_input.h"
 #include "window_manager.h"
 
 typedef struct
@@ -46,7 +43,7 @@ static void update_gear_VBO_use(void)
   }
 }
 
-static void ds_toggle_VBO(void)
+void DS_toggle_VBO(void)
 {
   if (demo_state) {
     demo_state->use_VBO = demo_state->use_VBO ? GL_FALSE : GL_TRUE;
@@ -54,41 +51,21 @@ static void ds_toggle_VBO(void)
   }
 }
 
-static void demo_state_toggle_VBO_key(const short souce_id, const short destination_id)
-{
-  ds_toggle_VBO();
-}
-
-static void inc_instances(const short souce_id, const short destination_id)
+void DS_inc_instances(void)
 {
   demo_state->instances++;
 }
 
-static void dec_instances(const short souce_id, const short destination_id)
+void DS_dec_instances(void)
 {
   demo_state->instances--;
   if (demo_state->instances < 1) 
     demo_state->instances = 1;	
 }
 
-static void change_angleVel(const float val)
+void DS_change_angleVel(const float val)
 {
   demo_state->angleVel += val;
-}
-
-static void key_angleVel_down(const short souce_id, const short destination_id)
-{
-  Key_input_set_update(change_angleVel, -10.0f);
-}
-
-static void key_angleVel_up(const short souce_id, const short destination_id)
-{
-  Key_input_set_update(change_angleVel, 10.0f);
-}
-
-static void key_angleVel_pause(const short souce_id, const short destination_id)
-{
-  demo_state->angleVel = 0.0f;
 }
 
 static void demo_state_delete(void)
@@ -115,14 +92,6 @@ static void demo_state_init(DEMO_STATE_T *state)
   state->LightSourcePosition[3] = 1.0f;
   state->LightDirty = GL_TRUE;
   state->instances = 1;
-  
-  Key_input_set_update(0, 0.0f);
-  Key_add_action('b', demo_state_toggle_VBO_key, "toggle use of Buffer Objects for gear vertex data");
-  Key_add_action(SHIFT_KEY('I'), inc_instances, "add another draw instance of the gears");
-  Key_add_action(SHIFT_KEY('O'), dec_instances, "remove an instance of the gears");
-  Key_add_action(SHIFT_KEY('<'), key_angleVel_down, "decrease gear spin rate");
-  Key_add_action(SHIFT_KEY('>'), key_angleVel_up, "increase gear spin rate");
-  Key_add_action('p', key_angleVel_pause, "stop gear spin");
   
   atexit(demo_state_delete);
 
@@ -268,4 +237,9 @@ void DS_light_clean(void)
 GLfloat *DS_LightSourcePosition(void)
 {
   return get_demo_state()->LightSourcePosition;
+}
+
+void DS_angleVel_pause(void)
+{
+  get_demo_state()->angleVel = 0.0f;
 }

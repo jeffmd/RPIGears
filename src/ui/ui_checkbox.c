@@ -17,6 +17,7 @@ typedef struct {
   short area;
   // Connector handle
   int handle;
+  float box_offset[2];
 } UI_CheckBox;
 
 enum Events {
@@ -88,7 +89,8 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short source_id)
     ui_checkbox->area = source_id;
     UI_area_size(source_id, size);
     Text_set_offset(get_text(ui_checkbox), size[0] - XOFFSET, size[1]);
-    Line_Art_set_offset(-size[0], -size[1] * 0.75f);
+    ui_checkbox->box_offset[0] = -size[0];
+    ui_checkbox->box_offset[1] = -size[1] * 0.75f;
     //printf("update checkbox offset %i\n", text->text_id);
   }
 }
@@ -133,6 +135,7 @@ static void ui_checkbox_draw(const short source_id, const short destination_id)
 
   update_dimensions(ui_checkbox, source_id);
   Text_draw(get_text(ui_checkbox));
+  Line_Art_set_offset(ui_checkbox->box_offset[0], ui_checkbox->box_offset[1]);
   Line_Art_draw(box_batch_part);
   //printf("draw checkbox area %i\n", source_id);
 }
