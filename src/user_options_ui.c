@@ -15,7 +15,7 @@ static int vsync_ui_checkbox;
 static short vsync_ui_checkbox_connector;
 static short user_options_ui_class;
 
-static void vsync_toggle(const short souce_id, const short destination_id)
+static void vsync_toggle(const short source_id, const short destination_id)
 {
   const int sync = User_Options_useVSync() ? 0 : 1;
   User_Options_update_useVSync(sync);
@@ -23,7 +23,12 @@ static void vsync_toggle(const short souce_id, const short destination_id)
   printf("\nvertical sync is %s\n", sync ? "on": "off");
 }
 
-static void drawmode_toggle(const short souce_id, const short destination_id)
+static void vsync_update(const short source_id, const short destination_id)
+{
+  UI_checkbox_update_select(source_id, User_Options_useVSync());
+}
+
+static void drawmode_toggle(const short source_id, const short destination_id)
 {
   User_Options_toggle_drawmode();
 }
@@ -42,7 +47,7 @@ static short get_vsync_ui_checkbox_connector(void)
   if (!vsync_ui_checkbox_connector) {
     vsync_ui_checkbox_connector = UI_checkbox_connector(get_user_options_ui_class());
     UI_checkbox_connect_select(vsync_ui_checkbox_connector, vsync_toggle);
-    //UI_checkbox_connect_update(user_options_checkbox_connector, vsync_update);
+    UI_checkbox_connect_update(vsync_ui_checkbox_connector, vsync_update);
   }
 
   return vsync_ui_checkbox_connector;

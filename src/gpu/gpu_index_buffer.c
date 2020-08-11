@@ -64,7 +64,6 @@ static void indexbuf_init(GPUIndexBuffer *ibuff)
   
   delete_ibo(ibuff);
   delete_data(ibuff);
-  
 }
 
 
@@ -95,7 +94,7 @@ void GPU_indexbuf_set_add_count(const int id, const GLuint count)
   get_index_buffer(id)->add_count = count;
 }
 
-void GPU_indexbuf_set_start(const short id, const GLuint start)
+void GPU_indexbuf_set_index(const short id, const GLuint start)
 {
   get_index_buffer(id)->idx = start;
 }
@@ -144,6 +143,12 @@ static GLuint indexbuf_idx(GPUIndexBuffer *ibuff)
   return idx;
 }
 
+GLuint GPU_indexbuf_index(const short id)
+{
+  GPUIndexBuffer *const ibuff = get_index_buffer(id);
+  return indexbuf_idx(ibuff);
+}
+
 void GPU_indexbuf_add(const short id, const GLshort val)
 {
   GPUIndexBuffer *const ibuff = get_index_buffer(id);
@@ -189,7 +194,7 @@ void GPU_indexbuf_bind(const short id)
   }
 }
 
-GLvoid *GPU_indexbuf_get_index(const short id)
+GLvoid *GPU_indexbuf_start(const short id)
 {
   return get_index_buffer(id)->index;
 }

@@ -34,7 +34,7 @@ enum {
 static Gear gears[GEAR_MAX_COUNT];
 static short next_deleted_gear;
 
-static short vformat = 0;
+static short vformat;
 
 static inline short find_deleted_gear(void)
 {
@@ -60,6 +60,7 @@ static short gear_vformat(void)
     GPU_vertex_format_add_attribute(vformat, "normal", 3, GL_HALF_FLOAT_OES);
     GPU_vertex_format_add_attribute(vformat, "uv", 2, GL_HALF_FLOAT_OES);
   }
+
   return vformat;
 }
 

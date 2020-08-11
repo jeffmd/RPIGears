@@ -126,7 +126,7 @@ void GPU_quad_draw(const short id)
   GPUQuad *const quad = get_quad(id);
 
   GPU_texture_bind(quad->texture, 0);
-  GPU_shader_bind(quad->shader);;
+  GPU_shader_bind(quad->shader);
   GPU_uniformbuffer_activate(0);
   GPU_batch_draw(quad->batch, GL_TRIANGLE_STRIP, 1);  
 }

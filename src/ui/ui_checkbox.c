@@ -8,9 +8,11 @@
 #include "ui_area_action.h"
 #include "static_array.h"
 #include "text.h"
+#include "line_art.h"
 
 typedef struct {
   uint8_t active;
+  uint8_t selected;
   short text;
   short area;
   // Connector handle
@@ -23,14 +25,18 @@ enum Events {
   EventsMax
 };
 
-
 #define UI_CHECKBOX_MAX_COUNT 50
+#define BOXSIZE 20
+#define XOFFSET (BOXSIZE + 10)
 
 static UI_CheckBox ui_checkboxes[UI_CHECKBOX_MAX_COUNT];
 static short next_deleted_ui_checkbox;
 
 static short area_connector;
 static short ui_checkbox_class;
+
+static short checked_box_batch_part;
+static short unchecked_box_batch_part;
 
 static inline short find_deleted_ui_checkbox(void)
 {
@@ -81,17 +87,53 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short source_id)
 
     ui_checkbox->area = source_id;
     UI_area_size(source_id, size);
-    Text_set_offset(get_text(ui_checkbox), size[0], size[1]);
+    Text_set_offset(get_text(ui_checkbox), size[0] - XOFFSET, size[1]);
+    Line_Art_set_offset(-size[0], -size[1] * 0.75f);
     //printf("update checkbox offset %i\n", text->text_id);
   }
+}
+
+static short get_unchecked_box_batch_part(void)
+{
+  if(!unchecked_box_batch_part) {
+    unchecked_box_batch_part = Line_Art_create();
+    Line_Art_add(0, 0);
+    Line_Art_add(BOXSIZE, 0);
+    Line_Art_add(BOXSIZE, BOXSIZE);
+    Line_Art_add(0, BOXSIZE);
+    Line_Art_add(0, 0);
+    Line_Art_end(unchecked_box_batch_part);
+  }
+
+  return unchecked_box_batch_part;
+}
+
+static short get_checked_box_batch_part(void)
+{
+  if(!checked_box_batch_part) {
+    checked_box_batch_part = Line_Art_create();
+    Line_Art_add(BOXSIZE, BOXSIZE);
+    Line_Art_add(0, BOXSIZE);
+    Line_Art_add(0, 0);
+    Line_Art_add(BOXSIZE, 0);
+    Line_Art_add(BOXSIZE, BOXSIZE);
+    Line_Art_add(BOXSIZE/2, BOXSIZE/3);
+    Line_Art_add(BOXSIZE/4, BOXSIZE*2/3);
+    Line_Art_end(checked_box_batch_part);
+  }
+
+  return checked_box_batch_part;
 }
 
 static void ui_checkbox_draw(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
+  Connector_handle_execute(ui_checkbox->handle, OnUpdate, destination_id);
+  const short box_batch_part = ui_checkbox->selected ? get_checked_box_batch_part() : get_unchecked_box_batch_part();
 
   update_dimensions(ui_checkbox, source_id);
   Text_draw(get_text(ui_checkbox));
+  Line_Art_draw(box_batch_part);
   //printf("draw checkbox area %i\n", source_id);
 }
 
@@ -106,7 +148,7 @@ static void update_area_size(UI_CheckBox *ui_checkbox, const short area_id)
   int extent[2];
 
   Text_extent(get_text(ui_checkbox), extent);
-  UI_area_set_size(area_id, extent[0], extent[1]);
+  UI_area_set_size(area_id, extent[0] + XOFFSET, extent[1]);
   //printf("checkbox area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
@@ -195,4 +237,11 @@ void UI_checkbox_connect_update(const short connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnUpdate, action);
 }
+
+void UI_checkbox_update_select(const short id, const int val)
+{
+  get_ui_checkbox(id)->selected = val;
+}
+
+
 

@@ -4,6 +4,7 @@
 
 void Shaders_load_programs(void);
 void Shaders_bind_gear_shader(void);
-int Shaders_test_quad(void);
+short Shaders_test_quad(void);
+void Shaders_bind_line_art(void);
 
 #endif

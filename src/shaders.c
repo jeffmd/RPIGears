@@ -11,41 +11,54 @@ static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
 static const char blinn_phong_frag[] = "blinn_phong_frag.glsl";
 static const char test_quad_vert[] = "test_quad_vert.glsl";
 static const char test_quad_frag[] = "test_quad_frag.glsl";
+static const char line_art_vert[] = "line_art_vert.glsl";
+static const char line_art_frag[] = "line_art_frag.glsl";
 
-static short blinn_phong_prg = 0;
-static short test_quad_prg = 0;
+static short blinn_phong_shader;
+static short test_quad_shader;
+static short line_art_shader;
 
-static short active_gear_shader = 0;
-static short active_test_quad_shader = 0;
+static short active_gear_shader;
+static short active_test_quad_shader;
 
 void Shaders_load_programs(void)
 {
-  if (!blinn_phong_prg) {
-    blinn_phong_prg = GPU_shader(blinn_phong_vert, blinn_phong_frag);
+  if (!blinn_phong_shader) {
+    blinn_phong_shader = GPU_shader(blinn_phong_vert, blinn_phong_frag);
   }
 
-  if (!test_quad_prg) {
-    test_quad_prg = GPU_shader(test_quad_vert, test_quad_frag);
+  if (!test_quad_shader) {
+    test_quad_shader = GPU_shader(test_quad_vert, test_quad_frag);
   }
   
-  GPU_shader_reset(blinn_phong_prg);
-  active_gear_shader = blinn_phong_prg;
-  GPU_shader_reset(test_quad_prg);
-  active_test_quad_shader = test_quad_prg;
+  GPU_shader_reset(blinn_phong_shader);
+  active_gear_shader = blinn_phong_shader;
+  GPU_shader_reset(test_quad_shader);
+  active_test_quad_shader = test_quad_shader;
 }
 
 void Shaders_bind_gear_shader(void)
 {
   if (!active_gear_shader)
     Shaders_load_programs();
+
   GPU_shader_bind(active_gear_shader);
 }
 
-int Shaders_test_quad(void)
+short Shaders_test_quad(void)
 {
   if (!active_test_quad_shader)
     Shaders_load_programs();
 
   return active_test_quad_shader;
+}
+
+void Shaders_bind_line_art(void)
+{
+  if (!line_art_shader) {
+    line_art_shader = GPU_shader(line_art_vert, line_art_frag);
+  }
+
+  GPU_shader_bind(line_art_shader);
 }
 

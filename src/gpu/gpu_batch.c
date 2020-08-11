@@ -187,7 +187,7 @@ void GPU_batch_set_uniform_buffer(const short id, const short ubuff)
   get_batch(id)->ubuff = ubuff;
 }
 
-int GPU_batch_vertex_buffer(const short id)
+short GPU_batch_vertex_buffer(const short id)
 {
   GPUBatch *const batch = get_batch(id);
 
@@ -197,7 +197,7 @@ int GPU_batch_vertex_buffer(const short id)
   return batch->vbuff;
 }
 
-int GPU_batch_index_buffer(const short id)
+short GPU_batch_index_buffer(const short id)
 {
   GPUBatch *const batch = get_batch(id);
 
@@ -207,7 +207,7 @@ int GPU_batch_index_buffer(const short id)
   return batch->ibuff;
 }
 
-int GPU_batch_uniform_buffer(const short id)
+short GPU_batch_uniform_buffer(const short id)
 {
   GPUBatch *const batch = get_batch(id);
 
@@ -294,9 +294,9 @@ void GPU_batch_draw(const short id, const GLenum drawMode, const GLuint instance
   }
   else {
     if (instances > 1)
-      glDrawElementsInstanced(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuff), instances);
+      glDrawElementsInstanced(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_start(batch->ibuff), instances);
     else
-      glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_get_index(batch->ibuff));
+      glDrawElements(drawMode, batch->indices_draw_count, GL_UNSIGNED_SHORT, GPU_indexbuf_start(batch->ibuff));
   }
 }
 
@@ -328,7 +328,7 @@ static void batch_part_init(GPUBatchPart *batch_part)
     batch_part->start = GPU_vertbuf_index(batch->vbuff);
   }
   else {
-    //batch_part->start = GPU_indexbuf_index(batch->ibuff);
+    batch_part->start = GPU_indexbuf_index(batch->ibuff);
   }
 
 }
@@ -353,7 +353,7 @@ void GPU_batch_part_end(const short part)
     batch_part->count = GPU_vertbuf_index(batch->vbuff) - batch_part->start;
   }
   else {
-   // batch_part->count = GPU_indexbuf_index(batch->ibuff) - batch_part->start;
+    batch_part->count = GPU_indexbuf_index(batch->ibuff) - batch_part->start;
   }
 }
 
@@ -363,12 +363,14 @@ void GPU_batch_part_draw(const short part, const GLenum drawMode, const GLuint i
   GPUBatch *const batch = get_batch(batch_part->batch);
 
   batch->start = batch_part->start;
+
   if (!batch->ibuff) {
     batch->vertices_draw_count = batch_part->count;
   }
   else {
     batch->indices_draw_count = batch_part->count;
   }
+
   GPU_batch_draw(batch_part->batch, drawMode, instances);
 }
 

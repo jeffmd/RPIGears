@@ -10,6 +10,8 @@
   void GPU_indexbuf_use_BO(const short id);
   void GPU_indexbuf_no_BO(const short id);
   void GPU_indexbuf_bind(const short id);
-  GLvoid *GPU_indexbuf_get_index(const short id);
+  GLvoid *GPU_indexbuf_start(const short id);
+  GLuint GPU_indexbuf_index(const short id);
+  void GPU_indexbuf_set_index(const short id, const GLuint start);
 
 #endif
