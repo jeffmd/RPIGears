@@ -71,3 +71,4 @@ void User_options_ui_init(void)
   Key_add_action('v', vsync_toggle, "toggle vertical sync on/off");
   Key_add_action('l', drawmode_toggle, "toggle draw mode: GL_TRIANGLES / GL_LINES / GL_POINT");
 }
+

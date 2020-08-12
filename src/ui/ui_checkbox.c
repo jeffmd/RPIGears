@@ -151,7 +151,7 @@ static void update_area_size(UI_CheckBox *ui_checkbox, const short area_id)
   int extent[2];
 
   Text_extent(get_text(ui_checkbox), extent);
-  UI_area_set_size(area_id, extent[0] + XOFFSET, extent[1]);
+  UI_area_set_size(area_id, extent[0] + (XOFFSET / 2), extent[1]);
   //printf("checkbox area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
