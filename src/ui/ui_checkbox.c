@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "key_map.h"
+#include "key_action.h"
+
+#include "key_input.h"
 #include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
@@ -35,6 +39,7 @@ static short next_deleted_ui_checkbox;
 
 static short area_connector;
 static short ui_checkbox_class;
+static short ui_checkbox_key_map;
 
 static short checked_box_batch_part;
 static short unchecked_box_batch_part;
@@ -169,11 +174,27 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
   area_clear(destination_id);
 }
 
-static void ui_checkbox_area_key_change(const short source_id, const short destination_id)
+static void ui_checkbox_select(const short source_id, const short destination_id)
 {
-  printf("key change in checkbox area %i\n", source_id);
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
   Connector_handle_execute(ui_checkbox->handle, OnSelect, destination_id);
+  UI_area_set_handled(source_id);
+}
+
+static short get_ui_checkbox_key_map(void)
+{
+  if (!ui_checkbox_key_map) {
+    ui_checkbox_key_map = Key_Map_create();
+    Key_Map_add(ui_checkbox_key_map, Key_Action_create(LEFT_BUTTON, ui_checkbox_select, 0));
+  }
+
+  return ui_checkbox_key_map;
+}
+
+static void ui_checkbox_area_key_change(const short source_id, const short destination_id)
+{
+  //printf("key change in checkbox area %i\n", source_id);
+  Key_Map_action(get_ui_checkbox_key_map(), UI_area_active_key(), source_id, destination_id);
 }
 
 static short get_ui_checkbox_class(void)
