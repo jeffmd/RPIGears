@@ -16,6 +16,9 @@
   #define SHIFT_ALT_KEY(key) STATE_KEY((SHIFTK | ALTK), key)
   #define CTRL_ALT_KEY(key) STATE_KEY((CTRLK | ALTK), key)
   #define KEY_BUTTON(key) (127 + key) 
+  #define LEFT_BUTTON KEY_BUTTON(1)
+  #define RIGHT_BUTTON KEY_BUTTON(3)
+  #define MIDDLE_BUTTON KEY_BUTTON(2)
 
 
   typedef void (*ActionFn)(const short souce_id, const short destination_id);
