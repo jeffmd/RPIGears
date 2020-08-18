@@ -152,6 +152,7 @@ int UI_text_create(const char *str)
   ui_text_init(ui_text);
 
   Text_add(get_text(ui_text), 0, 0, str);
+
   return get_ui_text_handle(id);
 }
 

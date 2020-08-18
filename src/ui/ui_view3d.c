@@ -37,7 +37,7 @@ static short get_ui_view3d_class(void)
   return ui_view3d_class;
 }
 
-static short get_connector(void)
+static short get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui view3d area connector: ");
@@ -52,7 +52,7 @@ static short get_connector(void)
 
 static int get_handle(const short ui_view3d_id)
 {
-  return Connector_handle(get_connector(), ui_view3d_id);
+  return Connector_handle(get_area_connector(), ui_view3d_id);
 }
 
 int UI_view3d_create(void)
