@@ -37,9 +37,8 @@ static short get_line_art_batch(void)
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", proj_matrix);    
 
     const int vbuff = GPU_batch_vertex_buffer(line_art_batch);
-    //GPU_batch_set_vertices_draw_count(line_art_batch, 7);
     GPU_vertbuf_set_vertex_format(vbuff, get_vformat());
-    GPU_vertbuf_set_add_count(vbuff, 7);
+    GPU_vertbuf_set_add_count(vbuff, 100);
  
   }
 
