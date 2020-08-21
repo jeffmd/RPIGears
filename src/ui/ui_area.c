@@ -48,8 +48,8 @@ enum Events {
 static UI_Area areas[UI_AREA_MAX_COUNT];
 static short next_deleted_area;
 
-static short root_area = 0;
-static short active_area = 0;
+static short root_area;
+static short active_area;
 static int active_key;
 static short ui_area_class;
 
@@ -250,6 +250,7 @@ void UI_area_set_active(const short area_id)
 
 int UI_area_is_active(const short area_id)
 {
+  //printf("area_id=%i active_area=%i\n", area_id, active_area);
   return (area_id == active_area);
 }
 
@@ -463,3 +464,4 @@ int UI_area_active_key(void)
 {
   return active_key;
 }
+

@@ -1,0 +1,48 @@
+// ui_icon.h
+
+#include "line_art.h"
+
+static short box_batch_part;
+static short checked_box_batch_part;
+
+static short get_box_batch_part(void)
+{
+  if(!box_batch_part) {
+    box_batch_part = Line_Art_create();
+    Line_Art_add(0, 0);
+    Line_Art_add(1, 0);
+    Line_Art_add(1, 1);
+    Line_Art_add(0, 1);
+    Line_Art_add(0, 0);
+    Line_Art_end(box_batch_part);
+  }
+
+  return box_batch_part;
+}
+
+static short get_checked_box_batch_part(void)
+{
+  if(!checked_box_batch_part) {
+    checked_box_batch_part = Line_Art_create();
+    Line_Art_add(1, 1);
+    Line_Art_add(0, 1);
+    Line_Art_add(0, 0);
+    Line_Art_add(1, 0);
+    Line_Art_add(1, 1);
+    Line_Art_add(0.5f, 0.333f);
+    Line_Art_add(0.25f, 0.666f);
+    Line_Art_end(checked_box_batch_part);
+  }
+
+  return checked_box_batch_part;
+}
+
+void UI_icon_draw_box(void)
+{
+  Line_Art_draw(get_box_batch_part());
+}
+
+void UI_icon_draw_checked_box(void)
+{
+  Line_Art_draw(get_checked_box_batch_part());
+}

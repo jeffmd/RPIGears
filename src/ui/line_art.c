@@ -75,8 +75,19 @@ void Line_Art_draw(const short batch_part)
   GPU_batch_part_draw(batch_part, GL_LINE_STRIP, 1);
 }
 
-void Line_Art_set_offset(float x, float y)
+void Line_Art_set_scale_offset(float scale_x, float scale_y, float offset_x, float offset_y)
 {
-    proj_matrix[2] = x * proj_matrix[0];
-    proj_matrix[3] = y * proj_matrix[0];
+  const float cx = 1.0f / 1280.0f;
+  const float cy = 1.0f / 1024.0f;
+
+  const float sx = scale_x * cx;
+  const float sy = scale_y * cy;
+
+  const float a1 = offset_x * cx;
+  const float a2 = offset_y * cy;
+
+  proj_matrix[0] = sx;
+  proj_matrix[1] = sy;
+  proj_matrix[2] = a1;
+  proj_matrix[3] = a2;
 }

@@ -7,6 +7,6 @@
   void Line_Art_end(const short id);
   void Line_Art_add(const float x, const float y);
   void Line_Art_draw(const short batch_part);
-  void Line_Art_set_offset(float x, float y);
+  void Line_Art_set_scale_offset(float scale_x, float scale_y, float offset_x, float offset_y);
   
 #endif
