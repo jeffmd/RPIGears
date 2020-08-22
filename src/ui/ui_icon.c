@@ -37,12 +37,14 @@ static short get_checked_box_batch_part(void)
   return checked_box_batch_part;
 }
 
-void UI_icon_draw_box(void)
+void UI_icon_draw_box(float scale_x, float scale_y, float offset_x, float offset_y)
 {
+  Line_Art_set_scale_offset(scale_x, scale_y, offset_x, offset_y);
   Line_Art_draw(get_box_batch_part());
 }
 
-void UI_icon_draw_checked_box(void)
+void UI_icon_draw_checked_box(float scale_x, float scale_y, float offset_x, float offset_y)
 {
+  Line_Art_set_scale_offset(scale_x, scale_y, offset_x, offset_y);
   Line_Art_draw(get_checked_box_batch_part());
 }

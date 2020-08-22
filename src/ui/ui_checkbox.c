@@ -113,12 +113,16 @@ static void ui_checkbox_draw(const short source_id, const short destination_id)
 
   update_dimensions(ui_checkbox, source_id);
   Text_draw(get_text(ui_checkbox));
-  Line_Art_set_scale_offset(BOXSIZE, BOXSIZE, ui_checkbox->box_offset[0], ui_checkbox->box_offset[1]);
-  ui_checkbox->selected ? UI_icon_draw_checked_box() : UI_icon_draw_box();
+
+  if (ui_checkbox->selected) {
+    UI_icon_draw_checked_box(BOXSIZE, BOXSIZE, ui_checkbox->box_offset[0], ui_checkbox->box_offset[1]);
+  }
+  else {
+    UI_icon_draw_box(BOXSIZE, BOXSIZE, ui_checkbox->box_offset[0], ui_checkbox->box_offset[1]);
+  }
 
   if (UI_area_is_active(source_id)) {
-    Line_Art_set_scale_offset(ui_checkbox->select_scale[0], ui_checkbox->select_scale[1], ui_checkbox->select_offset[0], ui_checkbox->select_offset[1]);
-    UI_icon_draw_box();
+    UI_icon_draw_box(ui_checkbox->select_scale[0], ui_checkbox->select_scale[1], ui_checkbox->select_offset[0], ui_checkbox->select_offset[1]);
   }
   //printf("draw checkbox area %i\n", source_id);
 }
