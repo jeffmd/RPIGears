@@ -9,6 +9,6 @@
   int WM_minimized(void);
   void WM_refresh(void);
   void WM_set_draw(Action fn);
-  char *WM_has_fps(void);
+  float WM_fps(void);
   float WM_period_rate(void);
 #endif

@@ -17,8 +17,6 @@ typedef void (* Action)(void);
 
 static int frames; // number of frames drawn since the last frame/sec calculation
 static int lastFrames;
-static char fps_str[12];
-static char *fps_strptr;
 
 static short frame_rate_task;
 static short FPS_task;
@@ -99,8 +97,6 @@ static void wm_update(void)
 static void wm_update_avgfps(const float fps)
 {
   if ( fabsf(avgfps - fps) > 0.1f ) {
-    sprintf(fps_str, "%3.1f  ", fps);
-    fps_strptr = fps_str;
     avgfps = fps;
     period_rate = 1.0f / avgfps;
     //update_angleFrame();
@@ -130,12 +126,10 @@ static void wm_do_FPS_task(void)
   frames = 0;
 }
 
-char *WM_has_fps(void)
+float WM_fps(void)
 {
-  char * str = fps_strptr;
-  fps_strptr = 0;
-  
-  return str;
+ 
+  return avgfps;
 }
 
 float WM_period_rate(void)
