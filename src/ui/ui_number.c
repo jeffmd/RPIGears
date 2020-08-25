@@ -77,9 +77,10 @@ static short get_text(UI_Number *ui_number)
 
 static void setup_val_text(UI_Number *ui_number)
 {
-  ui_number->val_start = Text_index(get_text(ui_number));
-  ui_number->offset_x = 60;
-  Text_add(get_text(ui_number), ui_number->offset_x, 0, num_str);
+  const short text_id = get_text(ui_number);
+  ui_number->val_start = Text_index(text_id);
+  ui_number->offset_x = Text_pos_x(text_id) + 10;
+  Text_add(text_id, ui_number->offset_x, 0, num_str);
 }
 
 static void update_dimensions(UI_Number *ui_number, const short source_id)

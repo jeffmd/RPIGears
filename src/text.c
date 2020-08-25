@@ -23,6 +23,8 @@ typedef struct {
   GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;          // alpha limit
   int extent[2];           // text x and y extent
+  int pos_x;               // last x position of add character
+  int pos_y;               // last y position of add character
   uint16_t start;          // start index in vertex buffer
   uint16_t index;          // index for next char
   uint16_t count;          // mumber of characters in text vertex buffer
@@ -232,6 +234,8 @@ void Text_add(const short id, int x, int y, const char *str)
       }
       
       text_update_draw_count(text);
+      text->pos_x = x;
+      text->pos_y = y;
       text->ready = 1;
     }
   }
@@ -303,3 +307,14 @@ void Text_extent(const short id, int extent[2])
   extent[0] = text->extent[0]/2 + 4;
   extent[1] = text->extent[1]/2 + 4;
 }
+
+int Text_pos_x(const short id)
+{
+  return get_text(id)->pos_x;
+}
+
+int Text_pos_y(const short id)
+{
+  return get_text(id)->pos_y;
+}
+

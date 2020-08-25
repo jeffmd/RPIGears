@@ -11,5 +11,7 @@
   int Text_index(const short id);
   void Text_draw(const short id);
   void Text_extent(const short id, int extent[2]);
-  
+  int Text_pos_x(const short id);
+  int Text_pos_y(const short id);
+
 #endif
