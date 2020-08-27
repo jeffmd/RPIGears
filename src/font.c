@@ -45,7 +45,7 @@ static short active_font = 0;
 
 #define TEXTURE_GLYPH_SLOTS 8
 #define DEFAULT_GLYPH_SIZE 30
-#define DEFAULT_GLYPH_TOP DEFAULT_GLYPH_SIZE - 9 
+#define DEFAULT_GLYPH_TOP DEFAULT_GLYPH_SIZE - 10
 #define GLYPHSPC 2
 #define TEXTURE_SIZE TEXTURE_GLYPH_SLOTS * (DEFAULT_GLYPH_SIZE + GLYPHSPC)
 
@@ -104,8 +104,8 @@ static void transfer_glyphs(Font *font)
       glyphc->height = DEFAULT_GLYPH_SIZE;
       glyphc->width = glyph->bitmap.width;
       glyphc->u1 = (float)ox / tex_width;
-      glyphc->v1 = (float)(oy + DEFAULT_GLYPH_SIZE) / tex_height;
-      glyphc->u2 = (float)(ox + glyphc->width) / tex_width;
+      glyphc->v1 = (float)(oy + DEFAULT_GLYPH_SIZE + GLYPHSPC) / tex_height;
+      glyphc->u2 = (float)(ox + glyph->bitmap.width) / tex_width;
       glyphc->v2 = (float)oy / tex_height;
       
       printf("glyph: %c, width: %i height: %i left: %i. top: %i, advance: %i\n", i,
