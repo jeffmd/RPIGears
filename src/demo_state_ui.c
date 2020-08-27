@@ -5,12 +5,17 @@
 #include "key_input.h"
 #include "demo_state.h"
 #include "ui_checkbox.h"
+#include "ui_number.h"
 #include "connector.h"
 
 static const char vbo_str[] = "VBO";
 static int vbo_ui_checkbox;
 static short vbo_ui_checkbox_connector;
 static short demo_state_ui_class;
+
+static const char instances_str[] = "Instances";
+static int instances_ui_number;
+static short instances_ui_number_connector;
 
 static void vbo_toggle(const short souce_id, const short destination_id)
 {
@@ -60,7 +65,7 @@ static short get_vbo_ui_checkbox_connector(void)
 {
   if (!vbo_ui_checkbox_connector) {
     vbo_ui_checkbox_connector = UI_checkbox_connector(get_demo_state_ui_class());
-    UI_checkbox_connect_select(vbo_ui_checkbox_connector, vbo_toggle);
+    UI_checkbox_connect_change(vbo_ui_checkbox_connector, vbo_toggle);
     UI_checkbox_connect_update(vbo_ui_checkbox_connector, vbo_update);
   }
 
@@ -79,6 +84,36 @@ int DS_ui_vbo(void)
   }
 
   return vbo_ui_checkbox;
+}
+
+static void instances_update(const short source_id, const short destination_id)
+{
+  UI_number_update_int(source_id, DS_instances());
+}
+
+static short get_instances_ui_number_connector(void)
+{
+  if (!instances_ui_number_connector) {
+    instances_ui_number_connector = UI_number_connector(get_demo_state_ui_class());
+    //UI_number_connect_change(instances_ui_number_connector, instances_change);
+    UI_number_connect_update(instances_ui_number_connector, instances_update);
+  }
+
+  return instances_ui_number_connector;
+}
+
+static const int get_instances_ui_number_handle(void)
+{
+  return Connector_handle(get_instances_ui_number_connector(), 0);
+}
+
+int DS_ui_instances(void)
+{
+  if (!instances_ui_number) {
+    instances_ui_number = UI_number_create(instances_str, get_instances_ui_number_handle());
+  }
+
+  return instances_ui_number;
 }
 
 void DS_ui_init(void)

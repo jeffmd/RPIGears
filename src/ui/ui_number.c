@@ -13,24 +13,22 @@
 
 typedef union 
 {
-    int i;
-    float f;
+  int i;
+  float f;
 } FPINT;
 
 typedef struct {
   uint8_t active;
   short text;
   short area;
-  int val_start;
+  short val_start;
+  short offset_x;
   FPINT old_val;
-  FPINT max_val;
-  FPINT min_val;
-  int offset_x;
   int handle;
 } UI_Number;
 
 enum Events {
-  OnSelect,
+  OnChange,
   OnUpdate,
   EventsMax
 };
@@ -102,7 +100,7 @@ static void update_value_text(UI_Number *const ui_number, const int is_float)
     sprintf(val_str, "%3.1f  ", ui_number->old_val.f);
   }
   else {
-    sprintf(val_str, "%i  ", ui_number->old_val.i);
+    sprintf(val_str, "%3i    ", ui_number->old_val.i);
   }
 
   Text_set_index(get_text(ui_number), ui_number->val_start);
@@ -223,9 +221,9 @@ void UI_number_connect(const short number_id, const int handle)
   ui_number->handle = handle;
 }
 
-void UI_number_connect_select(const short connector_id, ActionFn action)
+void UI_number_connect_change(const short connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnSelect, action);
+  Connector_set_action(connector_id, OnChange, action);
 }
 
 void UI_number_connect_update(const short connector_id, ActionFn action)

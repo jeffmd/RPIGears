@@ -20,14 +20,14 @@ typedef struct {
   uint8_t active;          // zero if deleted
   uint8_t ready;           // 1 if ready to draw
   short font;
+  short extent[2];         // text x and y extent
+  short pos_x;             // last x position of add character
+  short pos_y;             // last y position of add character
+  short start;             // start index in vertex buffer
+  short index;             // index for next char
+  short count;             // mumber of characters in text vertex buffer
   GLfloat ProjMatrix[4];   // scale and offset
   GLfloat alimit;          // alpha limit
-  int extent[2];           // text x and y extent
-  int pos_x;               // last x position of add character
-  int pos_y;               // last y position of add character
-  uint16_t start;          // start index in vertex buffer
-  uint16_t index;          // index for next char
-  uint16_t count;          // mumber of characters in text vertex buffer
 } Text;
 
 enum {
@@ -43,9 +43,9 @@ static short next_deleted_text;
 
 static short vformat;
 static short batch;
+static short index;          // current master index into vertex buffer
 static GLfloat ProjMatrix[4];   // scale and offset
 static GLfloat alimit;
-static uint16_t index;          // current master index into vertex buffer
 
 
 static inline short find_deleted_text_id(void)
@@ -246,7 +246,7 @@ void Text_set_index(const short id, const int index)
   get_text(id)->index = index;
 }
 
-int Text_index(const short id)
+short Text_index(const short id)
 {
   return get_text(id)->index;
 }
@@ -304,16 +304,16 @@ void Text_draw(const short id)
 void Text_extent(const short id, int extent[2])
 {
   Text * const text = get_text(id);
-  extent[0] = text->extent[0]/2 + 4;
-  extent[1] = text->extent[1]/2 + 4;
+  extent[0] = text->extent[0] / 2 + 4;
+  extent[1] = text->extent[1] / 2 + 4;
 }
 
-int Text_pos_x(const short id)
+short Text_pos_x(const short id)
 {
   return get_text(id)->pos_x;
 }
 
-int Text_pos_y(const short id)
+short Text_pos_y(const short id)
 {
   return get_text(id)->pos_y;
 }

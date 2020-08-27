@@ -45,7 +45,7 @@ static short get_vsync_ui_checkbox_connector(void)
 {
   if (!vsync_ui_checkbox_connector) {
     vsync_ui_checkbox_connector = UI_checkbox_connector(get_user_options_ui_class());
-    UI_checkbox_connect_select(vsync_ui_checkbox_connector, vsync_toggle);
+    UI_checkbox_connect_change(vsync_ui_checkbox_connector, vsync_toggle);
     UI_checkbox_connect_update(vsync_ui_checkbox_connector, vsync_update);
   }
 

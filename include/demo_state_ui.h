@@ -5,5 +5,6 @@
 
   void DS_ui_init(void);
   int DS_ui_vbo(void);
+  int DS_ui_instances(void);
 
 #endif

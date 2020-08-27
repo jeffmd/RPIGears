@@ -8,10 +8,10 @@
   void Text_set_offset(const short id, const int width, const int height);
   void Text_add(const short id, const int x, const int y, const char *str);
   void Text_set_index(const short id, const int index);
-  int Text_index(const short id);
+  short Text_index(const short id);
   void Text_draw(const short id);
   void Text_extent(const short id, int extent[2]);
-  int Text_pos_x(const short id);
-  int Text_pos_y(const short id);
+  short Text_pos_x(const short id);
+  short Text_pos_y(const short id);
 
 #endif

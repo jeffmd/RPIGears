@@ -28,7 +28,7 @@ typedef struct {
 } UI_CheckBox;
 
 enum Events {
-  OnSelect,
+  OnChange,
   OnUpdate,
   EventsMax
 };
@@ -95,7 +95,7 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short source_id)
     UI_area_size(source_id, size);
     Text_set_offset(get_text(ui_checkbox), size[0] - XOFFSET, size[1]);
     ui_checkbox->box_offset[0] = -size[0] + 4.0f;
-    ui_checkbox->box_offset[1] = -size[1] * 0.5f;
+    ui_checkbox->box_offset[1] = -size[1] * 0.5f + 2.0f;
     ui_checkbox->select_scale[0] = 1.9f * size[0];
     ui_checkbox->select_scale[1] = 1.9f * size[1];
     ui_checkbox->select_offset[0] = -size[0];
@@ -159,7 +159,7 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
 static void ui_checkbox_select(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
-  Connector_handle_execute(ui_checkbox->handle, OnSelect, destination_id);
+  Connector_handle_execute(ui_checkbox->handle, OnChange, destination_id);
   UI_area_set_handled(source_id);
 }
 
@@ -234,9 +234,9 @@ void UI_checkbox_connect(const short checkbox_id, const int handle)
   ui_checkbox->handle = handle;
 }
 
-void UI_checkbox_connect_select(const short connector_id, ActionFn action)
+void UI_checkbox_connect_change(const short connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnSelect, action);
+  Connector_set_action(connector_id, OnChange, action);
 }
 
 void UI_checkbox_connect_update(const short connector_id, ActionFn action)
