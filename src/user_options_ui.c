@@ -6,8 +6,9 @@
 #include "user_options.h"
 #include "window.h"
 #include "key_input.h"
-#include "ui_checkbox.h"
 #include "connector.h"
+#include "ui_widget_connector.h"
+#include "ui_checkbox.h"
 
 static const char vsync_str[] = "vsync";
 static int vsync_ui_checkbox;
@@ -44,9 +45,9 @@ static short get_user_options_ui_class(void)
 static short get_vsync_ui_checkbox_connector(void)
 {
   if (!vsync_ui_checkbox_connector) {
-    vsync_ui_checkbox_connector = UI_checkbox_connector(get_user_options_ui_class());
-    UI_checkbox_connect_change(vsync_ui_checkbox_connector, vsync_toggle);
-    UI_checkbox_connect_update(vsync_ui_checkbox_connector, vsync_update);
+    vsync_ui_checkbox_connector = UI_widget_connector(get_user_options_ui_class());
+    UI_widget_connect_change(vsync_ui_checkbox_connector, vsync_toggle);
+    UI_widget_connect_update(vsync_ui_checkbox_connector, vsync_update);
   }
 
   return vsync_ui_checkbox_connector;

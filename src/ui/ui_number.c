@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "connector.h"
+#include "ui_widget_connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "static_array.h"
@@ -24,14 +25,8 @@ typedef struct {
   short val_start;
   short offset_x;
   FPINT old_val;
-  int handle;
+  int widget_handle;
 } UI_Number;
-
-enum Events {
-  OnChange,
-  OnUpdate,
-  EventsMax
-};
 
 #define UI_NUMBER_MAX_COUNT 50
 
@@ -130,7 +125,7 @@ void UI_number_update_int(const short number_id, const int val)
 static void ui_number_draw(const short source_id, const short destination_id)
 {
   UI_Number *const ui_number = get_ui_number(destination_id);
-  Connector_handle_execute(ui_number->handle, OnUpdate, destination_id);
+  UI_widget_update(ui_number->widget_handle, destination_id);
 
   update_dimensions(ui_number, source_id);
   Text_draw(get_text(ui_number));
@@ -195,6 +190,12 @@ static int get_ui_number_area_handle(const short ui_number_id)
   return Connector_handle(get_area_connector(), ui_number_id);
 }
 
+void UI_number_connect_widget(const short number_id, const int handle)
+{
+  UI_Number *const ui_number = get_ui_number(number_id);
+  ui_number->widget_handle = handle;
+}
+
 int UI_number_create(const char *str, const int handle)
 {
   const short id = find_deleted_ui_number();
@@ -203,32 +204,9 @@ int UI_number_create(const char *str, const int handle)
   ui_number_init(ui_number);
   Text_add(get_text(ui_number), 0, 0, str);
   setup_val_text(ui_number);
-  ui_number->handle = handle;
+  UI_number_connect_widget(id, handle);
 
   return get_ui_number_area_handle(id);
-}
-
-short UI_number_connector(const short destination_class)
-{
-  const short connector_id = Connector_create(get_ui_number_class(), destination_class, EventsMax);
-
-  return connector_id;
-}
-
-void UI_number_connect(const short number_id, const int handle)
-{
-  UI_Number *const ui_number = get_ui_number(number_id);
-  ui_number->handle = handle;
-}
-
-void UI_number_connect_change(const short connector_id, ActionFn action)
-{
-  Connector_set_action(connector_id, OnChange, action);
-}
-
-void UI_number_connect_update(const short connector_id, ActionFn action)
-{
-  Connector_set_action(connector_id, OnUpdate, action);
 }
 
 

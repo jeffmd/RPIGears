@@ -4,9 +4,10 @@
 
 #include "key_input.h"
 #include "demo_state.h"
+#include "connector.h"
+#include "ui_widget_connector.h"
 #include "ui_checkbox.h"
 #include "ui_number.h"
-#include "connector.h"
 
 static const char vbo_str[] = "VBO";
 static int vbo_ui_checkbox;
@@ -64,9 +65,9 @@ static short get_demo_state_ui_class(void)
 static short get_vbo_ui_checkbox_connector(void)
 {
   if (!vbo_ui_checkbox_connector) {
-    vbo_ui_checkbox_connector = UI_checkbox_connector(get_demo_state_ui_class());
-    UI_checkbox_connect_change(vbo_ui_checkbox_connector, vbo_toggle);
-    UI_checkbox_connect_update(vbo_ui_checkbox_connector, vbo_update);
+    vbo_ui_checkbox_connector = UI_widget_connector(get_demo_state_ui_class());
+    UI_widget_connect_change(vbo_ui_checkbox_connector, vbo_toggle);
+    UI_widget_connect_update(vbo_ui_checkbox_connector, vbo_update);
   }
 
   return vbo_ui_checkbox_connector;
@@ -94,9 +95,9 @@ static void instances_update(const short source_id, const short destination_id)
 static short get_instances_ui_number_connector(void)
 {
   if (!instances_ui_number_connector) {
-    instances_ui_number_connector = UI_number_connector(get_demo_state_ui_class());
-    //UI_number_connect_change(instances_ui_number_connector, instances_change);
-    UI_number_connect_update(instances_ui_number_connector, instances_update);
+    instances_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
+    //UI_widget_connect_change(instances_ui_number_connector, instances_change);
+    UI_widget_connect_update(instances_ui_number_connector, instances_update);
   }
 
   return instances_ui_number_connector;

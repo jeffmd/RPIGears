@@ -8,6 +8,7 @@
 
 #include "key_input.h"
 #include "connector.h"
+#include "ui_widget_connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "static_array.h"
@@ -21,17 +22,11 @@ typedef struct {
   short text;
   short area;
   // Connector handle
-  int handle;
+  int widget_handle;
   float box_offset[2];
   float select_scale[2];
   float select_offset[2];
 } UI_CheckBox;
-
-enum Events {
-  OnChange,
-  OnUpdate,
-  EventsMax
-};
 
 #define UI_CHECKBOX_MAX_COUNT 50
 #define BOXSIZE 20
@@ -109,7 +104,7 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short source_id)
 static void ui_checkbox_draw(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
-  Connector_handle_execute(ui_checkbox->handle, OnUpdate, destination_id);
+  UI_widget_update(ui_checkbox->widget_handle, destination_id);
 
   update_dimensions(ui_checkbox, source_id);
   Text_draw(get_text(ui_checkbox));
@@ -159,7 +154,7 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
 static void ui_checkbox_select(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
-  Connector_handle_execute(ui_checkbox->handle, OnChange, destination_id);
+  UI_widget_change(ui_checkbox->widget_handle, destination_id);
   UI_area_set_handled(source_id);
 }
 
@@ -209,6 +204,12 @@ static int get_ui_checkbox_area_handle(const short ui_checkbox_id)
   return Connector_handle(get_area_connector(), ui_checkbox_id);
 }
 
+void UI_checkbox_connect_widget(const short checkbox_id, const int handle)
+{
+  UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
+  ui_checkbox->widget_handle = handle;
+}
+
 int UI_checkbox_create(const char *str, const int handle)
 {
   const short id = find_deleted_ui_checkbox();
@@ -216,32 +217,9 @@ int UI_checkbox_create(const char *str, const int handle)
   ui_checkbox->active = 1;
   ui_checkbox_init(ui_checkbox);
   Text_add(get_text(ui_checkbox), 0, 0, str);
-  ui_checkbox->handle = handle;
+  UI_checkbox_connect_widget(id, handle);
 
   return get_ui_checkbox_area_handle(id);
-}
-
-short UI_checkbox_connector(const short destination_class)
-{
-  const short connector_id = Connector_create(get_ui_checkbox_class(), destination_class, EventsMax);
-
-  return connector_id;
-}
-
-void UI_checkbox_connect(const short checkbox_id, const int handle)
-{
-  UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
-  ui_checkbox->handle = handle;
-}
-
-void UI_checkbox_connect_change(const short connector_id, ActionFn action)
-{
-  Connector_set_action(connector_id, OnChange, action);
-}
-
-void UI_checkbox_connect_update(const short connector_id, ActionFn action)
-{
-  Connector_set_action(connector_id, OnUpdate, action);
 }
 
 void UI_checkbox_update_select(const short id, const int val)

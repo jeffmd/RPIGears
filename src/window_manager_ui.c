@@ -5,6 +5,7 @@
 
 #include "window_manager.h"
 #include "connector.h"
+#include "ui_widget_connector.h"
 #include "ui_number.h"
 
 static const char fps_str[] = "FPS";
@@ -29,9 +30,9 @@ static void fps_update(const short source_id, const short destination_id)
 static short get_fps_ui_number_connector(void)
 {
   if (!fps_ui_number_connector) {
-    fps_ui_number_connector = UI_number_connector(get_window_manager_ui_class());
-    //UI_number_connect_select(fps_ui_number_connector, fps_edit);
-    UI_number_connect_update(fps_ui_number_connector, fps_update);
+    fps_ui_number_connector = UI_widget_connector(get_window_manager_ui_class());
+    //UI_widget_connect_select(fps_ui_number_connector, fps_edit);
+    UI_widget_connect_update(fps_ui_number_connector, fps_update);
   }
 
   return fps_ui_number_connector;
