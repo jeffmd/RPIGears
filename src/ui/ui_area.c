@@ -40,6 +40,7 @@ enum Events {
   OnResize,
   OnDraw,
   OnKeyChange,
+  OnPointerMove,
   EventsMax
 };
 
@@ -50,7 +51,10 @@ static short next_deleted_area;
 
 static short root_area;
 static short active_area;
+static short locked_area;
 static int active_key;
+static short pointer_x;
+static short pointer_y;
 static short ui_area_class;
 
 static short get_active_area(void)
@@ -248,6 +252,19 @@ void UI_area_set_active(const short area_id)
   }
 }
 
+void UI_area_set_locked(const short area_id)
+{
+  locked_area = area_id;
+  UI_area_set_active(area_id);
+}
+
+void UI_area_set_unlocked(const short area_id)
+{
+  if (locked_area == area_id) {
+    locked_area = 0;
+  }
+}
+
 int UI_area_is_active(const short area_id)
 {
   //printf("area_id=%i active_area=%i\n", area_id, active_area);
@@ -307,9 +324,22 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
   return newhit;
 }
 
+static void area_pointer_moved(const short area_id)
+{
+  UI_Area * const area = get_area(area_id);
+  Connector_handle_execute(area->handle, OnPointerMove, area_id);
+}
+
 void UI_area_select_active(const int x, const int y)
 {
-  UI_area_set_active(area_find(get_active_area(), 0, x, y));
+  pointer_x = x;
+  pointer_y = y;
+
+  if (!locked_area) {
+    UI_area_set_active(area_find(get_active_area(), 0, x, y));
+  }
+  
+  area_pointer_moved(get_active_area());
 }
 
 void UI_area_key_change(const int key)
@@ -385,6 +415,11 @@ void UI_area_connect_attach(const short connector_id, ActionFn action)
 void UI_area_connect_key_change(const short connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnKeyChange, action);
+}
+
+void UI_area_connect_pointer_move(const short connector_id, ActionFn action)
+{
+  Connector_set_action(connector_id, OnPointerMove, action);
 }
 
 void UI_area_connect(const short area_id, const int handle)
@@ -463,5 +498,15 @@ void UI_area_set_handled(const short area_id)
 int UI_area_active_key(void)
 {
   return active_key;
+}
+
+short UI_area_pointer_x(void)
+{
+  return pointer_x;
+}
+
+short UI_area_pointer_y(void)
+{
+  return pointer_y;
 }
 

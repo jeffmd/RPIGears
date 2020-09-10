@@ -11,14 +11,13 @@
 
 void Xinput_check_keys(XKeyEvent *event)
 {
+  //printf("keycode: %x, ", event->keycode);
+  //printf( "Key: %x %c\n", (int)key, key );
+  //printf( "Key state: %x\n", event->state );
   if (event->type == KeyPress) {
     char key;
 
     XLookupString(event, &key, 1, 0, 0);
-    //printf("keycode: %x, ", event->keycode);
-    //printf( "Key: %x %c\n", (int)key, key );
-    //printf( "Key state: %x\n", event->state );
-
     UI_area_key_change(STATE_KEY(event->state, key));
   }
 }
@@ -30,8 +29,11 @@ void Xinput_pointer_move(const XMotionEvent* event)
 
 void Xinput_button_event(const XButtonEvent *event)
 {
-  if (event->type == ButtonPress)
+  if (event->type == ButtonPress) {
     UI_area_key_change(STATE_KEY(event->state, KEY_BUTTON(event->button)));
-  //printf( "Key state: %x\n", event->state );
+  }
+  else {
+    UI_area_key_change(KEY_BUTTON_RELEASE(event->button));
+  }
 }
 

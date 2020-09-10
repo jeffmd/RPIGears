@@ -6,5 +6,7 @@
   void UI_number_connect_widget(const short checkbox_id, const int handle);
   void UI_number_update_float(const short id, const float val);
   void UI_number_update_int(const short id, const int val);
+  float UI_number_float_change(const short number_id);
+  int UI_number_int_change(const short number_id);
 
 #endif

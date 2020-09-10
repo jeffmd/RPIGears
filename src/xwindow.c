@@ -103,14 +103,14 @@ void XWindow_init(const uint width, const uint height)
     ExposureMask
     | ButtonPressMask
     | ButtonReleaseMask
-    | Button1MotionMask
+    /*| Button1MotionMask*/
     | KeyPressMask
+    | KeyReleaseMask
     /*| SubstructureRedirectMask*/
     | FocusChangeMask
     | EnterWindowMask
     | LeaveWindowMask
     | PointerMotionMask
-    | KeyReleaseMask
     | VisibilityChangeMask
     | StructureNotifyMask);
 
@@ -202,9 +202,10 @@ static void do_ClientMessage(const XClientMessageEvent* event)
 
 static inline void byteBufferSwap(char *bottomBuffer, char *topBuffer)
 {
-  const char tmpval = *bottomBuffer;
-  *bottomBuffer = *topBuffer;
-  *topBuffer = tmpval;
+  char bval = *bottomBuffer;
+  char tval = *topBuffer;
+  *topBuffer = bval;
+  *bottomBuffer = tval; 
 }
 
 static inline void moveBufferLineFlipRGB(char *bottomBuffer, char *topBuffer, const int stride)
@@ -213,11 +214,11 @@ static inline void moveBufferLineFlipRGB(char *bottomBuffer, char *topBuffer, co
 
   while ( bottomBuffer < maxbuffer) {
     byteBufferSwap(bottomBuffer, &topBuffer[2]);
-    byteBufferSwap(&bottomBuffer[2], topBuffer);
     byteBufferSwap(&bottomBuffer[1], &topBuffer[1]);
+    byteBufferSwap(&bottomBuffer[2], topBuffer);
 
-      bottomBuffer += BYTESPIXEL;
-      topBuffer += BYTESPIXEL;
+    bottomBuffer += BYTESPIXEL;
+    topBuffer += BYTESPIXEL;
   }
 }
 
@@ -227,7 +228,8 @@ static inline void bufferLineFlipRGB(char *buffer, const int stride)
 
   while ( buffer < maxbuffer) {
     byteBufferSwap(buffer, &buffer[2]);
-      buffer += BYTESPIXEL;
+
+    buffer += BYTESPIXEL;
   }
 }
 
@@ -237,10 +239,11 @@ static void buffer_flip_vertical(const int stride, const int height, char *buffe
 
   while(topBuffer > buffer)
   {
-   moveBufferLineFlipRGB(buffer, topBuffer, stride);
-   buffer += stride;
-   topBuffer -= stride;
+    moveBufferLineFlipRGB(buffer, topBuffer, stride);
+    buffer += stride;
+    topBuffer -= stride;
   }
+
   if(topBuffer == buffer) {
     bufferLineFlipRGB(buffer, stride);
   }

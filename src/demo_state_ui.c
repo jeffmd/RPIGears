@@ -92,11 +92,21 @@ static void instances_update(const short source_id, const short destination_id)
   UI_number_update_int(source_id, DS_instances());
 }
 
+static void instances_change(const short source_id, const short destination_id)
+{
+  if (UI_number_int_change(source_id) > 0) {
+    DS_inc_instances();
+  }
+  else {
+    DS_dec_instances();
+  }
+}
+
 static short get_instances_ui_number_connector(void)
 {
   if (!instances_ui_number_connector) {
     instances_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
-    //UI_widget_connect_change(instances_ui_number_connector, instances_change);
+    UI_widget_connect_change(instances_ui_number_connector, instances_change);
     UI_widget_connect_update(instances_ui_number_connector, instances_update);
   }
 

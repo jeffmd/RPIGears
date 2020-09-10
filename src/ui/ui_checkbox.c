@@ -14,7 +14,6 @@
 #include "static_array.h"
 #include "text.h"
 #include "ui_icon.h"
-#include "line_art.h"
 
 typedef struct {
   uint8_t active;
@@ -119,7 +118,6 @@ static void ui_checkbox_draw(const short source_id, const short destination_id)
   if (UI_area_is_active(source_id)) {
     UI_icon_draw_box(ui_checkbox->select_scale[0], ui_checkbox->select_scale[1], ui_checkbox->select_offset[0], ui_checkbox->select_offset[1]);
   }
-  //printf("draw checkbox area %i\n", source_id);
 }
 
 static void area_clear(const short id)
@@ -151,7 +149,7 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
   area_clear(destination_id);
 }
 
-static void ui_checkbox_select(const short source_id, const short destination_id)
+static void ui_checkbox_change(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
   UI_widget_change(ui_checkbox->widget_handle, destination_id);
@@ -162,7 +160,7 @@ static short get_ui_checkbox_key_map(void)
 {
   if (!ui_checkbox_key_map) {
     ui_checkbox_key_map = Key_Map_create();
-    Key_Map_add(ui_checkbox_key_map, Key_Action_create(LEFT_BUTTON, ui_checkbox_select, 0));
+    Key_Map_add(ui_checkbox_key_map, Key_Action_create(LEFT_BUTTON, ui_checkbox_change, 0));
   }
 
   return ui_checkbox_key_map;
