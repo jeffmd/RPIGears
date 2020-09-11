@@ -122,6 +122,7 @@ int DS_ui_instances(void)
 {
   if (!instances_ui_number) {
     instances_ui_number = UI_number_create(instances_str, get_instances_ui_number_handle());
+    UI_number_edit_on(instances_ui_number);
   }
 
   return instances_ui_number;

@@ -25,7 +25,8 @@ typedef union
 
 typedef struct {
   uint8_t active;
-  uint8_t is_float;
+  uint8_t is_float:1;
+  uint8_t can_edit:1;
   short text;
   short area;
   short val_start;
@@ -98,7 +99,6 @@ static void update_dimensions(UI_Number *ui_number, const short source_id)
     ui_number->area = source_id;
     UI_area_size(source_id, size);
     Text_set_offset(get_text(ui_number), size[0], size[1]);
-    //printf("update text offset %i\n", text->text_id);
     ui_number->select_scale[0] = 1.9f * size[0];
     ui_number->select_scale[1] = 1.9f * size[1];
     ui_number->select_offset[0] = -size[0];
@@ -144,7 +144,7 @@ static void ui_number_draw(const short source_id, const short destination_id)
   update_dimensions(ui_number, source_id);
   Text_draw(get_text(ui_number));
 
-  if (UI_area_is_active(source_id)) {
+  if (ui_number->can_edit && UI_area_is_active(source_id)) {
     UI_icon_draw_box(ui_number->select_scale[0], ui_number->select_scale[1], ui_number->select_offset[0], ui_number->select_offset[1]);
   }
 }
@@ -187,25 +187,34 @@ static short get_ui_number_class(void)
   return ui_number_class;
 }
 
-static void ui_number_inc(UI_Number *const ui_number)
+static void ui_number_inc(const short source_id, const short destination_id)
 {
+  UI_Number *const ui_number = get_ui_number(destination_id);
+
   if (ui_number->is_float) {
     ui_number->change_val.f = 0.001f;
   }
   else {
     ui_number->change_val.i = 1;
   }
+
+  UI_widget_change(ui_number->widget_handle, destination_id);
 }
 
-static void ui_number_dec(UI_Number *const ui_number)
+static void ui_number_dec(const short source_id, const short destination_id)
 {
+  UI_Number *const ui_number = get_ui_number(destination_id);
+
   if (ui_number->is_float) {
     ui_number->change_val.f = -0.001f;
   }
   else {
     ui_number->change_val.i = -1;
   }
+
+  UI_widget_change(ui_number->widget_handle, destination_id);
 }
+
 
 static void ui_number_start_change(const short source_id, const short destination_id)
 {
@@ -229,8 +238,10 @@ static short get_ui_number_key_map(void)
 {
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
-    Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON, ui_number_start_change, 0));
-    Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON_RELEASE, ui_number_end_change, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_change, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON_RELEASE, ui_number_end_change, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_INC, ui_number_inc, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_DEC, ui_number_dec, 0));
   }
 
   return ui_number_key_map;
@@ -238,7 +249,9 @@ static short get_ui_number_key_map(void)
 
 static void ui_number_area_key_change(const short source_id, const short destination_id)
 {
-  Key_Map_action(get_ui_number_key_map(), UI_area_active_key(), source_id, destination_id);
+  if (get_ui_number(destination_id)->can_edit) {
+    Key_Map_action(get_ui_number_key_map(), UI_area_active_key(), source_id, destination_id);
+  }
 }
 
 static void ui_number_area_pointer_move(const short source_id, const short destination_id)
@@ -248,17 +261,11 @@ static void ui_number_area_pointer_move(const short source_id, const short desti
     short new_x = UI_area_pointer_x();
     short delta = (old_y - new_y) + (new_x - old_x);
 
-    UI_Number *const ui_number = get_ui_number(destination_id);
-
     if (delta > 0) {
-      ui_number_inc(ui_number);
+      ui_number_inc(source_id, destination_id);
     }
     else if (delta < 0) {
-      ui_number_dec(ui_number);
-    }
-
-    if ( delta != 0) {
-      UI_widget_change(ui_number->widget_handle, destination_id);
+      ui_number_dec(source_id, destination_id);
     }
 
     old_y = new_y;
@@ -302,6 +309,16 @@ float UI_number_float_change(const short number_id)
 int UI_number_int_change(const short number_id)
 {
   return get_ui_number(number_id)->change_val.i;
+}
+
+void UI_number_edit_on(const short number_id)
+{
+  get_ui_number(number_id)->can_edit = 1;
+}
+
+void UI_number_edit_off(const short number_id)
+{
+  get_ui_number(number_id)->can_edit = 0;
 }
 
 int UI_number_create(const char *str, const int handle)
