@@ -65,6 +65,11 @@ static short get_active_area(void)
     return root_area;
 }
 
+static void clear_active_area(void)
+{
+  active_area = 0;
+}
+
 static inline short find_deleted_area(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_area, areas, UI_AREA_MAX_COUNT, UI_Area, "UI area");
@@ -175,6 +180,7 @@ static void update_visibility(UI_Area *area)
 
   if (new_visible != area->visible) {
     area->visible = new_visible;
+    clear_active_area();
   }
 }
 
@@ -330,16 +336,21 @@ static void area_pointer_moved(const short area_id)
   Connector_handle_execute(area->handle, OnPointerMove, area_id);
 }
 
+static void update_active_area(void)
+{
+  if (!locked_area) {
+    UI_area_set_active(area_find(get_active_area(), 0, pointer_x, pointer_y));
+  }
+  
+  area_pointer_moved(get_active_area());
+}
+
 void UI_area_select_active(const int x, const int y)
 {
   pointer_x = x;
   pointer_y = y;
 
-  if (!locked_area) {
-    UI_area_set_active(area_find(get_active_area(), 0, x, y));
-  }
-  
-  area_pointer_moved(get_active_area());
+  update_active_area();
 }
 
 void UI_area_key_change(const int key)
@@ -353,6 +364,7 @@ void UI_area_key_change(const int key)
     area->handled = 0;
     Connector_handle_execute(area->handle, OnKeyChange, area_id);
     handled = area->handled;
+
     if (handled) {
       area_id = 0;
     }
@@ -442,8 +454,11 @@ short UI_area_add_handle(const short parent_id, const int handle, const int x, c
 void UI_area_set_hide(const short area_id, const int state)
 {
   UI_Area * const area = get_area(area_id);
-  area->hide = state;
-  update_visibility(area);
+  if (area->hide != state) {
+    area->hide = state;
+    update_visibility(area);
+    update_active_area();
+  }
 }
 
 static void area_draw(UI_Area *area, const short source_id)
