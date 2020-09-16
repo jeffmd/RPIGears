@@ -9,6 +9,8 @@
   void UI_number_update_int(const short id, const int val);
   float UI_number_float_change(const short number_id);
   int UI_number_int_change(const short number_id);
+  void UI_number_set_default_float_change(const short number_id, const float val);
+  void UI_number_set_default_int_change(const short number_id, const int val);
   void UI_number_edit_on(const short number_id);
   void UI_number_edit_off(const short number_id);
 

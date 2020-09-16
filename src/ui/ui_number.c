@@ -33,12 +33,15 @@ typedef struct {
   short offset_x;
   FPINT old_val;
   FPINT change_val;
+  FPINT default_change;
   int widget_handle;
   float select_scale[2];
   float select_offset[2];
 } UI_Number;
 
 #define UI_NUMBER_MAX_COUNT 50
+#define DEFAULT_FLOAT_CHANGE 0.1f
+#define DEFAULT_INT_CHANGE 1
 
 static UI_Number ui_numbers[UI_NUMBER_MAX_COUNT];
 static short next_deleted_ui_number;
@@ -187,15 +190,33 @@ static short get_ui_number_class(void)
   return ui_number_class;
 }
 
+static float get_default_float_change(UI_Number *const ui_number)
+{
+  if (ui_number->default_change.f == 0.0f) {
+    ui_number->default_change.f = DEFAULT_FLOAT_CHANGE;
+  }
+  
+  return ui_number->default_change.f;
+}
+
+static int get_default_int_change(UI_Number *const ui_number)
+{
+  if (ui_number->default_change.i == 0) {
+    ui_number->default_change.i = DEFAULT_INT_CHANGE;
+  }
+  
+  return ui_number->default_change.i;
+}
+
 static void ui_number_inc(const short source_id, const short destination_id)
 {
   UI_Number *const ui_number = get_ui_number(destination_id);
 
   if (ui_number->is_float) {
-    ui_number->change_val.f = 0.001f;
+    ui_number->change_val.f = get_default_float_change(ui_number);
   }
   else {
-    ui_number->change_val.i = 1;
+    ui_number->change_val.i = get_default_int_change(ui_number);
   }
 
   UI_widget_change(ui_number->widget_handle, destination_id);
@@ -206,10 +227,10 @@ static void ui_number_dec(const short source_id, const short destination_id)
   UI_Number *const ui_number = get_ui_number(destination_id);
 
   if (ui_number->is_float) {
-    ui_number->change_val.f = -0.001f;
+    ui_number->change_val.f = -get_default_float_change(ui_number);
   }
   else {
-    ui_number->change_val.i = -1;
+    ui_number->change_val.i = -get_default_int_change(ui_number);
   }
 
   UI_widget_change(ui_number->widget_handle, destination_id);
@@ -309,6 +330,16 @@ float UI_number_float_change(const short number_id)
 int UI_number_int_change(const short number_id)
 {
   return get_ui_number(number_id)->change_val.i;
+}
+
+void UI_number_set_default_float_change(const short number_id, const float val)
+{
+  get_ui_number(number_id)->default_change.f = val;
+}
+
+void UI_number_set_default_int_change(const short number_id, const int val)
+{
+  get_ui_number(number_id)->default_change.i = val;
 }
 
 void UI_number_edit_on(const short number_id)
