@@ -190,6 +190,11 @@ GLfloat DS_angle(void)
   return get_demo_state()->angle;
 }
 
+float DS_angleVel(void)
+{
+  return get_demo_state()->angleVel;
+}
+
 void DS_update_timeToRun(const GLuint val)
 {
   get_demo_state()->timeToRun = val;
