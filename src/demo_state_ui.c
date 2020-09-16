@@ -18,6 +18,10 @@ static const char instances_str[] = "Instances";
 static int instances_ui_number;
 static short instances_ui_number_connector;
 
+static const char rpm_str[] = "Gear RPM";
+static int rpm_ui_number;
+static short rpm_ui_number_connector;
+
 static void vbo_toggle(const short souce_id, const short destination_id)
 {
   DS_toggle_VBO();
@@ -126,6 +130,43 @@ int DS_ui_instances(void)
   }
 
   return instances_ui_number;
+}
+
+static void rpm_update(const short source_id, const short destination_id)
+{
+  UI_number_update_float(source_id, DS_angleVel());
+}
+
+static void rpm_change(const short source_id, const short destination_id)
+{
+  DS_change_angleVel(UI_number_float_change(source_id));
+}
+
+static short get_rpm_ui_number_connector(void)
+{
+  if (!rpm_ui_number_connector) {
+    rpm_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
+    UI_widget_connect_change(rpm_ui_number_connector, rpm_change);
+    UI_widget_connect_update(rpm_ui_number_connector, rpm_update);
+  }
+
+  return rpm_ui_number_connector;
+}
+
+static const int get_rpm_ui_number_handle(void)
+{
+  return Connector_handle(get_rpm_ui_number_connector(), 0);
+}
+
+int DS_ui_rpm(void)
+{
+  if (!rpm_ui_number) {
+    rpm_ui_number = UI_number_create(rpm_str, get_rpm_ui_number_handle());
+    UI_number_edit_on(rpm_ui_number);
+    UI_number_set_default_float_change(rpm_ui_number, 1.0f);
+  }
+
+  return rpm_ui_number;
 }
 
 void DS_ui_init(void)

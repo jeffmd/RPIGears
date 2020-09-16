@@ -80,6 +80,7 @@ static short get_stats_area(void)
     UI_area_add_handle(stats_area, User_options_ui_vsync(), 10, 30);
     UI_area_add_handle(stats_area, DS_ui_vbo(), 10, 50);
     UI_area_add_handle(stats_area, DS_ui_instances(), 10, 70);
+    UI_area_add_handle(stats_area, DS_ui_rpm(), 10, 90);
     UI_area_add_handle(stats_area, WM_ui_fps(), 10, 400);
     update_stats_hide();
   }
