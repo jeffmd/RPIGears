@@ -220,8 +220,9 @@ void DS_update_gear_rotation(void)
   DEMO_STATE_T *state = get_demo_state();
   /* advance gear rotation for next frame */
   state->angle += state->angleVel * WM_period_rate();
-  if (state->angle > 360.0)
-    state->angle -= 360.0;
+  if (state->angle > 360.0f) {
+    state->angle -= 360.0f;
+  }
 }
 
 void DS_light_move_y(const float val)
