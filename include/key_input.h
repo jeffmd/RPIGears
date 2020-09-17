@@ -39,6 +39,5 @@
   void Key_input_set_rate_frame(const float period_rate);
   void Key_input_rate_on(void);
   void Key_input_rate_off(void);
-  void Key_input_inc_rate(void);
   
 #endif

@@ -122,12 +122,6 @@ void Key_input_rate_off(void)
   key_down_update = 0;
 }
 
-void Key_input_inc_rate(void)
-{
-  // increase movement speed if not at max
-  //if (rate_enabled) rate += 10 * state->period_rate;
-}
-
 static int detect_keypress(void)
 {
   int active = FRAMES;
