@@ -303,6 +303,7 @@ void Window_swap_buffers(void)
 
 void Window_viewport_reset(void)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(0, 0, window->nativewindow.width, window->nativewindow.height);
   glDisable(GL_SCISSOR_TEST);
 }

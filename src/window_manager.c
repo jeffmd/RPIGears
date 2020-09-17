@@ -28,19 +28,17 @@ static float period_rate;
 
 static Action draw_fn;
 
-static void wm_frameClear(void)
+static void wm_frame_clear(void)
 {
   GPU_framebuffer_done();
   // if main screen is visible
   {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, (GLsizei)Window_screen_width(), (GLsizei)Window_screen_height());
+    Window_viewport_reset();
   }
   // else render to offscreen framebuffer 
   {
     // enable offscreen frame buffer
   }
-  glDisable(GL_SCISSOR_TEST);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);
   glStencilMask(0xFFFFFFFF);
@@ -53,7 +51,7 @@ static void window_manager_delete(void)
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  wm_frameClear();
+  wm_frame_clear();
 
   Window_swap_buffers();
   Window_release();
@@ -62,7 +60,7 @@ static void window_manager_delete(void)
   printf("window manager has shut down\n"); 
 }
 
-static void wm_frameEnd(void)
+static void wm_frame_end(void)
 {
   Window_swap_buffers();
   XWindow_frame_update(0);
@@ -82,16 +80,14 @@ static void wm_do_draw_fn(void)
   }
 }
 
-static void wm_update(void)
+static void wm_frame_update(void)
 {
   Task_do();
   XWindow_check_events();
   Key_input_down_update();
-  Key_input_inc_rate();
   wm_do_draw_fn();
   glEnable(GL_SCISSOR_TEST);
   UI_area_root_draw();
-  
 }
 
 static void wm_update_avgfps(const float fps)
@@ -99,7 +95,6 @@ static void wm_update_avgfps(const float fps)
   if ( fabsf(avgfps - fps) > 0.1f ) {
     avgfps = fps;
     period_rate = 1.0f / avgfps;
-    //update_angleFrame();
     Key_input_set_rate_frame(period_rate);
   }
 }
@@ -145,9 +140,9 @@ void WM_set_draw(Action fn)
 void WM_refresh(void)
 {
   frames++;
-  wm_frameClear();
-  wm_update();
-  wm_frameEnd();
+  wm_frame_clear();
+  wm_frame_update();
+  wm_frame_end();
 }
 
 void WM_init(void)
