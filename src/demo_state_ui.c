@@ -34,12 +34,12 @@ static void vbo_update(const short source_id, const short destination_id)
 
 static void inc_instances(const short souce_id, const short destination_id)
 {
-  DS_inc_instances();
+  DS_change_instances(1);
 }
 
 static void dec_instances(const short souce_id, const short destination_id)
 {
-  DS_dec_instances();
+  DS_change_instances(-1);
 }
 
 static void key_angleVel_down(const short souce_id, const short destination_id)
@@ -98,12 +98,7 @@ static void instances_update(const short source_id, const short destination_id)
 
 static void instances_change(const short source_id, const short destination_id)
 {
-  if (UI_number_int_change(source_id) > 0) {
-    DS_inc_instances();
-  }
-  else {
-    DS_dec_instances();
-  }
+  DS_change_instances(UI_number_int_change(source_id));
 }
 
 static short get_instances_ui_number_connector(void)

@@ -62,16 +62,12 @@ int DS_use_VBO(void)
   return result;
 }
 
-void DS_inc_instances(void)
+void DS_change_instances(const int val)
 {
-  demo_state->instances++;
-}
-
-void DS_dec_instances(void)
-{
-  demo_state->instances--;
-  if (demo_state->instances < 1) 
-    demo_state->instances = 1;	
+  demo_state->instances += val;
+  if (demo_state->instances < 1) {
+    demo_state->instances = 1;
+  }
 }
 
 void DS_change_angleVel(const float val)

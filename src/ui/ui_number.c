@@ -49,9 +49,7 @@ static short next_deleted_ui_number;
 static short area_connector;
 static short ui_number_class;
 static short ui_number_key_map;
-static short old_y;
-static short old_x;
-static short drag_active;
+static short delta_xy;
 
 static const char num_str[] = "000.000";
 static char val_str[12];
@@ -196,7 +194,7 @@ static float get_default_float_change(UI_Number *const ui_number)
     ui_number->default_change.f = DEFAULT_FLOAT_CHANGE;
   }
   
-  return ui_number->default_change.f;
+  return ui_number->default_change.f * delta_xy;
 }
 
 static int get_default_int_change(UI_Number *const ui_number)
@@ -205,7 +203,7 @@ static int get_default_int_change(UI_Number *const ui_number)
     ui_number->default_change.i = DEFAULT_INT_CHANGE;
   }
   
-  return ui_number->default_change.i;
+  return ui_number->default_change.i * delta_xy;
 }
 
 static void ui_number_inc(const short source_id, const short destination_id)
@@ -237,20 +235,16 @@ static void ui_number_dec(const short source_id, const short destination_id)
 }
 
 
-static void ui_number_start_change(const short source_id, const short destination_id)
+static void ui_number_start_drag(const short source_id, const short destination_id)
 {
-  //UI_Number *const ui_number = get_ui_number(destination_id);
-  //ui_number_inc(ui_number);
-  drag_active = 1;
-  old_y = UI_area_pointer_y();
-  old_x = UI_area_pointer_x();
+  UI_area_drag_start();
   UI_area_set_handled(source_id);
   UI_area_set_locked(source_id);
 }
 
-static void ui_number_end_change(const short source_id, const short destination_id)
+static void ui_number_end_drag(const short source_id, const short destination_id)
 {
-  drag_active = 0;
+  UI_area_drag_end();
   UI_area_set_handled(source_id);
   UI_area_set_unlocked(source_id);
 }
@@ -259,8 +253,8 @@ static short get_ui_number_key_map(void)
 {
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
-    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_change, 0));
-    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON_RELEASE, ui_number_end_change, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_drag, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON_RELEASE, ui_number_end_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_INC, ui_number_inc, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_DEC, ui_number_dec, 0));
   }
@@ -271,27 +265,16 @@ static short get_ui_number_key_map(void)
 static void ui_number_area_key_change(const short source_id, const short destination_id)
 {
   if (get_ui_number(destination_id)->can_edit) {
+    delta_xy = 1;
     Key_Map_action(get_ui_number_key_map(), UI_area_active_key(), source_id, destination_id);
   }
 }
 
-static void ui_number_area_pointer_move(const short source_id, const short destination_id)
+static void ui_number_area_pointer_drag(const short source_id, const short destination_id)
 {
-  if (drag_active) {
-    short new_y = UI_area_pointer_y();
-    short new_x = UI_area_pointer_x();
-    short delta = (old_y - new_y) + (new_x - old_x);
-
-    if (delta > 0) {
-      ui_number_inc(source_id, destination_id);
-    }
-    else if (delta < 0) {
-      ui_number_dec(source_id, destination_id);
-    }
-
-    old_y = new_y;
-    old_x = new_x;
-  }
+  delta_xy = UI_area_drag_delta_xy();
+  ui_number_inc(source_id, destination_id);
+  delta_xy = 1;
 }
 
 static short get_area_connector(void)
@@ -305,7 +288,7 @@ static short get_area_connector(void)
     UI_area_connect_resize(area_connector, ui_number_area_resize);
     UI_area_connect_attach(area_connector, ui_number_area_attach);
     UI_area_connect_key_change(area_connector, ui_number_area_key_change);
-    UI_area_connect_pointer_move(area_connector, ui_number_area_pointer_move);
+    UI_area_connect_pointer_drag(area_connector, ui_number_area_pointer_drag);
   }
 
   return area_connector;

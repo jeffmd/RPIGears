@@ -41,6 +41,7 @@ enum Events {
   OnDraw,
   OnKeyChange,
   OnPointerMove,
+  OnPointerDrag,
   EventsMax
 };
 
@@ -53,8 +54,13 @@ static short root_area;
 static short active_area;
 static short locked_area;
 static int active_key;
+
 static short pointer_x;
 static short pointer_y;
+static short old_y;
+static short old_x;
+static short drag_active;
+
 static short ui_area_class;
 
 static short get_active_area(void)
@@ -334,6 +340,13 @@ static void area_pointer_moved(const short area_id)
 {
   UI_Area * const area = get_area(area_id);
   Connector_handle_execute(area->handle, OnPointerMove, area_id);
+
+  if (drag_active) {
+    Connector_handle_execute(area->handle, OnPointerDrag, area_id);
+    old_y = pointer_y;
+    old_x = pointer_x;
+  }
+
 }
 
 static void update_active_area(void)
@@ -434,6 +447,11 @@ void UI_area_connect_pointer_move(const short connector_id, ActionFn action)
   Connector_set_action(connector_id, OnPointerMove, action);
 }
 
+void UI_area_connect_pointer_drag(const short connector_id, ActionFn action)
+{
+  Connector_set_action(connector_id, OnPointerDrag, action);
+}
+
 void UI_area_connect(const short area_id, const int handle)
 {
   UI_Area * const area = get_area(area_id);
@@ -523,5 +541,22 @@ short UI_area_pointer_x(void)
 short UI_area_pointer_y(void)
 {
   return pointer_y;
+}
+
+void UI_area_drag_start(void)
+{
+  drag_active = 1;
+  old_y = pointer_y;
+  old_x = pointer_x;
+}
+
+void UI_area_drag_end(void)
+{
+  drag_active = 0;
+}
+
+int UI_area_drag_delta_xy(void)
+{
+  return (pointer_x - old_x) + (old_y - pointer_y);
 }
 

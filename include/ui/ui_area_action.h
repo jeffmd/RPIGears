@@ -12,6 +12,7 @@
   void UI_area_connect_move(const short connector_id, ActionFn action);
   void UI_area_connect_key_change(const short connector_id, ActionFn action);
   void UI_area_connect_pointer_move(const short connector_id, ActionFn action);
+  void UI_area_connect_pointer_drag(const short connector_id, ActionFn action);
   void UI_area_connect(const short area_id, const int handle);
   short UI_area_add_handle(const short parent_id, const int handle, const int x, const int y);
   void UI_area_set_handled(const short area_id);
@@ -22,5 +23,8 @@
   int UI_area_active_key(void);
   void UI_area_set_locked(const short area_id);
   void UI_area_set_unlocked(const short area_id);
+  void UI_area_drag_start(void);
+  void UI_area_drag_end(void);
+  int UI_area_drag_delta_xy(void);
 
 #endif
