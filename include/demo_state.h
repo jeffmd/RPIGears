@@ -15,7 +15,7 @@
   float DS_angleVel(void);
   void DS_toggle_VBO(void);
   int DS_use_VBO(void);
-  void DS_change_instances(const float val);
+  void DS_change_instances(const int val);
   void DS_change_angleVel(const float val);
   void DS_state_next_frame(void);
   char *DS_has_fps(void);
