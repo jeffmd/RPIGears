@@ -42,12 +42,12 @@ static void dec_instances(const short souce_id, const short destination_id)
   DS_change_instances(-1);
 }
 
-static void key_angleVel_down(const short souce_id, const short destination_id)
+static void key_dec_angleVel(const short souce_id, const short destination_id)
 {
   Key_input_set_update(DS_change_angleVel, -10.0f);
 }
 
-static void key_angleVel_up(const short souce_id, const short destination_id)
+static void key_inc_angleVel(const short souce_id, const short destination_id)
 {
   Key_input_set_update(DS_change_angleVel, 10.0f);
 }
@@ -170,8 +170,8 @@ void DS_ui_init(void)
   Key_add_action('b', vbo_toggle, "toggle use of Buffer Objects for gear vertex data");
   Key_add_action(SHIFT_KEY('I'), inc_instances, "add another draw instance of the gears");
   Key_add_action(SHIFT_KEY('O'), dec_instances, "remove an instance of the gears");
-  Key_add_action(SHIFT_KEY('<'), key_angleVel_down, "decrease gear spin rate");
-  Key_add_action(SHIFT_KEY('>'), key_angleVel_up, "increase gear spin rate");
+  Key_add_action(SHIFT_KEY('<'), key_dec_angleVel, "decrease gear spin rate");
+  Key_add_action(SHIFT_KEY('>'), key_inc_angleVel, "increase gear spin rate");
   Key_add_action('p', key_angleVel_pause, "stop gear spin");
 }
 
