@@ -219,6 +219,9 @@ void DS_update_gear_rotation(void)
   if (state->angle > 360.0f) {
     state->angle -= 360.0f;
   }
+  if (state->angle < 0.0f) {
+    state->angle += 360.0f;
+  }
 }
 
 void DS_light_move_y(const float val)
