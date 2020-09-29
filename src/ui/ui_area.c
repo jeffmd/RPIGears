@@ -7,6 +7,7 @@
 #include "static_array.h"
 #include "connector.h"
 #include "key_input.h"
+#include "ui_layout.h"
 
 typedef struct {
   uint8_t active;
@@ -22,6 +23,8 @@ typedef struct {
   short parent;
   short child;
   short sibling;
+
+  short layout;
 
   short rel_pos[2];
   short size[2];
@@ -81,7 +84,7 @@ static inline short find_deleted_area(void)
   return ARRAY_FIND_DELETED_ID(next_deleted_area, areas, UI_AREA_MAX_COUNT, UI_Area, "UI area");
 }
 
-static UI_Area *get_area(int id)
+static UI_Area *get_area(short id)
 {
   if ((id < 0) | (id >= UI_AREA_MAX_COUNT)) {
     id = 0;
@@ -248,6 +251,8 @@ void UI_area_add(const short parent_id, const short child_id)
     child->sibling = parent->child;
     child->parent = parent_id;
     parent->child = child_id;
+
+    // if area has layout then update layout
   }
 
   update_visibility(child);
