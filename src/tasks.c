@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "static_array.h"
 
 #define TASKS_MAX_COUNT 10
-#define TASKS_DTIME 10
 #define TASKS_DO_COUNT TASKS_MAX_COUNT
+#define TASKS_DTIME 100
 
 typedef enum
 {
@@ -77,18 +78,23 @@ static void task_init(Task * const task)
   task->elapsed_ms = 0.0f;
 }
 
-static void update_interval(const uint interval)
+static void update_tasks_dtime(const uint interval)
 {
-  const uint new_dtime = interval / 2;
-  if (new_dtime < tasks_dtime) {
-    tasks_dtime = new_dtime;
+  if (interval && (interval < tasks_dtime)) {
+    tasks_dtime = interval;
+    //printf("tasks dtime: %i\n", interval);
   }
 }
 
-static void update_interval_ms(Task *task, const uint interval)
+static void reset_tasks_dtime(void)
+{
+  tasks_dtime = TASKS_DTIME;
+}
+
+static void task_set_interval_ms(Task *task, const uint interval)
 {
   task->interval_ms = interval;
-  update_interval(interval);
+  update_tasks_dtime(interval / 2);
 }
 
 short Task_create(const uint interval, Action dofunc)
@@ -100,7 +106,7 @@ short Task_create(const uint interval, Action dofunc)
   task_init(task);
 
   task->dofunc = dofunc;
-  update_interval_ms(task, interval);
+  task_set_interval_ms(task, interval);
   
   return id;
 }
@@ -112,7 +118,7 @@ void Task_set_action(const short id, Action dofunc)
 
 void Task_set_interval(const short id, const uint interval)
 {
-  update_interval_ms(get_task(id), interval);
+  task_set_interval_ms(get_task(id), interval);
 }
 
 uint Task_elapsed(const short id)
@@ -120,7 +126,7 @@ uint Task_elapsed(const short id)
   return get_task(id)->elapsed_ms;
 }
 
-static void task_do(Task * const task)
+static void task_execute(Task * const task)
 {
   if (task->active) {
     
@@ -129,10 +135,15 @@ static void task_do(Task * const task)
       
       if (task->elapsed_ms >= task->interval_ms) {
         task->prev_ms = current_ms;
+
         if (task->dofunc) {
           task->dofunc();
         }
+
+        task->elapsed_ms = 0;
       }
+
+      update_tasks_dtime(task->interval_ms - task->elapsed_ms);
     }
   }  
 }
@@ -150,12 +161,18 @@ void Task_run(const short id)
 void Task_do(void)
 {
   update_current_ms();
-  if ( (current_ms - prev_ms) >= tasks_dtime) {
-    prev_ms = current_ms;
-      
-    for (int idx = 1; idx < TASKS_MAX_COUNT; idx++) {
-      task_do(tasks + idx);
-    }
-  }  
+  const uint dtime = current_ms - prev_ms;
+
+  if (dtime < tasks_dtime) {
+    usleep((tasks_dtime - dtime) * 1000);
+    update_current_ms();
+  }
+
+  prev_ms = current_ms;
+  reset_tasks_dtime();
+
+  for (int idx = 1; idx < TASKS_MAX_COUNT; idx++) {
+    task_execute(tasks + idx);
+  }
 }
 

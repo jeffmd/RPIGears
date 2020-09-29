@@ -86,6 +86,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.h"
 #include "window_manager.h"
 #include "gldebug.h"
+#include "tasks.h"
 #include "ui_view3d.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
@@ -131,14 +132,14 @@ static void run_gears(void)
   // keep doing the loop while no exit keys hit and exit timer not finished
   while (!Exit_is_now())
   {
-    DS_update_gear_rotation();
     offscreen_refresh();
-    WM_refresh();
+    Task_do();
   }
 }
 
 static void draw(void)
 {
+  DS_update_gear_rotation();
   test_quad_draw();
 }
 

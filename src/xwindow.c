@@ -9,6 +9,7 @@
 #include <X11/extensions/XShm.h>
 #include <assert.h>
 
+#include "tasks.h"
 #include "xinput.h"
 #include "window.h"
 #include "exit.h"
@@ -25,6 +26,7 @@ static int resized = 1;
 static int useMITSHM = 0;
 static int minimized = 0;
 static int dirty = 1;
+static short event_task;
 
 static XWindowAttributes window_attributes;
 static XShmSegmentInfo shmSInfo;
@@ -54,101 +56,6 @@ static void init_XShmImageBuffer(int width, int height, int depth)
   assert(img->data != 0);
   shmSInfo.readOnly = True; // False; faster rendering if readOnly = True
   XShmAttach(dis, &shmSInfo);
-}
-
-void XWindow_init(const uint width, const uint height)
-{
-  /* get the colors black and white (see section for details) */
-  unsigned long black, white;
-
-
-  /* use the information from the environment variable DISPLAY
-     to create the X connection:
-  */
-  dis = XOpenDisplay((char *)0);
-  assert(dis);
-  screen = DefaultScreen(dis);
-  black = BlackPixel(dis, screen),  /* get color black */
-  white = WhitePixel(dis, screen);  /* get color white */
-
-  /* once the display is initialized, create the window.
-     This window will be have be 200 pixels across and 300 down.
-     It will have the foreground white and background black
-  */
-  win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0,
-    width, height, 0, white, black);
-
-  XGetWindowAttributes(dis, win, &window_attributes);
-  printf("Window Location: %i,%i \n Window Dimensions %i x %i \n Bit depth : %i \n",
-          window_attributes.x,
-          window_attributes.y,
-          window_attributes.width,
-          window_attributes.height,
-          window_attributes.depth
-          );
-
-  gc = XCreateGC(dis, win, 0, 0/*&gcvalues*/);
-
-  /* here is where some properties of the window can be set.
-     The third and fourth items indicate the name which appears
-     at the top of the window and the name of the minimized window
-     respectively.
-  */
-  XSetStandardProperties(dis, win, "RPIGears", "Demo", None, NULL, 0, NULL);
-
-  /* this routine determines which types of input are allowed in
-     the input.  see the appropriate section for details...
-  */
-  XSelectInput(dis, win,
-    ExposureMask
-    | ButtonPressMask
-    | ButtonReleaseMask
-    /*| Button1MotionMask*/
-    | KeyPressMask
-    | KeyReleaseMask
-    /*| SubstructureRedirectMask*/
-    | FocusChangeMask
-    | EnterWindowMask
-    | LeaveWindowMask
-    | PointerMotionMask
-    | VisibilityChangeMask
-    | StructureNotifyMask);
-
-  /* create the Graphics Context */
-  //gc = XCreateGC(dis, win, 0,0);
-
-  //XSetBackground(dis, gc, white);
-  //XSetForeground(dis, gc, black);
-
-  // prevent xwindow from closing on its own
-  wmprotocols[0] = XInternAtom(dis, "WM_PROTOCOLS", False);
-  wmprotocols[1] = XInternAtom(dis, "WM_DELETE_WINDOW", False);
-  wmprotocols[2] = XInternAtom(dis, "WM_TAKE_FOCUS", False);
-
-  XSetWMProtocols(dis, win, &wmprotocols[1], 2);
-
-  useMITSHM = checkShmSupport();
-  if(useMITSHM) {
-    init_XShmImageBuffer(1280, 1024, 24);
-  }
-
-  XClearWindow(dis, win);
-  XMapRaised(dis, win);
-  //XFlush(dis);
-}
-
-void XWindow_close(void)
-{
-  XFreeGC(dis, gc);
-  XDestroyWindow(dis, win);
-  if(useMITSHM) {
-    XDestroyImage(img);
-    XShmDetach(dis, &shmSInfo);
-  }
-  else {
-    XDestroyImage(img);
-  }
-  XCloseDisplay(dis);
 }
 
 static void do_ConfigureNotify(const XConfigureEvent* event)
@@ -195,6 +102,71 @@ static void do_ClientMessage(const XClientMessageEvent* event)
   }
   else {
     printf("unhandled client message event \n");
+  }
+}
+
+static void check_events(void)
+{
+  XEvent event;
+
+  int cnt = XPending(dis);
+  while (cnt--) {
+    XNextEvent(dis, &event);
+    /* keyboard events */
+    switch(event.type)
+    {
+      case KeyRelease:
+      case KeyPress:
+        Xinput_check_keys(&event.xkey);
+        break;
+
+      case ConfigureNotify:
+        do_ConfigureNotify(&event.xconfigure);
+        break;
+
+      case ClientMessage:
+        do_ClientMessage(&event.xclient);
+        break;
+
+      case ConfigureRequest:
+        printf("configure request\n");
+        break;
+
+      case FocusOut:
+        Window_hide();
+        break;
+
+      case FocusIn:
+        Window_show();
+        break;
+
+      case MotionNotify:
+        Xinput_pointer_move(&event.xmotion);
+        break;
+
+      case EnterNotify:
+      case LeaveNotify:
+        break;
+
+      case ButtonRelease:
+      case ButtonPress:
+        Xinput_button_event(&event.xbutton);
+        break;
+
+      case VisibilityNotify:
+        printf("visible state: %i\n", event.xvisibility.state);
+        minimized = (event.xvisibility.state == 2) ? 1 : 0;
+        break;
+
+      case Expose:
+        printf("x: %i, y: %i, width: %i, height %i\n",
+          event.xexpose.x, event.xexpose.y, event.xexpose.width, event.xexpose.height);
+        break;
+
+      default:
+        printf("unhandled event: %i\n", event.type);
+
+    }
   }
 }
 
@@ -316,69 +288,101 @@ void XWindow_frame_update(void *buffer)
 #endif
 }
 
-void XWindow_check_events(void)
+void XWindow_init(const uint width, const uint height)
 {
-  XEvent event;
+  /* get the colors black and white (see section for details) */
+  unsigned long black, white;
 
-  int cnt = XPending(dis);
-  while (cnt--) {
-    XNextEvent(dis, &event);
-    /* keyboard events */
-    switch(event.type)
-    {
-      case KeyRelease:
-      case KeyPress:
-        Xinput_check_keys(&event.xkey);
-        break;
 
-      case ConfigureNotify:
-        do_ConfigureNotify(&event.xconfigure);
-        break;
+  /* use the information from the environment variable DISPLAY
+     to create the X connection:
+  */
+  dis = XOpenDisplay((char *)0);
+  assert(dis);
+  screen = DefaultScreen(dis);
+  black = BlackPixel(dis, screen),  /* get color black */
+  white = WhitePixel(dis, screen);  /* get color white */
 
-      case ClientMessage:
-        do_ClientMessage(&event.xclient);
-        break;
+  /* once the display is initialized, create the window.
+     This window will be have be 200 pixels across and 300 down.
+     It will have the foreground white and background black
+  */
+  win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0,
+    width, height, 0, white, black);
 
-      case ConfigureRequest:
-        printf("configure request\n");
-        break;
+  XGetWindowAttributes(dis, win, &window_attributes);
+  printf("Window Location: %i,%i \n Window Dimensions %i x %i \n Bit depth : %i \n",
+          window_attributes.x,
+          window_attributes.y,
+          window_attributes.width,
+          window_attributes.height,
+          window_attributes.depth
+          );
 
-      case FocusOut:
-        Window_hide();
-        break;
+  gc = XCreateGC(dis, win, 0, 0/*&gcvalues*/);
 
-      case FocusIn:
-        Window_show();
-        break;
+  /* here is where some properties of the window can be set.
+     The third and fourth items indicate the name which appears
+     at the top of the window and the name of the minimized window
+     respectively.
+  */
+  XSetStandardProperties(dis, win, "RPIGears", "Demo", None, NULL, 0, NULL);
 
-      case MotionNotify:
-        Xinput_pointer_move(&event.xmotion);
-        break;
+  /* this routine determines which types of input are allowed in
+     the input.  see the appropriate section for details...
+  */
+  XSelectInput(dis, win,
+    ExposureMask
+    | ButtonPressMask
+    | ButtonReleaseMask
+    /*| Button1MotionMask*/
+    | KeyPressMask
+    | KeyReleaseMask
+    /*| SubstructureRedirectMask*/
+    | FocusChangeMask
+    | EnterWindowMask
+    | LeaveWindowMask
+    | PointerMotionMask
+    | VisibilityChangeMask
+    | StructureNotifyMask);
 
-      case EnterNotify:
-      case LeaveNotify:
-        break;
+  /* create the Graphics Context */
+  //gc = XCreateGC(dis, win, 0,0);
 
-      case ButtonRelease:
-      case ButtonPress:
-        Xinput_button_event(&event.xbutton);
-        break;
+  //XSetBackground(dis, gc, white);
+  //XSetForeground(dis, gc, black);
 
-      case VisibilityNotify:
-        printf("visible state: %i\n", event.xvisibility.state);
-        minimized = (event.xvisibility.state == 2) ? 1 : 0;
-        break;
+  // prevent xwindow from closing on its own
+  wmprotocols[0] = XInternAtom(dis, "WM_PROTOCOLS", False);
+  wmprotocols[1] = XInternAtom(dis, "WM_DELETE_WINDOW", False);
+  wmprotocols[2] = XInternAtom(dis, "WM_TAKE_FOCUS", False);
 
-      case Expose:
-        printf("x: %i, y: %i, width: %i, height %i\n",
-          event.xexpose.x, event.xexpose.y, event.xexpose.width, event.xexpose.height);
-        break;
+  XSetWMProtocols(dis, win, &wmprotocols[1], 2);
 
-      default:
-        printf("unhandled event: %i\n", event.type);
-
-    }
+  useMITSHM = checkShmSupport();
+  if(useMITSHM) {
+    init_XShmImageBuffer(1280, 1024, 24);
   }
+
+  XClearWindow(dis, win);
+  XMapRaised(dis, win);
+  //XFlush(dis);
+
+  event_task = Task_create(50, check_events);
+}
+
+void XWindow_close(void)
+{
+  XFreeGC(dis, gc);
+  XDestroyWindow(dis, win);
+  if(useMITSHM) {
+    XDestroyImage(img);
+    XShmDetach(dis, &shmSInfo);
+  }
+  else {
+    XDestroyImage(img);
+  }
+  XCloseDisplay(dis);
 }
 
 int XWindow_minimized(void)

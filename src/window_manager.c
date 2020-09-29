@@ -20,6 +20,7 @@ static int lastFrames;
 
 static short frame_rate_task;
 static short FPS_task;
+static short refresh_task;
 
 // Average Frames Per Second
 static float avgfps;
@@ -73,17 +74,13 @@ int WM_minimized(void)
 
 static void wm_do_draw_fn(void)
 {
-  if (!WM_minimized()) {
-    if (draw_fn) {
-      draw_fn();
-    }
+  if (draw_fn) {
+    draw_fn();
   }
 }
 
 static void wm_frame_update(void)
 {
-  Task_do();
-  XWindow_check_events();
   Key_input_down_update();
   wm_do_draw_fn();
   glEnable(GL_SCISSOR_TEST);
@@ -137,12 +134,34 @@ void WM_set_draw(Action fn)
   draw_fn = fn;
 }
 
-void WM_refresh(void)
+static void frame_refresh(void)
 {
   frames++;
   wm_frame_clear();
-  wm_frame_update();
+
+  if (!WM_minimized()) {
+    wm_frame_update();
+  }
+
   wm_frame_end();
+
+}
+
+static void refresh_task_set_interval(const uint interval)
+{
+  if (!refresh_task) {
+    refresh_task = Task_create(interval, frame_refresh);
+  }
+  else {
+    Task_set_interval(refresh_task, interval);
+  }
+}
+
+void WM_set_fps(const float fps)
+{
+  avgfps = fps;
+  period_rate = 1.0f / avgfps;
+  refresh_task_set_interval(period_rate * 1000);
 }
 
 void WM_init(void)
@@ -153,9 +172,7 @@ void WM_init(void)
   XWindow_init(Window_screen_width() / 2, Window_screen_height() / 2);
   Key_input_init();
   atexit(window_manager_delete);
-  avgfps = 50.0f;
-  period_rate = 1.0f / avgfps;
-  
+  WM_set_fps(50.0f);
   frames = lastFrames = 0;
   
   FPS_task = Task_create(5000, wm_do_FPS_task);
