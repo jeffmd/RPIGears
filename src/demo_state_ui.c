@@ -70,7 +70,7 @@ static short get_vbo_ui_checkbox_connector(void)
 {
   if (!vbo_ui_checkbox_connector) {
     vbo_ui_checkbox_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_change(vbo_ui_checkbox_connector, vbo_toggle);
+    UI_widget_connect_changed(vbo_ui_checkbox_connector, vbo_toggle);
     UI_widget_connect_update(vbo_ui_checkbox_connector, vbo_update);
   }
 
@@ -91,12 +91,12 @@ int DS_ui_vbo(void)
   return vbo_ui_checkbox;
 }
 
-static void instances_update(const short source_id, const short destination_id)
+static void instances_update_ui(const short source_id, const short destination_id)
 {
   UI_number_update_int(source_id, DS_instances());
 }
 
-static void instances_change(const short source_id, const short destination_id)
+static void instances_ui_changed(const short source_id, const short destination_id)
 {
   DS_change_instances(UI_number_int_change(source_id));
 }
@@ -105,8 +105,8 @@ static short get_instances_ui_number_connector(void)
 {
   if (!instances_ui_number_connector) {
     instances_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_change(instances_ui_number_connector, instances_change);
-    UI_widget_connect_update(instances_ui_number_connector, instances_update);
+    UI_widget_connect_changed(instances_ui_number_connector, instances_ui_changed);
+    UI_widget_connect_update(instances_ui_number_connector, instances_update_ui);
   }
 
   return instances_ui_number_connector;
@@ -127,12 +127,12 @@ int DS_ui_instances(void)
   return instances_ui_number;
 }
 
-static void rpm_update(const short source_id, const short destination_id)
+static void rpm_update_ui(const short source_id, const short destination_id)
 {
   UI_number_update_float(source_id, DS_angleVel());
 }
 
-static void rpm_change(const short source_id, const short destination_id)
+static void rpm_ui_changed(const short source_id, const short destination_id)
 {
   DS_change_angleVel(UI_number_float_change(source_id));
 }
@@ -141,8 +141,8 @@ static short get_rpm_ui_number_connector(void)
 {
   if (!rpm_ui_number_connector) {
     rpm_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_change(rpm_ui_number_connector, rpm_change);
-    UI_widget_connect_update(rpm_ui_number_connector, rpm_update);
+    UI_widget_connect_changed(rpm_ui_number_connector, rpm_ui_changed);
+    UI_widget_connect_update(rpm_ui_number_connector, rpm_update_ui);
   }
 
   return rpm_ui_number_connector;

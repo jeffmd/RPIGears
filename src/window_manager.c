@@ -14,6 +14,8 @@
 #include "ui_area_action.h"
 
 typedef void (* Action)(void);
+#define MIN_FPS 10.0f
+#define MAX_FPS 1000.0f
 
 static int frames; // number of frames drawn since the last frame/sec calculation
 static int lastFrames;
@@ -23,6 +25,7 @@ static short FPS_task;
 static short refresh_task;
 
 // Average Frames Per Second
+static float fps_setpoint;
 static float avgfps;
 // the average time between each frame update = 1/avgfps
 static float period_rate;
@@ -91,7 +94,7 @@ static void wm_update_avgfps(const float fps)
 {
   if ( fabsf(avgfps - fps) > 0.1f ) {
     avgfps = fps;
-    period_rate = 1.0f / avgfps;
+    period_rate = 1.0f / fps;
     Key_input_set_rate_frame(period_rate);
   }
 }
@@ -159,9 +162,16 @@ static void refresh_task_set_interval(const uint interval)
 
 void WM_set_fps(const float fps)
 {
-  avgfps = fps;
-  period_rate = 1.0f / avgfps;
-  refresh_task_set_interval(period_rate * 1000);
+  if (fps >= MIN_FPS && fps <= MAX_FPS) {
+    fps_setpoint = fps;
+    wm_update_avgfps(fps);
+    refresh_task_set_interval(period_rate * 1000);
+  }
+}
+
+void WM_change_fps(const float val)
+{
+  WM_set_fps(fps_setpoint + val);
 }
 
 void WM_init(void)
@@ -176,5 +186,5 @@ void WM_init(void)
   frames = lastFrames = 0;
   
   FPS_task = Task_create(5000, wm_do_FPS_task);
-  frame_rate_task = Task_create(100, wm_do_frame_rate_task);
+  frame_rate_task = Task_create(300, wm_do_frame_rate_task);
 }

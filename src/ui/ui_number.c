@@ -120,7 +120,7 @@ void UI_number_update_float(const short number_id, const float val)
   if ( fabsf(ui_number->old_val.f - val) > 0.1f ) {
     ui_number->old_val.f = val;
     ui_number->is_float = 1;
-    sprintf(val_str, "%3.1f  ", ui_number->old_val.f);
+    sprintf(val_str, "%3.1f  ", val);
     update_value_text(ui_number);
   }
 }
@@ -132,7 +132,7 @@ void UI_number_update_int(const short number_id, const int val)
   if ( abs(ui_number->old_val.i - val) > 0 ) {
     ui_number->old_val.i = val;
     ui_number->is_float = 0;
-    sprintf(val_str, "%3i    ", ui_number->old_val.i);
+    sprintf(val_str, "%3i    ", val);
     update_value_text(ui_number);
   }
 }
@@ -217,7 +217,7 @@ static void ui_number_inc(const short source_id, const short destination_id)
     ui_number->change_val.i = get_default_int_change(ui_number);
   }
 
-  UI_widget_change(ui_number->widget_handle, destination_id);
+  UI_widget_changed(ui_number->widget_handle, destination_id);
 }
 
 static void ui_number_dec(const short source_id, const short destination_id)
@@ -231,7 +231,7 @@ static void ui_number_dec(const short source_id, const short destination_id)
     ui_number->change_val.i = -get_default_int_change(ui_number);
   }
 
-  UI_widget_change(ui_number->widget_handle, destination_id);
+  UI_widget_changed(ui_number->widget_handle, destination_id);
 }
 
 

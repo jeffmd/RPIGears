@@ -10,5 +10,6 @@
   void WM_set_draw(Action fn);
   float WM_fps(void);
   void WM_set_fps(const float fps);
+  void WM_change_fps(const float val);
   float WM_period_rate(void);
 #endif

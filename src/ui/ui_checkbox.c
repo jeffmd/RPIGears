@@ -152,7 +152,7 @@ static void ui_checkbox_area_resize(const short source_id, const short destinati
 static void ui_checkbox_change(const short source_id, const short destination_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(destination_id);
-  UI_widget_change(ui_checkbox->widget_handle, destination_id);
+  UI_widget_changed(ui_checkbox->widget_handle, destination_id);
   UI_area_set_handled(source_id);
 }
 

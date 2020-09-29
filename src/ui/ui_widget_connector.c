@@ -29,7 +29,7 @@ short UI_widget_connector(const short destination_class)
   return connector_id;
 }
 
-void UI_widget_connect_change(const short connector_id, ActionFn action)
+void UI_widget_connect_changed(const short connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnChange, action);
 }
@@ -39,7 +39,7 @@ void UI_widget_connect_update(const short connector_id, ActionFn action)
   Connector_set_action(connector_id, OnUpdate, action);
 }
 
-void UI_widget_change(const int handle, const short destination_id)
+void UI_widget_changed(const int handle, const short destination_id)
 {
   Connector_handle_execute(handle, OnChange, destination_id);
 }
