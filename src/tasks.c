@@ -25,11 +25,11 @@ typedef void (*Action)(void);
 typedef struct
 {
   uint8_t active;           // zero if deleted
-  uint prev_ms;             // when the task last executed in milliseconds
+  uint prev_ms;             // milliseconds when task last executed
+  uint next_ms;             // when the task should execute in milliseconds
   uint interval_ms;         // how often in milliseconds the task should run
-  uint elapsed_ms;          // how many milliseconds since the last time the task executed
   TASKSTATE state;          // state of the task ie TS_RUN, TS_PAUSED
-  const char *name;
+  //const char *name;
   Action dofunc;
   
 } Task;
@@ -45,7 +45,7 @@ uint getMilliseconds()
 {
   struct timespec spec;
 
-  clock_gettime(CLOCK_REALTIME, &spec);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
 	
   return (spec.tv_sec * 1000L + spec.tv_nsec / 1000000L);
 }
@@ -75,7 +75,7 @@ static Task *get_task(short id)
 static void task_init(Task * const task)
 {
   task->prev_ms = getMilliseconds();
-  task->elapsed_ms = 0.0f;
+  task->next_ms = task->prev_ms;
 }
 
 static void update_tasks_dtime(const uint interval)
@@ -95,6 +95,7 @@ static void task_set_interval_ms(Task *task, const uint interval)
 {
   task->interval_ms = interval;
   update_tasks_dtime(interval / 2);
+  task->next_ms = getMilliseconds() + interval;
 }
 
 short Task_create(const uint interval, Action dofunc)
@@ -123,7 +124,7 @@ void Task_set_interval(const short id, const uint interval)
 
 uint Task_elapsed(const short id)
 {
-  return get_task(id)->elapsed_ms;
+  return current_ms - get_task(id)->prev_ms;
 }
 
 static void task_execute(Task * const task)
@@ -131,19 +132,18 @@ static void task_execute(Task * const task)
   if (task->active) {
     
     if (task->state == TS_RUN) {
-      task->elapsed_ms = current_ms - task->prev_ms;
-      
-      if (task->elapsed_ms >= task->interval_ms) {
-        task->prev_ms = current_ms;
+
+      if (current_ms >= task->next_ms) {
 
         if (task->dofunc) {
           task->dofunc();
         }
 
-        task->elapsed_ms = 0;
+        task->prev_ms = current_ms;
+        task->next_ms = current_ms + task->interval_ms;
       }
 
-      update_tasks_dtime(task->interval_ms - task->elapsed_ms);
+      update_tasks_dtime(task->next_ms - current_ms);
     }
   }  
 }
