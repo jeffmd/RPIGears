@@ -51,7 +51,7 @@ static short ui_number_class;
 static short ui_number_key_map;
 static short delta_xy;
 
-static const char num_str[] = "000.000";
+static const char num_str[] = "000.000 ";
 static char val_str[12];
 
 static inline short find_deleted_ui_number(void)
@@ -87,7 +87,7 @@ static void setup_val_text(UI_Number *ui_number)
 {
   const short text_id = get_text(ui_number);
   ui_number->val_start = Text_index(text_id);
-  ui_number->offset_x = Text_pos_x(text_id) + 10;
+  ui_number->offset_x = Text_pos_x(text_id) + 12;
   Text_add(text_id, ui_number->offset_x, 0, num_str);
 }
 
@@ -99,11 +99,11 @@ static void update_dimensions(UI_Number *ui_number, const short source_id)
 
     ui_number->area = source_id;
     UI_area_size(source_id, size);
-    Text_set_offset(get_text(ui_number), size[0], size[1]);
-    ui_number->select_scale[0] = 1.9f * size[0];
-    ui_number->select_scale[1] = 1.9f * size[1];
+    Text_set_offset(get_text(ui_number), size[0] - 2, size[1]);
+    ui_number->select_scale[0] = 2.0f * size[0] - 2.0f;
+    ui_number->select_scale[1] = 2.0f * size[1] - 2.0f;
     ui_number->select_offset[0] = -size[0];
-    ui_number->select_offset[1] = -size[1] * 0.5f - 9.0f;
+    ui_number->select_offset[1] = -size[1];
   }
 }
 
@@ -120,7 +120,7 @@ void UI_number_update_float(const short number_id, const float val)
   if ( fabsf(ui_number->old_val.f - val) > 0.1f ) {
     ui_number->old_val.f = val;
     ui_number->is_float = 1;
-    sprintf(val_str, "%3.1f  ", val);
+    sprintf(val_str, "%3.1f   ", val);
     update_value_text(ui_number);
   }
 }
@@ -132,7 +132,7 @@ void UI_number_update_int(const short number_id, const int val)
   if ( abs(ui_number->old_val.i - val) > 0 ) {
     ui_number->old_val.i = val;
     ui_number->is_float = 0;
-    sprintf(val_str, "%3i    ", val);
+    sprintf(val_str, "%3i     ", val);
     update_value_text(ui_number);
   }
 }
