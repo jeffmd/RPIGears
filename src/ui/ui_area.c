@@ -21,8 +21,10 @@ typedef struct {
 
   // area id links
   short parent;
-  short child;
-  short sibling;
+  short first_child;
+  short last_child;
+  short next_sibling;
+  short prev_sibling;
 
   short layout;
 
@@ -94,13 +96,20 @@ static UI_Area *get_area(short id)
   return areas + id;
 }
 
+static void area_changed(UI_Area *area)
+{
+  area->modid++;
+}
+
 static void area_init(UI_Area *area)
 {
-  area->sibling = 0;
+  area->next_sibling = 0;
+  area->prev_sibling = 0;
   area->parent = 0;
-  area->child = 0;
+  area->first_child = 0;
+  area->last_child = 0;
   area->handle = 0;
-  area->modid++;
+  area_changed(area);
 }
 
 static void clip_pos(const short clip_pos[4], short pos[2])
@@ -147,7 +156,7 @@ static void update_vis_pos(UI_Area *area)
     area->parent_modid = parent_area->modid;
   }
   
-  area->modid++;
+  area_changed(area);
 }
 
 static int area_inside(const short pos[4], const int x, const int y)
@@ -218,26 +227,31 @@ short UI_area_create(void)
 void UI_area_remove_parent(const short area_id)
 {
   UI_Area * const area = get_area(area_id);
+
   if (area->parent) {
     UI_Area *parent = get_area(area->parent);
 
-    if (parent->child == area_id) {
-      parent->child = area->sibling;
+    if (parent->last_child == area_id) {
+      parent->last_child = area->prev_sibling;
     }
-    else {
-      int next = parent->child;
-      while (next) {
-        UI_Area *sibling = get_area(next);
-        next = sibling->sibling;
-        if (next == area_id) {
-          sibling->sibling = area->sibling;
-          next = 0;
-        }
-      }
+
+    if (parent->first_child == area_id) {
+      parent->first_child = area->next_sibling;
+    }
+    
+    if (area->prev_sibling) {
+      UI_Area *sibling = get_area(area->prev_sibling);
+      sibling->next_sibling = area->next_sibling;
+    }
+
+    if (area->next_sibling) {
+      UI_Area *sibling = get_area(area->next_sibling);
+      sibling->prev_sibling = area->prev_sibling;
     }
   }
 
-  area->sibling = 0;
+  area->next_sibling = 0;
+  area->prev_sibling = 0;
   area->parent = 0;
 }
 
@@ -248,11 +262,25 @@ void UI_area_add(const short parent_id, const short child_id)
   if (child->parent != parent_id) {
     UI_area_remove_parent(child_id);
     UI_Area * parent = get_area(parent_id);
-    child->sibling = parent->child;
-    child->parent = parent_id;
-    parent->child = child_id;
+    child->prev_sibling = parent->last_child;
 
-    // if area has layout then update layout
+    if (parent->last_child) {
+      UI_Area * old_last_child = get_area(parent->last_child);
+      old_last_child->next_sibling = child_id;
+    }
+
+    child->parent = parent_id;
+    parent->last_child = child_id;
+
+    if (!parent->first_child) {
+      parent->first_child = child_id;
+    }
+
+    if (parent->layout) {
+      // update layout of child area
+      // mark parent as changed
+      area_changed(parent);
+    }
   }
 
   update_visibility(child);
@@ -302,6 +330,13 @@ void UI_area_set_position(const short area_id, const int x, const int y)
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
+void UI_area_position(const short area_id, int pos[2])
+{
+  UI_Area * const area = get_area(area_id);
+  pos[0] = area->rel_pos[0];
+  pos[0] = area->rel_pos[1];
+}
+
 void UI_area_set_size(const short area_id, const int width, const int height)
 {
   UI_Area * const area = get_area(area_id);
@@ -326,15 +361,15 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
     UI_Area *area = get_area(area_id);
 
     if (is_visible(area) && area_inside(area->vis_pos, x, y)) {
-      // check children
-      newhit = area_find(area->child, 1, x, y);
+      // check children starting with last
+      newhit = area_find(area->last_child, 1, x, y);
       if (!newhit) {
         newhit = area_id;
       }
       area_id = 0;
     }
     else {
-      area_id = check_sibling ? area->sibling : area->parent;
+      area_id = check_sibling ? area->prev_sibling : area->parent;
     }
   }
 
@@ -496,12 +531,12 @@ static void area_draw_siblings(short area_id)
     UI_Area *area = get_area(area_id);
     if (is_visible(area)) {
       // draw children first
-      area_draw_siblings(area->child);
+      area_draw_siblings(area->last_child);
       // draw self
       area_draw(area, area_id);
     }
-    // get sibling
-    area_id = area->sibling;
+    // get previous sibling
+    area_id = area->prev_sibling;
   }
 }
 
@@ -511,7 +546,8 @@ void UI_area_draw(const short area_id)
     UI_Area *area = get_area(area_id);
     if (is_visible(area)) {
       // draw children first
-      area_draw_siblings(area->child);
+      // start with most recent child added ie last child in list
+      area_draw_siblings(area->last_child);
       // draw self
       area_draw(area, area_id);
     }

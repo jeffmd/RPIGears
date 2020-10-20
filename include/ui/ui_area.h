@@ -10,6 +10,7 @@
   int UI_area_is_active(const short area_id);
   void UI_area_set_root(const short area_id);
   void UI_area_set_position(const short area_id, const int x, const int y);
+  void UI_area_position(const short area_id, int pos[2]);
   void UI_area_set_size(const short area_id, const int width, const int height);
   void UI_area_size(const short area_id, int size[2]);
   void UI_area_set_hide(const short area_id, const int state);
