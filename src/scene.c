@@ -72,7 +72,7 @@ void Scene_draw(void)
 
   if (DS_light_isDirty() || Camera_isDirty()) {
      m4xv3(UBO_Data.LightSourcePosition, Camera_view_matrix(), DS_LightSourcePosition());
-     printf("Recalc Light Position\n");
+     //printf("Recalc Light Position\n");
      DS_light_clean();
   }
   

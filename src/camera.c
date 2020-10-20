@@ -201,7 +201,7 @@ GLfloat *Camera_view_matrix(void)
   Camera *camera = get_active_camera();
 
   if (camera->dirty == GL_TRUE) {
-    printf("camera Recalc\n");
+    //printf("camera Recalc\n");
     m4x4_identity(camera->ViewMatrix);
     /* Translate and rotate the view */
     m4x4_translate(tm, camera->ViewMatrix, camera->x, camera->y, camera->z);
