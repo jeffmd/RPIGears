@@ -195,7 +195,7 @@ static short get_view3d_area(void)
   if (!view3d_area) {
     view3d_area = UI_area_create();
     UI_area_set_root(view3d_area);
-    UI_area_set_position(view3d_area, 1, 1);
+    UI_area_set_offset(view3d_area, 1, 1);
     UI_area_set_size(view3d_area, 600, 500);
   }
 

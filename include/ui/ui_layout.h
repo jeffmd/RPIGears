@@ -6,5 +6,6 @@
   short UI_Layout_create(void);
   void UI_Layout_set_border(const short id, const short top, const short bottom, const short left, const short right);
   void UI_Layout_set_spacing(const short id, const short vertical, const short horizontal);
+  void UI_Layout_update(const short id, short area_id);
 
 #endif

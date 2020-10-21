@@ -7,6 +7,7 @@
 
 #include "key_input.h"
 #include "ui_area.h"
+#include "ui_layout.h"
 #include "ui_area_action.h"
 #include "ui_text.h"
 #include "connector.h"
@@ -19,6 +20,7 @@ static int ver_ui_text;
 
 static short stats_draw;
 static short stats_area;
+static short stats_layout;
 static short stats_select_area;
 static short stats_area_connector;
 //static short stats_checkbox_connector;
@@ -74,14 +76,17 @@ static short get_stats_area(void)
 {
   if (!stats_area) {
     stats_area = UI_area_create();
-    UI_area_set_position(stats_area, 2, 2);
+    UI_area_set_offset(stats_area, 2, 2);
     UI_area_set_size(stats_area, 300, 450);
-    UI_area_add_handle(stats_area, get_ver_ui_text(), 10, 10);
-    UI_area_add_handle(stats_area, User_options_ui_vsync(), 10, 30);
-    UI_area_add_handle(stats_area, DS_ui_vbo(), 10, 50);
-    UI_area_add_handle(stats_area, DS_ui_instances(), 10, 70);
-    UI_area_add_handle(stats_area, DS_ui_rpm(), 10, 90);
-    UI_area_add_handle(stats_area, WM_ui_fps(), 10, 400);
+    stats_layout = UI_Layout_create();
+    UI_area_set_layout(stats_area, stats_layout);
+
+    UI_area_add_handle(stats_area, get_ver_ui_text(), 0, 0);
+    UI_area_add_handle(stats_area, User_options_ui_vsync(), 0, 0);
+    UI_area_add_handle(stats_area, DS_ui_vbo(), 0, 0);
+    UI_area_add_handle(stats_area, DS_ui_instances(), 0, 0);
+    UI_area_add_handle(stats_area, DS_ui_rpm(), 0, 0);
+    UI_area_add_handle(stats_area, WM_ui_fps(), 0, 40);
     update_stats_hide();
   }
 
@@ -92,7 +97,7 @@ static short get_stats_select_area(void)
 {
   if (!stats_select_area) {
     stats_select_area = UI_area_create();
-    UI_area_set_position(stats_select_area, 0, 0);
+    UI_area_set_offset(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
     UI_area_connect(stats_select_area, get_stats_area_handle());
 

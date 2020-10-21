@@ -43,7 +43,13 @@ static UI_Layout *get_layout(short id)
 
 static void layout_init(UI_Layout *layout)
 {
+  layout->border_top = 10;
+  layout->border_bottom = 10;
+  layout->border_left = 10;
+  layout->border_right = 10;
 
+  layout->spacing_vertical = 2;
+  layout->spacing_horizontal = 2;
 }
 
 short UI_Layout_create(void)
@@ -71,3 +77,38 @@ void UI_Layout_set_spacing(const short id, const short vertical, const short hor
   layout->spacing_vertical = vertical;
   layout->spacing_horizontal = horizontal;
 }
+
+void UI_Layout_update(const short id, short area_id)
+{
+
+  if (area_id) {
+    short pos[2];
+    short size[2];
+    
+    UI_Layout *const layout = get_layout(id);
+    // get prev area layout and add vertical size + vertical spacing
+    short sibling = UI_area_prev_sibling(area_id);
+    // if prev area is null then use border top and border left to set layout
+    if (sibling) {
+      UI_area_layout_position(sibling, pos);
+      UI_area_size(sibling, size);
+      pos[1] += size[1] + layout->spacing_vertical;
+    }
+    else {
+      pos[0] = layout->border_top;
+      pos[1] = layout->border_left;
+    }
+    
+    do {
+      UI_area_set_layout_position(area_id, pos[0], pos[1]);
+      area_id = UI_area_next_sibling(area_id);
+      if (area_id) { 
+        UI_area_size(area_id, size);
+        pos[1] += size[1] + layout->spacing_vertical;
+      }
+      printf("doing layout...\n");
+    } while (area_id);
+    // if next area then update it
+  }
+}
+

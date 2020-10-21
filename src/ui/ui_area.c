@@ -28,6 +28,7 @@ typedef struct {
 
   short layout;
 
+  short layout_pos[2];
   short rel_pos[2];
   short size[2];
   short abs_pos[2];
@@ -135,8 +136,10 @@ static void update_vis_pos(UI_Area *area)
 {
   const short parent_id = area->parent;
   short *pos = area->vis_pos;
+
   pos[0] = area->rel_pos[0];
   pos[1] = area->rel_pos[1];
+
   pos[2] = pos[0] + area->size[0];
   pos[3] = pos[1] + area->size[1];
 
@@ -146,6 +149,14 @@ static void update_vis_pos(UI_Area *area)
     pos[2] += parent_area->abs_pos[0];
     pos[1] += parent_area->abs_pos[1];
     pos[3] += parent_area->abs_pos[1];
+
+    if (parent_area->layout) {
+      // activate layout
+      pos[0] += area->layout_pos[0];
+      pos[2] += area->layout_pos[0];
+      pos[1] += area->layout_pos[1];
+      pos[3] += area->layout_pos[1];
+    }
 
     area->abs_pos[0] = pos[0];
     area->abs_pos[1] = pos[1];
@@ -224,6 +235,16 @@ short UI_area_create(void)
   return id;
 }
 
+static void parent_update_layout(UI_Area *parent, const short child)
+{
+  if (parent->layout) {
+    // update layout of child area
+    UI_Layout_update(parent->layout, child);
+    // mark parent as changed
+    area_changed(parent);
+  }
+}
+
 void UI_area_remove_parent(const short area_id)
 {
   UI_Area * const area = get_area(area_id);
@@ -238,16 +259,22 @@ void UI_area_remove_parent(const short area_id)
     if (parent->first_child == area_id) {
       parent->first_child = area->next_sibling;
     }
-    
+
+    short update_sibling_id = 0;
+
     if (area->prev_sibling) {
       UI_Area *sibling = get_area(area->prev_sibling);
       sibling->next_sibling = area->next_sibling;
+      update_sibling_id = area->prev_sibling;
     }
 
     if (area->next_sibling) {
       UI_Area *sibling = get_area(area->next_sibling);
       sibling->prev_sibling = area->prev_sibling;
+      update_sibling_id = area->next_sibling;
     }
+
+    parent_update_layout(parent, update_sibling_id);
   }
 
   area->next_sibling = 0;
@@ -276,11 +303,7 @@ void UI_area_add(const short parent_id, const short child_id)
       parent->first_child = child_id;
     }
 
-    if (parent->layout) {
-      // update layout of child area
-      // mark parent as changed
-      area_changed(parent);
-    }
+    parent_update_layout(parent, child_id);
   }
 
   update_visibility(child);
@@ -321,7 +344,7 @@ void UI_area_set_root(const short area_id)
   root_area = area_id;
 }
 
-void UI_area_set_position(const short area_id, const int x, const int y)
+void UI_area_set_offset(const short area_id, const short x, const short y)
 {
   UI_Area * const area = get_area(area_id);
   area->rel_pos[0] = x;
@@ -330,14 +353,30 @@ void UI_area_set_position(const short area_id, const int x, const int y)
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
-void UI_area_position(const short area_id, int pos[2])
+void UI_area_offset(const short area_id, short pos[2])
 {
   UI_Area * const area = get_area(area_id);
   pos[0] = area->rel_pos[0];
-  pos[0] = area->rel_pos[1];
+  pos[1] = area->rel_pos[1];
 }
 
-void UI_area_set_size(const short area_id, const int width, const int height)
+void UI_area_set_layout_position(const short area_id, const short x, const short y)
+{
+  UI_Area * const area = get_area(area_id);
+  area->layout_pos[0] = x;
+  area->layout_pos[1] = y;
+  update_visibility(area);
+  Connector_handle_execute(area->handle, OnMove, area_id);
+}
+
+void UI_area_layout_position(const short area_id, short pos[2])
+{
+  UI_Area * const area = get_area(area_id);
+  pos[0] = area->layout_pos[0];
+  pos[1] = area->layout_pos[1];
+}
+
+void UI_area_set_size(const short area_id, const short width, const short height)
 {
   UI_Area * const area = get_area(area_id);
   area->size[0] = width;
@@ -346,7 +385,7 @@ void UI_area_set_size(const short area_id, const int width, const int height)
   Connector_handle_execute(area->handle, OnResize, area_id);
 }
 
-void UI_area_size(const short area_id, int size[2])
+void UI_area_size(const short area_id, short size[2])
 {
   UI_Area * const area = get_area(area_id);
   size[0] = area->size[0];
@@ -503,7 +542,7 @@ short UI_area_add_handle(const short parent_id, const int handle, const int x, c
 {
   const short child_area = UI_area_create();
   UI_area_connect(child_area, handle);
-  UI_area_set_position(child_area, x, y);
+  UI_area_set_offset(child_area, x, y);
   UI_area_add(parent_id, child_area);
 
   return child_area;
@@ -567,6 +606,21 @@ uint8_t UI_area_modid(const short area_id)
 void UI_area_set_handled(const short area_id)
 {
   get_area(area_id)->handled = 1;
+}
+
+void UI_area_set_layout(const short area_id, const short layout)
+{
+  get_area(area_id)->layout = layout;
+}
+
+short UI_area_prev_sibling(const short area_id)
+{
+  return get_area(area_id)->prev_sibling;
+}
+
+short UI_area_next_sibling(const short area_id)
+{
+  return get_area(area_id)->next_sibling;
 }
 
 int UI_area_active_key(void)

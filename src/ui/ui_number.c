@@ -95,7 +95,7 @@ static void update_dimensions(UI_Number *ui_number, const short source_id)
 {
   if (ui_number->area != source_id)
   {
-    int size[2];
+    short size[2];
 
     ui_number->area = source_id;
     UI_area_size(source_id, size);

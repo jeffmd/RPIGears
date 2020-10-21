@@ -83,7 +83,7 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short source_id)
 {
   if (ui_checkbox->area != source_id)
   {
-    int size[2];
+    short size[2];
 
     ui_checkbox->area = source_id;
     UI_area_size(source_id, size);
