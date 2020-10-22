@@ -83,7 +83,6 @@ void UI_Layout_update(const short id, short area_id)
 
   if (area_id) {
     short pos[2];
-    short size[2];
     
     UI_Layout *const layout = get_layout(id);
     // get prev area layout and add vertical size + vertical spacing
@@ -91,8 +90,7 @@ void UI_Layout_update(const short id, short area_id)
     // if prev area is null then use border top and border left to set layout
     if (sibling) {
       UI_area_layout_position(sibling, pos);
-      UI_area_size(sibling, size);
-      pos[1] += size[1] + layout->spacing_vertical;
+      pos[1] += UI_area_offset_size_y(area_id) + layout->spacing_vertical;
     }
     else {
       pos[0] = layout->border_top;
@@ -101,12 +99,13 @@ void UI_Layout_update(const short id, short area_id)
     
     do {
       UI_area_set_layout_position(area_id, pos[0], pos[1]);
-      area_id = UI_area_next_sibling(area_id);
-      if (area_id) { 
-        UI_area_size(area_id, size);
-        pos[1] += size[1] + layout->spacing_vertical;
+      short next_area_id = UI_area_next_sibling(area_id);
+
+      if (next_area_id) { 
+        pos[1] += UI_area_offset_size_y(area_id) + layout->spacing_vertical;
       }
-      printf("doing layout...\n");
+
+      area_id = next_area_id;
     } while (area_id);
     // if next area then update it
   }

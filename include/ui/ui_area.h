@@ -15,6 +15,9 @@
   void UI_area_layout_position(const short area_id, short pos[2]);
   void UI_area_set_size(const short area_id, const short width, const short height);
   void UI_area_size(const short area_id, short size[2]);
+  void UI_area_offset_size(const short area_id, short size[2]);
+  short UI_area_offset_size_y(const short area_id);
+  short UI_area_offset_size_x(const short area_id);
   void UI_area_set_hide(const short area_id, const int state);
   void UI_area_set_layout(const short area_id, const short layout);
   short UI_area_prev_sibling(const short area_id);

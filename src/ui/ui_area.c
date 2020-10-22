@@ -392,6 +392,27 @@ void UI_area_size(const short area_id, short size[2])
   size[1] = area->size[1];
 }
 
+void UI_area_offset_size(const short area_id, short offset_size[2])
+{
+  UI_Area * const area = get_area(area_id);
+  offset_size[0] = area->rel_pos[0] + area->size[0];
+  offset_size[1] = area->rel_pos[1] + area->size[1];
+}
+
+short UI_area_offset_size_x(const short area_id)
+{
+  UI_Area * const area = get_area(area_id);
+
+  return area->rel_pos[0] + area->size[0];
+}
+
+short UI_area_offset_size_y(const short area_id)
+{
+  UI_Area * const area = get_area(area_id);
+
+  return area->rel_pos[1] + area->size[1];
+}
+
 static short area_find(short area_id, const int check_sibling, const int x, const int y)
 {
   short newhit = 0;
