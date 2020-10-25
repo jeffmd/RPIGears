@@ -120,7 +120,7 @@ void UI_number_update_float(const short number_id, const float val)
   if ( fabsf(ui_number->old_val.f - val) > 0.1f ) {
     ui_number->old_val.f = val;
     ui_number->is_float = 1;
-    sprintf(val_str, "%3.1f   ", val);
+    sprintf(val_str, "%-6.1f ", val);
     update_value_text(ui_number);
   }
 }
@@ -132,7 +132,7 @@ void UI_number_update_int(const short number_id, const int val)
   if ( abs(ui_number->old_val.i - val) > 0 ) {
     ui_number->old_val.i = val;
     ui_number->is_float = 0;
-    sprintf(val_str, "%3i     ", val);
+    sprintf(val_str, "%-6i ", val);
     update_value_text(ui_number);
   }
 }
