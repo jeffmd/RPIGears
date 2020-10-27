@@ -188,13 +188,28 @@ static short get_ui_number_class(void)
   return ui_number_class;
 }
 
+static float get_delta_xy(void)
+{
+  int key_state = UI_area_active_key();
+  float scale = 1.0f;
+
+  if (key_state & SHIFT_KEY(0)) {
+    scale = 10.0f;  
+  }
+  else if (key_state & CTRL_KEY(0)) {
+    scale = 0.1f;  
+  }
+
+  return delta_xy * scale;
+}
+
 static float get_default_float_change(UI_Number *const ui_number)
 {
   if (ui_number->default_change.f == 0.0f) {
     ui_number->default_change.f = DEFAULT_FLOAT_CHANGE;
   }
   
-  return ui_number->default_change.f * delta_xy;
+  return ui_number->default_change.f * get_delta_xy();
 }
 
 static int get_default_int_change(UI_Number *const ui_number)
@@ -203,7 +218,7 @@ static int get_default_int_change(UI_Number *const ui_number)
     ui_number->default_change.i = DEFAULT_INT_CHANGE;
   }
   
-  return ui_number->default_change.i * delta_xy;
+  return ui_number->default_change.i * get_delta_xy();
 }
 
 static void ui_number_inc(const short source_id, const short destination_id)
@@ -222,16 +237,8 @@ static void ui_number_inc(const short source_id, const short destination_id)
 
 static void ui_number_dec(const short source_id, const short destination_id)
 {
-  UI_Number *const ui_number = get_ui_number(destination_id);
-
-  if (ui_number->is_float) {
-    ui_number->change_val.f = -get_default_float_change(ui_number);
-  }
-  else {
-    ui_number->change_val.i = -get_default_int_change(ui_number);
-  }
-
-  UI_widget_changed(ui_number->widget_handle, destination_id);
+  delta_xy = -1;
+  ui_number_inc(source_id, destination_id);
 }
 
 
@@ -254,9 +261,15 @@ static short get_ui_number_key_map(void)
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
     Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_drag, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON_RELEASE, ui_number_end_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_INC, ui_number_inc, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_DEC, ui_number_dec, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(WHEEL_INC), ui_number_inc, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(WHEEL_DEC), ui_number_dec, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_INC), ui_number_inc, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_DEC), ui_number_dec, 0));
   }
 
   return ui_number_key_map;

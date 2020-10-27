@@ -458,8 +458,9 @@ static void update_active_area(void)
   area_pointer_moved(get_active_area());
 }
 
-void UI_area_select_active(const int x, const int y)
+void UI_area_select_active(const int key, const int x, const int y)
 {
+  active_key = key;
   pointer_x = x;
   pointer_y = y;
 

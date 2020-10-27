@@ -16,7 +16,7 @@
   void UI_area_connect(const short area_id, const int handle);
   short UI_area_add_handle(const short parent_id, const int handle, const int x, const int y);
   void UI_area_set_handled(const short area_id);
-  void UI_area_select_active(const int x, const int y);
+  void UI_area_select_active(const int key, const int x, const int y);
   void UI_area_draw(const short area_id);
   void UI_area_root_draw(void);
   void UI_area_key_change(const int key);

@@ -24,7 +24,7 @@ void Xinput_check_keys(XKeyEvent *event)
 
 void Xinput_pointer_move(const XMotionEvent* event)
 {
-  UI_area_select_active(event->x, event->y);
+  UI_area_select_active(STATE_KEY(event->state, 0), event->x, event->y);
 }
 
 void Xinput_button_event(const XButtonEvent *event)
