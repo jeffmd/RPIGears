@@ -8,7 +8,7 @@
   #define SHIFTK 1<<0
   #define CTRLK  1<<2
   #define ALTK   1<<3
-  #define STATE_KEY(state, key) (state << 8) + key
+  #define STATE_KEY(state, key) ((state << 8) + key)
   #define SHIFT_KEY(key) STATE_KEY(SHIFTK, key)
   #define CTRL_KEY(key) STATE_KEY(CTRLK, key)
   #define SHIFT_CTRL_KEY(key) STATE_KEY((SHIFTK | CTRLK), key)
