@@ -70,15 +70,15 @@ static void do_ConfigureNotify(const XConfigureEvent* event)
   if (event->above==0)
   {
     Window_pos(event->x, event->y);
-    printf("positioning Window\n");
+    //printf("positioning Window\n");
   }
   else
   {
     Window_size(event->width, event->height);
     resized = 1;
-    printf("resizing Window\n");
+    //printf("resizing Window\n");
   }
-  printf("window: %lu\n", event->above);
+  //printf("window: %lu\n", event->above);
   
 }
 
@@ -92,7 +92,7 @@ static void do_ClientMessage(const XClientMessageEvent* event)
     }
     else if ((Atom)event->data.l[0] ==  wmprotocols[2])
     {
-      printf("take focus event \n");
+      //printf("take focus event \n");
       //window_show();
     }
     else {
