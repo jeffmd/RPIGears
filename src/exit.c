@@ -43,5 +43,5 @@ void Exit_init(const int time_to_run)
   
   Key_add_action(10, exit_enable_key, 0);
   Key_add_action(13, exit_enable_key, 0);
-  Key_add_action(27, exit_enable_key, exit_help);
+  Key_add_action(ESC_KEY, exit_enable_key, exit_help);
 }
