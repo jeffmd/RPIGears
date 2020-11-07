@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #include "gles3.h"
-#include "fp16.h"
 #include "gpu_shader.h"
 #include "static_array.h"
 
@@ -145,14 +144,14 @@ void GPU_vertex_format_add_4(const short id, const GLuint attribute_id, GLvoid *
         data[3] = val4;
     }
     else if (vattr->type == GL_HALF_FLOAT_OES) {
-      GLshort *data = attr_data;
-      data[0] = f16(val1);
+      __fp16 *data = attr_data;
+      data[0] = val1;
       if (size > 1)
-        data[1] = f16(val2);
+        data[1] = val2;
       if (size > 2)
-        data[2] = f16(val3);
+        data[2] = val3;
       if (size > 3)
-        data[3] = f16(val4);
+        data[3] = val4;
     }
   }
   else {

@@ -1,7 +1,7 @@
 VPATH = src:include:src/gpu:src/ui:obj
 OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
-	xwindow.o xinput.o static_array.o gles3.o fp16.o shaders.o gldebug.o \
+	xwindow.o xinput.o static_array.o gles3.o shaders.o gldebug.o \
 	gpu_texture.o gpu_framebuffer.o gpu_shader_unit.o gpu_shader.o \
 	gpu_vertex_buffer.o gpu_index_buffer.o gpu_batch.o gpu_uniform_buffer.o \
 	gpu_vertex_format.o font.o test_quad.o text.o exit.o window_manager.o \
@@ -15,7 +15,7 @@ BIN = RPIGears
 # -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -DHAVE_LIBOPENMAX=2 
 # -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM
 # -Wno-psabi -mfloat-abi=hard
-CFLAGS += -pipe -Wall -ffast-math -fsingle-precision-constant
+CFLAGS += -pipe -Wall -ffast-math -fsingle-precision-constant -mfp16-format=alternative 
 LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lvcsm -lrt -lm -lX11 -lXext -lfreetype
 
 INCLUDES+=-Iinclude -Iinclude/gpu -Iinclude/ui -I/opt/vc/include/ -I/usr/include/freetype2
