@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "key_map.h"
@@ -23,14 +24,21 @@ typedef union
   float f;
 } FPINT;
 
+typedef struct
+{
+  uint8_t changed:1;
+  uint8_t cursor_moved:1;
+} EditFlags;
+
 typedef struct {
   uint8_t active;
   uint8_t is_float:1;
   uint8_t can_edit:1;
+  uint8_t editing:1;
   short text;
   short area;
-  short val_start;
-  short offset_x;
+  short val_start_index;
+  short val_offset_x;
   FPINT old_val;
   FPINT change_val;
   FPINT default_change;
@@ -51,8 +59,16 @@ static short ui_number_class;
 static short ui_number_key_map;
 static short delta_xy;
 
+#define STR_SIZE 12
 static const char num_str[] = "000.000 ";
-static char val_str[12];
+static char val_str[STR_SIZE];
+
+static char edit_str[STR_SIZE];
+static EditFlags edit_flags;
+static short edit_ui_number;
+static short edit_cursor_index;
+static float edit_offset_x;
+static FPINT edit_restore_val;
 
 static inline short find_deleted_ui_number(void)
 {
@@ -86,9 +102,9 @@ static short get_text(UI_Number *ui_number)
 static void setup_val_text(UI_Number *ui_number)
 {
   const short text_id = get_text(ui_number);
-  ui_number->val_start = Text_index(text_id);
-  ui_number->offset_x = Text_pos_x(text_id) + 12;
-  Text_add(text_id, ui_number->offset_x, 0, num_str);
+  ui_number->val_start_index = Text_index(text_id);
+  ui_number->val_offset_x = Text_pos_x(text_id) + 12;
+  Text_add(text_id, ui_number->val_offset_x, 0, num_str);
 }
 
 static void update_dimensions(UI_Number *ui_number, const short source_id)
@@ -107,10 +123,23 @@ static void update_dimensions(UI_Number *ui_number, const short source_id)
   }
 }
 
-static void update_value_text(UI_Number *const ui_number)
+static void update_value_text(UI_Number *const ui_number, const char *str)
 {
-  Text_set_index(get_text(ui_number), ui_number->val_start);
-  Text_add(get_text(ui_number), ui_number->offset_x, 0, val_str);
+  Text_set_index(get_text(ui_number), ui_number->val_start_index);
+  Text_add(get_text(ui_number), ui_number->val_offset_x, 0, str);
+}
+
+static void make_float_str(char *str, const float val)
+{
+  sprintf(str, "%-6.1f ", val);
+}
+
+static void update_float(UI_Number *const ui_number, const float val)
+{
+  ui_number->old_val.f = val;
+  ui_number->is_float = 1;
+  make_float_str(val_str, val);
+  update_value_text(ui_number, val_str);
 }
 
 void UI_number_update_float(const short number_id, const float val)
@@ -118,11 +147,21 @@ void UI_number_update_float(const short number_id, const float val)
   UI_Number *const ui_number = get_ui_number(number_id);
 
   if ( fabsf(ui_number->old_val.f - val) > 0.1f ) {
-    ui_number->old_val.f = val;
-    ui_number->is_float = 1;
-    sprintf(val_str, "%-6.1f ", val);
-    update_value_text(ui_number);
+    update_float(ui_number, val);
   }
+}
+
+static void make_int_str(char *str, const int val)
+{
+  sprintf(str, "%-6i ", val);
+}
+
+static void update_int(UI_Number *const ui_number, const int val)
+{
+  ui_number->old_val.i = val;
+  ui_number->is_float = 0;
+  make_int_str(val_str, val);
+  update_value_text(ui_number, val_str);
 }
 
 void UI_number_update_int(const short number_id, const int val)
@@ -130,22 +169,91 @@ void UI_number_update_int(const short number_id, const int val)
   UI_Number *const ui_number = get_ui_number(number_id);
 
   if ( abs(ui_number->old_val.i - val) > 0 ) {
-    ui_number->old_val.i = val;
-    ui_number->is_float = 0;
-    sprintf(val_str, "%-6i ", val);
-    update_value_text(ui_number);
+    update_int(ui_number, val);
+  }
+}
+
+static void edit_changed(void)
+{
+  edit_flags.changed = 1;
+  edit_flags.cursor_moved = 1;
+}
+
+static void edit_val_update(UI_Number *const ui_number, FPINT val)
+{
+  if (ui_number->is_float) {
+    update_float(ui_number, val.f);
+  }
+  else {
+    update_int(ui_number, val.i);
+  }
+}
+
+static void edit_str_update(UI_Number *const ui_number, FPINT val)
+{
+  if (ui_number->is_float) {
+    make_float_str(edit_str, val.f);
+  }
+  else {
+    make_int_str(edit_str, val.i);
+  }
+}
+
+static void edit_cursor_update(UI_Number *const ui_number)
+{
+  if (edit_flags.cursor_moved) {
+    const short text = get_text(ui_number);
+    Text_set_index(text, edit_cursor_index + ui_number->val_start_index);
+    Text_sync_pos(text);
+    edit_offset_x = Text_pos_x(text) + ui_number->select_offset[0];
+    edit_flags.cursor_moved = 0;
+  }
+}
+
+static void edit_text_update(UI_Number *const ui_number)
+{
+  if (edit_flags.changed) {
+    update_value_text(ui_number, edit_str);
+    edit_flags.changed = 0;
+  }
+}
+
+static void edit_start(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+  ui_number->editing = 1;
+  edit_restore_val = ui_number->old_val;
+  edit_str_update(ui_number, ui_number->old_val);
+  edit_ui_number = ui_number_id;
+}
+
+static void edit_draw_cursor(UI_Number *ui_number)
+{
+  // draw cursor at edit index position
+
+  if (ui_number->editing) {
+    edit_cursor_update(ui_number);
+    UI_icon_draw_box(1.0f, ui_number->select_scale[1], edit_offset_x, ui_number->select_offset[1]);
   }
 }
 
 static void ui_number_draw(const short source_id, const short destination_id)
 {
   UI_Number *const ui_number = get_ui_number(destination_id);
-  UI_widget_update(ui_number->widget_handle, destination_id);
+
+  if (ui_number->editing) {
+    edit_text_update(ui_number);
+  }
+  else {
+    UI_widget_update(ui_number->widget_handle, destination_id);
+  }
 
   update_dimensions(ui_number, source_id);
+
   Text_draw(get_text(ui_number));
 
   if (ui_number->can_edit && UI_area_is_active(source_id)) {
+    edit_draw_cursor(ui_number);
     UI_icon_draw_box(ui_number->select_scale[0], ui_number->select_scale[1], ui_number->select_offset[0], ui_number->select_offset[1]);
   }
 }
@@ -188,6 +296,19 @@ static short get_ui_number_class(void)
   return ui_number_class;
 }
 
+static void ui_number_edit_done(const short source_id, const short destination_id)
+{
+  UI_Number *const ui_number = get_ui_number(destination_id);
+  if (ui_number->editing) {
+    ui_number->editing = 0;
+    edit_val_update(ui_number, edit_restore_val);
+    UI_area_set_handled(source_id);
+    UI_area_set_unlocked(source_id);
+  }
+
+  edit_ui_number = 0;
+}
+
 static float get_delta_xy(void)
 {
   int key_state = UI_area_active_key();
@@ -223,6 +344,7 @@ static int get_default_int_change(UI_Number *const ui_number)
 
 static void ui_number_inc(const short source_id, const short destination_id)
 {
+  ui_number_edit_done(source_id, destination_id);
   UI_Number *const ui_number = get_ui_number(destination_id);
 
   if (ui_number->is_float) {
@@ -233,6 +355,7 @@ static void ui_number_inc(const short source_id, const short destination_id)
   }
 
   UI_widget_changed(ui_number->widget_handle, destination_id);
+  UI_area_set_handled(source_id);
 }
 
 static void ui_number_dec(const short source_id, const short destination_id)
@@ -241,9 +364,31 @@ static void ui_number_dec(const short source_id, const short destination_id)
   ui_number_inc(source_id, destination_id);
 }
 
+static void ui_number_edit(const short source_id, const short destination_id)
+{
+  if (edit_ui_number != destination_id) {
+    edit_start(destination_id);
+    UI_area_set_locked(source_id);
+  }
+
+  if (UI_area_locked_hit()) {
+    edit_changed();
+  }
+  else {
+    ui_number_edit_done(source_id, destination_id);
+  }
+
+  UI_area_set_handled(source_id);
+}
+
+static void ui_number_undo_edit(const short source_id, const short destination_id)
+{
+  ui_number_edit_done(source_id, destination_id);
+}
 
 static void ui_number_start_drag(const short source_id, const short destination_id)
 {
+  ui_number_edit_done(source_id, destination_id);
   UI_area_drag_start();
   UI_area_set_handled(source_id);
   UI_area_set_locked(source_id);
@@ -260,6 +405,8 @@ static short get_ui_number_key_map(void)
 {
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
+    Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON, ui_number_edit, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
@@ -279,6 +426,11 @@ static void ui_number_area_key_change(const short source_id, const short destina
 {
   if (get_ui_number(destination_id)->can_edit) {
     delta_xy = 1;
+    // if editing then check edit keys first
+    if (get_ui_number(destination_id)->editing) {
+      printf("editing key: %i\n", UI_area_active_key());
+    }
+    // if not handled then do number key map
     Key_Map_action(get_ui_number_key_map(), UI_area_active_key(), source_id, destination_id);
   }
 }
@@ -338,14 +490,9 @@ void UI_number_set_default_int_change(const short number_id, const int val)
   get_ui_number(number_id)->default_change.i = val;
 }
 
-void UI_number_edit_on(const short number_id)
+void UI_number_set_edit(const short number_id, const int state)
 {
-  get_ui_number(number_id)->can_edit = 1;
-}
-
-void UI_number_edit_off(const short number_id)
-{
-  get_ui_number(number_id)->can_edit = 0;
+  get_ui_number(number_id)->can_edit = state ? 1 : 0;
 }
 
 int UI_number_create(const char *str, const int handle)

@@ -18,7 +18,7 @@
 typedef struct {
 
   uint8_t active;          // zero if deleted
-  uint8_t ready;           // 1 if ready to draw
+  uint8_t ready:1;         // 1 if ready to draw
   short font;
   short extent[2];         // text x and y extent
   short pos_x;             // last x position of add character
@@ -316,5 +316,18 @@ short Text_pos_x(const short id)
 short Text_pos_y(const short id)
 {
   return get_text(id)->pos_y;
+}
+
+void Text_sync_pos(const short id)
+{
+  GLfloat pos[4];
+  Text * const text = get_text(id);
+  const short vbuff = GPU_batch_vertex_buffer(get_batch());
+
+  GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE + 1);
+  GPU_vertbuf_read_data(vbuff, ATTR_POSITION, pos);
+  text->pos_x = pos[0];
+  text->pos_y = pos[1];
+
 }
 

@@ -12,5 +12,6 @@
   GLuint GPU_vertex_format_attribute_count(const short id);
   void GPU_vertex_format_add_4(const short id, const GLuint attribute_id,
     GLvoid *data, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4);
+  void GPU_vertex_format_read_data(const short id, const GLuint attribute_id, GLvoid *attr_data, GLfloat val[4]);
   void GPU_vertex_format_bind(const short id, GLvoid *data);
 #endif

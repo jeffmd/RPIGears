@@ -121,7 +121,7 @@ int DS_ui_instances(void)
 {
   if (!instances_ui_number) {
     instances_ui_number = UI_number_create(instances_str, get_instances_ui_number_handle());
-    UI_number_edit_on(instances_ui_number);
+    UI_number_set_edit(instances_ui_number, 1);
   }
 
   return instances_ui_number;
@@ -157,7 +157,7 @@ int DS_ui_rpm(void)
 {
   if (!rpm_ui_number) {
     rpm_ui_number = UI_number_create(rpm_str, get_rpm_ui_number_handle());
-    UI_number_edit_on(rpm_ui_number);
+    UI_number_set_edit(rpm_ui_number, 1);
     UI_number_set_default_float_change(rpm_ui_number, 1.0f);
   }
 

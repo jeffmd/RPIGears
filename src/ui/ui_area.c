@@ -179,6 +179,7 @@ static int area_inside(const short pos[4], const int x, const int y)
       is_inside = 1;
     }
   }
+
   return is_inside;
 }
 
@@ -320,19 +321,6 @@ void UI_area_set_active(const short area_id)
   }
 }
 
-void UI_area_set_locked(const short area_id)
-{
-  locked_area = area_id;
-  UI_area_set_active(area_id);
-}
-
-void UI_area_set_unlocked(const short area_id)
-{
-  if (locked_area == area_id) {
-    locked_area = 0;
-  }
-}
-
 int UI_area_is_active(const short area_id)
 {
   //printf("area_id=%i active_area=%i\n", area_id, active_area);
@@ -456,6 +444,34 @@ static void update_active_area(void)
   }
   
   area_pointer_moved(get_active_area());
+}
+
+void UI_area_set_locked(const short area_id)
+{
+  locked_area = area_id;
+  UI_area_set_active(area_id);
+}
+
+void UI_area_set_unlocked(const short area_id)
+{
+  if (locked_area == area_id) {
+    locked_area = 0;
+    update_active_area();
+  }
+}
+
+int UI_area_locked_hit(void)
+{
+  int is_hit;
+
+  if (locked_area) {
+    is_hit = area_inside(get_area(locked_area)->vis_pos, pointer_x, pointer_y);
+  }
+  else {
+    is_hit = 0;
+  }
+
+  return is_hit;
 }
 
 void UI_area_select_active(const int key, const int x, const int y)

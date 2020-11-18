@@ -56,7 +56,7 @@ short GPU_vertex_format_create(void)
   vformat->active = 1;
   GPU_vertex_format_init(vformat);
 
-	return id;
+  return id;
 }
 
 
@@ -159,6 +159,40 @@ void GPU_vertex_format_add_4(const short id, const GLuint attribute_id, GLvoid *
   }
 }
 
+void GPU_vertex_format_read_data(const short id, const GLuint attribute_id, GLvoid *attr_data, GLfloat val[4])
+{
+  GPUVertFormat *const vformat = get_vert_format(id);
+  if (attr_data) {
+    VertAttribute *vattr = &vformat->vertex_attributes[attribute_id];
+    const GLuint size = vattr->size;
+    
+    if (vattr->type == GL_FLOAT) {
+      GLfloat *data = attr_data;
+      val[0] = data[0];
+      
+      if (size > 1)
+        val[1] = data[1];
+      if (size > 2)
+        val[2] = data[2];
+      if (size > 3)
+        val[3] = data[3];
+    }
+    else if (vattr->type == GL_HALF_FLOAT_OES) {
+      __fp16 *data = attr_data;
+      val[0] = data[0];
+
+      if (size > 1)
+        val[1] = data[1];
+      if (size > 2)
+        val[2] = data[2];
+      if (size > 3)
+        val[3] = data[3];
+    }
+  }
+  else {
+    printf("ERROR: vertex format cannot add values to buffer, buffer pointer is NULL\n");
+  }
+}
 
 void GPU_vertex_format_bind(const short id, GLvoid *data)
 {

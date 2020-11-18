@@ -52,7 +52,7 @@ int WM_ui_fps(void)
 {
   if (!fps_ui_number) {
     fps_ui_number = UI_number_create(fps_str, get_fps_ui_number_handle());
-    UI_number_edit_on(fps_ui_number);
+    UI_number_set_edit(fps_ui_number, 1);
     UI_number_set_default_float_change(fps_ui_number, 1.0f);
   }
 

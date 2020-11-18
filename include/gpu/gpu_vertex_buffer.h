@@ -10,6 +10,7 @@
   void GPU_vertbuf_set_add_count(const short id, const GLuint count);
   void GPU_vertbuf_set_vertex_format(const short id, const int vformat);
   void GPU_vertbuf_add_4(const short id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4);
+  void GPU_vertbuf_read_data(const short id, const GLuint attribute_id, GLfloat val[4]);
   void GPU_vertbuf_use_BO(const short id);
   void GPU_vertbuf_no_BO(const short id);
   void GPU_vertbuf_bind(const short id);

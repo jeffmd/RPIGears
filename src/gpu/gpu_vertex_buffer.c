@@ -190,6 +190,24 @@ void GPU_vertbuf_add_4(const short id, const GLuint attribute_id, const GLfloat 
   }
 }
 
+void GPU_vertbuf_read_data(const short id, const GLuint attribute_id, GLfloat val[4])
+{
+  GPUVertBuffer *const vbuff = get_vert_buffer(id);
+
+  if (!vbuff->ready) {
+    vertbuf_make_ready(vbuff);
+  }
+  
+  if (vbuff->ready) {
+    void *data = vertbuf_attr_data(vbuff, attribute_id);
+    GPU_vertex_format_read_data(vbuff->vformat, attribute_id, data, val);
+    vbuff->data_idx[attribute_id]++;
+  }
+  else {
+    printf("ERROR: vertex buffer not ready for reading data\n");    
+  }
+}
+
 void GPU_vertbuf_use_BO(const short id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);

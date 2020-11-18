@@ -13,5 +13,6 @@
   void Text_extent(const short id, int extent[2]);
   short Text_pos_x(const short id);
   short Text_pos_y(const short id);
+  void Text_sync_pos(const short id);
 
 #endif
