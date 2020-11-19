@@ -232,9 +232,7 @@ static void edit_cursor_update(UI_Number *const ui_number)
 {
   if (edit_flags.cursor_moved) {
     const short text = get_text(ui_number);
-    Text_set_index(text, edit_cursor_index + ui_number->val_start_index);
-    Text_sync_pos(text);
-    edit_offset_x = Text_pos_x(text) + ui_number->select_offset[0];
+    edit_offset_x = Text_cursor_offset_x(text, edit_cursor_index + ui_number->val_start_index);
     edit_flags.cursor_moved = 0;
   }
 }
