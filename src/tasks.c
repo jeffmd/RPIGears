@@ -127,6 +127,12 @@ uint Task_elapsed(const short id)
   return current_ms - get_task(id)->prev_ms;
 }
 
+static void task_update_next_ms(Task * const task)
+{
+  task->prev_ms = current_ms;
+  task->next_ms = current_ms + task->interval_ms;
+}
+
 static void task_execute(Task * const task)
 {
   if (task->active) {
@@ -139,8 +145,7 @@ static void task_execute(Task * const task)
           task->dofunc();
         }
 
-        task->prev_ms = current_ms;
-        task->next_ms = current_ms + task->interval_ms;
+        task_update_next_ms(task);
       }
 
       update_tasks_dtime(task->next_ms - current_ms);
@@ -155,7 +160,10 @@ void Task_pause(const short id)
 
 void Task_run(const short id)
 {
-  get_task(id)->state = TS_RUN;
+  Task * const task = get_task(id);
+
+  task->state = TS_RUN;
+  task_update_next_ms(task);
 }
 
 void Task_do(void)
