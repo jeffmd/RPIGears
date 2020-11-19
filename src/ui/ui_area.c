@@ -646,6 +646,11 @@ void UI_area_set_handled(const short area_id)
   get_area(area_id)->handled = 1;
 }
 
+int UI_area_handled(const short area_id)
+{
+  return get_area(area_id)->handled;
+}
+
 void UI_area_set_layout(const short area_id, const short layout)
 {
   get_area(area_id)->layout = layout;
