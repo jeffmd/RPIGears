@@ -14,11 +14,21 @@ void Xinput_check_keys(XKeyEvent *event)
   //printf("keycode: %x, ", event->keycode);
   //printf( "Key: %x %c\n", (int)key, key );
   //printf( "Key state: %x\n", event->state );
-  if (event->type == KeyPress) {
-    char key;
 
-    XLookupString(event, &key, 1, 0, 0);
-    UI_area_key_change(STATE_KEY(event->state, key));
+  if (event->type == KeyPress) {
+    KeySym keysym;
+    char key;
+    int keyout;
+
+    XLookupString(event, &key, 1, &keysym, 0);
+    //printf( "Key sym: %x key: %x\n", keysym, key );
+    if (!key) {
+      keyout = keysym;
+    }
+    else {
+      keyout = key;
+    }
+    UI_area_key_change(STATE_KEY(event->state, keyout));
   }
 }
 
