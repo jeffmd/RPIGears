@@ -23,6 +23,7 @@ typedef struct {
   short extent[2];         // text x and y extent
   short pos_x;             // last x position of add character
   short pos_y;             // last y position of add character
+  short offset_x;          // text offset x 
   short start;             // start index in vertex buffer
   short index;             // index for next char
   short count;             // mumber of characters in text vertex buffer
@@ -264,6 +265,7 @@ void Text_set_offset(const short id, const int width, const int height)
 
   text->ProjMatrix[2] = s2;
   text->ProjMatrix[3] = s3;
+  text->offset_x = width;
 }
 
 static void update_uniforms(Text *text)
@@ -318,16 +320,28 @@ short Text_pos_y(const short id)
   return get_text(id)->pos_y;
 }
 
-void Text_sync_pos(const short id)
+static void sync_pos(Text * const text)
 {
   GLfloat pos[4];
-  Text * const text = get_text(id);
   const short vbuff = GPU_batch_vertex_buffer(get_batch());
 
   GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE + 1);
   GPU_vertbuf_read_data(vbuff, ATTR_POSITION, pos);
   text->pos_x = pos[0];
   text->pos_y = pos[1];
-
 }
 
+void Text_sync_pos(const short id)
+{
+  Text * const text = get_text(id);
+  sync_pos(text);
+}
+
+short Text_cursor_offset_x(const short id, const int index)
+{
+  Text * const text = get_text(id);
+  text->index = index;
+  sync_pos(text);
+
+  return text->pos_x - text->offset_x;
+}
