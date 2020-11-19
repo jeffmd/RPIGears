@@ -8,7 +8,16 @@
   #define SHIFTK 1<<0
   #define CTRLK  1<<2
   #define ALTK   1<<3
+  #define BKSPC_KEY 0x8
   #define ESC_KEY 27
+  #define DEL_KEY 0x7f
+  #define HOME_KEY 0xff50
+  #define LEFT_KEY 0xff51
+  #define UP_KEY 0xff52
+  #define RIGHT_KEY 0xff53
+  #define DOWN_KEY 0xff54
+  #define END_KEY 0xff57
+  #define INS_KEY 0xff63
   #define STATE_KEY(state, key) ((state << 8) + key)
   #define SHIFT_KEY(key) STATE_KEY(SHIFTK, key)
   #define CTRL_KEY(key) STATE_KEY(CTRLK, key)
