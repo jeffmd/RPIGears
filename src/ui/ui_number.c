@@ -17,6 +17,7 @@
 #include "static_array.h"
 #include "text.h"
 #include "ui_icon.h"
+#include "tasks.h"
 
 typedef union 
 {
@@ -28,6 +29,7 @@ typedef struct
 {
   uint8_t changed:1;
   uint8_t cursor_moved:1;
+  uint8_t cursor_blink:1;
 } EditFlags;
 
 typedef struct {
@@ -67,6 +69,7 @@ static char edit_str[STR_SIZE];
 static EditFlags edit_flags;
 static short edit_ui_number;
 static short edit_cursor_index;
+static short cursor_blink_task;
 static float edit_offset_x;
 static FPINT edit_restore_val;
 
@@ -173,10 +176,36 @@ void UI_number_update_int(const short number_id, const int val)
   }
 }
 
+static void task_blink_cursor(void)
+{
+  edit_flags.cursor_blink = !edit_flags.cursor_blink;
+}
+
+static short get_cursor_blink_task(void)
+{
+  if (!cursor_blink_task) {
+    cursor_blink_task = Task_create(500, task_blink_cursor);
+  }
+
+  return cursor_blink_task;
+}
+
+static void edit_cursor_blink_task_start(void)
+{
+  Task_run(get_cursor_blink_task());
+}
+
+static void edit_cursor_blink_task_stop(void)
+{
+  Task_pause(get_cursor_blink_task());
+}
+
 static void edit_changed(void)
 {
   edit_flags.changed = 1;
   edit_flags.cursor_moved = 1;
+  edit_flags.cursor_blink = 1;
+  edit_cursor_blink_task_start();
 }
 
 static void edit_val_update(UI_Number *const ui_number, FPINT val)
@@ -227,11 +256,21 @@ static void edit_start(const short ui_number_id)
   edit_ui_number = ui_number_id;
 }
 
+static void edit_stop(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+  ui_number->editing = 0;
+  ui_number->old_val = edit_restore_val;
+  edit_val_update(ui_number, edit_restore_val);
+  edit_ui_number = 0;
+  edit_cursor_blink_task_stop();
+}
+
 static void edit_draw_cursor(UI_Number *ui_number)
 {
   // draw cursor at edit index position
 
-  if (ui_number->editing) {
+  if (ui_number->editing && edit_flags.cursor_blink) {
     edit_cursor_update(ui_number);
     UI_icon_draw_box(1.0f, ui_number->select_scale[1], edit_offset_x, ui_number->select_offset[1]);
   }
@@ -299,9 +338,9 @@ static short get_ui_number_class(void)
 static void ui_number_edit_done(const short source_id, const short destination_id)
 {
   UI_Number *const ui_number = get_ui_number(destination_id);
+
   if (ui_number->editing) {
-    ui_number->editing = 0;
-    edit_val_update(ui_number, edit_restore_val);
+    edit_stop(destination_id);
     UI_area_set_handled(source_id);
     UI_area_set_unlocked(source_id);
   }
