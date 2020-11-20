@@ -485,6 +485,7 @@ static short get_edit_key_map(void)
 {
   if (!edit_key_map) {
     edit_key_map = Key_Map_create();
+    Key_Map_add(edit_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, "cancel edit"));
     Key_Map_add(edit_key_map, Key_Action_create(LEFT_KEY, edit_cursor_left, 0));
     Key_Map_add(edit_key_map, Key_Action_create(RIGHT_KEY, edit_cursor_right, 0));
     Key_Map_add(edit_key_map, Key_Action_create(HOME_KEY, edit_cursor_home, 0));
@@ -499,7 +500,6 @@ static short get_ui_number_key_map(void)
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
     Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON, ui_number_edit, 0));
-    Key_Map_add(ui_number_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(MIDDLE_BUTTON, ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
