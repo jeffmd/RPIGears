@@ -61,7 +61,7 @@ static short ui_number_class;
 static short ui_number_key_map;
 static short delta_xy;
 
-#define STR_SIZE 12
+#define STR_SIZE 9
 static const char num_str[] = "000.000 ";
 static char val_str[STR_SIZE];
 
@@ -216,6 +216,36 @@ static void edit_changed(void)
   edit_cursor_changed();
 }
 
+static void edit_shift_right(void)
+{
+  int n = STR_SIZE - 1;
+
+  //edit_str[n] = 0;
+  n--;
+
+  while (n > edit_cursor_index) {
+    edit_str[n] = edit_str[n - 1];
+    n--;
+  }
+
+  edit_changed();
+}
+
+static void edit_shift_left(void)
+{
+  const int last = STR_SIZE - 3;
+  int n = edit_cursor_index;
+
+  while (n < last) {
+    edit_str[n] = edit_str[n + 1];
+    n++;
+  }
+
+  edit_str[n] = 32;
+  //edit_str[n + 1] = 0;
+  edit_changed();
+}
+
 static void edit_val_update(UI_Number *const ui_number, FPINT val)
 {
   if (ui_number->is_float) {
@@ -223,6 +253,20 @@ static void edit_val_update(UI_Number *const ui_number, FPINT val)
   }
   else {
     update_int(ui_number, val.i);
+  }
+}
+
+static void edit_str_prep(void)
+{
+  const int last = STR_SIZE - 1;
+
+  edit_str[last] = 0;
+
+  for (int n = 0; n < last; n++) {
+    char c = edit_str[n];
+    if (!c) {
+      edit_str[n] = 32;
+    }
   }
 }
 
@@ -259,6 +303,7 @@ static void edit_start(const short ui_number_id)
   ui_number->editing = 1;
   edit_restore_val = ui_number->old_val;
   edit_str_update(ui_number, ui_number->old_val);
+  edit_str_prep();
   edit_ui_number = ui_number_id;
 }
 
@@ -481,6 +526,18 @@ static void edit_cursor_end(const short area_id, const short ui_number_id)
   edit_cursor_handled(area_id);
 }
 
+static void edit_delete_right(const short area_id, const short ui_number_id)
+{
+  edit_shift_left();
+  edit_cursor_handled(area_id);
+}
+
+static void edit_delete_left(const short area_id, const short ui_number_id)
+{
+  edit_cursor_left(area_id, ui_number_id);
+  edit_delete_right(area_id, ui_number_id);
+}
+
 static short get_edit_key_map(void)
 {
   if (!edit_key_map) {
@@ -490,6 +547,8 @@ static short get_edit_key_map(void)
     Key_Map_add(edit_key_map, Key_Action_create(RIGHT_KEY, edit_cursor_right, 0));
     Key_Map_add(edit_key_map, Key_Action_create(HOME_KEY, edit_cursor_home, 0));
     Key_Map_add(edit_key_map, Key_Action_create(END_KEY, edit_cursor_end, 0));
+    Key_Map_add(edit_key_map, Key_Action_create(BKSPC_KEY, edit_delete_left, 0));
+    Key_Map_add(edit_key_map, Key_Action_create(DEL_KEY, edit_delete_right, 0));
   }
 
   return edit_key_map;
