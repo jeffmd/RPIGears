@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 #include "key_map.h"
@@ -17,20 +16,13 @@
 #include "static_array.h"
 #include "text.h"
 #include "ui_icon.h"
-#include "tasks.h"
+#include "ui_edit_text.h"
 
 typedef union 
 {
   int i;
   float f;
 } FPINT;
-
-typedef struct
-{
-  uint8_t changed:1;
-  uint8_t cursor_moved:1;
-  uint8_t cursor_blink:1;
-} EditFlags;
 
 typedef struct {
   uint8_t active;
@@ -66,12 +58,7 @@ static const char num_str[] = "000.000 ";
 static char val_str[STR_SIZE];
 
 static char edit_str[STR_SIZE];
-static EditFlags edit_flags;
-static short edit_key_map;
 static short edit_ui_number;
-static short edit_cursor_index;
-static short edit_str_length;
-static short cursor_blink_task;
 static float edit_offset_x;
 static FPINT edit_restore_val;
 
@@ -178,152 +165,27 @@ void UI_number_update_int(const short number_id, const int val)
   }
 }
 
-static void task_blink_cursor(void)
-{
-  edit_flags.cursor_blink = !edit_flags.cursor_blink;
-}
-
-static short get_cursor_blink_task(void)
-{
-  if (!cursor_blink_task) {
-    cursor_blink_task = Task_create(500, task_blink_cursor);
-  }
-
-  return cursor_blink_task;
-}
-
-static void edit_cursor_blink_task_start(void)
-{
-  Task_run(get_cursor_blink_task());
-}
-
-static void edit_cursor_blink_task_stop(void)
-{
-  Task_pause(get_cursor_blink_task());
-}
-
-static void edit_cursor_changed(void)
-{
-  edit_flags.cursor_moved = 1;
-  edit_flags.cursor_blink = 1;
-  edit_cursor_blink_task_start();
-}
-
-static void edit_changed(void)
-{
-  edit_str_length = strlen(edit_str);
-  edit_flags.changed = 1;
-  edit_cursor_changed();
-}
-
-static void edit_shift_right(void)
-{
-  int n = STR_SIZE - 1;
-
-  //edit_str[n] = 0;
-  n--;
-
-  while (n > edit_cursor_index) {
-    edit_str[n] = edit_str[n - 1];
-    n--;
-  }
-
-  edit_changed();
-}
-
-static void edit_shift_left(void)
-{
-  const int last = STR_SIZE - 3;
-  int n = edit_cursor_index;
-
-  while (n < last) {
-    edit_str[n] = edit_str[n + 1];
-    n++;
-  }
-
-  edit_str[n] = 32;
-  //edit_str[n + 1] = 0;
-  edit_changed();
-}
-
-static void edit_val_update(UI_Number *const ui_number, FPINT val)
-{
-  if (ui_number->is_float) {
-    update_float(ui_number, val.f);
-  }
-  else {
-    update_int(ui_number, val.i);
-  }
-}
-
-static void edit_str_prep(void)
-{
-  const int last = STR_SIZE - 1;
-
-  edit_str[last] = 0;
-
-  for (int n = 0; n < last; n++) {
-    char c = edit_str[n];
-    if (!c) {
-      edit_str[n] = 32;
-    }
-  }
-}
-
-static void edit_str_update(UI_Number *const ui_number, FPINT val)
-{
-  if (ui_number->is_float) {
-    make_float_str(edit_str, val.f);
-  }
-  else {
-    make_int_str(edit_str, val.i);
-  }
-}
-
 static void edit_cursor_update(UI_Number *const ui_number)
 {
-  if (edit_flags.cursor_moved) {
-    const short text = get_text(ui_number);
-    edit_offset_x = Text_cursor_offset_x(text, edit_cursor_index + ui_number->val_start_index);
-    edit_flags.cursor_moved = 0;
+  if (UI_edit_text_cursor_moved()) {
+    edit_offset_x = Text_cursor_offset_x(get_text(ui_number), UI_edit_text_cursor_index() + ui_number->val_start_index);
   }
-}
-
-static void edit_text_update(UI_Number *const ui_number)
-{
-  if (edit_flags.changed) {
-    update_value_text(ui_number, edit_str);
-    edit_flags.changed = 0;
-  }
-}
-
-static void edit_start(const short ui_number_id)
-{
-  UI_Number *const ui_number = get_ui_number(ui_number_id);
-  ui_number->editing = 1;
-  edit_restore_val = ui_number->old_val;
-  edit_str_update(ui_number, ui_number->old_val);
-  edit_str_prep();
-  edit_ui_number = ui_number_id;
-}
-
-static void edit_stop(const short ui_number_id)
-{
-  UI_Number *const ui_number = get_ui_number(ui_number_id);
-  ui_number->editing = 0;
-  ui_number->old_val = edit_restore_val;
-  edit_val_update(ui_number, edit_restore_val);
-  edit_ui_number = 0;
-  edit_cursor_blink_task_stop();
 }
 
 static void edit_draw_cursor(UI_Number *ui_number)
 {
   // draw cursor at edit index position
 
-  if (ui_number->editing && edit_flags.cursor_blink) {
+  if (ui_number->editing && UI_edit_text_cursor_blink()) {
     edit_cursor_update(ui_number);
     UI_icon_draw_box(1.0f, ui_number->select_scale[1], edit_offset_x, ui_number->select_offset[1]);
+  }
+}
+
+static void edit_text_update(UI_Number *const ui_number)
+{
+  if (UI_edit_text_changed()) {
+    update_value_text(ui_number, edit_str);
   }
 }
 
@@ -382,6 +244,46 @@ static short get_ui_number_class(void)
   }
 
   return ui_number_class;
+}
+
+static void edit_str_update(UI_Number *const ui_number, FPINT val)
+{
+  if (ui_number->is_float) {
+    make_float_str(edit_str, val.f);
+  }
+  else {
+    make_int_str(edit_str, val.i);
+  }
+}
+
+static void edit_val_update(UI_Number *const ui_number, FPINT val)
+{
+  if (ui_number->is_float) {
+    update_float(ui_number, val.f);
+  }
+  else {
+    update_int(ui_number, val.i);
+  }
+}
+
+static void edit_start(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+  ui_number->editing = 1;
+  edit_restore_val = ui_number->old_val;
+  edit_str_update(ui_number, ui_number->old_val);
+  UI_edit_text_start(edit_str, STR_SIZE);
+  edit_ui_number = ui_number_id;
+}
+
+static void edit_stop(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+  ui_number->editing = 0;
+  edit_val_update(ui_number, edit_restore_val);
+  ui_number->old_val = edit_restore_val;
+  UI_edit_text_stop();
+  edit_ui_number = 0;
 }
 
 static void ui_number_edit_done(const short area_id, const short ui_number_id)
@@ -460,7 +362,7 @@ static void ui_number_edit(const short area_id, const short ui_number_id)
   }
 
   if (UI_area_locked_hit()) {
-    edit_changed();
+    UI_edit_text_set_changed();
   }
   else {
     ui_number_edit_done(area_id, ui_number_id);
@@ -489,71 +391,6 @@ static void ui_number_end_drag(const short area_id, const short ui_number_id)
   UI_area_set_unlocked(area_id);
 }
 
-static void edit_cursor_left(const short area_id, const short ui_number_id)
-{
-  if (edit_cursor_index > 0) {
-    edit_cursor_index--;
-    edit_cursor_changed();
-  }
-
-  UI_area_set_handled(area_id);
-}
-
-static void edit_cursor_handled(const short area_id)
-{
-  edit_cursor_changed();
-  UI_area_set_handled(area_id);
-}
-
-static void edit_cursor_right(const short area_id, const short ui_number_id)
-{
-  if (edit_cursor_index < edit_str_length) {
-    edit_cursor_index++;
-  }
-
-  edit_cursor_handled(area_id);
-}
-
-static void edit_cursor_home(const short area_id, const short ui_number_id)
-{
-  edit_cursor_index = 0;
-  edit_cursor_handled(area_id);
-}
-
-static void edit_cursor_end(const short area_id, const short ui_number_id)
-{
-  edit_cursor_index = edit_str_length;
-  edit_cursor_handled(area_id);
-}
-
-static void edit_delete_right(const short area_id, const short ui_number_id)
-{
-  edit_shift_left();
-  edit_cursor_handled(area_id);
-}
-
-static void edit_delete_left(const short area_id, const short ui_number_id)
-{
-  edit_cursor_left(area_id, ui_number_id);
-  edit_delete_right(area_id, ui_number_id);
-}
-
-static short get_edit_key_map(void)
-{
-  if (!edit_key_map) {
-    edit_key_map = Key_Map_create();
-    Key_Map_add(edit_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, "cancel edit"));
-    Key_Map_add(edit_key_map, Key_Action_create(LEFT_KEY, edit_cursor_left, 0));
-    Key_Map_add(edit_key_map, Key_Action_create(RIGHT_KEY, edit_cursor_right, 0));
-    Key_Map_add(edit_key_map, Key_Action_create(HOME_KEY, edit_cursor_home, 0));
-    Key_Map_add(edit_key_map, Key_Action_create(END_KEY, edit_cursor_end, 0));
-    Key_Map_add(edit_key_map, Key_Action_create(BKSPC_KEY, edit_delete_left, 0));
-    Key_Map_add(edit_key_map, Key_Action_create(DEL_KEY, edit_delete_right, 0));
-  }
-
-  return edit_key_map;
-}
-
 static short get_ui_number_key_map(void)
 {
   if (!ui_number_key_map) {
@@ -569,6 +406,7 @@ static short get_ui_number_key_map(void)
     Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(WHEEL_DEC), ui_number_dec, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_INC), ui_number_inc, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_DEC), ui_number_dec, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, "cancel edit"));
   }
 
   return ui_number_key_map;
@@ -581,7 +419,7 @@ static void ui_number_area_key_change(const short area_id, const short ui_number
 
     if (get_ui_number(ui_number_id)->editing) {
       //printf("editing key: %i\n", UI_area_active_key());
-      Key_Map_action(get_edit_key_map(), UI_area_active_key(), area_id, ui_number_id);
+      Key_Map_action(UI_edit_text_key_map(), UI_area_active_key(), area_id, ui_number_id);
     }
 
     if (!UI_area_handled(area_id)) {

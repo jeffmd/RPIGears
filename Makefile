@@ -8,7 +8,7 @@ OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o
 	gpu_quad.o ui_area.o connector.o ui_view3d.o ui_text.o ui_checkbox.o\
 	key_action.o key_map.o stats_ui.o user_options_ui.o line_art.o\
     demo_state_ui.o ui_icon.o ui_number.o window_manager_ui.o ui_widget_connector.o\
-    ui_layout.o)
+    ui_layout.o ui_edit_text.o)
 	
 BIN = RPIGears
 # -ftree-vectorize -ftree-vectorizer-verbose=6
