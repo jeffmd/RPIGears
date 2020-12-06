@@ -222,7 +222,6 @@ static void update_area_size(UI_Number *ui_number, const short area_id)
 
   Text_extent(get_text(ui_number), extent);
   UI_area_set_size(area_id, extent[0], extent[1]);
-  //printf("text area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
 static void ui_number_area_attach(const short area_id, const short ui_number_id)
@@ -427,7 +426,6 @@ static void ui_number_area_key_change(const short area_id, const short ui_number
     delta_xy = 1;
 
     if (get_ui_number(ui_number_id)->editing) {
-      //printf("editing key: %i\n", UI_area_active_key());
       Key_Map_action(UI_edit_text_key_map(), UI_area_active_key(), area_id, ui_number_id);
     }
 

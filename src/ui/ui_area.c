@@ -219,7 +219,6 @@ static int is_visible(UI_Area *area)
   if (area->parent) {
     if (area->parent_modid != get_area(area->parent)->modid) {
       update_visibility(area);
-      //printf("udate visibility\n");
     }
   }
 
@@ -323,7 +322,6 @@ void UI_area_set_active(const short area_id)
 
 int UI_area_is_active(const short area_id)
 {
-  //printf("area_id=%i active_area=%i\n", area_id, active_area);
   return (area_id == active_area);
 }
 
