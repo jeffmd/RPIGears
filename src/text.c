@@ -1,6 +1,7 @@
 // text.c - build a text buffer that can be drawn in gles2
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "gles3.h"
 
@@ -242,14 +243,24 @@ void Text_add(const short id, int x, int y, const char *str)
   }
 }
 
-void Text_set_index(const short id, const int index)
+static void set_index(Text * const text, const short index)
 {
-  get_text(id)->index = index;
+  text->index = text->start + index;
+}
+ 
+void Text_set_index(const short id, const short index)
+{
+  set_index(get_text(id), index);
 }
 
+static short get_index(Text * const text)
+{
+  return (text->index - text->start);
+}
+ 
 short Text_index(const short id)
 {
-  return get_text(id)->index;
+  return get_index(get_text(id));
 }
 
 void Text_set_offset(const short id, const int width, const int height)
@@ -333,15 +344,46 @@ static void sync_pos(Text * const text)
 
 void Text_sync_pos(const short id)
 {
-  Text * const text = get_text(id);
-  sync_pos(text);
+  sync_pos(get_text(id));
 }
 
 short Text_cursor_offset_x(const short id, const int index)
 {
   Text * const text = get_text(id);
-  text->index = index;
+  set_index(text, index);
   sync_pos(text);
 
   return text->pos_x - text->offset_x;
 }
+
+short Text_cursor_find_index(const short id, const short offset_x)
+{
+  short old_delta = 1000;
+  short delta;
+  int found = 0;
+  Text * const text = get_text(id);
+  const short rel_offset = (offset_x * 2) + text->offset_x;
+  const int maxcount = text->count - 1;
+
+  set_index(text, 0);
+
+  while (!found) {
+    sync_pos(text);
+    delta = abs(rel_offset - text->pos_x);
+
+    if ((delta <= old_delta) && (get_index(text) < maxcount)) {
+      old_delta = delta;
+      text->index++;
+    }
+    else {
+      found = 1;
+    }
+  }
+  
+  if (get_index(text) > 0) {
+    text->index--;
+  }
+
+  return get_index(text);
+}
+

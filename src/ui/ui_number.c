@@ -354,6 +354,15 @@ static void ui_number_dec(const short area_id, const short ui_number_id)
   ui_number_inc(area_id, ui_number_id);
 }
 
+static void edit_set_cursor(const short area_id, const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+  const short new_index = Text_cursor_find_index(get_text(ui_number), UI_area_rel_pointer_x(area_id));
+
+  UI_edit_text_set_cursor_index(new_index - ui_number->val_start_index);
+  UI_edit_text_set_changed();
+}
+
 static void ui_number_edit(const short area_id, const short ui_number_id)
 {
   if (edit_ui_number != ui_number_id) {
@@ -362,7 +371,7 @@ static void ui_number_edit(const short area_id, const short ui_number_id)
   }
 
   if (UI_area_locked_hit()) {
-    UI_edit_text_set_changed();
+    edit_set_cursor(area_id, ui_number_id);
   }
   else {
     ui_number_edit_done(area_id, ui_number_id);

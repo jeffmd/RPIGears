@@ -56,6 +56,26 @@ static void edit_cursor_changed(void)
   edit_cursor_blink_task_start();
 }
 
+int UI_edit_text_set_cursor_index(short index)
+{
+  int changed = 0;
+
+  if (index < 0) {
+    index = 0;
+  }
+  else if (index >= edit_str_length) {
+    index = edit_str_length - 1;
+  }
+
+  if (index != edit_cursor_index) {
+    edit_cursor_index = index;
+    edit_cursor_changed();
+    changed = 1;
+  }
+
+  return changed;
+}
+
 static void edit_changed(void)
 {
   edit_flags.changed = 1;

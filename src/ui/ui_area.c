@@ -666,6 +666,17 @@ short UI_area_next_sibling(const short area_id)
   return get_area(area_id)->next_sibling;
 }
 
+short UI_area_rel_pointer_x(const short area_id)
+{
+  UI_Area *area = get_area(area_id);
+  return (pointer_x - area->vis_pos[0] - (area->size[0] / 2));
+}
+
+short UI_area_rel_pointer_y(const short area_id)
+{
+  return (pointer_y - get_area(area_id)->vis_pos[1]);
+}
+
 int UI_area_active_key(void)
 {
   return active_key;

@@ -26,5 +26,7 @@
   uint8_t UI_area_modid(const short area_id);
   short UI_area_pointer_x(void);
   short UI_area_pointer_y(void);
+  short UI_area_rel_pointer_x(const short area_id);
+  short UI_area_rel_pointer_y(const short area_id);
 
 #endif

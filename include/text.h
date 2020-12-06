@@ -15,5 +15,6 @@
   short Text_pos_y(const short id);
   void Text_sync_pos(const short id);
   short Text_cursor_offset_x(const short id, const int index);
+  short Text_cursor_find_index(const short id, const short offset_x);
 
 #endif
