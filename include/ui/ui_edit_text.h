@@ -12,5 +12,7 @@
   int UI_edit_text_set_cursor_index(short index);
   int UI_edit_text_cursor_blink(void);
   void UI_edit_text_set_changed(void);
+  int UI_edit_text_check_number_key(const int key);
+  int UI_edit_text_insert_mode(void);
 
 #endif

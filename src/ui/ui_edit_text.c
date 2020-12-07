@@ -16,6 +16,7 @@ typedef struct
   uint8_t changed:1;
   uint8_t cursor_moved:1;
   uint8_t cursor_blink:1;
+  uint8_t insert_mode:1;
 } EditFlags;
 
 static char *edit_str;
@@ -139,6 +140,7 @@ void UI_edit_text_start(char *str, const short length)
 {
   edit_str = str;
   edit_str_length = length;
+  edit_flags.insert_mode = 1;
   edit_str_prep();
 }
 
@@ -169,6 +171,11 @@ short UI_edit_text_cursor_index(void)
 int UI_edit_text_cursor_blink(void)
 {
   return edit_flags.cursor_blink;
+}
+
+int UI_edit_text_insert_mode(void)
+{
+  return edit_flags.insert_mode;
 }
 
 static void edit_cursor_left(const short area_id, const short ui_id)
@@ -220,6 +227,12 @@ static void edit_delete_left(const short area_id, const short ui_id)
   edit_delete_right(area_id, ui_id);
 }
 
+static void edit_insert_toggle(const short area_id, const short ui_id)
+{
+  edit_flags.insert_mode = !edit_flags.insert_mode;
+  edit_cursor_changed();
+}
+
 short UI_edit_text_key_map(void)
 {
   if (!edit_key_map) {
@@ -230,8 +243,20 @@ short UI_edit_text_key_map(void)
     Key_Map_add(edit_key_map, Key_Action_create(END_KEY, edit_cursor_end, 0));
     Key_Map_add(edit_key_map, Key_Action_create(BKSPC_KEY, edit_delete_left, 0));
     Key_Map_add(edit_key_map, Key_Action_create(DEL_KEY, edit_delete_right, 0));
+    Key_Map_add(edit_key_map, Key_Action_create(INS_KEY, edit_insert_toggle, 0));
   }
 
   return edit_key_map;
+}
+
+int UI_edit_text_check_number_key(const int key)
+{
+  int key_valid = 0;
+
+  if ((key >= '-') && (key <= '9')) {
+    key_valid = 1;
+  }
+
+  return key_valid;
 }
 

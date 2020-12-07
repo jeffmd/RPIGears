@@ -59,7 +59,8 @@ static char val_str[STR_SIZE];
 
 static char edit_str[STR_SIZE];
 static short edit_ui_number;
-static float edit_offset_x;
+static float edit_cursor_offset_x;
+static float edit_cursor_size;
 static FPINT edit_restore_val;
 
 static inline short find_deleted_ui_number(void)
@@ -168,7 +169,8 @@ void UI_number_update_int(const short number_id, const int val)
 static void edit_cursor_update(UI_Number *const ui_number)
 {
   if (UI_edit_text_cursor_moved()) {
-    edit_offset_x = Text_cursor_offset_x(get_text(ui_number), UI_edit_text_cursor_index() + ui_number->val_start_index);
+    edit_cursor_offset_x = Text_cursor_offset_x(get_text(ui_number), UI_edit_text_cursor_index() + ui_number->val_start_index);
+    edit_cursor_size = 1.0f + ((!UI_edit_text_insert_mode() * 4));
   }
 }
 
@@ -178,7 +180,7 @@ static void edit_draw_cursor(UI_Number *ui_number)
 
   if (ui_number->editing && UI_edit_text_cursor_blink()) {
     edit_cursor_update(ui_number);
-    UI_icon_draw_box(1.0f, ui_number->select_scale[1], edit_offset_x, ui_number->select_offset[1]);
+    UI_icon_draw_box(edit_cursor_size, ui_number->select_scale[1], edit_cursor_offset_x, ui_number->select_offset[1]);
   }
 }
 
@@ -426,7 +428,11 @@ static void ui_number_area_key_change(const short area_id, const short ui_number
     delta_xy = 1;
 
     if (get_ui_number(ui_number_id)->editing) {
-      Key_Map_action(UI_edit_text_key_map(), UI_area_active_key(), area_id, ui_number_id);
+      const int key = UI_area_active_key();
+
+      if (!UI_edit_text_check_number_key(key)) {
+        Key_Map_action(UI_edit_text_key_map(), key, area_id, ui_number_id);
+      }
     }
 
     if (!UI_area_handled(area_id)) {
