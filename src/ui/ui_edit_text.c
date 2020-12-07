@@ -233,7 +233,7 @@ static void edit_insert_toggle(const short area_id, const short ui_id)
   edit_cursor_changed();
 }
 
-short UI_edit_text_key_map(void)
+static short get_edit_key_map(void)
 {
   if (!edit_key_map) {
     edit_key_map = Key_Map_create();
@@ -249,14 +249,36 @@ short UI_edit_text_key_map(void)
   return edit_key_map;
 }
 
-int UI_edit_text_check_number_key(const int key)
+static void edit_add_char(const char key, const short area_id, const short ui_id)
 {
-  int key_valid = 0;
-
-  if ((key >= '-') && (key <= '9')) {
-    key_valid = 1;
+  if (edit_flags.insert_mode) {
+    edit_shift_right();
   }
 
-  return key_valid;
+  edit_str[edit_cursor_index] = key;
+  edit_cursor_right(area_id, ui_id);
+  edit_changed();
+}
+
+static void edit_key_change(const short area_id, const short ui_id, const char first_key, const char last_key)
+{
+  const int key = UI_area_active_key();
+
+  if ((key >= first_key) && (key <= last_key)) {
+    edit_add_char(key, area_id, ui_id);
+  }
+  else {
+    Key_Map_action(get_edit_key_map(), key, area_id, ui_id);
+  }
+}
+
+void UI_edit_text_number_key_change(const short area_id, const short ui_id)
+{
+  edit_key_change(area_id, ui_id, '-', '9');
+}
+
+void UI_edit_text_key_change(const short area_id, const short ui_id)
+{
+  edit_key_change(area_id, ui_id, 32, 126);
 }
 

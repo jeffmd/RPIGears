@@ -424,15 +424,13 @@ static short get_ui_number_key_map(void)
 
 static void ui_number_area_key_change(const short area_id, const short ui_number_id)
 {
-  if (get_ui_number(ui_number_id)->can_edit) {
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+
+  if (ui_number->can_edit) {
     delta_xy = 1;
 
-    if (get_ui_number(ui_number_id)->editing) {
-      const int key = UI_area_active_key();
-
-      if (!UI_edit_text_check_number_key(key)) {
-        Key_Map_action(UI_edit_text_key_map(), key, area_id, ui_number_id);
-      }
+    if (ui_number->editing) {
+      UI_edit_text_number_key_change(area_id, ui_number_id);
     }
 
     if (!UI_area_handled(area_id)) {
