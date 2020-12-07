@@ -169,8 +169,16 @@ void UI_number_update_int(const short number_id, const int val)
 static void edit_cursor_update(UI_Number *const ui_number)
 {
   if (UI_edit_text_cursor_moved()) {
-    edit_cursor_offset_x = Text_cursor_offset_x(get_text(ui_number), UI_edit_text_cursor_index() + ui_number->val_start_index);
-    edit_cursor_size = 1.0f + ((!UI_edit_text_insert_mode() * 4));
+    const short idx = UI_edit_text_cursor_index() + ui_number->val_start_index;
+
+    edit_cursor_offset_x = Text_cursor_offset_x(get_text(ui_number), idx);
+
+    if (UI_edit_text_insert_mode()) {
+      edit_cursor_size = 1.0f;
+    }
+    else {
+      edit_cursor_size = (Text_cursor_offset_x(get_text(ui_number), idx + 1) - edit_cursor_offset_x);
+    }
   }
 }
 
