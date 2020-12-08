@@ -445,6 +445,7 @@ static short get_ui_number_key_map(void)
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_INC), ui_number_inc, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(WHEEL_DEC), ui_number_dec, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(ESC_KEY, ui_number_undo_edit, "cancel edit"));
+    Key_Map_add(ui_number_key_map, Key_Action_create(ENTER_KEY, edit_accept_str, "accept edit"));
   }
 
   return ui_number_key_map;
