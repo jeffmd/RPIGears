@@ -98,7 +98,7 @@ static void instances_update_ui(const short source_id, const short destination_i
 
 static void instances_ui_changed(const short source_id, const short destination_id)
 {
-  DS_change_instances(UI_number_int_change(source_id));
+  DS_set_instances(UI_number_int_new_val(source_id));
 }
 
 static short get_instances_ui_number_connector(void)
@@ -134,7 +134,7 @@ static void rpm_update_ui(const short source_id, const short destination_id)
 
 static void rpm_ui_changed(const short source_id, const short destination_id)
 {
-  DS_change_angleVel(UI_number_float_change(source_id));
+  DS_set_angleVel(UI_number_float_new_val(source_id));
 }
 
 static short get_rpm_ui_number_connector(void)

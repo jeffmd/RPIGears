@@ -62,19 +62,6 @@ int DS_use_VBO(void)
   return result;
 }
 
-void DS_change_instances(const int val)
-{
-  demo_state->instances += val;
-  if (demo_state->instances < 1) {
-    demo_state->instances = 1;
-  }
-}
-
-void DS_change_angleVel(const float val)
-{
-  demo_state->angleVel += val;
-}
-
 static void demo_state_delete(void)
 {
   if (!demo_state) {
@@ -191,17 +178,35 @@ float DS_angleVel(void)
   return get_demo_state()->angleVel;
 }
 
-void DS_update_timeToRun(const GLuint val)
+void DS_set_instances(const int val)
+{
+  get_demo_state()->instances = val;
+  if (demo_state->instances < 1) {
+    demo_state->instances = 1;
+  }
+}
+
+void DS_change_instances(const int val)
+{
+  DS_set_instances(get_demo_state()->instances + val);
+}
+
+void DS_change_angleVel(const float val)
+{
+  demo_state->angleVel += val;
+}
+
+void DS_set_timeToRun(const GLuint val)
 {
   get_demo_state()->timeToRun = val;
 }
 
-void DS_update_angleVel(const GLfloat val)
+void DS_set_angleVel(const float val)
 {
   get_demo_state()->angleVel = val;
 }
 
-void DS_update_tex(const int id)
+void DS_set_tex(const int id)
 {
   get_demo_state()->tex = id;
 }

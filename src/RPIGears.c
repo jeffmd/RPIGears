@@ -107,7 +107,7 @@ static void init_textures(void)
    printf("creating Textures\n");
    int tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
-   DS_update_tex(tex);
+   DS_set_tex(tex);
 }
 
 static void toggle_back_render(const short souce_id, const short destination_id)
@@ -150,8 +150,8 @@ static void init_options(int argc, char *argv[])
     Print_CLoptions_help();
   }
 
-  DS_update_timeToRun(User_Options_timeToRun());
-  DS_update_angleVel(User_Options_angleVel());
+  DS_set_timeToRun(User_Options_timeToRun());
+  DS_set_angleVel(User_Options_angleVel());
 }
 
 void sig_handler(int signo)
