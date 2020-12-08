@@ -390,6 +390,7 @@ static void edit_set_cursor(const short area_id, const short ui_number_id)
 
   UI_edit_text_set_cursor_index(new_index - ui_number->val_start_index);
   UI_edit_text_set_changed();
+  UI_area_set_handled(area_id);
 }
 
 static void ui_number_edit(const short area_id, const short ui_number_id)
@@ -405,8 +406,6 @@ static void ui_number_edit(const short area_id, const short ui_number_id)
   else {
     edit_accept_str(area_id, ui_number_id);
   }
-
-  UI_area_set_handled(area_id);
 }
 
 static void ui_number_undo_edit(const short area_id, const short ui_number_id)
