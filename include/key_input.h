@@ -9,6 +9,7 @@
   #define CTRLK  1<<2
   #define ALTK   1<<3
   #define BKSPC_KEY 0x8
+  #define ENTER_KEY 13
   #define ESC_KEY 27
   #define DEL_KEY 0x7f
   #define HOME_KEY 0xff50
