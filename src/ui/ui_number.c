@@ -507,9 +507,23 @@ float UI_number_float_change(const short number_id)
   return get_ui_number(number_id)->change_val.f;
 }
 
+float UI_number_float_new_val(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+
+  return (ui_number->old_val.f + ui_number->change_val.f);
+}
+
 int UI_number_int_change(const short number_id)
 {
   return get_ui_number(number_id)->change_val.i;
+}
+
+int UI_number_int_new_val(const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+
+  return (ui_number->old_val.i + ui_number->change_val.i);
 }
 
 void UI_number_set_default_float_change(const short number_id, const float val)
