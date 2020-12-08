@@ -290,7 +290,6 @@ static void edit_stop(const short ui_number_id)
   UI_Number *const ui_number = get_ui_number(ui_number_id);
   ui_number->editing = 0;
   edit_val_update(ui_number, edit_restore_val);
-  ui_number->old_val = edit_restore_val;
   UI_edit_text_stop();
   edit_ui_number = 0;
 }
@@ -341,9 +340,30 @@ static int get_default_int_change(UI_Number *const ui_number)
   return ui_number->default_change.i * get_delta_xy();
 }
 
+static void edit_accept_str(const short area_id, const short ui_number_id)
+{
+  UI_Number *const ui_number = get_ui_number(ui_number_id);
+
+  if (ui_number->editing) {
+
+    if (ui_number->is_float) {
+      edit_restore_val.f = atof(edit_str);
+      ui_number->change_val.f = edit_restore_val.f - ui_number->old_val.f;
+    }
+    else {
+      edit_restore_val.i = atoi(edit_str);
+      ui_number->change_val.i = edit_restore_val.i - ui_number->old_val.i;
+    }
+
+    UI_widget_changed(ui_number->widget_handle, ui_number_id);
+  }
+
+  ui_number_edit_done(area_id, ui_number_id);
+}
+
 static void ui_number_inc(const short area_id, const short ui_number_id)
 {
-  ui_number_edit_done(area_id, ui_number_id);
+  edit_accept_str(area_id, ui_number_id);
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
   if (ui_number->is_float) {
@@ -383,7 +403,7 @@ static void ui_number_edit(const short area_id, const short ui_number_id)
     edit_set_cursor(area_id, ui_number_id);
   }
   else {
-    ui_number_edit_done(area_id, ui_number_id);
+    edit_accept_str(area_id, ui_number_id);
   }
 
   UI_area_set_handled(area_id);
@@ -396,7 +416,7 @@ static void ui_number_undo_edit(const short area_id, const short ui_number_id)
 
 static void ui_number_start_drag(const short area_id, const short ui_number_id)
 {
-  ui_number_edit_done(area_id, ui_number_id);
+  edit_accept_str(area_id, ui_number_id);
   UI_area_drag_start();
   UI_area_set_handled(area_id);
   UI_area_set_locked(area_id);
