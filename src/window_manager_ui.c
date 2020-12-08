@@ -29,7 +29,7 @@ static void fps_update_ui(const short source_id, const short destination_id)
 
 static void fps_ui_changed(const short source_id, const short destination_id)
 {
-  WM_change_fps(UI_number_float_change(source_id));
+  WM_set_fps(UI_number_float_new_val(source_id));
 }
 
 static short get_fps_ui_number_connector(void)
