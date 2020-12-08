@@ -160,9 +160,16 @@ static void refresh_task_set_interval(const uint interval)
   }
 }
 
-void WM_set_fps(const float fps)
+void WM_set_fps(float fps)
 {
-  if (fps >= MIN_FPS && fps <= MAX_FPS) {
+  if (fps < MIN_FPS) {
+    fps = MIN_FPS;
+  }
+  else if (fps > MAX_FPS) {
+    fps = MAX_FPS;
+  }
+
+  if (fps != fps_setpoint) {
     fps_setpoint = fps;
     wm_update_avgfps(fps);
     refresh_task_set_interval(period_rate * 1000);
