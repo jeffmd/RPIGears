@@ -106,7 +106,7 @@ static void wm_do_frame_rate_task(void)
 	  
     //printf("dt: %f\n", dt);
     //printf("frames: %i\n", frames - lastFrames);
-    wm_update_avgfps((float)(frames - lastFrames) / dt);
+    wm_update_avgfps(((float)(frames - lastFrames) / dt + avgfps) * 0.5f);
     lastFrames = frames;
   }
 }
@@ -123,7 +123,6 @@ static void wm_do_FPS_task(void)
 
 float WM_fps(void)
 {
- 
   return avgfps;
 }
 
