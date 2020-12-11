@@ -27,6 +27,9 @@ typedef struct
 
 } DEMO_STATE_T;
 
+#define MAX_INSTANCES 100
+#define MIN_ANGLEVEL -500
+#define MAX_ANGLEVEL 500
 
 static DEMO_STATE_T _state;
 static DEMO_STATE_T *demo_state;
@@ -181,8 +184,12 @@ float DS_angleVel(void)
 void DS_set_instances(const int val)
 {
   get_demo_state()->instances = val;
+
   if (demo_state->instances < 1) {
     demo_state->instances = 1;
+  }
+  else if (demo_state->instances > MAX_INSTANCES) {
+    demo_state->instances = MAX_INSTANCES;
   }
 }
 
@@ -191,19 +198,26 @@ void DS_change_instances(const int val)
   DS_set_instances(get_demo_state()->instances + val);
 }
 
+void DS_set_angleVel(const float val)
+{
+  get_demo_state()->angleVel = val;
+
+  if (demo_state->angleVel < MIN_ANGLEVEL) {
+    demo_state->angleVel = MIN_ANGLEVEL;
+  }
+  else if (demo_state->angleVel > MAX_ANGLEVEL) {
+    demo_state->angleVel = MAX_ANGLEVEL;
+  }
+}
+
 void DS_change_angleVel(const float val)
 {
-  demo_state->angleVel += val;
+  DS_set_angleVel(demo_state->angleVel + val);
 }
 
 void DS_set_timeToRun(const GLuint val)
 {
   get_demo_state()->timeToRun = val;
-}
-
-void DS_set_angleVel(const float val)
-{
-  get_demo_state()->angleVel = val;
 }
 
 void DS_set_tex(const int id)
