@@ -54,7 +54,7 @@ static short ui_number_key_map;
 static short delta_xy;
 
 #define STR_SIZE 9
-static const char num_str[] = "000.000 ";
+static const char num_str[] = "0000000 ";
 static char val_str[STR_SIZE];
 
 static char edit_str[STR_SIZE];
