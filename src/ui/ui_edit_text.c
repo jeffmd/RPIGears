@@ -64,8 +64,8 @@ int UI_edit_text_set_cursor_index(short index)
   if (index < 0) {
     index = 0;
   }
-  else if (index >= edit_str_length) {
-    index = edit_str_length - 1;
+  else if (index >= (edit_str_length - 2)) {
+    index = edit_str_length - 2;
   }
 
   if (index != edit_cursor_index) {
@@ -85,10 +85,7 @@ static void edit_changed(void)
 
 static void edit_shift_right(void)
 {
-  int n = edit_str_length - 1;
-
-  //edit_str[n] = 0;
-  n--;
+  int n = edit_str_length - 3;
 
   while (n > edit_cursor_index) {
     edit_str[n] = edit_str[n - 1];
@@ -196,7 +193,7 @@ static void edit_cursor_handled(const short area_id)
 
 static void edit_cursor_right(const short area_id, const short ui_id)
 {
-  if (edit_cursor_index < edit_str_length) {
+  if (edit_cursor_index < (edit_str_length - 2)) {
     edit_cursor_index++;
   }
 
@@ -211,7 +208,7 @@ static void edit_cursor_home(const short area_id, const short ui_id)
 
 static void edit_cursor_end(const short area_id, const short ui_id)
 {
-  edit_cursor_index = edit_str_length;
+  edit_cursor_index = edit_str_length - 2;
   edit_cursor_handled(area_id);
 }
 
@@ -255,9 +252,11 @@ static void edit_add_char(const char key, const short area_id, const short ui_id
     edit_shift_right();
   }
 
-  edit_str[edit_cursor_index] = key;
-  edit_cursor_right(area_id, ui_id);
-  edit_changed();
+  if (edit_cursor_index < (edit_str_length - 2)) {
+    edit_str[edit_cursor_index] = key;
+    edit_cursor_right(area_id, ui_id);
+    edit_changed();
+  }
 }
 
 static void edit_key_change(const short area_id, const short ui_id, const char first_key, const char last_key)
