@@ -538,7 +538,7 @@ void UI_number_set_default_int_change(const short number_id, const int val)
 
 void UI_number_set_edit(const short number_id, const int state)
 {
-  get_ui_number(number_id)->can_edit = state ? 1 : 0;
+  get_ui_number(number_id)->can_edit = state;
 }
 
 int UI_number_create(const char *str, const int handle)
