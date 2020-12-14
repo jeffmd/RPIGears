@@ -24,6 +24,7 @@ static short edit_str_length;
 static EditFlags edit_flags;
 static short edit_key_map;
 static short edit_cursor_index;
+static short edit_cursor_max;
 static short cursor_blink_task;
 
 static void task_blink_cursor(void)
@@ -64,8 +65,8 @@ int UI_edit_text_set_cursor_index(short index)
   if (index < 0) {
     index = 0;
   }
-  else if (index >= (edit_str_length - 2)) {
-    index = edit_str_length - 2;
+  else if (index > edit_cursor_max) {
+    index = edit_cursor_max;
   }
 
   if (index != edit_cursor_index) {
@@ -77,10 +78,28 @@ int UI_edit_text_set_cursor_index(short index)
   return changed;
 }
 
+static void edit_str_end(void)
+{
+  short end = edit_str_length - 3;
+  int found = 0;
+
+  while ((!found) && (end > 0)) {
+    if (edit_str[end] > 32) {
+      found = 1;
+    }
+    else {
+      end--;
+    }
+  }
+
+  edit_cursor_max = end + 1;
+}
+
 static void edit_changed(void)
 {
   edit_flags.changed = 1;
   edit_cursor_changed();
+  edit_str_end(); 
 }
 
 static void edit_shift_right(void)
@@ -193,7 +212,7 @@ static void edit_cursor_handled(const short area_id)
 
 static void edit_cursor_right(const short area_id, const short ui_id)
 {
-  if (edit_cursor_index < (edit_str_length - 2)) {
+  if (edit_cursor_index < edit_cursor_max) {
     edit_cursor_index++;
   }
 
@@ -208,7 +227,7 @@ static void edit_cursor_home(const short area_id, const short ui_id)
 
 static void edit_cursor_end(const short area_id, const short ui_id)
 {
-  edit_cursor_index = edit_str_length - 2;
+  edit_cursor_index = edit_cursor_max;
   edit_cursor_handled(area_id);
 }
 
