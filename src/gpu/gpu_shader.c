@@ -21,9 +21,9 @@ extern char msg[512];
 typedef struct {
   //GLuint name_offset;
   char name[INPUT_NAME_LENGTH];
-  GLenum type;
   uint8_t location;
   uint8_t size;
+  GLenum type;
 } GPUShaderInput;
 
 typedef struct {

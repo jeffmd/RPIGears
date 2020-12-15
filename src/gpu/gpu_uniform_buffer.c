@@ -23,8 +23,8 @@ typedef struct {
 } UniformAttribute;
 
 typedef struct {
-  short shader;            // the shader used for binding
   uint8_t modid;
+  short shader;            // the shader used for binding
   GLint locations[UNIFORM_MAX_COUNT];  // uniform bind location
 } ShaderUniformIndex;
 
