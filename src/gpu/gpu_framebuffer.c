@@ -20,7 +20,6 @@ typedef enum {
 
 typedef struct {
   uint8_t refcount;
-  //GPUContext *ctx;
   uint8_t object;
   uint8_t dirty_flag;
   uint16_t width, height;
@@ -60,7 +59,7 @@ static GLenum convert_attachment_type_to_gl(const GPUAttachmentType type)
   return table[type];
 }
 
-static GPUAttachmentType attachment_type_from_tex(const int tex)
+static GPUAttachmentType attachment_type_from_tex(const short tex)
 {
   switch (GPU_texture_format(tex)) {
     case GPU_DEPTH32:

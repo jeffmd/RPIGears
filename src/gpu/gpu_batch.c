@@ -79,7 +79,7 @@ static void batch_clear_shaders(GPUBatch *batch)
   }  
 }
 
-static int batch_needs_binding(GPUBatch *batch, int shader)
+static int batch_needs_binding(GPUBatch *batch, const short shader)
 {
   int index = 0;
   int needs_binding = 1;

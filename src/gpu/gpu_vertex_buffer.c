@@ -78,7 +78,7 @@ short GPU_vertbuf_create(void)
   return id;
 }
 
-void GPU_vertbuf_delete(const int id)
+void GPU_vertbuf_delete(const short id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
@@ -89,7 +89,7 @@ void GPU_vertbuf_delete(const int id)
     next_deleted_vert_buffer = id;
 }
 
-void GPU_vertbuf_set_vertex_format(const short id, const int vformat)
+void GPU_vertbuf_set_vertex_format(const short id, const short vformat)
 {
   get_vert_buffer(id)->vformat = vformat;
 }

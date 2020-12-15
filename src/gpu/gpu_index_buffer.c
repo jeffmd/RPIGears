@@ -89,7 +89,7 @@ void GPU_indexbuf_delete(const short id)
     next_deleted_index_buffer = id; 
 }
 
-void GPU_indexbuf_set_add_count(const int id, const GLuint count)
+void GPU_indexbuf_set_add_count(const short id, const GLuint count)
 {
   get_index_buffer(id)->add_count = count;
 }
