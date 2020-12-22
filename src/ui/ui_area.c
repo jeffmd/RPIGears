@@ -51,6 +51,12 @@ enum Events {
   EventsMax
 };
 
+enum DragState {
+  DS_end = 0,
+  DS_started,
+  DS_dragging
+};
+
 #define UI_AREA_MAX_COUNT 100
 
 static UI_Area areas[UI_AREA_MAX_COUNT];
@@ -65,7 +71,7 @@ static short pointer_x;
 static short pointer_y;
 static short old_y;
 static short old_x;
-static short drag_active;
+static short drag_state;
 
 static short ui_area_class;
 
@@ -427,8 +433,9 @@ static void area_pointer_moved(const short area_id)
   UI_Area * const area = get_area(area_id);
   Connector_handle_execute(area->handle, OnPointerMove, area_id);
 
-  if (drag_active) {
+  if (drag_state != DS_end) {
     Connector_handle_execute(area->handle, OnPointerDrag, area_id);
+    drag_state = DS_dragging;
     old_y = pointer_y;
     old_x = pointer_x;
   }
@@ -692,14 +699,19 @@ short UI_area_pointer_y(void)
 
 void UI_area_drag_start(void)
 {
-  drag_active = 1;
+  drag_state = DS_started;
   old_y = pointer_y;
   old_x = pointer_x;
 }
 
 void UI_area_drag_end(void)
 {
-  drag_active = 0;
+  drag_state = DS_end;
+}
+
+int UI_area_dragging(void)
+{
+  return drag_state == DS_dragging;
 }
 
 int UI_area_drag_delta_xy(void)

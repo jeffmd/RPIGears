@@ -27,6 +27,7 @@
   void UI_area_set_unlocked(const short area_id);
   void UI_area_drag_start(void);
   void UI_area_drag_end(void);
+  int UI_area_dragging(void);
   int UI_area_drag_delta_xy(void);
 
 #endif
