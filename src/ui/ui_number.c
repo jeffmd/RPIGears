@@ -444,9 +444,9 @@ static short get_ui_number_key_map(void)
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
     Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON, ui_number_start_drag, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(LEFT_BUTTON), ui_number_start_drag, 0));
+    Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(LEFT_BUTTON), ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(LEFT_BUTTON_RELEASE, ui_number_edit_select, 0));
-    Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
-    Key_Map_add(ui_number_key_map, Key_Action_create(CTRL_KEY(MIDDLE_BUTTON), ui_number_start_drag, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_INC, ui_number_inc, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(WHEEL_DEC, ui_number_dec, 0));
     Key_Map_add(ui_number_key_map, Key_Action_create(SHIFT_KEY(WHEEL_INC), ui_number_inc, 0));
