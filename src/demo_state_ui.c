@@ -9,27 +9,27 @@
 #include "ui_checkbox.h"
 #include "ui_number.h"
 
+enum DS_Field {
+  DSF_vbo,
+  DSF_instances,
+  DSF_rpm
+};
+
+static short ds_ui_connector;
+static short ds_ui_class;
+
 static const char vbo_str[] = "VBO";
 static int vbo_ui_checkbox;
-static short vbo_ui_checkbox_connector;
-static short demo_state_ui_class;
 
 static const char instances_str[] = "Instances";
 static int instances_ui_number;
-static short instances_ui_number_connector;
 
 static const char rpm_str[] = "Gear RPM";
 static int rpm_ui_number;
-static short rpm_ui_number_connector;
 
 static void vbo_toggle(const short souce_id, const short destination_id)
 {
   DS_toggle_VBO();
-}
-
-static void vbo_update(const short source_id, const short destination_id)
-{
-  UI_checkbox_update_select(source_id, DS_use_VBO());
 }
 
 static void inc_instances(const short souce_id, const short destination_id)
@@ -57,106 +57,88 @@ static void key_angleVel_pause(const short souce_id, const short destination_id)
   DS_angleVel_pause();
 }
 
-static short get_demo_state_ui_class(void)
+static short get_ds_ui_class(void)
 {
-  if (!demo_state_ui_class) {
-    demo_state_ui_class = Connector_register_class("demo_state_ui");
+  if (!ds_ui_class) {
+    ds_ui_class = Connector_register_class("demo_state_ui");
   }
 
-  return demo_state_ui_class;
+  return ds_ui_class;
 }
 
-static short get_vbo_ui_checkbox_connector(void)
+static void ds_ui_update(const short source_id, const short destination_id)
 {
-  if (!vbo_ui_checkbox_connector) {
-    vbo_ui_checkbox_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_changed(vbo_ui_checkbox_connector, vbo_toggle);
-    UI_widget_connect_update(vbo_ui_checkbox_connector, vbo_update);
+  switch (destination_id) {
+    case DSF_vbo:
+      UI_checkbox_update_select(source_id, DS_use_VBO());
+      break;
+
+    case DSF_instances:
+      UI_number_update_int(source_id, DS_instances());
+      break;
+
+    case DSF_rpm:
+      UI_number_update_float(source_id, DS_angleVel());
+      break;
+  }
+}
+
+static void ds_ui_changed(const short source_id, const short destination_id)
+{
+  switch (destination_id) {
+    case DSF_vbo:
+      vbo_toggle(source_id, destination_id);
+      break;
+
+    case DSF_instances:
+      DS_set_instances(UI_number_int_new_val(source_id));
+      break;
+
+    case DSF_rpm:
+      DS_set_angleVel(UI_number_float_new_val(source_id));
+      break;
+  }
+}
+
+static short get_ds_ui_connector(void)
+{
+  if (!ds_ui_connector) {
+    ds_ui_connector = UI_widget_connector(get_ds_ui_class());
+    UI_widget_connect_changed(ds_ui_connector, ds_ui_changed);
+    UI_widget_connect_update(ds_ui_connector, ds_ui_update);
   }
 
-  return vbo_ui_checkbox_connector;
+  return ds_ui_connector;
 }
 
-static const int get_vbo_checkbox_handle(void)
+static const int get_ds_ui_handle(const short field)
 {
-  return Connector_handle(get_vbo_ui_checkbox_connector(), 0);
+  return Connector_handle(get_ds_ui_connector(), field);
 }
 
 int DS_ui_vbo(void)
 {
   if (!vbo_ui_checkbox) {
-    vbo_ui_checkbox = UI_checkbox_create(vbo_str, get_vbo_checkbox_handle());
+    vbo_ui_checkbox = UI_checkbox_create(vbo_str, get_ds_ui_handle(DSF_vbo));
   }
 
   return vbo_ui_checkbox;
 }
 
-static void instances_update_ui(const short source_id, const short destination_id)
-{
-  UI_number_update_int(source_id, DS_instances());
-}
-
-static void instances_ui_changed(const short source_id, const short destination_id)
-{
-  DS_set_instances(UI_number_int_new_val(source_id));
-}
-
-static short get_instances_ui_number_connector(void)
-{
-  if (!instances_ui_number_connector) {
-    instances_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_changed(instances_ui_number_connector, instances_ui_changed);
-    UI_widget_connect_update(instances_ui_number_connector, instances_update_ui);
-  }
-
-  return instances_ui_number_connector;
-}
-
-static const int get_instances_ui_number_handle(void)
-{
-  return Connector_handle(get_instances_ui_number_connector(), 0);
-}
-
 int DS_ui_instances(void)
 {
   if (!instances_ui_number) {
-    instances_ui_number = UI_number_create(instances_str, get_instances_ui_number_handle());
+    instances_ui_number = UI_number_create(instances_str, get_ds_ui_handle(DSF_instances));
     UI_number_set_edit(instances_ui_number, 1);
   }
 
   return instances_ui_number;
 }
 
-static void rpm_update_ui(const short source_id, const short destination_id)
-{
-  UI_number_update_float(source_id, DS_angleVel());
-}
-
-static void rpm_ui_changed(const short source_id, const short destination_id)
-{
-  DS_set_angleVel(UI_number_float_new_val(source_id));
-}
-
-static short get_rpm_ui_number_connector(void)
-{
-  if (!rpm_ui_number_connector) {
-    rpm_ui_number_connector = UI_widget_connector(get_demo_state_ui_class());
-    UI_widget_connect_changed(rpm_ui_number_connector, rpm_ui_changed);
-    UI_widget_connect_update(rpm_ui_number_connector, rpm_update_ui);
-  }
-
-  return rpm_ui_number_connector;
-}
-
-static const int get_rpm_ui_number_handle(void)
-{
-  return Connector_handle(get_rpm_ui_number_connector(), 0);
-}
-
 int DS_ui_rpm(void)
 {
   if (!rpm_ui_number) {
-    rpm_ui_number = UI_number_create(rpm_str, get_rpm_ui_number_handle());
+    rpm_ui_number = UI_number_create(rpm_str, get_ds_ui_handle(DSF_rpm));
     UI_number_set_edit(rpm_ui_number, 1);
     UI_number_set_default_float_change(rpm_ui_number, 1.0f);
   }
