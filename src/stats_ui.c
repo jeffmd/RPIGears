@@ -76,7 +76,7 @@ static short get_stats_area(void)
 {
   if (!stats_area) {
     stats_area = UI_area_create();
-    UI_area_set_offset(stats_area, 2, 2);
+    UI_area_set_offset(stats_area, 10, 2);
     UI_area_set_size(stats_area, 300, 450);
     stats_layout = UI_Layout_create();
     UI_area_set_layout(stats_area, stats_layout);
