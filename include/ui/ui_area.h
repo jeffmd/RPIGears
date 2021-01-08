@@ -10,6 +10,7 @@
   int UI_area_is_active(const short area_id);
   void UI_area_set_root(const short area_id);
   void UI_area_set_offset(const short area_id, const short x, const short y);
+  void UI_area_change_offset(const short area_id, const short x, const short y);
   void UI_area_set_layout_position(const short area_id, const short x, const short y);
   void UI_area_offset(const short area_id, short offset_pos[2]);
   void UI_area_layout_position(const short area_id, short pos[2]);

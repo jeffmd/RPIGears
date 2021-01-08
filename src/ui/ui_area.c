@@ -85,7 +85,9 @@ static short get_active_area(void)
 
 static void clear_active_area(void)
 {
-  active_area = 0;
+  if (locked_area != active_area) {
+    active_area = 0;
+  }
 }
 
 static inline short find_deleted_area(void)
@@ -341,6 +343,15 @@ void UI_area_set_offset(const short area_id, const short x, const short y)
   UI_Area * const area = get_area(area_id);
   area->rel_pos[0] = x;
   area->rel_pos[1] = y;
+  update_visibility(area);
+  Connector_handle_execute(area->handle, OnMove, area_id);
+}
+
+void UI_area_change_offset(const short area_id, const short x, const short y)
+{
+  UI_Area * const area = get_area(area_id);
+  area->rel_pos[0] += x;
+  area->rel_pos[1] += y;
   update_visibility(area);
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
@@ -717,5 +728,15 @@ int UI_area_dragging(void)
 int UI_area_drag_delta_xy(void)
 {
   return (pointer_x - old_x) + (old_y - pointer_y);
+}
+
+int UI_area_drag_delta_y(void)
+{
+  return (old_y - pointer_y);
+}
+
+int UI_area_drag_delta_x(void)
+{
+  return (pointer_x - old_x);
 }
 

@@ -29,5 +29,7 @@
   void UI_area_drag_end(void);
   int UI_area_dragging(void);
   int UI_area_drag_delta_xy(void);
+  int UI_area_drag_delta_y(void);
+  int UI_area_drag_delta_x(void);
 
 #endif
