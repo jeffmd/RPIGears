@@ -174,8 +174,8 @@ static void check_events(void)
 
 static inline void byteBufferSwap(char *bottomBuffer, char *topBuffer)
 {
-  char bval = *bottomBuffer;
-  char tval = *topBuffer;
+  const char bval = *bottomBuffer;
+  const char tval = *topBuffer;
   *topBuffer = bval;
   *bottomBuffer = tval; 
 }
