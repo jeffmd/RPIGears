@@ -94,8 +94,6 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const short area_id)
     ui_checkbox->select_scale[1] = 1.9f * size[1];
     ui_checkbox->select_offset[0] = -size[0];
     ui_checkbox->select_offset[1] = -size[1] * 0.5f - 9.0f;
-
-    //printf("update checkbox offset %i\n", text->text_id);
   }
 }
 
@@ -132,12 +130,10 @@ static void update_area_size(UI_CheckBox *ui_checkbox, const short area_id)
 
   Text_extent(get_text(ui_checkbox), extent);
   UI_area_set_size(area_id, extent[0] + (XOFFSET / 2), extent[1]);
-  //printf("checkbox area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
 static void ui_checkbox_area_attach(const short area_id, const short checkbox_id)
 {
-  //printf("attach checkbox area %i\n", source_id);
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
   update_area_size(ui_checkbox, area_id);
   area_clear(checkbox_id);
@@ -145,7 +141,6 @@ static void ui_checkbox_area_attach(const short area_id, const short checkbox_id
 
 static void ui_checkbox_area_resize(const short area_id, const short checkbox_id)
 {
-  //printf("resize checkbox area %i\n", source_id);
   area_clear(checkbox_id);
 }
 
@@ -168,7 +163,6 @@ static short get_ui_checkbox_key_map(void)
 
 static void ui_checkbox_area_key_change(const short area_id, const short checkbox_id)
 {
-  //printf("key change in checkbox area %i\n", source_id);
   Key_Map_action(get_ui_checkbox_key_map(), UI_area_active_key(), area_id, checkbox_id);
 }
 
@@ -184,7 +178,6 @@ static short get_ui_checkbox_class(void)
 static short get_area_connector(void)
 {
   if (!area_connector) {
-    //printf("create ui checkbox area connector: ");
     area_connector = UI_area_connector(get_ui_checkbox_class());
     //UI_area_connect_enter(area_connector, ui_checkbox_enter);
     //UI_area_connect_leave(area_connector, ui_checkbox_leave);
