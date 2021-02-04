@@ -4,6 +4,6 @@
   
   void test_quad(void);
   void test_quad_draw(void);
-  void test_quad_add_texture(const short tex_id, const float alimit);
+  void test_quad_add_texture(const ID_t tex_id, const float alimit);
 
 #endif

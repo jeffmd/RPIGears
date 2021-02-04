@@ -5,6 +5,7 @@
 
 #include "gles3.h"
 
+#include "static_array.h"
 #include "gpu_texture.h"
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
@@ -13,14 +14,13 @@
 #include "gpu_batch.h"
 #include "gpu_shader.h"
 #include "shaders.h"
-#include "static_array.h"
 #include "font.h"
 
 typedef struct {
 
   uint8_t active;          // zero if deleted
   uint8_t ready:1;         // 1 if ready to draw
-  short font;
+  ID_t font;
   short extent[2];         // text x and y extent
   short pos_x;             // last x position of add character
   short pos_y;             // last y position of add character
@@ -41,21 +41,21 @@ enum {
 #define MAX_CHAR_LENGTH 100
 
 static Text texts[TEXT_MAX_COUNT];
-static short next_deleted_text;
+static ID_t next_deleted_text;
 
-static short vformat;
-static short batch;
+static ID_t vformat;
+static ID_t batch;
 static short index;          // current master index into vertex buffer
 static GLfloat ProjMatrix[4];   // scale and offset
 static GLfloat alimit;
 
 
-static inline short find_deleted_text_id(void)
+static inline ID_t find_deleted_text_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_text, texts, TEXT_MAX_COUNT, Text,"text");
 }
 
-static Text *get_text(short id)
+static Text *get_text(ID_t id)
 {
   if ((id < 0) | (id >= TEXT_MAX_COUNT)) {
     id = 0;
@@ -65,7 +65,7 @@ static Text *get_text(short id)
   return texts + id;
 }
 
-static short text_vformat(void)
+static ID_t text_vformat(void)
 {
   if (!vformat) {
     vformat = GPU_vertex_format_create();
@@ -81,15 +81,15 @@ static void text_default_settings(Text *text)
     text->alimit = 0.5f;
 }
 
-static short get_batch(void)
+static ID_t get_batch(void)
 {
   if (!batch) {
     batch = GPU_batch_create();
-    const short ubuff = GPU_batch_uniform_buffer(batch);
+    const ID_t ubuff = GPU_batch_uniform_buffer(batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", ProjMatrix);
     GPU_uniformbuffer_add_1f(ubuff, "alimit", alimit);
 
-    const short vbuff = GPU_batch_vertex_buffer(batch);
+    const ID_t vbuff = GPU_batch_vertex_buffer(batch);
     GPU_vertbuf_set_vertex_format(vbuff, text_vformat());
     GPU_vertbuf_set_add_count(vbuff, QUAD_SZE * MAX_CHAR_LENGTH);
   }
@@ -108,9 +108,9 @@ static void text_init(Text *text)
   
 }
 
-short Text_create(void)
+ID_t Text_create(void)
 {
-  const short id = find_deleted_text_id();
+  const ID_t id = find_deleted_text_id();
   Text * const text = get_text(id);
 
   text->active = 1;
@@ -119,7 +119,7 @@ short Text_create(void)
   return id;
 }
 
-void Text_delete(const short id)
+void Text_delete(const ID_t id)
 {
   Text * const text = get_text(id);
   text->active = 0;
@@ -128,7 +128,7 @@ void Text_delete(const short id)
     next_deleted_text = id; 
 }
 
-void Text_set_font(const short id, const short font)
+void Text_set_font(const ID_t id, const ID_t font)
 {
   Text * const text = get_text(id);
   text->font = font;
@@ -167,8 +167,8 @@ static int add_quad_char(Text *text, const int x, const int y, const char ch)
 
   int advance = 0;
   
-  const short vbuff = GPU_batch_vertex_buffer(get_batch());
-  const short font = text->font;
+  const ID_t vbuff = GPU_batch_vertex_buffer(get_batch());
+  const ID_t font = text->font;
   
   const int dx = Glyph_width(font, ch);
   const int dy = Glyph_height(font, ch);
@@ -218,12 +218,12 @@ static void text_update_draw_count(Text *text)
 
 static void text_update_start(Text *text)
 {
-  const short vbuff = GPU_batch_vertex_buffer(get_batch());
+  const ID_t vbuff = GPU_batch_vertex_buffer(get_batch());
   
   GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE);
 }
 
-void Text_add(const short id, int x, int y, const char *str)
+void Text_add(const ID_t id, int x, int y, const char *str)
 {
   if (str) {
     Text * const text = get_text(id);
@@ -248,7 +248,7 @@ static void set_index(Text * const text, const short index)
   text->index = text->start + index;
 }
  
-void Text_set_index(const short id, const short index)
+void Text_set_index(const ID_t id, const short index)
 {
   set_index(get_text(id), index);
 }
@@ -258,12 +258,12 @@ static short get_index(Text * const text)
   return (text->index - text->start);
 }
  
-short Text_index(const short id)
+short Text_index(const ID_t id)
 {
   return get_index(get_text(id));
 }
 
-void Text_set_offset(const short id, const int width, const int height)
+void Text_set_offset(const ID_t id, const int width, const int height)
 {
   Text * const text = get_text(id);
   const float s0 = width;
@@ -295,7 +295,7 @@ static void update_uniforms(Text *text)
   alimit = val5;
 }
 
-void Text_draw(const short id)
+void Text_draw(const ID_t id)
 {
   Text * const text = get_text(id);
   if (text->ready) {
@@ -314,19 +314,19 @@ void Text_draw(const short id)
   }    
 }
 
-void Text_extent(const short id, int extent[2])
+void Text_extent(const ID_t id, int extent[2])
 {
   Text * const text = get_text(id);
   extent[0] = text->extent[0] / 2 + 4;
   extent[1] = text->extent[1] / 2 + 4;
 }
 
-short Text_pos_x(const short id)
+short Text_pos_x(const ID_t id)
 {
   return get_text(id)->pos_x;
 }
 
-short Text_pos_y(const short id)
+short Text_pos_y(const ID_t id)
 {
   return get_text(id)->pos_y;
 }
@@ -334,7 +334,7 @@ short Text_pos_y(const short id)
 static void sync_pos(Text * const text)
 {
   GLfloat pos[4];
-  const short vbuff = GPU_batch_vertex_buffer(get_batch());
+  const ID_t vbuff = GPU_batch_vertex_buffer(get_batch());
 
   GPU_vertbuf_set_index(vbuff, text->index * QUAD_SZE + 1);
   GPU_vertbuf_read_data(vbuff, ATTR_POSITION, pos);
@@ -342,12 +342,12 @@ static void sync_pos(Text * const text)
   text->pos_y = pos[1];
 }
 
-void Text_sync_pos(const short id)
+void Text_sync_pos(const ID_t id)
 {
   sync_pos(get_text(id));
 }
 
-short Text_cursor_offset_x(const short id, const int index)
+short Text_cursor_offset_x(const ID_t id, const int index)
 {
   Text * const text = get_text(id);
   set_index(text, index);
@@ -356,7 +356,7 @@ short Text_cursor_offset_x(const short id, const int index)
   return text->pos_x - text->offset_x;
 }
 
-short Text_cursor_find_index(const short id, const short offset_x)
+short Text_cursor_find_index(const ID_t id, const short offset_x)
 {
   short old_delta = 1000;
   short delta;

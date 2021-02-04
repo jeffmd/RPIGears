@@ -9,9 +9,9 @@
 
 typedef struct {
 
-  int useVBO;
-  int useVSync;
-  int wantInfo;
+  char useVBO:1;
+  char useVSync:1;
+  char wantInfo:1;
   GLenum drawMode;
   GLuint timeToRun;
   GLfloat angleVel;

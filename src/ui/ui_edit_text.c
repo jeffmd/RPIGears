@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "static_array.h"
 #include "key_map.h"
 #include "key_action.h"
 #include "key_input.h"
@@ -22,17 +23,17 @@ typedef struct
 static char *edit_str;
 static short edit_str_length;
 static EditFlags edit_flags;
-static short edit_key_map;
+static ID_t edit_key_map;
 static short edit_cursor_index;
 static short edit_cursor_max;
-static short cursor_blink_task;
+static ID_t cursor_blink_task;
 
 static void task_blink_cursor(void)
 {
   edit_flags.cursor_blink = !edit_flags.cursor_blink;
 }
 
-static short get_cursor_blink_task(void)
+static ID_t get_cursor_blink_task(void)
 {
   if (!cursor_blink_task) {
     cursor_blink_task = Task_create(500, task_blink_cursor);
@@ -194,7 +195,7 @@ int UI_edit_text_insert_mode(void)
   return edit_flags.insert_mode;
 }
 
-static void edit_cursor_left(const short area_id, const short ui_id)
+static void edit_cursor_left(const ID_t area_id, const ID_t ui_id)
 {
   if (edit_cursor_index > 0) {
     edit_cursor_index--;
@@ -204,13 +205,13 @@ static void edit_cursor_left(const short area_id, const short ui_id)
   UI_area_set_handled(area_id);
 }
 
-static void edit_cursor_handled(const short area_id)
+static void edit_cursor_handled(const ID_t area_id)
 {
   edit_cursor_changed();
   UI_area_set_handled(area_id);
 }
 
-static void edit_cursor_right(const short area_id, const short ui_id)
+static void edit_cursor_right(const ID_t area_id, const ID_t ui_id)
 {
   if (edit_cursor_index < edit_cursor_max) {
     edit_cursor_index++;
@@ -219,37 +220,37 @@ static void edit_cursor_right(const short area_id, const short ui_id)
   edit_cursor_handled(area_id);
 }
 
-static void edit_cursor_home(const short area_id, const short ui_id)
+static void edit_cursor_home(const ID_t area_id, const ID_t ui_id)
 {
   edit_cursor_index = 0;
   edit_cursor_handled(area_id);
 }
 
-static void edit_cursor_end(const short area_id, const short ui_id)
+static void edit_cursor_end(const ID_t area_id, const ID_t ui_id)
 {
   edit_cursor_index = edit_cursor_max;
   edit_cursor_handled(area_id);
 }
 
-static void edit_delete_right(const short area_id, const short ui_id)
+static void edit_delete_right(const ID_t area_id, const ID_t ui_id)
 {
   edit_shift_left();
   edit_cursor_handled(area_id);
 }
 
-static void edit_delete_left(const short area_id, const short ui_id)
+static void edit_delete_left(const ID_t area_id, const ID_t ui_id)
 {
   edit_cursor_left(area_id, ui_id);
   edit_delete_right(area_id, ui_id);
 }
 
-static void edit_insert_toggle(const short area_id, const short ui_id)
+static void edit_insert_toggle(const ID_t area_id, const ID_t ui_id)
 {
   edit_flags.insert_mode = !edit_flags.insert_mode;
   edit_cursor_changed();
 }
 
-static short get_edit_key_map(void)
+static ID_t get_edit_key_map(void)
 {
   if (!edit_key_map) {
     edit_key_map = Key_Map_create();
@@ -265,7 +266,7 @@ static short get_edit_key_map(void)
   return edit_key_map;
 }
 
-static void edit_add_char(const char key, const short area_id, const short ui_id)
+static void edit_add_char(const char key, const ID_t area_id, const ID_t ui_id)
 {
   if (edit_flags.insert_mode) {
     edit_shift_right();
@@ -278,7 +279,7 @@ static void edit_add_char(const char key, const short area_id, const short ui_id
   }
 }
 
-static void edit_key_change(const short area_id, const short ui_id, const char first_key, const char last_key)
+static void edit_key_change(const ID_t area_id, const ID_t ui_id, const char first_key, const char last_key)
 {
   const int key = UI_area_active_key();
 
@@ -290,12 +291,12 @@ static void edit_key_change(const short area_id, const short ui_id, const char f
   }
 }
 
-void UI_edit_text_number_key_change(const short area_id, const short ui_id)
+void UI_edit_text_number_key_change(const ID_t area_id, const ID_t ui_id)
 {
   edit_key_change(area_id, ui_id, '-', '9');
 }
 
-void UI_edit_text_key_change(const short area_id, const short ui_id)
+void UI_edit_text_key_change(const ID_t area_id, const ID_t ui_id)
 {
   edit_key_change(area_id, ui_id, 32, 126);
 }

@@ -5,6 +5,6 @@
   #define _USER_OPTIONS_UI_H_
   
   void User_options_ui_init(void);
-  int User_options_ui_vsync(void);
+  Handle_t User_options_ui_vsync(void);
 
 #endif

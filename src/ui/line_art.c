@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "gles3.h"
+#include "static_array.h"
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
 #include "gpu_uniform_buffer.h"
@@ -14,12 +15,12 @@ enum {
   ATTR_POSITION,
 };
 
-static short line_art_batch; 
-static short vformat;
+static ID_t line_art_batch; 
+static ID_t vformat;
 
 static GLfloat proj_matrix[4] = {1.0f/1280.0f, 1.0f/1024.0f, -0.055f, -0.01f};
 
-static short get_vformat(void)
+static ID_t get_vformat(void)
 {
   if (!vformat) {
     vformat = GPU_vertex_format_create();
@@ -29,14 +30,14 @@ static short get_vformat(void)
   return vformat;
 }
 
-static short get_line_art_batch(void)
+static ID_t get_line_art_batch(void)
 {
   if (!line_art_batch) {
     line_art_batch = GPU_batch_create();
-    const short ubuff = GPU_batch_uniform_buffer(line_art_batch);
+    const ID_t ubuff = GPU_batch_uniform_buffer(line_art_batch);
     GPU_uniformbuffer_add_4f(ubuff, "ProjMat", proj_matrix);    
 
-    const short vbuff = GPU_batch_vertex_buffer(line_art_batch);
+    const ID_t vbuff = GPU_batch_vertex_buffer(line_art_batch);
     GPU_vertbuf_set_vertex_format(vbuff, get_vformat());
     GPU_vertbuf_set_add_count(vbuff, 100);
   }
@@ -45,19 +46,19 @@ static short get_line_art_batch(void)
 }
 
 
-short Line_Art_create(void)
+ID_t Line_Art_create(void)
 {
-  short line_art = GPU_batch_part_create(get_line_art_batch());
+  ID_t line_art = GPU_batch_part_create(get_line_art_batch());
   
   return line_art;
 }
 
-static short get_vbuff()
+static ID_t get_vbuff()
 {
   return GPU_batch_vertex_buffer(get_line_art_batch());
 }
 
-void Line_Art_end(const short id)
+void Line_Art_end(const ID_t id)
 {
   GPU_batch_part_end(id);
 }
@@ -67,7 +68,7 @@ void Line_Art_add(const float x, const float y)
   GPU_vertbuf_add_2(get_vbuff(), ATTR_POSITION, x, y);
 }
 
-void Line_Art_draw(const short batch_part)
+void Line_Art_draw(const ID_t batch_part)
 {
   Shaders_bind_line_art();
   GPU_uniformbuffer_activate(0);

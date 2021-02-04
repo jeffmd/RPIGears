@@ -3,10 +3,10 @@
 #ifndef _KEY_ACTION_H_
   #define _KEY_ACTION_H_
 
-  typedef void (*ActionFn)(const short souce_id, const short destination_id);
+  typedef void (*ActionFn)(const ID_t souce_id, const ID_t destination_id);
 
-  short Key_Action_create(const int key, ActionFn action, const char* help);
-  int Key_Action_key(const short key_action_id);
-  void Key_Action_execute(const short key_action_id, const short source_id,  const short destination_id);
+  ID_t Key_Action_create(const int key, ActionFn action, const char* help);
+  int Key_Action_key(const ID_t key_action_id);
+  void Key_Action_execute(const ID_t key_action_id, const ID_t source_id,  const ID_t destination_id);
   void Key_Action_print_help(void);
 #endif

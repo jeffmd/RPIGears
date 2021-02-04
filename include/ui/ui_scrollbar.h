@@ -3,6 +3,6 @@
 #ifndef _UI_SCROLLBAR_H_
   #define _UI_SCROLLBAR_H_
 
-  int UI_scrollbar_create(const short scroll_area);
+  Handle_t UI_scrollbar_create(const ID_t scroll_area);
 
 #endif

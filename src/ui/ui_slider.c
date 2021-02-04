@@ -3,24 +3,23 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "static_array.h"
+#include "connector.h"
 #include "key_map.h"
 #include "key_action.h"
 #include "key_input.h"
-
-#include "connector.h"
 #include "ui_widget_connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
-#include "static_array.h"
 #include "ui_icon.h"
 
 typedef struct {
   uint8_t active;
   uint8_t sliding:1;
-  short area;
+  ID_t area;
   short cur_travel;
   short max_travel;
-  int widget_handle;
+  Handle_t widget_handle;
   float normal_scale[2];
   float normal_offset[2];
   float select_scale[2];
@@ -32,18 +31,18 @@ typedef struct {
 #define UI_SLIDER_MAX_COUNT 50
 
 static UI_Slider ui_sliders[UI_SLIDER_MAX_COUNT];
-static short next_deleted_ui_slider;
+static ID_t next_deleted_ui_slider;
 
-static short area_connector;
-static short ui_slider_class;
-static short ui_slider_key_map;
+static ID_t area_connector;
+static ID_t ui_slider_class;
+static ID_t ui_slider_key_map;
 
-static inline short find_deleted_ui_slider(void)
+static inline ID_t find_deleted_ui_slider(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_ui_slider, ui_sliders, UI_SLIDER_MAX_COUNT, UI_Slider, "UI slider");
 }
 
-static UI_Slider *get_ui_slider(short id)
+static UI_Slider *get_ui_slider(ID_t id)
 {
   if ((id < 0) | (id >= UI_SLIDER_MAX_COUNT)) {
     id = 0;
@@ -60,7 +59,7 @@ static void ui_slider_init(UI_Slider *ui_slider)
   ui_slider->sliding = 0;
 }
 
-static short get_ui_slider_class(void)
+static ID_t get_ui_slider_class(void)
 {
   if(!ui_slider_class) {
     ui_slider_class = Connector_register_class("ui_slider");
@@ -69,7 +68,7 @@ static short get_ui_slider_class(void)
   return ui_slider_class;
 }
 
-static void update_dimensions(UI_Slider *ui_slider, const short area_id)
+static void update_dimensions(UI_Slider *ui_slider, const ID_t area_id)
 {
   if (ui_slider->area != area_id)
   {
@@ -95,7 +94,7 @@ static void update_dimensions(UI_Slider *ui_slider, const short area_id)
   }
 }
 
-static void ui_slider_draw(const short area_id, const short ui_slider_id)
+static void ui_slider_draw(const ID_t area_id, const ID_t ui_slider_id)
 {
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
 
@@ -111,30 +110,30 @@ static void ui_slider_draw(const short area_id, const short ui_slider_id)
   }
 }
 
-static void area_clear(const short id)
+static void area_clear(const ID_t id)
 {
   UI_Slider *const ui_slider = get_ui_slider(id);
   ui_slider->area = 0;
 }
 
-static void update_area_size(UI_Slider *ui_slider, const short area_id)
+static void update_area_size(UI_Slider *ui_slider, const ID_t area_id)
 {
   UI_area_set_size(area_id, 10, 20);
 }
 
-static void ui_slider_area_attach(const short area_id, const short ui_slider_id)
+static void ui_slider_area_attach(const ID_t area_id, const ID_t ui_slider_id)
 {
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
   update_area_size(ui_slider, area_id);
   area_clear(ui_slider_id);
 }
 
-static void ui_slider_area_resize(const short area_id, const short ui_slider_id)
+static void ui_slider_area_resize(const ID_t area_id, const ID_t ui_slider_id)
 {
   area_clear(ui_slider_id);
 }
 
-static void ui_slider_start_drag(const short area_id, const short ui_slider_id)
+static void ui_slider_start_drag(const ID_t area_id, const ID_t ui_slider_id)
 {
   UI_area_drag_start();
   UI_area_set_handled(area_id);
@@ -142,7 +141,7 @@ static void ui_slider_start_drag(const short area_id, const short ui_slider_id)
   get_ui_slider(ui_slider_id)->sliding = 1;
 }
 
-static void ui_slider_end_drag(const short area_id, const short ui_slider_id)
+static void ui_slider_end_drag(const ID_t area_id, const ID_t ui_slider_id)
 {
   UI_area_drag_end();
   UI_area_set_handled(area_id);
@@ -150,7 +149,7 @@ static void ui_slider_end_drag(const short area_id, const short ui_slider_id)
   get_ui_slider(ui_slider_id)->sliding = 0;
 }
 
-static short get_ui_slider_key_map(void)
+static ID_t get_ui_slider_key_map(void)
 {
   if (!ui_slider_key_map) {
     ui_slider_key_map = Key_Map_create();
@@ -161,12 +160,12 @@ static short get_ui_slider_key_map(void)
   return ui_slider_key_map;
 }
 
-static void ui_slider_area_key_change(const short area_id, const short ui_slider_id)
+static void ui_slider_area_key_change(const ID_t area_id, const ID_t ui_slider_id)
 {
   Key_Map_action(get_ui_slider_key_map(), UI_area_active_key(), area_id, ui_slider_id);
 }
 
-static void ui_slider_area_pointer_drag(const short area_id, const short ui_slider_id)
+static void ui_slider_area_pointer_drag(const ID_t area_id, const ID_t ui_slider_id)
 {
   short delta = -UI_area_drag_delta_y();
 
@@ -191,7 +190,7 @@ static void ui_slider_area_pointer_drag(const short area_id, const short ui_slid
   }
 }
 
-static short get_area_connector(void)
+static ID_t get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui slider area connector: ");
@@ -206,24 +205,24 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_slider_area_handle(const short ui_slider_id)
+static Handle_t get_ui_slider_area_handle(const ID_t ui_slider_id)
 {
   return Connector_handle(get_area_connector(), ui_slider_id);
 }
 
-void UI_slider_connect_widget(const short ui_slider_id, const int handle)
+void UI_slider_connect_widget(const ID_t ui_slider_id, const Handle_t widget_handle)
 {
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
-  ui_slider->widget_handle = handle;
+  ui_slider->widget_handle = widget_handle;
 }
 
-int UI_slider_create(const int handle)
+Handle_t UI_slider_create(const Handle_t widget_handle)
 {
-  const short id = find_deleted_ui_slider();
+  const ID_t id = find_deleted_ui_slider();
   UI_Slider *const ui_slider = get_ui_slider(id);
   ui_slider->active = 1;
   ui_slider_init(ui_slider);
-  UI_slider_connect_widget(id, handle);
+  UI_slider_connect_widget(id, widget_handle);
 
   return get_ui_slider_area_handle(id);
 }

@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "static_array.h"
 #include "gpu_shader.h"
 
 static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";
@@ -14,12 +15,12 @@ static const char test_quad_frag[] = "test_quad_frag.glsl";
 static const char line_art_vert[] = "line_art_vert.glsl";
 static const char line_art_frag[] = "line_art_frag.glsl";
 
-static short blinn_phong_shader;
-static short test_quad_shader;
-static short line_art_shader;
+static ID_t blinn_phong_shader;
+static ID_t test_quad_shader;
+static ID_t line_art_shader;
 
-static short active_gear_shader;
-static short active_test_quad_shader;
+static ID_t active_gear_shader;
+static ID_t active_test_quad_shader;
 
 void Shaders_load_programs(void)
 {
@@ -45,7 +46,7 @@ void Shaders_bind_gear_shader(void)
   GPU_shader_bind(active_gear_shader);
 }
 
-short Shaders_test_quad(void)
+ID_t Shaders_test_quad(void)
 {
   if (!active_test_quad_shader)
     Shaders_load_programs();

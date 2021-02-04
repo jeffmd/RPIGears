@@ -6,10 +6,10 @@
   #define _demo_state_h_
 
   GLuint DS_timeToRun(void);
-  short DS_tex(void);
-  short DS_gear1(void);
-  short DS_gear2(void);
-  short DS_gear3(void);
+  ID_t DS_tex(void);
+  ID_t DS_gear1(void);
+  ID_t DS_gear2(void);
+  ID_t DS_gear3(void);
   GLfloat DS_angle(void);
   GLuint DS_instances(void);
   float DS_angleVel(void);

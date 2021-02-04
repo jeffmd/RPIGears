@@ -38,7 +38,7 @@
   #define MIDDLE_BUTTON_RELEASE KEY_BUTTON_RELEASE(2)
 
 
-  typedef void (*ActionFn)(const short souce_id, const short destination_id);
+  typedef void (*ActionFn)(const ID_t souce_id, const ID_t destination_id);
   typedef void (*UPDATE_KEY_DOWN)(const float);
   
   void Key_input_init(void);

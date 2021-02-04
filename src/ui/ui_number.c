@@ -5,15 +5,14 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "static_array.h"
+#include "connector.h"
 #include "key_map.h"
 #include "key_action.h"
 #include "key_input.h"
-
-#include "connector.h"
 #include "ui_widget_connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
-#include "static_array.h"
 #include "text.h"
 #include "ui_icon.h"
 #include "ui_edit_text.h"
@@ -29,14 +28,14 @@ typedef struct {
   uint8_t is_float:1;
   uint8_t can_edit:1;
   uint8_t editing:1;
-  short text;
-  short area;
+  ID_t text;
+  ID_t area;
   short val_start_index;
   short val_offset_x;
   FPINT old_val;
   FPINT change_val;
   FPINT default_change;
-  int widget_handle;
+  Handle_t widget_handle;
   float select_scale[2];
   float select_offset[2];
 } UI_Number;
@@ -46,11 +45,11 @@ typedef struct {
 #define DEFAULT_INT_CHANGE 1
 
 static UI_Number ui_numbers[UI_NUMBER_MAX_COUNT];
-static short next_deleted_ui_number;
+static ID_t next_deleted_ui_number;
 
-static short area_connector;
-static short ui_number_class;
-static short ui_number_key_map;
+static ID_t area_connector;
+static ID_t ui_number_class;
+static ID_t ui_number_key_map;
 static short delta_xy;
 
 #define STR_SIZE 9
@@ -58,17 +57,17 @@ static const char num_str[] = "0000000 ";
 static char val_str[STR_SIZE];
 
 static char edit_str[STR_SIZE];
-static short edit_ui_number;
+static ID_t edit_ui_number;
 static float edit_cursor_offset_x;
 static float edit_cursor_size;
 static FPINT edit_restore_val;
 
-static inline short find_deleted_ui_number(void)
+static inline ID_t find_deleted_ui_number(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_ui_number, ui_numbers, UI_NUMBER_MAX_COUNT, UI_Number, "UI number");
 }
 
-static UI_Number *get_ui_number(short id)
+static UI_Number *get_ui_number(ID_t id)
 {
   if ((id < 0) | (id >= UI_NUMBER_MAX_COUNT)) {
     id = 0;
@@ -83,7 +82,7 @@ static void ui_number_init(UI_Number *ui_number)
   ui_number->area = 0;
 }
 
-static short get_text(UI_Number *ui_number)
+static ID_t get_text(UI_Number *ui_number)
 {
   if (!ui_number->text) {
     ui_number->text = Text_create();
@@ -94,13 +93,13 @@ static short get_text(UI_Number *ui_number)
 
 static void setup_val_text(UI_Number *ui_number)
 {
-  const short text_id = get_text(ui_number);
+  const ID_t text_id = get_text(ui_number);
   ui_number->val_start_index = Text_index(text_id);
   ui_number->val_offset_x = Text_pos_x(text_id) + 12;
   Text_add(text_id, ui_number->val_offset_x, 0, num_str);
 }
 
-static void update_dimensions(UI_Number *ui_number, const short area_id)
+static void update_dimensions(UI_Number *ui_number, const ID_t area_id)
 {
   if (ui_number->area != area_id)
   {
@@ -135,7 +134,7 @@ static void update_float(UI_Number *const ui_number, const float val)
   update_value_text(ui_number, val_str);
 }
 
-void UI_number_update_float(const short number_id, const float val)
+void UI_number_update_float(const ID_t number_id, const float val)
 {
   UI_Number *const ui_number = get_ui_number(number_id);
 
@@ -157,7 +156,7 @@ static void update_int(UI_Number *const ui_number, const int val)
   update_value_text(ui_number, val_str);
 }
 
-void UI_number_update_int(const short number_id, const int val)
+void UI_number_update_int(const ID_t number_id, const int val)
 {
   UI_Number *const ui_number = get_ui_number(number_id);
 
@@ -199,7 +198,7 @@ static void edit_text_update(UI_Number *const ui_number)
   }
 }
 
-static void ui_number_draw(const short area_id, const short ui_number_id)
+static void ui_number_draw(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
@@ -220,13 +219,13 @@ static void ui_number_draw(const short area_id, const short ui_number_id)
   }
 }
 
-static void area_clear(const short id)
+static void area_clear(const ID_t id)
 {
   UI_Number *const ui_number = get_ui_number(id);
   ui_number->area = 0;
 }
 
-static void update_area_size(UI_Number *ui_number, const short area_id)
+static void update_area_size(UI_Number *ui_number, const ID_t area_id)
 {
   int extent[2];
 
@@ -234,19 +233,19 @@ static void update_area_size(UI_Number *ui_number, const short area_id)
   UI_area_set_size(area_id, extent[0], extent[1]);
 }
 
-static void ui_number_area_attach(const short area_id, const short ui_number_id)
+static void ui_number_area_attach(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
   update_area_size(ui_number, area_id);
   area_clear(ui_number_id);
 }
 
-static void ui_number_area_resize(const short area_id, const short ui_number_id)
+static void ui_number_area_resize(const ID_t area_id, const ID_t ui_number_id)
 {
   area_clear(ui_number_id);
 }
 
-static short get_ui_number_class(void)
+static ID_t get_ui_number_class(void)
 {
   if(!ui_number_class) {
     ui_number_class = Connector_register_class("ui_number");
@@ -275,7 +274,7 @@ static void edit_val_update(UI_Number *const ui_number, FPINT val)
   }
 }
 
-static void edit_start(const short ui_number_id)
+static void edit_start(const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
   ui_number->editing = 1;
@@ -285,7 +284,7 @@ static void edit_start(const short ui_number_id)
   edit_ui_number = ui_number_id;
 }
 
-static void edit_stop(const short ui_number_id)
+static void edit_stop(const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
   ui_number->editing = 0;
@@ -294,7 +293,7 @@ static void edit_stop(const short ui_number_id)
   edit_ui_number = 0;
 }
 
-static void ui_number_edit_done(const short area_id, const short ui_number_id)
+static void ui_number_edit_done(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
@@ -340,7 +339,7 @@ static int get_default_int_change(UI_Number *const ui_number)
   return ui_number->default_change.i * get_delta_xy();
 }
 
-static void edit_accept_str(const short area_id, const short ui_number_id)
+static void edit_accept_str(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
@@ -361,7 +360,7 @@ static void edit_accept_str(const short area_id, const short ui_number_id)
   ui_number_edit_done(area_id, ui_number_id);
 }
 
-static void ui_number_inc(const short area_id, const short ui_number_id)
+static void ui_number_inc(const ID_t area_id, const ID_t ui_number_id)
 {
   edit_accept_str(area_id, ui_number_id);
   UI_Number *const ui_number = get_ui_number(ui_number_id);
@@ -377,13 +376,13 @@ static void ui_number_inc(const short area_id, const short ui_number_id)
   UI_area_set_handled(area_id);
 }
 
-static void ui_number_dec(const short area_id, const short ui_number_id)
+static void ui_number_dec(const ID_t area_id, const ID_t ui_number_id)
 {
   delta_xy = -1;
   ui_number_inc(area_id, ui_number_id);
 }
 
-static void edit_set_cursor(const short area_id, const short ui_number_id)
+static void edit_set_cursor(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
   const short new_index = Text_cursor_find_index(get_text(ui_number), UI_area_rel_pointer_x(area_id));
@@ -393,7 +392,7 @@ static void edit_set_cursor(const short area_id, const short ui_number_id)
   UI_area_set_handled(area_id);
 }
 
-static void ui_number_edit(const short area_id, const short ui_number_id)
+static void ui_number_edit(const ID_t area_id, const ID_t ui_number_id)
 {
   if (edit_ui_number != ui_number_id) {
     edit_start(ui_number_id);
@@ -408,7 +407,7 @@ static void ui_number_edit(const short area_id, const short ui_number_id)
   }
 }
 
-static void ui_number_start_drag(const short area_id, const short ui_number_id)
+static void ui_number_start_drag(const ID_t area_id, const ID_t ui_number_id)
 {
   edit_accept_str(area_id, ui_number_id);
   UI_area_drag_start();
@@ -416,14 +415,14 @@ static void ui_number_start_drag(const short area_id, const short ui_number_id)
   UI_area_set_locked(area_id);
 }
 
-static void ui_number_end_drag(const short area_id, const short ui_number_id)
+static void ui_number_end_drag(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_area_drag_end();
   UI_area_set_handled(area_id);
   UI_area_set_unlocked(area_id);
 }
 
-static void ui_number_edit_select(const short area_id, const short ui_number_id)
+static void ui_number_edit_select(const ID_t area_id, const ID_t ui_number_id)
 {
   const int was_dragging = UI_area_dragging();
 
@@ -434,12 +433,12 @@ static void ui_number_edit_select(const short area_id, const short ui_number_id)
   }
 }
 
-static void ui_number_undo_edit(const short area_id, const short ui_number_id)
+static void ui_number_undo_edit(const ID_t area_id, const ID_t ui_number_id)
 {
   ui_number_edit_done(area_id, ui_number_id);
 }
 
-static short get_ui_number_key_map(void)
+static ID_t get_ui_number_key_map(void)
 {
   if (!ui_number_key_map) {
     ui_number_key_map = Key_Map_create();
@@ -460,7 +459,7 @@ static short get_ui_number_key_map(void)
   return ui_number_key_map;
 }
 
-static void ui_number_area_key_change(const short area_id, const short ui_number_id)
+static void ui_number_area_key_change(const ID_t area_id, const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
@@ -477,14 +476,14 @@ static void ui_number_area_key_change(const short area_id, const short ui_number
   }
 }
 
-static void ui_number_area_pointer_drag(const short area_id, const short ui_number_id)
+static void ui_number_area_pointer_drag(const ID_t area_id, const ID_t ui_number_id)
 {
   delta_xy = UI_area_drag_delta_xy();
   ui_number_inc(area_id, ui_number_id);
   delta_xy = 1;
 }
 
-static short get_area_connector(void)
+static ID_t get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui number area connector: ");
@@ -501,65 +500,65 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_number_area_handle(const short ui_number_id)
+static int get_ui_number_area_handle(const ID_t ui_number_id)
 {
   return Connector_handle(get_area_connector(), ui_number_id);
 }
 
-void UI_number_connect_widget(const short number_id, const int handle)
+void UI_number_connect_widget(const ID_t number_id, const Handle_t widget_handle)
 {
   UI_Number *const ui_number = get_ui_number(number_id);
-  ui_number->widget_handle = handle;
+  ui_number->widget_handle = widget_handle;
 }
 
-float UI_number_float_change(const short number_id)
+float UI_number_float_change(const ID_t number_id)
 {
   return get_ui_number(number_id)->change_val.f;
 }
 
-float UI_number_float_new_val(const short ui_number_id)
+float UI_number_float_new_val(const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
   return (ui_number->old_val.f + ui_number->change_val.f);
 }
 
-int UI_number_int_change(const short number_id)
+int UI_number_int_change(const ID_t number_id)
 {
   return get_ui_number(number_id)->change_val.i;
 }
 
-int UI_number_int_new_val(const short ui_number_id)
+int UI_number_int_new_val(const ID_t ui_number_id)
 {
   UI_Number *const ui_number = get_ui_number(ui_number_id);
 
   return (ui_number->old_val.i + ui_number->change_val.i);
 }
 
-void UI_number_set_default_float_change(const short number_id, const float val)
+void UI_number_set_default_float_change(const ID_t number_id, const float val)
 {
   get_ui_number(number_id)->default_change.f = val;
 }
 
-void UI_number_set_default_int_change(const short number_id, const int val)
+void UI_number_set_default_int_change(const ID_t number_id, const int val)
 {
   get_ui_number(number_id)->default_change.i = val;
 }
 
-void UI_number_set_edit(const short number_id, const int state)
+void UI_number_set_edit(const ID_t number_id, const int state)
 {
   get_ui_number(number_id)->can_edit = state;
 }
 
-int UI_number_create(const char *str, const int handle)
+Handle_t UI_number_create(const char *str, const Handle_t widget_handle)
 {
-  const short id = find_deleted_ui_number();
+  const ID_t id = find_deleted_ui_number();
   UI_Number *const ui_number = get_ui_number(id);
   ui_number->active = 1;
   ui_number_init(ui_number);
   Text_add(get_text(ui_number), 0, 0, str);
   setup_val_text(ui_number);
-  UI_number_connect_widget(id, handle);
+  UI_number_connect_widget(id, widget_handle);
 
   return get_ui_number_area_handle(id);
 }

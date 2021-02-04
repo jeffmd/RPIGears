@@ -3,32 +3,32 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "static_array.h"
 #include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
-#include "static_array.h"
 #include "text.h"
 
 typedef struct {
   uint8_t active;
-  short text;
-  short area;
+  ID_t text;
+  ID_t area;
 } UI_Text;
 
 #define UI_TEXT_MAX_COUNT 50
 
 static UI_Text ui_texts[UI_TEXT_MAX_COUNT];
-static short next_deleted_ui_text;
+static ID_t next_deleted_ui_text;
 
-static short area_connector;
-static short ui_text_class;
+static ID_t area_connector;
+static ID_t ui_text_class;
 
-static inline short find_deleted_ui_text(void)
+static inline ID_t find_deleted_ui_text(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_ui_text, ui_texts, UI_TEXT_MAX_COUNT, UI_Text, "UI text");
 }
 
-static UI_Text *get_ui_text(short id)
+static UI_Text *get_ui_text(ID_t id)
 {
   if ((id < 0) | (id >= UI_TEXT_MAX_COUNT)) {
     id = 0;
@@ -44,18 +44,18 @@ static void ui_text_init(UI_Text *ui_text)
 }
 
 /*
-static void ui_text_enter(const short source_id, const short destination_id)
+static void ui_text_enter(const ID_t source_id, const ID_t destination_id)
 {
   //printf("enter text area %i\n", source_id);
 }
 
-static void ui_text_leave(const short source_id, const short destination_id)
+static void ui_text_leave(const ID_t source_id, const ID_t destination_id)
 {
   //printf("leave text area %i\n", source_id);
 }
 */
 
-static short get_text(UI_Text *ui_text)
+static ID_t get_text(UI_Text *ui_text)
 {
   if (!ui_text->text) {
     ui_text->text = Text_create();
@@ -64,7 +64,7 @@ static short get_text(UI_Text *ui_text)
   return ui_text->text;
 }
 
-static void update_dimensions(UI_Text *ui_text, const short source_id)
+static void update_dimensions(UI_Text *ui_text, const ID_t source_id)
 {
   if (ui_text->area != source_id)
   {
@@ -77,7 +77,7 @@ static void update_dimensions(UI_Text *ui_text, const short source_id)
   }
 }
 
-static void ui_text_draw(const short source_id, const short destination_id)
+static void ui_text_draw(const ID_t source_id, const ID_t destination_id)
 {
   UI_Text *const ui_text = get_ui_text(destination_id);
 
@@ -86,13 +86,13 @@ static void ui_text_draw(const short source_id, const short destination_id)
   //printf("draw text area %i\n", source_id);
 }
 
-static void area_clear(const short id)
+static void area_clear(const ID_t id)
 {
   UI_Text *const ui_text = get_ui_text(id);
   ui_text->area = 0;
 }
 
-static void update_area_size(UI_Text *ui_text, const short area_id)
+static void update_area_size(UI_Text *ui_text, const ID_t area_id)
 {
   int extent[2];
 
@@ -101,7 +101,7 @@ static void update_area_size(UI_Text *ui_text, const short area_id)
   //printf("text area size x: %i, y: %i\n", extent[0], extent[1]); 
 }
 
-static void ui_text_area_attach(const short source_id, const short destination_id)
+static void ui_text_area_attach(const ID_t source_id, const ID_t destination_id)
 {
   //printf("attach text area %i\n", source_id);
   UI_Text *const ui_text = get_ui_text(destination_id);
@@ -109,13 +109,13 @@ static void ui_text_area_attach(const short source_id, const short destination_i
   area_clear(destination_id);
 }
 
-static void ui_text_area_resize(const short source_id, const short destination_id)
+static void ui_text_area_resize(const ID_t source_id, const ID_t destination_id)
 {
   //printf("resize text area %i\n", source_id);
   area_clear(destination_id);
 }
 
-static short get_ui_text_class(void)
+static ID_t get_ui_text_class(void)
 {
   if(!ui_text_class) {
     ui_text_class = Connector_register_class("ui_text");
@@ -124,7 +124,7 @@ static short get_ui_text_class(void)
   return ui_text_class;
 }
 
-static short get_area_connector(void)
+static ID_t get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui text area connector: ");
@@ -139,14 +139,14 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_text_handle(const short ui_text_id)
+static Handle_t get_ui_text_handle(const ID_t ui_text_id)
 {
   return Connector_handle(get_area_connector(), ui_text_id);
 }
 
-int UI_text_create(const char *str)
+Handle_t UI_text_create(const char *str)
 {
-  const short id = find_deleted_ui_text();
+  const ID_t id = find_deleted_ui_text();
   UI_Text *const ui_text = get_ui_text(id);
   ui_text->active = 1;
   ui_text_init(ui_text);
@@ -156,13 +156,13 @@ int UI_text_create(const char *str)
   return get_ui_text_handle(id);
 }
 
-short UI_text_text_id(const short id)
+ID_t UI_text_text_id(const ID_t id)
 {
   UI_Text *const ui_text = get_ui_text(id);
   return get_text(ui_text);
 }
 
-void UI_text_add(const short id, const char *str)
+void UI_text_add(const ID_t id, const char *str)
 {
   UI_Text *const ui_text = get_ui_text(id);
   Text_add(get_text(ui_text), 0, 0, str);

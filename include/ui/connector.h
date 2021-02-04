@@ -2,12 +2,13 @@
 #ifndef _CONECTOR_H_
   #define _CONECTOR_H_
 
-  typedef void (*ActionFn)(const short source_id, const short destination_id);
+  typedef int Handle_t;
+  typedef void (*ActionFn)(const ID_t source_id, const ID_t destination_id);
 
-  short Connector_create(const short source_class, const short destination_class, const short count);
-  void Connector_set_action(const short connector_id, const short slot_id, ActionFn action);
+  short Connector_create(const ID_t source_class, const ID_t destination_class, const short count);
+  void Connector_set_action(const ID_t connector_id, const ID_t slot_id, ActionFn action);
   short Connector_register_class(const char *name);
-  int Connector_handle(const short connector, const short destination_id);
-  void Connector_handle_execute(const int handle, const short slot_id, const short source_id);
+  Handle_t Connector_handle(const ID_t connector, const ID_t destination_id);
+  void Connector_handle_execute(const Handle_t handle, const ID_t slot_id, const ID_t source_id);
 
 #endif

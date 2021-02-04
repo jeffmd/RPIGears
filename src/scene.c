@@ -5,6 +5,8 @@
 #include <stdio.h>
 
 #include "gles3.h"
+
+#include "static_array.h"
 #include "gear.h"
 #include "matrix_math.h"
 #include "camera.h"
@@ -25,7 +27,7 @@ static struct {
 
 static GLfloat tm[16];
 static short diffuseMap_Data = 0;
-static short uniform_buffer;
+static ID_t uniform_buffer;
 
 /**
  * Draws a gear in GLES 2 mode.
@@ -35,7 +37,7 @@ static short uniform_buffer;
  * @param y the y position to draw the gear at
  * @param angle the rotation angle of the gear
  */
-static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const GLfloat angle)
+static void draw_gear(const ID_t gear, const GLfloat x, const GLfloat y, const GLfloat angle)
 {
    /* Translate and rotate the gear */
    m4x4_translate(tm, Camera_view_matrix(), x, y, 0);
@@ -44,7 +46,7 @@ static void draw_gear(const short gear, const GLfloat x, const GLfloat y, const 
    Gear_draw(gear, User_Options_drawMode(), DS_instances());
 }
 
-static void shaders_load_programs_key(const short souce_id, const short destination_id)
+static void shaders_load_programs_key(const ID_t souce_id, const ID_t destination_id)
 {
   Shaders_load_programs();
 }

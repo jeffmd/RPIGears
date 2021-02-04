@@ -20,13 +20,13 @@ typedef struct {
   unsigned char handled:1;
 
   // area id links
-  short parent;
-  short first_child;
-  short last_child;
-  short next_sibling;
-  short prev_sibling;
+  ID_t parent;
+  ID_t first_child;
+  ID_t last_child;
+  ID_t next_sibling;
+  ID_t prev_sibling;
 
-  short layout;
+  ID_t layout;
 
   short layout_pos[2];
   short rel_pos[2];
@@ -60,11 +60,11 @@ enum DragState {
 #define UI_AREA_MAX_COUNT 100
 
 static UI_Area areas[UI_AREA_MAX_COUNT];
-static short next_deleted_area;
+static ID_t next_deleted_area;
 
-static short root_area;
-static short active_area;
-static short locked_area;
+static ID_t root_area;
+static ID_t active_area;
+static ID_t locked_area;
 static int active_key;
 
 static short pointer_x;
@@ -73,9 +73,9 @@ static short old_y;
 static short old_x;
 static short drag_state;
 
-static short ui_area_class;
+static ID_t ui_area_class;
 
-static short get_active_area(void)
+static ID_t get_active_area(void)
 {
   if (active_area)
     return active_area;
@@ -90,12 +90,12 @@ static void clear_active_area(void)
   }
 }
 
-static inline short find_deleted_area(void)
+static inline ID_t find_deleted_area(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_area, areas, UI_AREA_MAX_COUNT, UI_Area, "UI area");
 }
 
-static UI_Area *get_area(short id)
+static UI_Area *get_area(ID_t id)
 {
   if ((id < 0) | (id >= UI_AREA_MAX_COUNT)) {
     id = 0;
@@ -142,7 +142,7 @@ static void clip_pos(const short clip_pos[4], short pos[2])
 
 static void update_vis_pos(UI_Area *area)
 {
-  const short parent_id = area->parent;
+  const ID_t parent_id = area->parent;
   short *pos = area->vis_pos;
 
   pos[0] = area->rel_pos[0];
@@ -233,7 +233,7 @@ static int is_visible(UI_Area *area)
   return area->visible;
 }
 
-short UI_area_create(void)
+ID_t UI_area_create(void)
 {
   const int id = find_deleted_area();
   UI_Area *const area = get_area(id);
@@ -243,7 +243,7 @@ short UI_area_create(void)
   return id;
 }
 
-static void parent_update_layout(UI_Area *parent, const short child)
+static void parent_update_layout(UI_Area *parent, const ID_t child)
 {
   if (parent->layout) {
     // update layout of child area
@@ -253,7 +253,7 @@ static void parent_update_layout(UI_Area *parent, const short child)
   }
 }
 
-void UI_area_remove_parent(const short area_id)
+void UI_area_remove_parent(const ID_t area_id)
 {
   UI_Area * const area = get_area(area_id);
 
@@ -268,7 +268,7 @@ void UI_area_remove_parent(const short area_id)
       parent->first_child = area->next_sibling;
     }
 
-    short update_sibling_id = 0;
+    ID_t update_sibling_id = 0;
 
     if (area->prev_sibling) {
       UI_Area *sibling = get_area(area->prev_sibling);
@@ -290,7 +290,7 @@ void UI_area_remove_parent(const short area_id)
   area->parent = 0;
 }
 
-void UI_area_add(const short parent_id, const short child_id)
+void UI_area_add(const ID_t parent_id, const ID_t child_id)
 {
   UI_Area * child = get_area(child_id);
 
@@ -317,7 +317,7 @@ void UI_area_add(const short parent_id, const short child_id)
   update_visibility(child);
 }
 
-void UI_area_set_active(const short area_id)
+void UI_area_set_active(const ID_t area_id)
 {
   if (active_area != area_id) {
     UI_Area *area = get_area(active_area);
@@ -328,17 +328,17 @@ void UI_area_set_active(const short area_id)
   }
 }
 
-int UI_area_is_active(const short area_id)
+int UI_area_is_active(const ID_t area_id)
 {
   return (area_id == active_area);
 }
 
-void UI_area_set_root(const short area_id)
+void UI_area_set_root(const ID_t area_id)
 {
   root_area = area_id;
 }
 
-void UI_area_set_offset(const short area_id, const short x, const short y)
+void UI_area_set_offset(const ID_t area_id, const short x, const short y)
 {
   UI_Area * const area = get_area(area_id);
   area->rel_pos[0] = x;
@@ -347,7 +347,7 @@ void UI_area_set_offset(const short area_id, const short x, const short y)
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
-void UI_area_change_offset(const short area_id, const short x, const short y)
+void UI_area_change_offset(const ID_t area_id, const short x, const short y)
 {
   UI_Area * const area = get_area(area_id);
   area->rel_pos[0] += x;
@@ -356,14 +356,14 @@ void UI_area_change_offset(const short area_id, const short x, const short y)
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
-void UI_area_offset(const short area_id, short pos[2])
+void UI_area_offset(const ID_t area_id, short pos[2])
 {
   UI_Area * const area = get_area(area_id);
   pos[0] = area->rel_pos[0];
   pos[1] = area->rel_pos[1];
 }
 
-void UI_area_set_layout_position(const short area_id, const short x, const short y)
+void UI_area_set_layout_position(const ID_t area_id, const short x, const short y)
 {
   UI_Area * const area = get_area(area_id);
   area->layout_pos[0] = x;
@@ -372,14 +372,14 @@ void UI_area_set_layout_position(const short area_id, const short x, const short
   Connector_handle_execute(area->handle, OnMove, area_id);
 }
 
-void UI_area_layout_position(const short area_id, short pos[2])
+void UI_area_layout_position(const ID_t area_id, short pos[2])
 {
   UI_Area * const area = get_area(area_id);
   pos[0] = area->layout_pos[0];
   pos[1] = area->layout_pos[1];
 }
 
-void UI_area_set_size(const short area_id, const short width, const short height)
+void UI_area_set_size(const ID_t area_id, const short width, const short height)
 {
   UI_Area * const area = get_area(area_id);
   area->size[0] = width;
@@ -388,37 +388,37 @@ void UI_area_set_size(const short area_id, const short width, const short height
   Connector_handle_execute(area->handle, OnResize, area_id);
 }
 
-void UI_area_size(const short area_id, short size[2])
+void UI_area_size(const ID_t area_id, short size[2])
 {
   UI_Area * const area = get_area(area_id);
   size[0] = area->size[0];
   size[1] = area->size[1];
 }
 
-void UI_area_offset_size(const short area_id, short offset_size[2])
+void UI_area_offset_size(const ID_t area_id, short offset_size[2])
 {
   UI_Area * const area = get_area(area_id);
   offset_size[0] = area->rel_pos[0] + area->size[0];
   offset_size[1] = area->rel_pos[1] + area->size[1];
 }
 
-short UI_area_offset_size_x(const short area_id)
+short UI_area_offset_size_x(const ID_t area_id)
 {
   UI_Area * const area = get_area(area_id);
 
   return area->rel_pos[0] + area->size[0];
 }
 
-short UI_area_offset_size_y(const short area_id)
+short UI_area_offset_size_y(const ID_t area_id)
 {
   UI_Area * const area = get_area(area_id);
 
   return area->rel_pos[1] + area->size[1];
 }
 
-static short area_find(short area_id, const int check_sibling, const int x, const int y)
+static ID_t area_find(ID_t area_id, const int check_sibling, const int x, const int y)
 {
-  short newhit = 0;
+  ID_t newhit = 0;
 
   while (area_id) {
     UI_Area *area = get_area(area_id);
@@ -439,7 +439,7 @@ static short area_find(short area_id, const int check_sibling, const int x, cons
   return newhit;
 }
 
-static void area_pointer_moved(const short area_id)
+static void area_pointer_moved(const ID_t area_id)
 {
   UI_Area * const area = get_area(area_id);
   Connector_handle_execute(area->handle, OnPointerMove, area_id);
@@ -462,13 +462,13 @@ static void update_active_area(void)
   area_pointer_moved(get_active_area());
 }
 
-void UI_area_set_locked(const short area_id)
+void UI_area_set_locked(const ID_t area_id)
 {
   locked_area = area_id;
   UI_area_set_active(area_id);
 }
 
-void UI_area_set_unlocked(const short area_id)
+void UI_area_set_unlocked(const ID_t area_id)
 {
   if (locked_area == area_id) {
     locked_area = 0;
@@ -502,7 +502,7 @@ void UI_area_select_active(const int key, const int x, const int y)
 void UI_area_key_change(const int key)
 {
   int handled = 0;
-  short area_id = get_active_area();
+  ID_t area_id = get_active_area();
   active_key = key;
 
   while (area_id) {
@@ -524,7 +524,7 @@ void UI_area_key_change(const int key)
   }
 }
 
-static short get_class(void)
+static ID_t get_class(void)
 {
   if (!ui_area_class) {
     ui_area_class = Connector_register_class("ui_area");
@@ -533,68 +533,68 @@ static short get_class(void)
   return ui_area_class;
 }
 
-short UI_area_connector(const short destination_class)
+ID_t UI_area_connector(const ID_t destination_class)
 {
-  const short connector_id = Connector_create(get_class(), destination_class, EventsMax);
+  const ID_t connector_id = Connector_create(get_class(), destination_class, EventsMax);
 
   return connector_id;
 }
 
-void UI_area_connect_enter(const short connector_id, ActionFn action)
+void UI_area_connect_enter(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnEnter, action);
 }
 
-void UI_area_connect_leave(const short connector_id, ActionFn action)
+void UI_area_connect_leave(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnLeave, action);
 }
 
-void UI_area_connect_draw(const short connector_id, ActionFn action)
+void UI_area_connect_draw(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnDraw, action);
 }
 
-void UI_area_connect_resize(const short connector_id, ActionFn action)
+void UI_area_connect_resize(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnResize, action);
 }
 
-void UI_area_connect_move(const short connector_id, ActionFn action)
+void UI_area_connect_move(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnMove, action);
 }
 
-void UI_area_connect_attach(const short connector_id, ActionFn action)
+void UI_area_connect_attach(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnAttach, action);
 }
 
-void UI_area_connect_key_change(const short connector_id, ActionFn action)
+void UI_area_connect_key_change(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnKeyChange, action);
 }
 
-void UI_area_connect_pointer_move(const short connector_id, ActionFn action)
+void UI_area_connect_pointer_move(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnPointerMove, action);
 }
 
-void UI_area_connect_pointer_drag(const short connector_id, ActionFn action)
+void UI_area_connect_pointer_drag(const ID_t connector_id, ActionFn action)
 {
   Connector_set_action(connector_id, OnPointerDrag, action);
 }
 
-void UI_area_connect(const short area_id, const int handle)
+void UI_area_connect(const ID_t area_id, const Handle_t handle)
 {
   UI_Area * const area = get_area(area_id);
   area->handle = handle;
   Connector_handle_execute(handle, OnAttach, area_id);
 }
 
-short UI_area_add_handle(const short parent_id, const int handle, const int x, const int y)
+ID_t UI_area_add_handle(const ID_t parent_id, const Handle_t handle, const int x, const int y)
 {
-  const short child_area = UI_area_create();
+  const ID_t child_area = UI_area_create();
   UI_area_connect(child_area, handle);
   UI_area_set_offset(child_area, x, y);
   UI_area_add(parent_id, child_area);
@@ -602,7 +602,7 @@ short UI_area_add_handle(const short parent_id, const int handle, const int x, c
   return child_area;
 }
 
-void UI_area_set_hide(const short area_id, const int state)
+void UI_area_set_hide(const ID_t area_id, const int state)
 {
   UI_Area * const area = get_area(area_id);
   if (area->hide != state) {
@@ -612,13 +612,13 @@ void UI_area_set_hide(const short area_id, const int state)
   }
 }
 
-static void area_draw(UI_Area *area, const short source_id)
+static void area_draw(UI_Area *area, const ID_t source_id)
 {
   Window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
   Connector_handle_execute(area->handle, OnDraw, source_id);
 }
 
-static void area_draw_siblings(short area_id)
+static void area_draw_siblings(ID_t area_id)
 {
   while (area_id) {
     UI_Area *area = get_area(area_id);
@@ -633,7 +633,7 @@ static void area_draw_siblings(short area_id)
   }
 }
 
-void UI_area_draw(const short area_id)
+void UI_area_draw(const ID_t area_id)
 {
   if (area_id) {
     UI_Area *area = get_area(area_id);
@@ -652,43 +652,43 @@ void UI_area_root_draw(void)
   UI_area_draw(root_area);
 }
 
-uint8_t UI_area_modid(const short area_id)
+uint8_t UI_area_modid(const ID_t area_id)
 {
   return get_area(area_id)->modid;
 }
 
-void UI_area_set_handled(const short area_id)
+void UI_area_set_handled(const ID_t area_id)
 {
   get_area(area_id)->handled = 1;
 }
 
-int UI_area_handled(const short area_id)
+int UI_area_handled(const ID_t area_id)
 {
   return get_area(area_id)->handled;
 }
 
-void UI_area_set_layout(const short area_id, const short layout)
+void UI_area_set_layout(const ID_t area_id, const ID_t layout)
 {
   get_area(area_id)->layout = layout;
 }
 
-short UI_area_prev_sibling(const short area_id)
+ID_t UI_area_prev_sibling(const ID_t area_id)
 {
   return get_area(area_id)->prev_sibling;
 }
 
-short UI_area_next_sibling(const short area_id)
+ID_t UI_area_next_sibling(const ID_t area_id)
 {
   return get_area(area_id)->next_sibling;
 }
 
-short UI_area_rel_pointer_x(const short area_id)
+short UI_area_rel_pointer_x(const ID_t area_id)
 {
   UI_Area *area = get_area(area_id);
   return (pointer_x - area->vis_pos[0] - (area->size[0] / 2));
 }
 
-short UI_area_rel_pointer_y(const short area_id)
+short UI_area_rel_pointer_y(const ID_t area_id)
 {
   return (pointer_y - get_area(area_id)->vis_pos[1]);
 }

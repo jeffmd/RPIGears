@@ -5,14 +5,15 @@
 
 #include "static_array.h"
 
-typedef void (*ActionFn)(const short source_id, const short destination_id);
+typedef int Handle_t;
+typedef void (*ActionFn)(const ID_t source_id, const ID_t destination_id);
 
 typedef struct {
   uint8_t active;
   uint8_t count;
-  short action_start;
-  short source_class;
-  short destination_class;
+  ID_t action_start;
+  ID_t source_class;
+  ID_t destination_class;
 } Connector;
 
 typedef struct {
@@ -20,10 +21,10 @@ typedef struct {
 } ClassReg;
 
 typedef union {
-  int ID;
+  Handle_t ID;
   struct {
-    short destination_id;
-    short connector;
+    ID_t destination_id;
+    ID_t connector;
   };
 } Handle;
 
@@ -32,25 +33,25 @@ typedef union {
 #define ACTION_MAX_COUNT 1000
 
 static ActionFn actions[ACTION_MAX_COUNT];
-static short next_action;
+static ID_t next_action;
 
 static Connector connectors[CONNECTOR_MAX_COUNT];
-static short next_deleted_connector;
+static ID_t next_deleted_connector;
 
 #define CLASSREG_MAX_COUNT 50
 static ClassReg classes[CLASSREG_MAX_COUNT];
-static short next_class_id;
+static ID_t next_class_id;
 
-static short actions_allocate(const int count)
+static ID_t actions_allocate(const int count)
 {
-  const short action_start = next_action;
+  const ID_t action_start = next_action;
 
   next_action += count;
 
   return action_start;
 }
  
-static inline short find_deleted_connector(void)
+static inline ID_t find_deleted_connector(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_connector, connectors, CONNECTOR_MAX_COUNT, Connector, "Connector");
 }
@@ -70,10 +71,10 @@ static void connector_init(Connector *connector)
   //action_table->action_slot = 0;
 }
 
-static void actions_init(const short id, const short count)
+static void actions_init(const ID_t id, const short count)
 {
-  const short last_id = id + count;
-  for (short idx = id; idx < last_id; idx++) {
+  const ID_t last_id = id + count;
+  for (ID_t idx = id; idx < last_id; idx++) {
     actions[idx] = 0;
   }
 }
@@ -87,9 +88,9 @@ static void allocate_actions(Connector *const connector, const short count)
 }
 
 
-short Connector_create(const short source_class, const short destination_class, const short count)
+ID_t Connector_create(const ID_t source_class, const ID_t destination_class, const short count)
 {
-  const short id = find_deleted_connector();
+  const ID_t id = find_deleted_connector();
   Connector *const connector = get_connector(id);
   connector->active = 1;
   connector_init(connector);
@@ -101,7 +102,7 @@ short Connector_create(const short source_class, const short destination_class, 
   return id;
 }
 
-void Connector_set_action(const short connector_id, const short slot_id, ActionFn action)
+void Connector_set_action(const ID_t connector_id, const ID_t slot_id, ActionFn action)
 {
   Connector *const connector = get_connector(connector_id);
 
@@ -110,7 +111,7 @@ void Connector_set_action(const short connector_id, const short slot_id, ActionF
   }
 }
 
-short Connector_register_class(const char *name)
+ID_t Connector_register_class(const char *name)
 {
   next_class_id++;
   classes[next_class_id].name = name;
@@ -118,7 +119,7 @@ short Connector_register_class(const char *name)
   return next_class_id;
 }
 
-int Connector_handle( const short connector, const short destination_id)
+Handle_t Connector_handle( const ID_t connector, const ID_t destination_id)
 {
   Handle handle;
 
@@ -128,7 +129,7 @@ int Connector_handle( const short connector, const short destination_id)
   return handle.ID;
 }
 
-void Connector_handle_execute(const int handle, const short slot_id, const short source_id)
+void Connector_handle_execute(const Handle_t handle, const ID_t slot_id, const ID_t source_id)
 {
   if (handle) {
     Connector *const connector = get_connector(((Handle)handle).connector);
@@ -141,5 +142,4 @@ void Connector_handle_execute(const int handle, const short slot_id, const short
     }
   }
 }
-
 

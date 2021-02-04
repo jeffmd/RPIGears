@@ -70,6 +70,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gles3.h"
 
+#include "static_array.h"
+#include "connector.h"
 #include "user_options.h"
 #include "user_options_ui.h"
 #include "gpu_texture.h"
@@ -95,9 +97,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern IMAGE_T rpi_image;
 
 static short render_tex;
-static short offscreen_fb;
 static short offscreen_draw;
-static short view3d_area;
+static ID_t offscreen_fb;
+static ID_t view3d_area;
 
 //static short view3d_area_2;
 
@@ -105,7 +107,7 @@ static void init_textures(void)
 {
    // load a texture buffer
    printf("creating Textures\n");
-   int tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
+   ID_t tex = GPU_texture_create(rpi_image.width, rpi_image.height, GPU_RGB8, rpi_image.pixel_data);
    //GPU_texture_mipmap(tex);
    DS_set_tex(tex);
 }
@@ -190,7 +192,7 @@ static void setup_test_quad(void)
   test_quad_add_texture(Font_texture(Font_active()), 0.5f);
 }
 
-static short get_view3d_area(void)
+static ID_t get_view3d_area(void)
 {
   if (!view3d_area) {
     view3d_area = UI_area_create();

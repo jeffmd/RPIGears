@@ -2,10 +2,11 @@
 
 #include <stdlib.h>
 
+#include "static_array.h"
 #include "tasks.h"
 #include "key_input.h"
 
-static short exit_task;
+static ID_t exit_task;
 static short exit_now;
 static const char exit_help[] = "esc or Enter - end program";
 
@@ -14,7 +15,7 @@ void Exit_enable(void)
   Task_run(exit_task);
 }
 
-static void exit_enable_key(const short souce_id, const short destination_id)
+static void exit_enable_key(const ID_t souce_id, const ID_t destination_id)
 {
   Exit_enable();
 }

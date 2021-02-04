@@ -9,6 +9,7 @@
 #include <X11/extensions/XShm.h>
 #include <assert.h>
 
+#include "static_array.h"
 #include "tasks.h"
 #include "xinput.h"
 #include "window.h"
@@ -26,7 +27,7 @@ static int resized = 1;
 static int useMITSHM = 0;
 static int minimized = 0;
 static int dirty = 1;
-static short event_task;
+static ID_t event_task;
 
 static XWindowAttributes window_attributes;
 static XShmSegmentInfo shmSInfo;

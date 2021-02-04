@@ -5,6 +5,7 @@
 #include <termio.h>
 #include <unistd.h>
 
+#include "static_array.h"
 #include "tasks.h"
 #include "key_action.h"
 #include "key_map.h"
@@ -22,9 +23,9 @@ typedef void (*UPDATE_KEY_DOWN)(const float);
 static struct termios saved_attributes;
 static int initialized = 0;
 
-static short KeyScan_task;
+static ID_t KeyScan_task;
 
-static short key_map = 0;
+static ID_t key_map = 0;
 
 // keyboard data
 UPDATE_KEY_DOWN key_down_update; // points to a function that gets executed each time a key goes down or repeats
@@ -33,7 +34,7 @@ short rate_enabled; // if enabled the change_rate will increase each frame
 float rate_direction; // direction and scale for rate change
 float rate_frame; // how much the rate changes each frame
 
-static short get_key_map(void)
+static ID_t get_key_map(void)
 {
   if (!key_map) {
     key_map = Key_Map_create();
@@ -161,7 +162,7 @@ static void do_KeyScan_task(void)
   }
 }
 
-static void print_help(const short souce_id, const short destination_id)
+static void print_help(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_print_help();
 }

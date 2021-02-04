@@ -35,7 +35,7 @@ typedef struct
 } Task;
 
 static Task tasks[TASKS_MAX_COUNT];
-static short next_deleted_task;
+static ID_t next_deleted_task;
 
 static uint current_ms; // current time in milliseconds
 static uint prev_ms;
@@ -55,13 +55,13 @@ static void update_current_ms(void)
   current_ms = getMilliseconds();
 }
 
-static inline short find_deleted_task_id(void)
+static inline ID_t find_deleted_task_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_task, tasks,
                             TASKS_MAX_COUNT, Task, "task");
 }
 
-static Task *get_task(short id)
+static Task *get_task(ID_t id)
 {
   if ((id < 0) | (id >= TASKS_MAX_COUNT)) {
     id = 0;
@@ -98,9 +98,9 @@ static void task_set_interval_ms(Task *task, const uint interval)
   task->next_ms = getMilliseconds() + interval;
 }
 
-short Task_create(const uint interval, Action dofunc)
+ID_t Task_create(const uint interval, Action dofunc)
 {
-  const short id = find_deleted_task_id();
+  const ID_t id = find_deleted_task_id();
   Task * const task = get_task(id);
 
   task->active = 1;
@@ -112,17 +112,17 @@ short Task_create(const uint interval, Action dofunc)
   return id;
 }
 
-void Task_set_action(const short id, Action dofunc)
+void Task_set_action(const ID_t id, Action dofunc)
 {
   get_task(id)->dofunc = dofunc;
 }
 
-void Task_set_interval(const short id, const uint interval)
+void Task_set_interval(const ID_t id, const uint interval)
 {
   task_set_interval_ms(get_task(id), interval);
 }
 
-uint Task_elapsed(const short id)
+uint Task_elapsed(const ID_t id)
 {
   return current_ms - get_task(id)->prev_ms;
 }
@@ -153,12 +153,12 @@ static void task_execute(Task * const task)
   }  
 }
 
-void Task_pause(const short id)
+void Task_pause(const ID_t id)
 {
   get_task(id)->state = TS_PAUSED;
 }
 
-void Task_run(const short id)
+void Task_run(const ID_t id)
 {
   Task * const task = get_task(id);
 

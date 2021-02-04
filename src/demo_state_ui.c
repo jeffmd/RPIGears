@@ -1,10 +1,13 @@
 // demo_state_ui.c
 
+#include <stdio.h>
+
 #include "gles3.h"
 
+#include "static_array.h"
+#include "connector.h"
 #include "key_input.h"
 #include "demo_state.h"
-#include "connector.h"
 #include "ui_widget_connector.h"
 #include "ui_checkbox.h"
 #include "ui_number.h"
@@ -15,49 +18,49 @@ enum DS_Field {
   DSF_rpm
 };
 
-static short ds_ui_connector;
-static short ds_ui_class;
+static ID_t ds_ui_connector;
+static ID_t ds_ui_class;
 
 static const char vbo_str[] = "VBO";
-static int vbo_ui_checkbox;
+static Handle_t vbo_ui_checkbox;
 
 static const char instances_str[] = "Instances";
-static int instances_ui_number;
+static Handle_t instances_ui_number;
 
 static const char rpm_str[] = "Gear RPM";
-static int rpm_ui_number;
+static Handle_t rpm_ui_number;
 
-static void vbo_toggle(const short souce_id, const short destination_id)
+static void vbo_toggle(const ID_t souce_id, const ID_t destination_id)
 {
   DS_toggle_VBO();
 }
 
-static void inc_instances(const short souce_id, const short destination_id)
+static void inc_instances(const ID_t souce_id, const ID_t destination_id)
 {
   DS_change_instances(1);
 }
 
-static void dec_instances(const short souce_id, const short destination_id)
+static void dec_instances(const ID_t souce_id, const ID_t destination_id)
 {
   DS_change_instances(-1);
 }
 
-static void key_dec_angleVel(const short souce_id, const short destination_id)
+static void key_dec_angleVel(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(DS_change_angleVel, -10.0f);
 }
 
-static void key_inc_angleVel(const short souce_id, const short destination_id)
+static void key_inc_angleVel(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(DS_change_angleVel, 10.0f);
 }
 
-static void key_angleVel_pause(const short souce_id, const short destination_id)
+static void key_angleVel_pause(const ID_t souce_id, const ID_t destination_id)
 {
   DS_angleVel_pause();
 }
 
-static short get_ds_ui_class(void)
+static ID_t get_ds_ui_class(void)
 {
   if (!ds_ui_class) {
     ds_ui_class = Connector_register_class("demo_state_ui");
@@ -66,7 +69,7 @@ static short get_ds_ui_class(void)
   return ds_ui_class;
 }
 
-static void ds_ui_update(const short source_id, const short destination_id)
+static void ds_ui_update(const ID_t source_id, const ID_t destination_id)
 {
   switch (destination_id) {
     case DSF_vbo:
@@ -83,7 +86,7 @@ static void ds_ui_update(const short source_id, const short destination_id)
   }
 }
 
-static void ds_ui_changed(const short source_id, const short destination_id)
+static void ds_ui_changed(const ID_t source_id, const ID_t destination_id)
 {
   switch (destination_id) {
     case DSF_vbo:
@@ -100,7 +103,7 @@ static void ds_ui_changed(const short source_id, const short destination_id)
   }
 }
 
-static short get_ds_ui_connector(void)
+static ID_t get_ds_ui_connector(void)
 {
   if (!ds_ui_connector) {
     ds_ui_connector = UI_widget_connector(get_ds_ui_class());
@@ -111,12 +114,12 @@ static short get_ds_ui_connector(void)
   return ds_ui_connector;
 }
 
-static const int get_ds_ui_handle(const short field)
+static const Handle_t get_ds_ui_handle(const short field)
 {
   return Connector_handle(get_ds_ui_connector(), field);
 }
 
-int DS_ui_vbo(void)
+Handle_t DS_ui_vbo(void)
 {
   if (!vbo_ui_checkbox) {
     vbo_ui_checkbox = UI_checkbox_create(vbo_str, get_ds_ui_handle(DSF_vbo));
@@ -125,7 +128,7 @@ int DS_ui_vbo(void)
   return vbo_ui_checkbox;
 }
 
-int DS_ui_instances(void)
+Handle_t DS_ui_instances(void)
 {
   if (!instances_ui_number) {
     instances_ui_number = UI_number_create(instances_str, get_ds_ui_handle(DSF_instances));
@@ -135,7 +138,7 @@ int DS_ui_instances(void)
   return instances_ui_number;
 }
 
-int DS_ui_rpm(void)
+Handle_t DS_ui_rpm(void)
 {
   if (!rpm_ui_number) {
     rpm_ui_number = UI_number_create(rpm_str, get_ds_ui_handle(DSF_rpm));

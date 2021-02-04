@@ -5,6 +5,7 @@
 
 #include "bcm_host.h"
 #include "gles3.h"
+#include "static_array.h"
 #include "gpu_framebuffer.h"
 #include "gpu_texture.h"
 #include "window.h"
@@ -20,9 +21,9 @@ typedef void (* Action)(void);
 static int frames; // number of frames drawn since the last frame/sec calculation
 static int lastFrames;
 
-static short frame_rate_task;
-static short FPS_task;
-static short refresh_task;
+static ID_t frame_rate_task;
+static ID_t FPS_task;
+static ID_t refresh_task;
 
 // Average Frames Per Second
 static float fps_setpoint;

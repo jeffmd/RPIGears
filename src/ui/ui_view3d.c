@@ -3,32 +3,33 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "static_array.h"
 #include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
 #include "scene.h"
 
-static short area_connector;
-static short ui_view3d_class;
+static ID_t area_connector;
+static ID_t ui_view3d_class;
 
 /*
-static void ui_view3d_enter(const short source_id, const short destination_id)
+static void ui_view3d_enter(const ID_t source_id, const ID_t destination_id)
 {
   //printf("enter view3d area %i\n", source_id);
 }
 
-static void ui_view3d_leave(const short source_id, const short destination_id)
+static void ui_view3d_leave(const ID_t source_id, const ID_t destination_id)
 {
   //printf("leave view3d area %i\n", source_id);
 }
 */
 
-static void ui_view3d_draw(const short source_id, const short destination_id)
+static void ui_view3d_draw(const ID_t source_id, const ID_t destination_id)
 {
   Scene_draw();
 }
 
-static short get_ui_view3d_class(void)
+static ID_t get_ui_view3d_class(void)
 {
   if (!ui_view3d_class) {
     ui_view3d_class = Connector_register_class("ui_view3d");
@@ -37,7 +38,7 @@ static short get_ui_view3d_class(void)
   return ui_view3d_class;
 }
 
-static short get_area_connector(void)
+static ID_t get_area_connector(void)
 {
   if (!area_connector) {
     printf("create ui view3d area connector: ");
@@ -50,12 +51,12 @@ static short get_area_connector(void)
   return area_connector;
 }
 
-static int get_handle(const short ui_view3d_id)
+static Handle_t get_handle(const ID_t ui_view3d_id)
 {
   return Connector_handle(get_area_connector(), ui_view3d_id);
 }
 
-int UI_view3d_create(void)
+Handle_t UI_view3d_create(void)
 {
   return get_handle(0);
 }

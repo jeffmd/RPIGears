@@ -6,6 +6,7 @@
 
 #include "gles3.h"
 
+#include "static_array.h"
 #include "gpu_quad.h"
 #include "gpu_uniform_buffer.h"
 #include "shaders.h"
@@ -17,8 +18,8 @@ enum {
 
 #define MAX_TEXTURES 5
 typedef struct {
-  short quad;
-  short textures[MAX_TEXTURES];
+  ID_t quad;
+  ID_t textures[MAX_TEXTURES];
   float alimits[MAX_TEXTURES];
   uint8_t texture_count;
   uint8_t texture_index;
@@ -27,12 +28,12 @@ typedef struct {
 
 static TQuad quad;
 
-static void test_quad_toggle(const short souce_id, const short destination_id)
+static void test_quad_toggle(const ID_t souce_id, const ID_t destination_id)
 {
   quad.toggle = !quad.toggle;
 }
 
-static void test_quad_next_texture(const short souce_id, const short destination_id)
+static void test_quad_next_texture(const ID_t souce_id, const ID_t destination_id)
 {
   quad.texture_index++;
   if (quad.texture_index >= quad.texture_count)
@@ -69,7 +70,7 @@ void test_quad_draw(void)
   }
 }
 
-void test_quad_add_texture(const short tex_id, const float alimit)
+void test_quad_add_texture(const ID_t tex_id, const float alimit)
 {
   GPU_quad_set_texture(quad.quad, tex_id);
   quad.texture_index = quad.texture_count;

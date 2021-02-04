@@ -3,18 +3,18 @@
 #ifndef TEXT_H_
   #define TEXT_H_
     
-  short Text_create(void);
-  void Text_set_font(const short id, const short font);
-  void Text_set_offset(const short id, const int width, const int height);
-  void Text_add(const short id, const int x, const int y, const char *str);
-  void Text_set_index(const short id, const int index);
-  short Text_index(const short id);
-  void Text_draw(const short id);
-  void Text_extent(const short id, int extent[2]);
-  short Text_pos_x(const short id);
-  short Text_pos_y(const short id);
-  void Text_sync_pos(const short id);
-  short Text_cursor_offset_x(const short id, const int index);
-  short Text_cursor_find_index(const short id, const short offset_x);
+  ID_t Text_create(void);
+  void Text_set_font(const ID_t id, const ID_t font);
+  void Text_set_offset(const ID_t id, const int width, const int height);
+  void Text_add(const ID_t id, const int x, const int y, const char *str);
+  void Text_set_index(const ID_t id, const int index);
+  short Text_index(const ID_t id);
+  void Text_draw(const ID_t id);
+  void Text_extent(const ID_t id, int extent[2]);
+  short Text_pos_x(const ID_t id);
+  short Text_pos_y(const ID_t id);
+  void Text_sync_pos(const ID_t id);
+  short Text_cursor_offset_x(const ID_t id, const int index);
+  short Text_cursor_find_index(const ID_t id, const short offset_x);
 
 #endif

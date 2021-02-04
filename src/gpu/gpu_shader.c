@@ -39,15 +39,15 @@ typedef struct {
   uint8_t vert_modid;
   uint8_t frag_modid;
   GLint linked;
-  short vert_unit;
-  short frag_unit;
+  ID_t vert_unit;
+  ID_t frag_unit;
   uint16_t glProgramObj;
   ShaderInputArrayTracker uniforms;
   ShaderInputArrayTracker attributes;
 } GPUShader;
 
 static GPUShader shaders[SHADER_MAX_COUNT];
-static short next_deleted_shader;
+static ID_t next_deleted_shader;
 
 
 static GPUShaderInput shader_inputs[SHADER_INPUTS_MAX_COUNT];
@@ -56,13 +56,13 @@ static uint16_t shader_inputs_count = 0;
 static short active_shader = 0;
 static uint8_t active_shader_modid = 0;
 
-static inline short find_deleted_shader_id(void)
+static inline ID_t find_deleted_shader_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_shader, shaders,
                             SHADER_MAX_COUNT, GPUShader, "shader");
 }
 
-static GPUShader *get_shader(short id)
+static GPUShader *get_shader(ID_t id)
 {
   if ((id < 0) | (id >= SHADER_MAX_COUNT)) {
     id = 0;
@@ -97,7 +97,7 @@ static void shader_attach(GPUShader *shader)
   shader->modid++;
 }
 
-static short find_shader(const char *vertex_file_name, const char *fragment_file_name)
+static ID_t find_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
   int id = 1;
   for (; id < SHADER_MAX_COUNT; id++) {
@@ -114,9 +114,9 @@ static short find_shader(const char *vertex_file_name, const char *fragment_file
   return 0;
 }
 
-short GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
+ID_t GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
 {
-  short id = find_shader(vertex_file_name, fragment_file_name);
+  ID_t id = find_shader(vertex_file_name, fragment_file_name);
   GPUShader *shader;
   
   if (!id) {
@@ -138,7 +138,7 @@ short GPU_shader(const char *vertex_file_name, const char *fragment_file_name)
   return id;
 }
 
-void GPU_shader_reset(const int id)
+void GPU_shader_reset(const ID_t id)
 {
   if (active_shader == id)
     glUseProgram(0);
@@ -219,7 +219,7 @@ static void shader_check_unit_updates(GPUShader *shader)
   
 }
 
-void GPU_shader_bind(const short id)
+void GPU_shader_bind(const ID_t id)
 {
   GPUShader *const shader = get_shader(id);
 
@@ -239,12 +239,12 @@ void GPU_shader_bind(const short id)
   }
 }
 
-uint8_t GPU_shader_modid(const short id)
+uint8_t GPU_shader_modid(const ID_t id)
 {
   return get_shader(id)->modid;
 }
 
-short GPU_shader_active_shader(void)
+ID_t GPU_shader_active_shader(void)
 {
   return active_shader;
 }
@@ -267,12 +267,12 @@ static inline GLint get_shader_input_location(const ShaderInputArrayTracker* inp
   return (input) ? input->location : -1;
 }
 
-GLint GPU_shader_uniform_location(const short id, const char *name)
+GLint GPU_shader_uniform_location(const ID_t id, const char *name)
 {
   return get_shader_input_location(&get_shader(id)->uniforms, name);
 }
 
-GLint GPU_shader_attribute_location(const short id, const char *name)
+GLint GPU_shader_attribute_location(const ID_t id, const char *name)
 {
   return get_shader_input_location(&get_shader(id)->attributes, name);
 }

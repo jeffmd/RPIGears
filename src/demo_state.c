@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "static_array.h"
 #include "gear.h"
 #include "window_manager.h"
 
@@ -13,8 +14,8 @@ typedef struct
 {
 // number of seconds to run the demo
    GLuint timeToRun;
-   short tex;
-   short gear1, gear2, gear3;
+   ID_t tex;
+   ID_t gear1, gear2, gear3;
    GLfloat LightSourcePosition[4];
    GLboolean LightDirty;
 
@@ -128,7 +129,7 @@ static void ds_build_gear3()
   state->gear3 = Gear_create(1.3f, 2.0f, 0.75f, 10, 0.7f, blue);
 }
 
-short DS_gear1(void)
+ID_t DS_gear1(void)
 {
   DEMO_STATE_T *state = get_demo_state();
   
@@ -139,7 +140,7 @@ short DS_gear1(void)
   return state->gear1;
 }
 
-short DS_gear2(void)
+ID_t DS_gear2(void)
 {
   DEMO_STATE_T *state = get_demo_state();
   
@@ -150,7 +151,7 @@ short DS_gear2(void)
   return state->gear2;
 }
 
-short DS_gear3(void)
+ID_t DS_gear3(void)
 {
   DEMO_STATE_T *state = get_demo_state();
   
@@ -166,7 +167,7 @@ GLuint DS_timeToRun(void)
   return get_demo_state()->timeToRun;
 }
 
-short DS_tex(void)
+ID_t DS_tex(void)
 {
   return get_demo_state()->tex;
 }

@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include "gles3.h"
-#include "gpu_texture.h"
 #include "static_array.h"
+#include "gpu_texture.h"
 
 #define GPU_FRAMEBUFFER_MAX_COUNT 200
 
@@ -23,23 +23,23 @@ typedef struct {
   uint8_t object;
   uint8_t dirty_flag;
   uint16_t width, height;
-  short attachments[GPU_FB_MAX_ATTACHEMENT];
+  ID_t attachments[GPU_FB_MAX_ATTACHEMENT];
 } GPUFrameBuffer;
 
 #define GPU_FB_ATTACHEMENT_IS_DIRTY(flag, type) ((flag & (1 << type)) != 0)
 #define GPU_FB_ATTACHEMENT_SET_DIRTY(flag, type) (flag |= (1 << type))
 
 static GPUFrameBuffer framebuffers[GPU_FRAMEBUFFER_MAX_COUNT];
-static short next_deleted_framebuffer;
-static short active_framebuffer;
+static ID_t next_deleted_framebuffer;
+static ID_t active_framebuffer;
 
-static inline short find_deleted_framebuffer_id(void)
+static inline ID_t find_deleted_framebuffer_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_framebuffer, framebuffers, 
                             GPU_FRAMEBUFFER_MAX_COUNT, GPUFrameBuffer, "Frame Buffer");
 }
 
-static GPUFrameBuffer *get_framebuffer(short id)
+static GPUFrameBuffer *get_framebuffer(ID_t id)
 {
   if ((id < 0) | (id >= GPU_FRAMEBUFFER_MAX_COUNT)) {
     id = 0;
@@ -56,10 +56,11 @@ static GLenum convert_attachment_type_to_gl(const GPUAttachmentType type)
     [GPU_FB_STENCIL_ATTACHMENT] = GL_STENCIL_ATTACHMENT,
     [GPU_FB_DEPTH_ATTACHMENT] = GL_DEPTH_ATTACHMENT
   };
+
   return table[type];
 }
 
-static GPUAttachmentType attachment_type_from_tex(const short tex)
+static GPUAttachmentType attachment_type_from_tex(const ID_t tex)
 {
   switch (GPU_texture_format(tex)) {
     case GPU_DEPTH32:
@@ -74,21 +75,21 @@ static GPUAttachmentType attachment_type_from_tex(const short tex)
   }
 }
 
-short GPU_framebuffer_active(void)
+ID_t GPU_framebuffer_active(void)
 {
   return active_framebuffer;
 }
 
-static void gpu_framebuffer_set_active(const short id)
+static void gpu_framebuffer_set_active(const ID_t id)
 {
   active_framebuffer = id;
 }
 
-short GPU_framebuffer_create(void)
+ID_t GPU_framebuffer_create(void)
 {
   /* We generate the FB object later at first use in order to
    * create the framebuffer in the right opengl context. */
-  const int id = find_deleted_framebuffer_id();
+  const ID_t id = find_deleted_framebuffer_id();
   get_framebuffer(id)->refcount = 1;
 
   return id;
@@ -101,7 +102,7 @@ static void gpu_framebuffer_init(GPUFrameBuffer *fb)
   fb->object = obj;
 }
 
-void GPU_framebuffer_free(const short id)
+void GPU_framebuffer_free(const ID_t id)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
   
@@ -125,7 +126,7 @@ void GPU_framebuffer_free(const short id)
   }
 }
 
-void GPU_framebuffer_texture_detach(const short id, const short tex)
+void GPU_framebuffer_texture_detach(const ID_t id, const ID_t tex)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
 
@@ -137,15 +138,15 @@ void GPU_framebuffer_texture_detach(const short id, const short tex)
   }
 }
 
-void GPU_framebuffer_texture_detach_all(const short tex)
+void GPU_framebuffer_texture_detach_all(const ID_t tex)
 {
-  for (int id = 1; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
+  for (ID_t id = 1; id < GPU_FRAMEBUFFER_MAX_COUNT; id++) {
     GPU_framebuffer_texture_detach(id, tex);
   }
 
 }
 
-void GPU_framebuffer_texture_attach(const short id, const short tex)
+void GPU_framebuffer_texture_attach(const ID_t id, const ID_t tex)
 {
   GPUFrameBuffer *const fb = get_framebuffer(id);
   const GPUAttachmentType type = attachment_type_from_tex(tex);
@@ -158,7 +159,7 @@ void GPU_framebuffer_texture_attach(const short id, const short tex)
 
 }
 
-static void gpu_framebuffer_attachment_attach(const short tex, const GPUAttachmentType attach_type)
+static void gpu_framebuffer_attachment_attach(const ID_t tex, const GPUAttachmentType attach_type)
 {
   const int tex_bind = GPU_texture_opengl_bindcode(tex);
   const GLenum target = GPU_texture_target(tex);
@@ -217,7 +218,7 @@ void GPU_framebuffer_done(void)
   glDiscardFramebufferEXT( GL_FRAMEBUFFER , 3, attachments);
 }
 
-void GPU_framebuffer_bind(const short id)
+void GPU_framebuffer_bind(const ID_t id)
 {
   GPU_framebuffer_done();
   GPUFrameBuffer *const fb = get_framebuffer(id);

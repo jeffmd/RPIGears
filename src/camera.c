@@ -5,9 +5,9 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "static_array.h"
 #include "matrix_math.h"
 #include "key_input.h"
-#include "static_array.h"
 
 typedef struct {
   uint8_t active;
@@ -27,18 +27,18 @@ typedef struct {
 
 static GLfloat tm[16];
 static Camera cameras[CAMERA_MAX_COUNT];
-static short next_deleted_camera;
+static ID_t next_deleted_camera;
 
 
 static Camera *active_camera;
-static short default_camera;
+static ID_t default_camera;
 
-static inline short find_deleted_camera(void)
+static inline ID_t find_deleted_camera(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_camera, cameras, CAMERA_MAX_COUNT, Camera, "Camera");
 }
 
-static Camera *get_camera(short id)
+static Camera *get_camera(ID_t id)
 {
   if ((id < 0) | (id >= CAMERA_MAX_COUNT)) {
     id = 0;
@@ -59,9 +59,9 @@ static void camera_init(Camera *camera)
   camera->dirty = GL_TRUE;
 }
 
-short Camera_create(void)
+ID_t Camera_create(void)
 {
-  const short id = find_deleted_camera();
+  const ID_t id = find_deleted_camera();
   Camera *const camera = get_camera(id);
   camera->active = 1;
   camera_init(camera);
@@ -87,32 +87,32 @@ static void camera_change_y(const float val)
   active_camera->dirty = GL_TRUE;
 }
 
-static void camera_key_reverse(const short souce_id, const short destination_id)
+static void camera_key_reverse(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_z, -1.0f);
 }
 
-static void camera_key_forward(const short souce_id, const short destination_id)
+static void camera_key_forward(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_z, 1.0f);
 }
 
-static void camera_key_right(const short souce_id, const short destination_id)
+static void camera_key_right(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_x, -1.0f);
 }
 
-static void camera_key_left(const short souce_id, const short destination_id)
+static void camera_key_left(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_x, 1.0f);
 }
           
-static void camera_key_down(const short souce_id, const short destination_id)
+static void camera_key_down(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_y, 1.0f);
 }
 
-static void camera_key_up(const short souce_id, const short destination_id)
+static void camera_key_up(const ID_t souce_id, const ID_t destination_id)
 {
   Key_input_set_update(camera_change_y, -1.0f);
 }
@@ -127,7 +127,7 @@ static void camera_set_keys(void)
   Key_add_action('s', camera_key_down, "move camera down");  
 }
 
-static short get_default_camera(void)
+static ID_t get_default_camera(void)
 {
   if (!default_camera) {
     default_camera = Camera_create();
@@ -214,7 +214,7 @@ GLfloat *Camera_view_matrix(void)
   return camera->ViewMatrix;
 }
 
-void Camera_set_active(const short id)
+void Camera_set_active(const ID_t id)
 {
   active_camera = get_camera(id);
 }

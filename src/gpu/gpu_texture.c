@@ -8,9 +8,9 @@
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 
+#include "static_array.h"
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"
-#include "static_array.h"
 
 #define GPU_TEXTURE_MAX_COUNT 200
 
@@ -30,7 +30,7 @@ typedef struct {
 } GPUTexture;
 
 static GPUTexture textures[GPU_TEXTURE_MAX_COUNT];
-static short next_deleted_texture;
+static ID_t next_deleted_texture;
 
 static struct egl_image_brcm_vcsm_info vcsm_info;
 static EGLImageKHR eglFbImage = EGL_NO_IMAGE_KHR;
@@ -80,13 +80,13 @@ static void gpu_texture_memory_footprint_remove(GPUTexture *tex)
   memory_usage -= gpu_texture_memory_footprint_compute(tex);
 }
 
-static inline short find_deleted_texture_id(void)
+static inline ID_t find_deleted_texture_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_texture, textures,
                             GPU_TEXTURE_MAX_COUNT, GPUTexture, "Texture");;
 }
 
-static GPUTexture *get_texture(short id)
+static GPUTexture *get_texture(ID_t id)
 {
   if ((id < 0) | (id >= GPU_TEXTURE_MAX_COUNT)) {
     id = 0;
@@ -154,10 +154,10 @@ static void init_texture_vcsm(GPUTexture *tex)
   }
 }
 
-short GPU_texture_create(const int w, const int h,
+ID_t GPU_texture_create(const int w, const int h,
             const GPUTextureFormat tex_format, const void *pixels)
 {
-  const short id = find_deleted_texture_id();
+  const ID_t id = find_deleted_texture_id();
   GPUTexture *const tex = get_texture(id);
 
   tex->width = w;
@@ -182,7 +182,7 @@ short GPU_texture_create(const int w, const int h,
   return id;
 }
 
-void GPU_texture_sub_image(const short id, const GLint xoffset,
+void GPU_texture_sub_image(const ID_t id, const GLint xoffset,
   const GLint yoffset, const GLsizei width,const GLsizei height, const void *pixels)
 {
   GPUTexture * const tex = get_texture(id);
@@ -196,7 +196,7 @@ void GPU_texture_sub_image(const short id, const GLint xoffset,
   }
 }
 
-void GPU_texture_bind(const short id, const int slot)
+void GPU_texture_bind(const ID_t id, const int slot)
 {
   if (slot >= 8) {
     printf("Not enough texture slots.\n");
@@ -211,7 +211,7 @@ void GPU_texture_bind(const short id, const int slot)
   tex->slot = slot;
 }
 
-void GPU_texture_mipmap(const short id)
+void GPU_texture_mipmap(const ID_t id)
 {
   GPUTexture * const tex = get_texture(id);
   if (tex->format < GPU_STENCIL8) {
@@ -221,7 +221,7 @@ void GPU_texture_mipmap(const short id)
   }
 }
 
-void GPU_texture_unbind(const short id)
+void GPU_texture_unbind(const ID_t id)
 {
   GPUTexture * const tex = get_texture(id);
   if (tex->slot == -1)
@@ -233,7 +233,7 @@ void GPU_texture_unbind(const short id)
   tex->slot = -1;
 }
 
-void GPU_texture_free(const short id)
+void GPU_texture_free(const ID_t id)
 {
   GPUTexture * const tex = get_texture(id);
   tex->refcount--;
@@ -251,43 +251,43 @@ void GPU_texture_free(const short id)
   }
 }
 
-int GPU_texture_bound_slot(const short id)
+int GPU_texture_bound_slot(const ID_t id)
 {
   return get_texture(id)->slot;
 }
 
 
-void GPU_texture_ref(const short id)
+void GPU_texture_ref(const ID_t id)
 {
   get_texture(id)->refcount++;
 }
 
-int GPU_texture_target(const short id)
+int GPU_texture_target(const ID_t id)
 {
   return get_texture(id)->target;
 }
 
-int GPU_texture_width(const short id)
+int GPU_texture_width(const ID_t id)
 {
   return get_texture(id)->width;
 }
 
-int GPU_texture_height(const short id)
+int GPU_texture_height(const ID_t id)
 {
   return get_texture(id)->height;
 }
 
-GPUTextureFormat GPU_texture_format(const short id)
+GPUTextureFormat GPU_texture_format(const ID_t id)
 {
   return get_texture(id)->format;
 }
 
-GLboolean GPU_texture_cube(const short id)
+GLboolean GPU_texture_cube(const ID_t id)
 {
   return (get_texture(id)->target == GL_TEXTURE_CUBE_MAP);
 }
 
-GLuint GPU_texture_opengl_bindcode(const short id)
+GLuint GPU_texture_opengl_bindcode(const ID_t id)
 {
   return get_texture(id)->bindcode;
 }

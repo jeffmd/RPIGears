@@ -1,11 +1,14 @@
 // ui_icon.h
 
+#include <stdio.h>
+
+#include "static_array.h"
 #include "line_art.h"
 
-static short box_batch_part;
-static short checked_box_batch_part;
+static ID_t box_batch_part;
+static ID_t checked_box_batch_part;
 
-static short get_box_batch_part(void)
+static ID_t get_box_batch_part(void)
 {
   if(!box_batch_part) {
     box_batch_part = Line_Art_create();
@@ -20,7 +23,7 @@ static short get_box_batch_part(void)
   return box_batch_part;
 }
 
-static short get_checked_box_batch_part(void)
+static ID_t get_checked_box_batch_part(void)
 {
   if(!checked_box_batch_part) {
     checked_box_batch_part = Line_Art_create();

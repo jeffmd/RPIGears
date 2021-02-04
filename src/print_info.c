@@ -6,6 +6,7 @@
 
 #include "gles3.h"
 #include "EGL/egl.h"
+#include "static_array.h"
 #include "key_input.h"
 
 void Print_GLInfo(void)
@@ -46,6 +47,7 @@ void Print_GL_Limits(void)
   printf("NUM_COMPRESSED_TEXTURE_FORMATS: %i\n", num[0]);
   const GLint text_cnt = num[0];
   glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, num);
+
   printf("compressed texture formats: ");
   for (int i = 0; i < text_cnt; i++) {
     printf("0x%X, ", num[i]);

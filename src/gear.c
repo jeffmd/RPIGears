@@ -9,17 +9,16 @@
 
 #include "gles3.h"
 
+#include "static_array.h"
 #include "gpu_vertex_format.h"
 #include "gpu_vertex_buffer.h"
 #include "gpu_index_buffer.h"
 #include "gpu_uniform_buffer.h"
 #include "gpu_batch.h"
 
-#include "static_array.h"
-
 typedef struct {
   uint8_t active;
-  short batch; 
+  ID_t batch; 
   GLfloat color[4];
 } Gear;
 
@@ -32,16 +31,16 @@ enum {
 #define GEAR_MAX_COUNT 10
   
 static Gear gears[GEAR_MAX_COUNT];
-static short next_deleted_gear;
+static ID_t next_deleted_gear;
 
-static short vformat;
+static ID_t vformat;
 
-static inline short find_deleted_gear(void)
+static inline ID_t find_deleted_gear(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_gear, gears, GEAR_MAX_COUNT, Gear, "Gear");
 }
 
-static Gear *get_gear(short id)
+static Gear *get_gear(ID_t id)
 {
   if ((id < 0) | (id >= GEAR_MAX_COUNT)) {
     id = 0;
@@ -52,7 +51,7 @@ static Gear *get_gear(short id)
 }
 
 
-static short gear_vformat(void)
+static ID_t gear_vformat(void)
 {
   if (!vformat) {
     vformat = GPU_vertex_format_create();
@@ -77,7 +76,7 @@ static short gear_vformat(void)
           tooth_depth - depth of tooth
  
  **/
-short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
+ID_t Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
           const GLfloat width, const GLint teeth,
           const GLfloat tooth_depth,
           const GLfloat color[4])
@@ -94,7 +93,7 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   GLfloat r2_sin_ta_1da;
   GLshort ix0, ix1, ix2, ix3, ix4, idx;
   
-  const short id = find_deleted_gear();
+  const ID_t id = find_deleted_gear();
   Gear *gear = get_gear(id);
   gear->active = 1;
   
@@ -105,14 +104,14 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
   
   gear->batch = GPU_batch_create();
 
-  const short ibuff = GPU_batch_index_buffer(gear->batch);
+  const ID_t ibuff = GPU_batch_index_buffer(gear->batch);
   GPU_batch_set_indices_draw_count(gear->batch, nindices);
   GPU_indexbuf_set_add_count(ibuff, nindices);
   
-  const short ubuff = GPU_batch_uniform_buffer(gear->batch);
+  const ID_t ubuff = GPU_batch_uniform_buffer(gear->batch);
   GPU_uniformbuffer_add_4f(ubuff, "MaterialColor", gear->color);
   
-  const short vbuff = GPU_batch_vertex_buffer(gear->batch);
+  const ID_t vbuff = GPU_batch_vertex_buffer(gear->batch);
   GPU_batch_set_vertices_draw_count(gear->batch, nvertices);
   GPU_vertbuf_set_vertex_format(vbuff, gear_vformat());
   GPU_vertbuf_set_add_count(vbuff, nvertices);
@@ -268,11 +267,13 @@ short Gear_create( const GLfloat inner_radius, const GLfloat outer_radius,
     INDEX(ix0, ix1, ix2);
     INDEX(ix1, ix3, ix2);
   }
-  printf("gear vertices: %i\n", idx); 
+
+  printf("gear vertices: %i\n", idx);
+
   return id;
 }
 
-void Gear_delete(const short id)
+void Gear_delete(const ID_t id)
 {
   Gear *gear = get_gear(id);
   if (gear->active) {
@@ -283,29 +284,29 @@ void Gear_delete(const short id)
 
 void Gear_delete_all(void)
 {
-  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+  for ( ID_t id = 1; id < GEAR_MAX_COUNT; id++) {
     Gear_delete(id);
   }
 }
 
-void Gear_draw(const short id, const GLenum drawMode, const GLuint instances)
+void Gear_draw(const ID_t id, const GLenum drawMode, const GLuint instances)
 {
   GPU_batch_draw(get_gear(id)->batch, drawMode, instances);
 }
 
-void Gear_use_BO(const short id)
+void Gear_use_BO(const ID_t id)
 {
   GPU_batch_use_BO(get_gear(id)->batch);
 }
 
-void Gear_no_BO(const short id)
+void Gear_no_BO(const ID_t id)
 {
   GPU_batch_no_BO(get_gear(id)->batch);
 }
 
 void Gear_all_use_BO(void)
 {
-  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+  for ( ID_t id = 1; id < GEAR_MAX_COUNT; id++) {
     Gear *gear = get_gear(id);
     if (gear->active) {
       GPU_batch_use_BO(gear->batch);
@@ -315,7 +316,7 @@ void Gear_all_use_BO(void)
 
 void Gear_all_no_BO(void)
 {
-  for ( short id = 1; id < GEAR_MAX_COUNT; id++) {
+  for ( ID_t id = 1; id < GEAR_MAX_COUNT; id++) {
     Gear *gear = get_gear(id);
     if (gear->active) {
       GPU_batch_no_BO(gear->batch);

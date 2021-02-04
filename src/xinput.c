@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <X11/Xutil.h>
 
+#include "static_array.h"
 #include "key_input.h"
 #include "ui_area_action.h"
 

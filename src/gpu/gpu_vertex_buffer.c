@@ -4,13 +4,13 @@
 #include <stdlib.h>
 
 #include "gles3.h"
-#include "gpu_vertex_format.h"
 #include "static_array.h"
+#include "gpu_vertex_format.h"
 
 typedef struct {
   uint8_t active;            // not zero if vertex buffer is not deleted
   uint8_t ready;             // not zero if ready for adding data to buffer
-  short vformat;             // vertex format ID
+  ID_t vformat;              // vertex format ID
   GLuint data_idx[VERT_ATTRIB_MAX];     // current index in data buffer for writing
   GLuint alloc_count;        // number of verts allocated in data buffer
   GLuint add_count;          // number of verts to add to data buffer when resize occurs
@@ -23,15 +23,15 @@ typedef struct {
 #define DEFAULT_COUNT 100
 
 static GPUVertBuffer vert_buffers[VERT_BUFFER_MAX_COUNT];
-static short next_deleted_vert_buffer;
+static ID_t next_deleted_vert_buffer;
 
-static inline short find_deleted_vert_buffer_id(void)
+static inline ID_t find_deleted_vert_buffer_id(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_vert_buffer, vert_buffers,
                             VERT_BUFFER_MAX_COUNT, GPUVertBuffer, "vertex buffer");
 }
 
-static GPUVertBuffer *get_vert_buffer(short id)
+static GPUVertBuffer *get_vert_buffer(ID_t id)
 {
   if ((id < 0) | (id >= VERT_BUFFER_MAX_COUNT)) {
     id = 0;
@@ -68,9 +68,9 @@ static void vertbuf_init(GPUVertBuffer *vbuff)
 }
 
 // create new GPUVertBuffer
-short GPU_vertbuf_create(void)
+ID_t GPU_vertbuf_create(void)
 {
-  const short id = find_deleted_vert_buffer_id();
+  const ID_t id = find_deleted_vert_buffer_id();
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   vbuff->active = 1;
   vertbuf_init(vbuff);
@@ -78,7 +78,7 @@ short GPU_vertbuf_create(void)
   return id;
 }
 
-void GPU_vertbuf_delete(const short id)
+void GPU_vertbuf_delete(const ID_t id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
@@ -89,22 +89,22 @@ void GPU_vertbuf_delete(const short id)
     next_deleted_vert_buffer = id;
 }
 
-void GPU_vertbuf_set_vertex_format(const short id, const short vformat)
+void GPU_vertbuf_set_vertex_format(const ID_t id, const short vformat)
 {
   get_vert_buffer(id)->vformat = vformat;
 }
 
-void GPU_vertbuf_set_add_count(const short id, const GLuint count)
+void GPU_vertbuf_set_add_count(const ID_t id, const GLuint count)
 {
   get_vert_buffer(id)->add_count = count;
 }
 
-GLuint GPU_vertbuf_index(const short id)
+GLuint GPU_vertbuf_index(const ID_t id)
 {
   return get_vert_buffer(id)->data_idx[0];
 }
 
-void GPU_vertbuf_set_index(const short id, const GLuint index)
+void GPU_vertbuf_set_index(const ID_t id, const GLuint index)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   
@@ -172,7 +172,7 @@ static void *vertbuf_attr_data(GPUVertBuffer *vbuff, const GLuint attribute_id)
   return vbuff->data + (idx * stride) + GPU_vertex_format_offset(vbuff->vformat, attribute_id);  
 }
 
-void GPU_vertbuf_add_4(const short id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
+void GPU_vertbuf_add_4(const ID_t id, const GLuint attribute_id, const GLfloat val1, const GLfloat val2, const GLfloat val3, const GLfloat val4)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
@@ -190,7 +190,7 @@ void GPU_vertbuf_add_4(const short id, const GLuint attribute_id, const GLfloat 
   }
 }
 
-void GPU_vertbuf_read_data(const short id, const GLuint attribute_id, GLfloat val[4])
+void GPU_vertbuf_read_data(const ID_t id, const GLuint attribute_id, GLfloat val[4])
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
@@ -208,7 +208,7 @@ void GPU_vertbuf_read_data(const short id, const GLuint attribute_id, GLfloat va
   }
 }
 
-void GPU_vertbuf_use_BO(const short id)
+void GPU_vertbuf_use_BO(const ID_t id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
@@ -217,13 +217,13 @@ void GPU_vertbuf_use_BO(const short id)
   }
 }
 
-void GPU_vertbuf_no_BO(const short id)
+void GPU_vertbuf_no_BO(const ID_t id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
   delete_vbo(vbuff);
 }
 
-void GPU_vertbuf_bind(const short id)
+void GPU_vertbuf_bind(const ID_t id)
 {
   GPUVertBuffer *const vbuff = get_vert_buffer(id);
 
