@@ -43,7 +43,7 @@ typedef struct {
 #define BATCHPART_MAX_COUNT 100
 
 static GPUBatch batches[BATCH_MAX_COUNT];
-static short next_deleted_batch;
+static ID_t next_deleted_batch;
 
 static GPUBatchPart batch_parts[BATCHPART_MAX_COUNT];
 static ID_t next_deleted_batchpart;
