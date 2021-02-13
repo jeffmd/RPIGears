@@ -15,8 +15,7 @@
 #include "user_options_ui.h"
 #include "demo_state_ui.h"
 #include "window_manager_ui.h"
-#include "ui_slider.h"
-#include "ui_button.h"
+#include "ui_scrollbar.h"
 
 static const char ver_str[] = "RPIGears ver: 1.0 GLES2.0";
 static Handle_t ver_ui_text;
@@ -114,8 +113,6 @@ void Stats_ui_set_parent_area(const ID_t parent_area)
 {
   UI_area_add(parent_area, get_stats_area());
   UI_area_add(parent_area, get_stats_select_area());
-  UI_area_add_handle(parent_area, UI_slider_create(0), 350, 20);
-  UI_area_add_handle(parent_area, UI_button_create("t1", 0), 350, 70);
-  UI_area_add_handle(parent_area, UI_button_create("t2", 0), 350, 100);
+  UI_area_add_handle(parent_area, UI_scrollbar_create(0), 350, 20);
 }
 
