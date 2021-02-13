@@ -21,7 +21,7 @@ typedef struct {
 } ClassReg;
 
 typedef union {
-  Handle_t ID;
+  Handle_t id;
   struct {
     ID_t destination_id;
     ID_t connector;
@@ -121,12 +121,9 @@ ID_t Connector_register_class(const char *name)
 
 Handle_t Connector_handle( const ID_t connector, const ID_t destination_id)
 {
-  Handle handle;
+  const Handle handle = {.destination_id = destination_id, .connector = connector};
 
-  handle.destination_id = destination_id;
-  handle.connector = connector;
-
-  return handle.ID;
+  return handle.id;
 }
 
 void Connector_handle_execute(const Handle_t handle, const ID_t slot_id, const ID_t source_id)
