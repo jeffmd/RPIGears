@@ -1,4 +1,4 @@
-VPATH = src:include:src/gpu:src/ui:obj
+VPATH = src:include:src/connector:src/gpu:src/ui:obj
 OBJS = $(addprefix obj/, RPIGears.o matrix_math.o gear.o user_options.o window.o print_info.o \
 	demo_state.o key_input.o tasks.o scene.o RPi_Logo256.o camera.o \
 	xwindow.o xinput.o static_array.o gles3.o shaders.o gldebug.o \
@@ -18,7 +18,7 @@ BIN = RPIGears
 CFLAGS += -pipe -Wall -ffast-math -fsingle-precision-constant -mfp16-format=alternative 
 LDFLAGS += -L/opt/vc/lib/ -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lvcsm -lrt -lm -lX11 -lXext -lfreetype
 
-INCLUDES+=-Iinclude -Iinclude/gpu -Iinclude/ui -I/opt/vc/include/ -I/usr/include/freetype2
+INCLUDES+=-Iinclude -Iinclude/connector -Iinclude/gpu -Iinclude/ui -I/opt/vc/include/ -I/usr/include/freetype2
 
 CFLAGS +=$(INCLUDES) -g -Og -MMD -MP
 

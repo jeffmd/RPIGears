@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "connector.h"
 #include "key_map.h"
@@ -19,7 +20,7 @@ typedef struct {
   ID_t area;
   short cur_travel;
   short max_travel;
-  Handle_t widget_handle;
+  Plug_t widget_plug;
   float normal_scale[2];
   float normal_offset[2];
   float select_scale[2];
@@ -55,7 +56,7 @@ static UI_Slider *get_ui_slider(ID_t id)
 static void ui_slider_init(UI_Slider *ui_slider)
 {
   ui_slider->cur_travel = 0;
-  ui_slider->max_travel = 100;
+  ui_slider->max_travel = 90;
   ui_slider->sliding = 0;
 }
 
@@ -185,7 +186,7 @@ static void ui_slider_area_pointer_drag(const ID_t area_id, const ID_t ui_slider
     if (delta != 0) {
       ui_slider->cur_travel = travel;
       UI_area_change_offset(area_id, 0, delta);
-      UI_widget_changed(ui_slider->widget_handle, ui_slider_id);
+      UI_widget_changed(ui_slider->widget_plug, ui_slider_id);
     }
   }
 }
@@ -205,24 +206,24 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static Handle_t get_ui_slider_area_handle(const ID_t ui_slider_id)
+static Plug_t get_ui_slider_area_plug(const ID_t ui_slider_id)
 {
-  return Connector_handle(get_area_connector(), ui_slider_id);
+  return Connector_plug(get_area_connector(), ui_slider_id);
 }
 
-void UI_slider_connect_widget(const ID_t ui_slider_id, const Handle_t widget_handle)
+void UI_slider_connect_widget(const ID_t ui_slider_id, const Plug_t widget_plug)
 {
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
-  ui_slider->widget_handle = widget_handle;
+  ui_slider->widget_plug = widget_plug;
 }
 
-Handle_t UI_slider_create(const Handle_t widget_handle)
+Plug_t UI_slider_create(const Plug_t widget_plug)
 {
   const ID_t id = find_deleted_ui_slider();
   UI_Slider *const ui_slider = get_ui_slider(id);
   ui_slider->active = 1;
   ui_slider_init(ui_slider);
-  UI_slider_connect_widget(id, widget_handle);
+  UI_slider_connect_widget(id, widget_plug);
 
-  return get_ui_slider_area_handle(id);
+  return get_ui_slider_area_plug(id);
 }

@@ -3,6 +3,6 @@
 #ifndef _UI_VIEW3D_H_
   #define _UI_VIEW3D_H_
 
-  Handle_t UI_view3d_create(void);
+  Plug_t UI_view3d_create(void);
 
 #endif

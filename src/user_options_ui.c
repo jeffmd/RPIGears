@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
-#include "static_array.h"
+#include "id_plug.h"
 #include "user_options.h"
 #include "window.h"
 #include "key_input.h"
@@ -12,7 +12,7 @@
 #include "ui_checkbox.h"
 
 static const char vsync_str[] = "vsync";
-static Handle_t vsync_ui_checkbox;
+static Plug_t vsync_ui_checkbox;
 static ID_t vsync_ui_checkbox_connector;
 static ID_t user_options_ui_class;
 
@@ -54,15 +54,15 @@ static ID_t get_vsync_ui_checkbox_connector(void)
   return vsync_ui_checkbox_connector;
 }
 
-static const Handle_t get_vsync_checkbox_handle(void)
+static const Plug_t get_vsync_checkbox_plug(void)
 {
-  return Connector_handle(get_vsync_ui_checkbox_connector(), 0);
+  return Connector_plug(get_vsync_ui_checkbox_connector(), 0);
 }
 
-Handle_t User_options_ui_vsync(void)
+Plug_t User_options_ui_vsync(void)
 {
   if (!vsync_ui_checkbox) {
-    vsync_ui_checkbox = UI_checkbox_create(vsync_str, get_vsync_checkbox_handle());
+    vsync_ui_checkbox = UI_checkbox_create(vsync_str, get_vsync_checkbox_plug());
   }
 
   return vsync_ui_checkbox;

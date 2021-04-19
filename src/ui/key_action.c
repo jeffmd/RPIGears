@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 
 #define KEY_ACTION_MAX_COUNT 100

@@ -4,6 +4,7 @@
 
 #include "gles3.h"
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "gpu_index_buffer.h"
 #include "gpu_vertex_format.h"
@@ -13,7 +14,7 @@
 
 typedef struct {
   uint8_t modid;
-  ID_t shader;               // the shader used for binding
+  ID_t shader;                // the shader used for binding
   GLuint vaoId;               // ID for vertex array object
 } ShaderVAO;
 

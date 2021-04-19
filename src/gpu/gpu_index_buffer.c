@@ -5,6 +5,7 @@
 
 #include "gles3.h"
 
+#include "id_plug.h"
 #include "static_array.h"
 
 typedef struct {

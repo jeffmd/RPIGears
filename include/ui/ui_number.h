@@ -3,8 +3,8 @@
 #ifndef _UI_NUMBER_H_
   #define _UI_NUMBER_H_
 
-  Handle_t UI_number_create(const char *str, const int widget_handle);
-  void UI_number_connect_widget(const ID_t checkbox_id, const int widget_handle);
+  Plug_t UI_number_create(const char *str, const Plug_t widget_plug);
+  void UI_number_connect_widget(const ID_t checkbox_id, const Plug_t widget_plug);
   void UI_number_update_float(const ID_t id, const float val);
   void UI_number_update_int(const ID_t id, const int val);
   float UI_number_float_change(const ID_t number_id);

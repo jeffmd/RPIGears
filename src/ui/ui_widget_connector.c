@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "connector.h"
 
 enum Events {
@@ -32,21 +32,21 @@ ID_t UI_widget_connector(const ID_t destination_class)
 
 void UI_widget_connect_changed(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnChange, action);
+  Connector_set_pin_action(connector_id, OnChange, action);
 }
 
 void UI_widget_connect_update(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnUpdate, action);
+  Connector_set_pin_action(connector_id, OnUpdate, action);
 }
 
-void UI_widget_changed(const Handle_t handle, const ID_t destination_id)
+void UI_widget_changed(const Plug_t widget_plug, const ID_t ui_id)
 {
-  Connector_handle_execute(handle, OnChange, destination_id);
+  Connector_plug_execute(widget_plug, OnChange, ui_id);
 }
 
-void UI_widget_update(const Handle_t handle, const ID_t destination_id)
+void UI_widget_update(const Plug_t widget_plug, const ID_t ui_id)
 {
-  Connector_handle_execute(handle, OnUpdate, destination_id);
+  Connector_plug_execute(widget_plug, OnUpdate, ui_id);
 }
 

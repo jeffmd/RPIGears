@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "connector.h"
 #include "ui_area.h"
@@ -139,12 +140,12 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static Handle_t get_ui_text_handle(const ID_t ui_text_id)
+static Plug_t get_ui_text_plug(const ID_t ui_text_id)
 {
-  return Connector_handle(get_area_connector(), ui_text_id);
+  return Connector_plug(get_area_connector(), ui_text_id);
 }
 
-Handle_t UI_text_create(const char *str)
+Plug_t UI_text_create(const char *str)
 {
   const ID_t id = find_deleted_ui_text();
   UI_Text *const ui_text = get_ui_text(id);
@@ -153,7 +154,7 @@ Handle_t UI_text_create(const char *str)
 
   Text_add(get_text(ui_text), 0, 0, str);
 
-  return get_ui_text_handle(id);
+  return get_ui_text_plug(id);
 }
 
 ID_t UI_text_text_id(const ID_t id)

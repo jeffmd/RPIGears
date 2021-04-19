@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
-#include "static_array.h"
+#include "id_plug.h"
 #include "gpu_shader.h"
 
 static const char blinn_phong_vert[] = "blinn_phong_vert.glsl";

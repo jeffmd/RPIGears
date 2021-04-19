@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "line_art.h"
 
 static ID_t box_batch_part;

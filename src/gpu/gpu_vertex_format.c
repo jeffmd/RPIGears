@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "gles3.h"
+#include "id_plug.h"
 #include "static_array.h"
 #include "gpu_shader.h"
 

@@ -5,7 +5,7 @@
 
 #include "bcm_host.h"
 #include "gles3.h"
-#include "static_array.h"
+#include "id_plug.h"
 #include "gpu_framebuffer.h"
 #include "gpu_texture.h"
 #include "window.h"

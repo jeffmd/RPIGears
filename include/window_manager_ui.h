@@ -3,6 +3,6 @@
 #ifndef _WINDOW_MANAGER_UI_H_
   #define _WINDOW_MANAGER_UI_H_
 
-  Handle_t WM_ui_fps(void);
+  Plug_t WM_ui_fps(void);
 
 #endif

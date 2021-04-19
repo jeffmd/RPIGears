@@ -4,7 +4,7 @@
 
 #include "gles3.h"
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "connector.h"
 #include "key_input.h"
 #include "demo_state.h"
@@ -22,13 +22,13 @@ static ID_t ds_ui_connector;
 static ID_t ds_ui_class;
 
 static const char vbo_str[] = "VBO";
-static Handle_t vbo_ui_checkbox;
+static Plug_t vbo_ui_checkbox;
 
 static const char instances_str[] = "Instances";
-static Handle_t instances_ui_number;
+static Plug_t instances_ui_number;
 
 static const char rpm_str[] = "Gear RPM";
-static Handle_t rpm_ui_number;
+static Plug_t rpm_ui_number;
 
 static void vbo_toggle(const ID_t souce_id, const ID_t destination_id)
 {
@@ -114,34 +114,34 @@ static ID_t get_ds_ui_connector(void)
   return ds_ui_connector;
 }
 
-static const Handle_t get_ds_ui_handle(const short field)
+static const Plug_t get_ds_ui_plug(const short field)
 {
-  return Connector_handle(get_ds_ui_connector(), field);
+  return Connector_plug(get_ds_ui_connector(), field);
 }
 
-Handle_t DS_ui_vbo(void)
+Plug_t DS_ui_vbo(void)
 {
   if (!vbo_ui_checkbox) {
-    vbo_ui_checkbox = UI_checkbox_create(vbo_str, get_ds_ui_handle(DSF_vbo));
+    vbo_ui_checkbox = UI_checkbox_create(vbo_str, get_ds_ui_plug(DSF_vbo));
   }
 
   return vbo_ui_checkbox;
 }
 
-Handle_t DS_ui_instances(void)
+Plug_t DS_ui_instances(void)
 {
   if (!instances_ui_number) {
-    instances_ui_number = UI_number_create(instances_str, get_ds_ui_handle(DSF_instances));
+    instances_ui_number = UI_number_create(instances_str, get_ds_ui_plug(DSF_instances));
     UI_number_set_edit(instances_ui_number, 1);
   }
 
   return instances_ui_number;
 }
 
-Handle_t DS_ui_rpm(void)
+Plug_t DS_ui_rpm(void)
 {
   if (!rpm_ui_number) {
-    rpm_ui_number = UI_number_create(rpm_str, get_ds_ui_handle(DSF_rpm));
+    rpm_ui_number = UI_number_create(rpm_str, get_ds_ui_plug(DSF_rpm));
     UI_number_set_edit(rpm_ui_number, 1);
     UI_number_set_default_float_change(rpm_ui_number, 1.0f);
   }

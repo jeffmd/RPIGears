@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
@@ -51,12 +51,12 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static Handle_t get_handle(const ID_t ui_view3d_id)
+static Plug_t get_plug(const ID_t ui_view3d_id)
 {
-  return Connector_handle(get_area_connector(), ui_view3d_id);
+  return Connector_plug(get_area_connector(), ui_view3d_id);
 }
 
-Handle_t UI_view3d_create(void)
+Plug_t UI_view3d_create(void)
 {
-  return get_handle(0);
+  return get_plug(0);
 }

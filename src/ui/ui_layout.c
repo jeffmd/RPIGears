@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "ui_area.h"
 

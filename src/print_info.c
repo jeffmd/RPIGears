@@ -6,7 +6,7 @@
 
 #include "gles3.h"
 #include "EGL/egl.h"
-#include "static_array.h"
+#include "id_plug.h"
 #include "key_input.h"
 
 void Print_GLInfo(void)
@@ -123,12 +123,12 @@ void Print_CLoptions_help(void)
     );
 }
 
-static void print_GLInfo_key(const short souce_id, const short destination_id)
+static void print_GLInfo_key(const ID_t souce_id, const ID_t destination_id)
 {
   Print_GLInfo();
 }
 
-static void print_CLoptions_help_key(const short souce_id, const short destination_id)
+static void print_CLoptions_help_key(const ID_t souce_id, const ID_t destination_id)
 {
   Print_CLoptions_help();
 }

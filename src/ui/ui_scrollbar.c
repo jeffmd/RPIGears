@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "connector.h"
 #include "key_map.h"
@@ -18,10 +19,10 @@
 typedef struct {
   uint8_t active;
   ID_t area;
-  Handle_t widget_handle;
-  Handle_t inc_button;
-  Handle_t dec_button;
-  Handle_t slider;
+  Plug_t widget_plug;
+  Plug_t inc_button;
+  Plug_t dec_button;
+  Plug_t slider;
   float normal_scale[2];
   float normal_offset[2];
   float select_scale[2];
@@ -42,8 +43,6 @@ typedef union {
   };
 } Scroll_Part_ID;
 
-
-#define PART_ID(id) id & 7
 #define UI_SCROLLBAR_MAX_COUNT 50
 
 static UI_Scrollbar ui_scrollbars[UI_SCROLLBAR_MAX_COUNT];
@@ -124,7 +123,7 @@ static void area_clear(const ID_t id)
 
 static void update_area_size(UI_Scrollbar *ui_scrollbar, const ID_t area_id)
 {
-  UI_area_set_size(area_id, 20, 150);
+  UI_area_set_size(area_id, 13, 150);
 }
 
 static void parts_ui_update(const ID_t source_id, const ID_t destination_id)
@@ -139,9 +138,9 @@ static void parts_ui_update(const ID_t source_id, const ID_t destination_id)
   }
 }
 
-static void parts_ui_changed(const ID_t source_id, const ID_t destination_id)
+static void parts_ui_changed(const ID_t source_id, const ID_t scrollbar_id)
 {
-  const Scroll_Part_ID sp_id = {.id = destination_id};
+  const Scroll_Part_ID sp_id = {.id = scrollbar_id};
   //UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(sp_id.scroll_id);
 
   switch (sp_id.part_id) {
@@ -167,41 +166,41 @@ static ID_t get_parts_ui_connector(void)
   return parts_ui_connector;
 }
 
-static Handle_t get_part_ui_handle(ID_t scroll_id, Part_ID part_id)
+static Plug_t get_part_ui_plug(ID_t scroll_id, Part_ID part_id)
 {
   const Scroll_Part_ID sp_id = {.scroll_id = scroll_id, .part_id = part_id};
 
-  return Connector_handle(get_parts_ui_connector(), sp_id.id);;
+  return Connector_plug(get_parts_ui_connector(), sp_id.id);;
 }
 
-static Handle_t get_inc_button(ID_t scroll_id)
+static Plug_t get_inc_button(ID_t scroll_id)
 {
   UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(scroll_id);
 
   if (!ui_scrollbar->inc_button) {
-    ui_scrollbar->inc_button = UI_button_create("I", get_part_ui_handle(scroll_id, SP_INC_BUTTON));
+    ui_scrollbar->inc_button = UI_button_create("I", get_part_ui_plug(scroll_id, SP_INC_BUTTON));
   }
 
   return ui_scrollbar->inc_button;
 }
 
-static Handle_t get_dec_button(ID_t scroll_id)
+static Plug_t get_dec_button(ID_t scroll_id)
 {
   UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(scroll_id);
 
   if (!ui_scrollbar->dec_button) {
-    ui_scrollbar->dec_button = UI_button_create("D", get_part_ui_handle(scroll_id, SP_DEC_BUTTON));
+    ui_scrollbar->dec_button = UI_button_create("D", get_part_ui_plug(scroll_id, SP_DEC_BUTTON));
   }
 
   return ui_scrollbar->dec_button;
 }
 
-static Handle_t get_slider(ID_t scroll_id)
+static Plug_t get_slider(ID_t scroll_id)
 {
   UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(scroll_id);
 
   if (!ui_scrollbar->slider) {
-    ui_scrollbar->slider = UI_slider_create(get_part_ui_handle(scroll_id, SP_SLIDER));
+    ui_scrollbar->slider = UI_slider_create(get_part_ui_plug(scroll_id, SP_SLIDER));
   }
 
   return ui_scrollbar->slider;
@@ -213,9 +212,9 @@ static void ui_scrollbar_area_attach(const ID_t area_id, const ID_t ui_scrollbar
   update_area_size(ui_scrollbar, area_id);
   area_clear(ui_scrollbar_id);
 
-  UI_area_add_handle(area_id, get_slider(ui_scrollbar_id), 0, 20);
-  UI_area_add_handle(area_id, get_inc_button(ui_scrollbar_id), 0, 0);
-  UI_area_add_handle(area_id, get_dec_button(ui_scrollbar_id), 0, 80);
+  UI_area_add_plug(area_id, get_slider(ui_scrollbar_id), 1, 20);
+  UI_area_add_plug(area_id, get_inc_button(ui_scrollbar_id), 1, 0);
+  UI_area_add_plug(area_id, get_dec_button(ui_scrollbar_id), 1, 130);
 }
 
 static void ui_scrollbar_area_resize(const ID_t area_id, const ID_t ui_scrollbar_id)
@@ -256,24 +255,24 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static Handle_t get_ui_scrollbar_area_handle(const ID_t ui_scrollbar_id)
+static Plug_t get_ui_scrollbar_area_plug(const ID_t ui_scrollbar_id)
 {
-  return Connector_handle(get_area_connector(), ui_scrollbar_id);
+  return Connector_plug(get_area_connector(), ui_scrollbar_id);
 }
 
-void UI_scrollbar_connect_widget(const ID_t ui_scrollbar_id, const Handle_t widget_handle)
+void UI_scrollbar_connect_widget(const ID_t ui_scrollbar_id, const Plug_t widget_plug)
 {
   UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(ui_scrollbar_id);
-  ui_scrollbar->widget_handle = widget_handle;
+  ui_scrollbar->widget_plug = widget_plug;
 }
 
-Handle_t UI_scrollbar_create(const Handle_t widget_handle)
+Plug_t UI_scrollbar_create(const Plug_t widget_plug)
 {
   const ID_t id = find_deleted_ui_scrollbar();
   UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(id);
   ui_scrollbar->active = 1;
   ui_scrollbar_init(ui_scrollbar);
-  UI_scrollbar_connect_widget(id, widget_handle);
+  UI_scrollbar_connect_widget(id, widget_plug);
 
-  return get_ui_scrollbar_area_handle(id);
+  return get_ui_scrollbar_area_plug(id);
 }

@@ -70,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gles3.h"
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "connector.h"
 #include "user_options.h"
 #include "user_options_ui.h"

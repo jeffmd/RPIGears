@@ -5,7 +5,7 @@
 #include <termio.h>
 #include <unistd.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "tasks.h"
 #include "key_action.h"
 #include "key_map.h"

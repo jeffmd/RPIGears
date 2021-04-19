@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "connector.h"
 #include "key_map.h"
@@ -19,7 +20,7 @@ typedef struct {
   uint8_t pressed:1;
   ID_t area;
   ID_t text;
-  int widget_handle;
+  Plug_t widget_plug;
   float normal_scale[2];
   float normal_offset[2];
   float select_scale[2];
@@ -85,7 +86,7 @@ static void update_dimensions(UI_Button *ui_button, const ID_t area_id)
 
     ui_button->area = area_id;
     UI_area_size(area_id, size);
-    Text_set_offset(get_text(ui_button), size[0] - XOFFSET, size[1]);
+    Text_set_offset(get_text(ui_button), size[0] - XOFFSET + 26, size[1]);
 
     ui_button->normal_scale[0] = 2.0f * size[0] - 2.0f;
     ui_button->normal_scale[1] = 2.0f * size[1] - 2.0f;
@@ -132,7 +133,7 @@ static void update_area_size(UI_Button *ui_button, const ID_t area_id)
   int extent[2];
 
   Text_extent(get_text(ui_button), extent);
-  UI_area_set_size(area_id, extent[0] + (XOFFSET / 2), extent[1]);
+  UI_area_set_size(area_id, extent[0], extent[1]);
 }
 
 static void ui_button_area_attach(const ID_t area_id, const ID_t ui_button_id)
@@ -151,7 +152,7 @@ static void ui_button_press(const ID_t area_id, const ID_t ui_button_id)
 {
   UI_Button *const ui_button = get_ui_button(ui_button_id);
   ui_button->pressed = 1;
-  UI_widget_changed(ui_button->widget_handle, ui_button_id);
+  UI_widget_changed(ui_button->widget_plug, ui_button_id);
   UI_area_set_handled(area_id);
   UI_area_set_locked(area_id);
 }
@@ -160,7 +161,7 @@ static void ui_button_release(const ID_t area_id, const ID_t ui_button_id)
 {
   UI_Button *const ui_button = get_ui_button(ui_button_id);
   ui_button->pressed = 0;
-  UI_widget_changed(ui_button->widget_handle, ui_button_id);
+  UI_widget_changed(ui_button->widget_plug, ui_button_id);
   UI_area_set_handled(area_id);
   UI_area_set_unlocked(area_id);
 }
@@ -195,25 +196,25 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static Handle_t get_ui_button_area_handle(const ID_t ui_button_id)
+static Plug_t get_ui_button_area_plug(const ID_t ui_button_id)
 {
-  return Connector_handle(get_area_connector(), ui_button_id);
+  return Connector_plug(get_area_connector(), ui_button_id);
 }
 
-void UI_button_connect_widget(const ID_t ui_button_id, const Handle_t widget_handle)
+void UI_button_connect_widget(const ID_t ui_button_id, const Plug_t widget_plug)
 {
   UI_Button *const ui_button = get_ui_button(ui_button_id);
-  ui_button->widget_handle = widget_handle;
+  ui_button->widget_plug = widget_plug;
 }
 
-int UI_button_create(const char *str, const Handle_t widget_handle)
+Plug_t UI_button_create(const char *str, const Plug_t widget_plug)
 {
   const ID_t id = find_deleted_ui_button();
   UI_Button *const ui_button = get_ui_button(id);
   ui_button->active = 1;
   ui_button_init(ui_button);
   Text_add(get_text(ui_button), 0, 0, str);
-  UI_button_connect_widget(id, widget_handle);
+  UI_button_connect_widget(id, widget_plug);
 
-  return get_ui_button_area_handle(id);
+  return get_ui_button_area_plug(id);
 }

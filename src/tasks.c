@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 
 #define TASKS_MAX_COUNT 10

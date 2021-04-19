@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "connector.h"
 #include "key_map.h"
@@ -35,7 +36,7 @@ typedef struct {
   FPINT old_val;
   FPINT change_val;
   FPINT default_change;
-  Handle_t widget_handle;
+  Plug_t widget_plug;
   float select_scale[2];
   float select_offset[2];
 } UI_Number;
@@ -206,7 +207,7 @@ static void ui_number_draw(const ID_t area_id, const ID_t ui_number_id)
     edit_text_update(ui_number);
   }
   else {
-    UI_widget_update(ui_number->widget_handle, ui_number_id);
+    UI_widget_update(ui_number->widget_plug, ui_number_id);
   }
 
   update_dimensions(ui_number, area_id);
@@ -354,7 +355,7 @@ static void edit_accept_str(const ID_t area_id, const ID_t ui_number_id)
       ui_number->change_val.i = edit_restore_val.i - ui_number->old_val.i;
     }
 
-    UI_widget_changed(ui_number->widget_handle, ui_number_id);
+    UI_widget_changed(ui_number->widget_plug, ui_number_id);
   }
 
   ui_number_edit_done(area_id, ui_number_id);
@@ -372,7 +373,7 @@ static void ui_number_inc(const ID_t area_id, const ID_t ui_number_id)
     ui_number->change_val.i = get_default_int_change(ui_number);
   }
 
-  UI_widget_changed(ui_number->widget_handle, ui_number_id);
+  UI_widget_changed(ui_number->widget_plug, ui_number_id);
   UI_area_set_handled(area_id);
 }
 
@@ -500,15 +501,15 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_number_area_handle(const ID_t ui_number_id)
+static Plug_t get_ui_number_area_plug(const ID_t ui_number_id)
 {
-  return Connector_handle(get_area_connector(), ui_number_id);
+  return Connector_plug(get_area_connector(), ui_number_id);
 }
 
-void UI_number_connect_widget(const ID_t number_id, const Handle_t widget_handle)
+void UI_number_connect_widget(const ID_t number_id, const Plug_t widget_plug)
 {
   UI_Number *const ui_number = get_ui_number(number_id);
-  ui_number->widget_handle = widget_handle;
+  ui_number->widget_plug = widget_plug;
 }
 
 float UI_number_float_change(const ID_t number_id)
@@ -550,7 +551,7 @@ void UI_number_set_edit(const ID_t number_id, const int state)
   get_ui_number(number_id)->can_edit = state;
 }
 
-Handle_t UI_number_create(const char *str, const Handle_t widget_handle)
+Plug_t UI_number_create(const char *str, const Plug_t widget_plug)
 {
   const ID_t id = find_deleted_ui_number();
   UI_Number *const ui_number = get_ui_number(id);
@@ -558,9 +559,9 @@ Handle_t UI_number_create(const char *str, const Handle_t widget_handle)
   ui_number_init(ui_number);
   Text_add(get_text(ui_number), 0, 0, str);
   setup_val_text(ui_number);
-  UI_number_connect_widget(id, widget_handle);
+  UI_number_connect_widget(id, widget_plug);
 
-  return get_ui_number_area_handle(id);
+  return get_ui_number_area_plug(id);
 }
 
 

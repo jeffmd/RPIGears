@@ -9,7 +9,7 @@
 #include <X11/extensions/XShm.h>
 #include <assert.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "tasks.h"
 #include "xinput.h"
 #include "window.h"

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "window.h"
 #include "static_array.h"
 #include "connector.h"
@@ -34,8 +35,8 @@ typedef struct {
   short abs_pos[2];
   short vis_pos[4];
 
-  // Connector handle
-  int handle;
+  // Connector plug
+  Plug_t plug;
 } UI_Area;
 
 enum Events {
@@ -117,7 +118,7 @@ static void area_init(UI_Area *area)
   area->parent = 0;
   area->first_child = 0;
   area->last_child = 0;
-  area->handle = 0;
+  area->plug = 0;
   area_changed(area);
 }
 
@@ -235,7 +236,7 @@ static int is_visible(UI_Area *area)
 
 ID_t UI_area_create(void)
 {
-  const int id = find_deleted_area();
+  const ID_t id = find_deleted_area();
   UI_Area *const area = get_area(id);
   area->active = 1;
   area_init(area);
@@ -321,10 +322,10 @@ void UI_area_set_active(const ID_t area_id)
 {
   if (active_area != area_id) {
     UI_Area *area = get_area(active_area);
-    Connector_handle_execute(area->handle, OnLeave, active_area);
+    Connector_plug_execute(area->plug, OnLeave, active_area);
     active_area = area_id;
     area = get_area(area_id);
-    Connector_handle_execute(area->handle, OnEnter, area_id);
+    Connector_plug_execute(area->plug, OnEnter, area_id);
   }
 }
 
@@ -344,7 +345,7 @@ void UI_area_set_offset(const ID_t area_id, const short x, const short y)
   area->rel_pos[0] = x;
   area->rel_pos[1] = y;
   update_visibility(area);
-  Connector_handle_execute(area->handle, OnMove, area_id);
+  Connector_plug_execute(area->plug, OnMove, area_id);
 }
 
 void UI_area_change_offset(const ID_t area_id, const short x, const short y)
@@ -353,7 +354,7 @@ void UI_area_change_offset(const ID_t area_id, const short x, const short y)
   area->rel_pos[0] += x;
   area->rel_pos[1] += y;
   update_visibility(area);
-  Connector_handle_execute(area->handle, OnMove, area_id);
+  Connector_plug_execute(area->plug, OnMove, area_id);
 }
 
 void UI_area_offset(const ID_t area_id, short pos[2])
@@ -369,7 +370,7 @@ void UI_area_set_layout_position(const ID_t area_id, const short x, const short 
   area->layout_pos[0] = x;
   area->layout_pos[1] = y;
   update_visibility(area);
-  Connector_handle_execute(area->handle, OnMove, area_id);
+  Connector_plug_execute(area->plug, OnMove, area_id);
 }
 
 void UI_area_layout_position(const ID_t area_id, short pos[2])
@@ -385,7 +386,7 @@ void UI_area_set_size(const ID_t area_id, const short width, const short height)
   area->size[0] = width;
   area->size[1] = height;
   update_visibility(area);
-  Connector_handle_execute(area->handle, OnResize, area_id);
+  Connector_plug_execute(area->plug, OnResize, area_id);
 }
 
 void UI_area_size(const ID_t area_id, short size[2])
@@ -442,10 +443,10 @@ static ID_t area_find(ID_t area_id, const int check_sibling, const int x, const 
 static void area_pointer_moved(const ID_t area_id)
 {
   UI_Area * const area = get_area(area_id);
-  Connector_handle_execute(area->handle, OnPointerMove, area_id);
+  Connector_plug_execute(area->plug, OnPointerMove, area_id);
 
   if (drag_state != DS_end) {
-    Connector_handle_execute(area->handle, OnPointerDrag, area_id);
+    Connector_plug_execute(area->plug, OnPointerDrag, area_id);
     drag_state = DS_dragging;
     old_y = pointer_y;
     old_x = pointer_x;
@@ -508,7 +509,7 @@ void UI_area_key_change(const int key)
   while (area_id) {
     UI_Area *area = get_area(area_id);
     area->handled = 0;
-    Connector_handle_execute(area->handle, OnKeyChange, area_id);
+    Connector_plug_execute(area->plug, OnKeyChange, area_id);
     handled = area->handled;
 
     if (handled) {
@@ -542,60 +543,60 @@ ID_t UI_area_connector(const ID_t destination_class)
 
 void UI_area_connect_enter(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnEnter, action);
+  Connector_set_pin_action(connector_id, OnEnter, action);
 }
 
 void UI_area_connect_leave(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnLeave, action);
+  Connector_set_pin_action(connector_id, OnLeave, action);
 }
 
 void UI_area_connect_draw(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnDraw, action);
+  Connector_set_pin_action(connector_id, OnDraw, action);
 }
 
 void UI_area_connect_resize(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnResize, action);
+  Connector_set_pin_action(connector_id, OnResize, action);
 }
 
 void UI_area_connect_move(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnMove, action);
+  Connector_set_pin_action(connector_id, OnMove, action);
 }
 
 void UI_area_connect_attach(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnAttach, action);
+  Connector_set_pin_action(connector_id, OnAttach, action);
 }
 
 void UI_area_connect_key_change(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnKeyChange, action);
+  Connector_set_pin_action(connector_id, OnKeyChange, action);
 }
 
 void UI_area_connect_pointer_move(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnPointerMove, action);
+  Connector_set_pin_action(connector_id, OnPointerMove, action);
 }
 
 void UI_area_connect_pointer_drag(const ID_t connector_id, ActionFn action)
 {
-  Connector_set_action(connector_id, OnPointerDrag, action);
+  Connector_set_pin_action(connector_id, OnPointerDrag, action);
 }
 
-void UI_area_connect(const ID_t area_id, const Handle_t handle)
+void UI_area_connect(const ID_t area_id, const Plug_t plug)
 {
   UI_Area * const area = get_area(area_id);
-  area->handle = handle;
-  Connector_handle_execute(handle, OnAttach, area_id);
+  area->plug = plug;
+  Connector_plug_execute(plug, OnAttach, area_id);
 }
 
-ID_t UI_area_add_handle(const ID_t parent_id, const Handle_t handle, const int x, const int y)
+ID_t UI_area_add_plug(const ID_t parent_id, const Plug_t plug, const int x, const int y)
 {
   const ID_t child_area = UI_area_create();
-  UI_area_connect(child_area, handle);
+  UI_area_connect(child_area, plug);
   UI_area_set_offset(child_area, x, y);
   UI_area_add(parent_id, child_area);
 
@@ -615,7 +616,7 @@ void UI_area_set_hide(const ID_t area_id, const int state)
 static void area_draw(UI_Area *area, const ID_t source_id)
 {
   Window_ui_viewport(area->abs_pos, area->size, area->vis_pos);
-  Connector_handle_execute(area->handle, OnDraw, source_id);
+  Connector_plug_execute(area->plug, OnDraw, source_id);
 }
 
 static void area_draw_siblings(ID_t area_id)

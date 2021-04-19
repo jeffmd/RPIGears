@@ -5,6 +5,7 @@
 
 #include "gles3.h"
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "gpu_texture.h"
 #include "gpu_vertex_format.h"

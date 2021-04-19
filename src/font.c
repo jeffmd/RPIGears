@@ -7,6 +7,7 @@
 #include FT_FREETYPE_H
 
 #include "gles3.h"
+#include "id_plug.h"
 #include "static_array.h"
 #include "gpu_texture.h"
 

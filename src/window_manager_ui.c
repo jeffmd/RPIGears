@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "window_manager.h"
 #include "connector.h"
 #include "ui_widget_connector.h"
 #include "ui_number.h"
 
 static const char fps_str[] = "FPS";
-static Handle_t fps_ui_number;
+static Plug_t fps_ui_number;
 static ID_t fps_ui_number_connector;
 static ID_t window_manager_ui_class;
 
@@ -44,15 +44,15 @@ static ID_t get_fps_ui_number_connector(void)
   return fps_ui_number_connector;
 }
 
-static const Handle_t get_fps_ui_number_handle(void)
+static const Plug_t get_fps_ui_number_plug(void)
 {
-  return Connector_handle(get_fps_ui_number_connector(), 0);
+  return Connector_plug(get_fps_ui_number_connector(), 0);
 }
 
-Handle_t WM_ui_fps(void)
+Plug_t WM_ui_fps(void)
 {
   if (!fps_ui_number) {
-    fps_ui_number = UI_number_create(fps_str, get_fps_ui_number_handle());
+    fps_ui_number = UI_number_create(fps_str, get_fps_ui_number_plug());
     UI_number_set_edit(fps_ui_number, 1);
     UI_number_set_default_float_change(fps_ui_number, 1.0f);
   }

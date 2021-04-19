@@ -8,6 +8,7 @@
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "gpu_texture.h"
 #include "gpu_framebuffer.h"

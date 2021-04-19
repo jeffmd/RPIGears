@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
 #include "key_map.h"
 #include "key_action.h"
@@ -19,8 +20,8 @@ typedef struct {
   uint8_t selected:1;
   ID_t text;
   ID_t area;
-  // Connector handle
-  int widget_handle;
+  // Connector plug
+  Plug_t widget_plug;
   float box_offset[2];
   float select_scale[2];
   float select_offset[2];
@@ -100,7 +101,7 @@ static void update_dimensions(UI_CheckBox *ui_checkbox, const ID_t area_id)
 static void ui_checkbox_draw(const ID_t area_id, const ID_t checkbox_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
-  UI_widget_update(ui_checkbox->widget_handle, checkbox_id);
+  UI_widget_update(ui_checkbox->widget_plug, checkbox_id);
 
   update_dimensions(ui_checkbox, area_id);
   Text_draw(get_text(ui_checkbox));
@@ -146,7 +147,7 @@ static void ui_checkbox_area_resize(const ID_t area_id, const ID_t checkbox_id)
 static void ui_checkbox_change(const ID_t area_id, const ID_t checkbox_id)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
-  UI_widget_changed(ui_checkbox->widget_handle, checkbox_id);
+  UI_widget_changed(ui_checkbox->widget_plug, checkbox_id);
   UI_area_set_handled(area_id);
 }
 
@@ -189,27 +190,27 @@ static ID_t get_area_connector(void)
   return area_connector;
 }
 
-static int get_ui_checkbox_area_handle(const ID_t ui_checkbox_id)
+static Plug_t get_ui_checkbox_area_plug(const ID_t ui_checkbox_id)
 {
-  return Connector_handle(get_area_connector(), ui_checkbox_id);
+  return Connector_plug(get_area_connector(), ui_checkbox_id);
 }
 
-void UI_checkbox_connect_widget(const ID_t checkbox_id, const Handle_t widget_handle)
+void UI_checkbox_connect_widget(const ID_t checkbox_id, const Plug_t widget_plug)
 {
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(checkbox_id);
-  ui_checkbox->widget_handle = widget_handle;
+  ui_checkbox->widget_plug = widget_plug;
 }
 
-Handle_t UI_checkbox_create(const char *str, const Handle_t widget_handle)
+Plug_t UI_checkbox_create(const char *str, const Plug_t widget_plug)
 {
   const ID_t id = find_deleted_ui_checkbox();
   UI_CheckBox *const ui_checkbox = get_ui_checkbox(id);
   ui_checkbox->active = 1;
   ui_checkbox_init(ui_checkbox);
   Text_add(get_text(ui_checkbox), 0, 0, str);
-  UI_checkbox_connect_widget(id, widget_handle);
+  UI_checkbox_connect_widget(id, widget_plug);
 
-  return get_ui_checkbox_area_handle(id);
+  return get_ui_checkbox_area_plug(id);
 }
 
 void UI_checkbox_update_select(const ID_t id, const int val)

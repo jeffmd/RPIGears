@@ -3,14 +3,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "id_plug.h"
 #include "static_array.h"
-
-typedef int Handle_t;
-typedef void (*ActionFn)(const ID_t source_id, const ID_t destination_id);
 
 typedef struct {
   uint8_t active;
-  uint8_t count;
+  uint8_t pin_count;
   ID_t action_start;
   ID_t source_class;
   ID_t destination_class;
@@ -21,12 +19,12 @@ typedef struct {
 } ClassReg;
 
 typedef union {
-  Handle_t id;
+  Plug_t id;
   struct {
     ID_t destination_id;
     ID_t connector;
   };
-} Handle;
+} Plug;
 
 
 #define CONNECTOR_MAX_COUNT 50
@@ -79,16 +77,16 @@ static void actions_init(const ID_t id, const short count)
   }
 }
 
-static void allocate_actions(Connector *const connector, const short count)
+static void allocate_actions(Connector *const connector, const short pin_count)
 {
-  connector->action_start = actions_allocate(count);
-  connector->count = count;
+  connector->action_start = actions_allocate(pin_count);
+  connector->pin_count = pin_count;
 
-  actions_init(connector->action_start, count);
+  actions_init(connector->action_start, pin_count);
 }
 
 
-ID_t Connector_create(const ID_t source_class, const ID_t destination_class, const short count)
+ID_t Connector_create(const ID_t source_class, const ID_t destination_class, const short pin_count)
 {
   const ID_t id = find_deleted_connector();
   Connector *const connector = get_connector(id);
@@ -97,17 +95,17 @@ ID_t Connector_create(const ID_t source_class, const ID_t destination_class, con
   connector->source_class = source_class;
   connector->destination_class = destination_class;
 
-  allocate_actions(connector, count);
+  allocate_actions(connector, pin_count);
 
   return id;
 }
 
-void Connector_set_action(const ID_t connector_id, const ID_t slot_id, ActionFn action)
+void Connector_set_pin_action(const ID_t connector_id, const ID_t pin_id, ActionFn action)
 {
   Connector *const connector = get_connector(connector_id);
 
-  if (slot_id < connector->count) {
-    actions[connector->action_start + slot_id] = action;
+  if (pin_id < connector->pin_count) {
+    actions[connector->action_start + pin_id] = action;
   }
 }
 
@@ -119,22 +117,22 @@ ID_t Connector_register_class(const char *name)
   return next_class_id;
 }
 
-Handle_t Connector_handle( const ID_t connector, const ID_t destination_id)
+Plug_t Connector_plug( const ID_t connector, const ID_t destination_id)
 {
-  const Handle handle = {.destination_id = destination_id, .connector = connector};
+  const Plug plug = {.destination_id = destination_id, .connector = connector};
 
-  return handle.id;
+  return plug.id;
 }
 
-void Connector_handle_execute(const Handle_t handle, const ID_t slot_id, const ID_t source_id)
+void Connector_plug_execute(const Plug_t plug, const ID_t pin_id, const ID_t source_id)
 {
-  if (handle) {
-    Connector *const connector = get_connector(((Handle)handle).connector);
+  if (plug) {
+    Connector *const connector = get_connector(((Plug)plug).connector);
 
-    if (slot_id < connector->count) {
-      ActionFn action = actions[connector->action_start + slot_id];
+    if (pin_id < connector->pin_count) {
+      ActionFn action = actions[connector->action_start + pin_id];
       if (action) {
-        action(source_id, ((Handle)handle).destination_id);
+        action(source_id, ((Plug)plug).destination_id);
       }
     }
   }

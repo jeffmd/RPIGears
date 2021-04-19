@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "gles3.h"
+#include "id_plug.h"
 #include "static_array.h"
 
 #define SHADER_UNIT_MAX_COUNT 10

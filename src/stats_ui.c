@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "static_array.h"
+#include "id_plug.h"
 #include "connector.h"
 #include "key_input.h"
 #include "ui_area.h"
@@ -18,7 +18,7 @@
 #include "ui_scrollbar.h"
 
 static const char ver_str[] = "RPIGears ver: 1.0 GLES2.0";
-static Handle_t ver_ui_text;
+static Plug_t ver_ui_text;
 
 static ID_t stats_draw;
 static ID_t stats_area;
@@ -60,12 +60,12 @@ static ID_t get_stats_area_connector(void)
   return stats_area_connector;
 }
 
-static const Handle_t get_stats_area_handle(void)
+static const Plug_t get_stats_area_plug(void)
 {
-  return Connector_handle(get_stats_area_connector(), 0);
+  return Connector_plug(get_stats_area_connector(), 0);
 }
 
-static Handle_t get_ver_ui_text(void)
+static Plug_t get_ver_ui_text(void)
 {
   if (!ver_ui_text) {
     ver_ui_text = UI_text_create(ver_str);
@@ -83,12 +83,12 @@ static ID_t get_stats_area(void)
     stats_layout = UI_Layout_create();
     UI_area_set_layout(stats_area, stats_layout);
 
-    UI_area_add_handle(stats_area, get_ver_ui_text(), 0, 0);
-    UI_area_add_handle(stats_area, User_options_ui_vsync(), 0, 0);
-    UI_area_add_handle(stats_area, DS_ui_vbo(), 0, 0);
-    UI_area_add_handle(stats_area, DS_ui_instances(), 0, 0);
-    UI_area_add_handle(stats_area, DS_ui_rpm(), 0, 0);
-    UI_area_add_handle(stats_area, WM_ui_fps(), 0, 40);
+    UI_area_add_plug(stats_area, get_ver_ui_text(), 0, 0);
+    UI_area_add_plug(stats_area, User_options_ui_vsync(), 0, 0);
+    UI_area_add_plug(stats_area, DS_ui_vbo(), 0, 0);
+    UI_area_add_plug(stats_area, DS_ui_instances(), 0, 0);
+    UI_area_add_plug(stats_area, DS_ui_rpm(), 0, 0);
+    UI_area_add_plug(stats_area, WM_ui_fps(), 0, 40);
     update_stats_hide();
   }
 
@@ -101,7 +101,7 @@ static ID_t get_stats_select_area(void)
     stats_select_area = UI_area_create();
     UI_area_set_offset(stats_select_area, 0, 0);
     UI_area_set_size(stats_select_area, 10, 500);
-    UI_area_connect(stats_select_area, get_stats_area_handle());
+    UI_area_connect(stats_select_area, get_stats_area_plug());
 
     Key_add_action(SHIFT_KEY('S'), toggle_stats_draw, "toggle stats render on/off");
   }
@@ -113,6 +113,6 @@ void Stats_ui_set_parent_area(const ID_t parent_area)
 {
   UI_area_add(parent_area, get_stats_area());
   UI_area_add(parent_area, get_stats_select_area());
-  UI_area_add_handle(parent_area, UI_scrollbar_create(0), 350, 20);
+  UI_area_add_plug(parent_area, UI_scrollbar_create(0), 350, 20);
 }
 
