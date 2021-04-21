@@ -20,12 +20,13 @@ static ID_t line_art_batch;
 static ID_t vformat;
 
 static GLfloat proj_matrix[4] = {1.0f/1280.0f, 1.0f/1024.0f, -0.055f, -0.01f};
+static float last_pos[2];
 
 static ID_t get_vformat(void)
 {
   if (!vformat) {
     vformat = GPU_vertex_format_create();
-    GPU_vertex_format_add_attribute(vformat, "position", 2, GL_FLOAT);
+    GPU_vertex_format_add_attribute(vformat, "position", 2, GL_HALF_FLOAT_OES);
   }
 
   return vformat;
@@ -64,16 +65,24 @@ void Line_Art_end(const ID_t id)
   GPU_batch_part_end(id);
 }
 
+void Line_Art_start(const float x, const float y)
+{
+  last_pos[0] = x;
+  last_pos[1] = y;
+}
+
 void Line_Art_add(const float x, const float y)
 {
+  GPU_vertbuf_add_2(get_vbuff(), ATTR_POSITION, last_pos[0], last_pos[1]);
   GPU_vertbuf_add_2(get_vbuff(), ATTR_POSITION, x, y);
+  Line_Art_start(x, y);
 }
 
 void Line_Art_draw(const ID_t batch_part)
 {
   Shaders_bind_line_art();
   GPU_uniformbuffer_activate(0);
-  GPU_batch_part_draw(batch_part, GL_LINE_STRIP, 1);
+  GPU_batch_part_draw(batch_part, GL_LINES, 1);
 }
 
 void Line_Art_set_scale_offset(float scale_x, float scale_y, float offset_x, float offset_y)
