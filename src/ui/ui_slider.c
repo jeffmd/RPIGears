@@ -20,7 +20,9 @@ typedef struct {
   ID_t area;
   short cur_travel;
   short max_travel;
+  short full_travel;
   Plug_t widget_plug;
+  float travel_coverage;
   float normal_scale[2];
   float normal_offset[2];
   float select_scale[2];
@@ -53,11 +55,20 @@ static UI_Slider *get_ui_slider(ID_t id)
   return ui_sliders + id;
 }
 
+static void update_max_travel(UI_Slider *ui_slider)
+{
+  ui_slider->max_travel = ui_slider->full_travel - ((float)ui_slider->full_travel * ui_slider->travel_coverage);
+  ui_slider->area = 0;
+}
+
 static void ui_slider_init(UI_Slider *ui_slider)
 {
   ui_slider->cur_travel = 0;
-  ui_slider->max_travel = 90;
+  ui_slider->full_travel = 100;
+  ui_slider->travel_coverage = 0.2f;
   ui_slider->sliding = 0;
+
+  update_max_travel(ui_slider);
 }
 
 static ID_t get_ui_slider_class(void)
@@ -119,7 +130,7 @@ static void area_clear(const ID_t id)
 
 static void update_area_size(UI_Slider *ui_slider, const ID_t area_id)
 {
-  UI_area_set_size(area_id, 10, 20);
+  UI_area_set_size(area_id, 10, ui_slider->full_travel - ui_slider->max_travel);
 }
 
 static void ui_slider_area_attach(const ID_t area_id, const ID_t ui_slider_id)
@@ -209,6 +220,34 @@ static ID_t get_area_connector(void)
 static Plug_t get_ui_slider_area_plug(const ID_t ui_slider_id)
 {
   return Connector_plug(get_area_connector(), ui_slider_id);
+}
+
+float UI_slider_travel_percent(const ID_t ui_slider_id)
+{
+  UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
+  
+  return (float)ui_slider->cur_travel / (float)ui_slider->max_travel;
+}
+
+void UI_slider_set_travel_percent(const ID_t ui_slider_id, const float percent)
+{
+  UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
+  ui_slider->cur_travel = (float)ui_slider->max_travel * percent;
+  // update required to travel
+}
+
+void UI_slider_set_travel_coverage(const ID_t ui_slider_id, const float travel_coverage)
+{
+  UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
+  ui_slider->travel_coverage = (float)ui_slider->travel_coverage;
+  update_max_travel(ui_slider);
+}
+
+void UI_slider_set_full_travel(const ID_t ui_slider_id, const short full_travel)
+{
+  UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
+  ui_slider->full_travel = full_travel;
+  update_max_travel(ui_slider);
 }
 
 void UI_slider_connect_widget(const ID_t ui_slider_id, const Plug_t widget_plug)

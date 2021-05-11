@@ -201,6 +201,7 @@ static Plug_t get_slider(ID_t scroll_id)
 
   if (!ui_scrollbar->slider) {
     ui_scrollbar->slider = UI_slider_create(get_part_ui_plug(scroll_id, SP_SLIDER));
+    UI_slider_set_full_travel(ui_scrollbar->slider, 110);
   }
 
   return ui_scrollbar->slider;
