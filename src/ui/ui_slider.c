@@ -245,8 +245,8 @@ void UI_slider_move_minus(const ID_t ui_slider_id)
 void UI_slider_set_travel_percent(const ID_t ui_slider_id, const float percent)
 {
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
-  ui_slider->cur_travel = (float)ui_slider->max_travel * percent;
-  // update required to travel
+
+  move_slider(ui_slider_id, ((float)ui_slider->max_travel * percent) - ui_slider->cur_travel);
 }
 
 void UI_slider_set_travel_coverage(const ID_t ui_slider_id, const float travel_coverage)
