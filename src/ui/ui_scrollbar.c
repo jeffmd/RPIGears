@@ -191,6 +191,7 @@ static void activate_button_repeat(const ID_t ui_scrollbar_id)
 {
   active_sp_id.id = ui_scrollbar_id;
 
+  task_button_repeat();
   Task_run(get_button_repeat_task());
 }
 
