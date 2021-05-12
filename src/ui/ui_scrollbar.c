@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "id_plug.h"
 #include "static_array.h"
@@ -9,6 +10,7 @@
 #include "key_map.h"
 #include "key_action.h"
 #include "key_input.h"
+#include "tasks.h"
 #include "ui_widget_connector.h"
 #include "ui_area.h"
 #include "ui_area_action.h"
@@ -52,6 +54,8 @@ static ID_t area_connector;
 static ID_t parts_ui_connector;
 static ID_t ui_scrollbar_class;
 static ID_t ui_scrollbar_key_map;
+static ID_t button_repeat_task;
+static Scroll_Part_ID active_sp_id;
 
 static inline ID_t find_deleted_ui_scrollbar(void)
 {
@@ -112,7 +116,6 @@ static void ui_scrollbar_draw(const ID_t area_id, const ID_t ui_scrollbar_id)
 
   if (UI_area_is_active(area_id)) {
     UI_icon_draw_box(ui_scrollbar->select_scale[0], ui_scrollbar->select_scale[1], ui_scrollbar->select_offset[0], ui_scrollbar->select_offset[1]);
-
   }
 }
 
@@ -135,7 +138,6 @@ static void parts_ui_update(const ID_t source_id, const ID_t destination_id)
   switch (sp_id.part_id) {
     case SP_SLIDER:
       break;
-
   }
 }
 
@@ -153,26 +155,59 @@ static void dec_button_pressed(const ID_t scrollbar_id)
   UI_slider_move_minus(ui_scrollbar->slider);
 }
 
+static void task_button_repeat(void)
+{
+  if (active_sp_id.id) {
+
+    switch (active_sp_id.part_id) {
+      case SP_INC_BUTTON:
+        inc_button_pressed(active_sp_id.scroll_id);
+        break;
+
+      case SP_DEC_BUTTON:
+        dec_button_pressed(active_sp_id.scroll_id);
+        break;
+    }
+  }
+}
+
+static ID_t get_button_repeat_task(void)
+{
+  if (!button_repeat_task) {
+    button_repeat_task = Task_create(100, task_button_repeat);
+  }
+
+  return button_repeat_task;
+}
+
+static void deactivate_button_repeat(void)
+{
+  active_sp_id.id = 0;
+
+  Task_pause(get_button_repeat_task());
+}
+
+static void activate_button_repeat(const ID_t ui_scrollbar_id)
+{
+  active_sp_id.id = ui_scrollbar_id;
+
+  Task_run(get_button_repeat_task());
+}
+
 static void parts_ui_changed(const ID_t source_id, const ID_t scrollbar_id)
 {
   const Scroll_Part_ID sp_id = {.id = scrollbar_id};
-  //UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(sp_id.scroll_id);
 
-  switch (sp_id.part_id) {
-    case SP_INC_BUTTON:
-      if(UI_button_pressed(source_id)) {
-        inc_button_pressed(sp_id.scroll_id);
-      }
-      break;
+  if (sp_id.part_id == SP_SLIDER) {
 
-    case SP_DEC_BUTTON:
-      if(UI_button_pressed(source_id)) {
-        dec_button_pressed(sp_id.scroll_id);
-      }
-      break;
-
-    case SP_SLIDER:
-      break;
+  }
+  else { // its a button
+    if(UI_button_pressed(source_id)) {
+      activate_button_repeat(scrollbar_id);
+    }
+    else {
+      deactivate_button_repeat();
+    }
   }
 }
 
