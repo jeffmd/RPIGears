@@ -201,6 +201,12 @@ static Plug_t get_ui_button_area_plug(const ID_t ui_button_id)
   return Connector_plug(get_area_connector(), ui_button_id);
 }
 
+int UI_button_pressed(const ID_t ui_button_id)
+{
+  UI_Button *const ui_button = get_ui_button(ui_button_id);
+  return ui_button->pressed;
+}
+
 void UI_button_connect_widget(const ID_t ui_button_id, const Plug_t widget_plug)
 {
   UI_Button *const ui_button = get_ui_button(ui_button_id);

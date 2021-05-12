@@ -177,10 +177,8 @@ static void ui_slider_area_key_change(const ID_t area_id, const ID_t ui_slider_i
   Key_Map_action(get_ui_slider_key_map(), UI_area_active_key(), area_id, ui_slider_id);
 }
 
-static void ui_slider_area_pointer_drag(const ID_t area_id, const ID_t ui_slider_id)
+static void move_slider(const ID_t ui_slider_id, short delta)
 {
-  short delta = -UI_area_drag_delta_y();
-
   if (delta != 0) {
     UI_Slider *ui_slider = get_ui_slider(ui_slider_id);
     short travel = ui_slider->cur_travel + delta;
@@ -196,10 +194,15 @@ static void ui_slider_area_pointer_drag(const ID_t area_id, const ID_t ui_slider
 
     if (delta != 0) {
       ui_slider->cur_travel = travel;
-      UI_area_change_offset(area_id, 0, delta);
+      UI_area_change_offset(ui_slider->area, 0, delta);
       UI_widget_changed(ui_slider->widget_plug, ui_slider_id);
     }
   }
+}
+
+static void ui_slider_area_pointer_drag(const ID_t area_id, const ID_t ui_slider_id)
+{
+  move_slider(ui_slider_id, -UI_area_drag_delta_y());
 }
 
 static ID_t get_area_connector(void)
@@ -227,6 +230,16 @@ float UI_slider_travel_percent(const ID_t ui_slider_id)
   UI_Slider *const ui_slider = get_ui_slider(ui_slider_id);
   
   return (float)ui_slider->cur_travel / (float)ui_slider->max_travel;
+}
+
+void UI_slider_move_plus(const ID_t ui_slider_id)
+{
+  move_slider(ui_slider_id, 1);
+}
+
+void UI_slider_move_minus(const ID_t ui_slider_id)
+{
+  move_slider(ui_slider_id, -1);
 }
 
 void UI_slider_set_travel_percent(const ID_t ui_slider_id, const float percent)

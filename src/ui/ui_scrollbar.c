@@ -70,6 +70,7 @@ static UI_Scrollbar *get_ui_scrollbar(ID_t id)
 
 static void ui_scrollbar_init(UI_Scrollbar *ui_scrollbar)
 {
+
 }
 
 static ID_t get_ui_scrollbar_class(void)
@@ -138,6 +139,20 @@ static void parts_ui_update(const ID_t source_id, const ID_t destination_id)
   }
 }
 
+static void inc_button_pressed(const ID_t scrollbar_id)
+{
+  UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(scrollbar_id);
+
+  UI_slider_move_plus(ui_scrollbar->slider);
+}
+
+static void dec_button_pressed(const ID_t scrollbar_id)
+{
+  UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(scrollbar_id);
+
+  UI_slider_move_minus(ui_scrollbar->slider);
+}
+
 static void parts_ui_changed(const ID_t source_id, const ID_t scrollbar_id)
 {
   const Scroll_Part_ID sp_id = {.id = scrollbar_id};
@@ -145,9 +160,15 @@ static void parts_ui_changed(const ID_t source_id, const ID_t scrollbar_id)
 
   switch (sp_id.part_id) {
     case SP_INC_BUTTON:
+      if(UI_button_pressed(source_id)) {
+        inc_button_pressed(sp_id.scroll_id);
+      }
       break;
 
     case SP_DEC_BUTTON:
+      if(UI_button_pressed(source_id)) {
+        dec_button_pressed(sp_id.scroll_id);
+      }
       break;
 
     case SP_SLIDER:
@@ -214,8 +235,8 @@ static void ui_scrollbar_area_attach(const ID_t area_id, const ID_t ui_scrollbar
   area_clear(ui_scrollbar_id);
 
   UI_area_add_plug(area_id, get_slider(ui_scrollbar_id), 1, 20);
-  UI_area_add_plug(area_id, get_inc_button(ui_scrollbar_id), 1, 0);
-  UI_area_add_plug(area_id, get_dec_button(ui_scrollbar_id), 1, 130);
+  UI_area_add_plug(area_id, get_dec_button(ui_scrollbar_id), 1, 0);
+  UI_area_add_plug(area_id, get_inc_button(ui_scrollbar_id), 1, 130);
 }
 
 static void ui_scrollbar_area_resize(const ID_t area_id, const ID_t ui_scrollbar_id)
