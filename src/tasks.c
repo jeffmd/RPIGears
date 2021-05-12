@@ -11,7 +11,7 @@
 #include "id_plug.h"
 #include "static_array.h"
 
-#define TASKS_MAX_COUNT 10
+#define TASKS_MAX_COUNT 20
 #define TASKS_DO_COUNT TASKS_MAX_COUNT
 #define TASKS_DTIME 100
 
