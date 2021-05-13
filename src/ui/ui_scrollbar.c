@@ -284,11 +284,23 @@ static void ui_scrollbar_start_drag(const ID_t area_id, const ID_t ui_scrollbar_
 {
 }
 
+static void ui_scrollbar_inc(const ID_t area_id, const ID_t ui_scrollbar_id)
+{
+  inc_button_pressed(ui_scrollbar_id);
+}
+
+static void ui_scrollbar_dec(const ID_t area_id, const ID_t ui_scrollbar_id)
+{
+  dec_button_pressed(ui_scrollbar_id);
+}
+
 static ID_t get_ui_scrollbar_key_map(void)
 {
   if (!ui_scrollbar_key_map) {
     ui_scrollbar_key_map = Key_Map_create();
     Key_Map_add(ui_scrollbar_key_map, Key_Action_create(LEFT_BUTTON, ui_scrollbar_start_drag, 0));
+    Key_Map_add(ui_scrollbar_key_map, Key_Action_create(WHEEL_DEC, ui_scrollbar_inc, 0));
+    Key_Map_add(ui_scrollbar_key_map, Key_Action_create(WHEEL_INC, ui_scrollbar_dec, 0));
   }
 
   return ui_scrollbar_key_map;
