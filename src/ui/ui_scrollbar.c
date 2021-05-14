@@ -57,6 +57,8 @@ static ID_t ui_scrollbar_key_map;
 static ID_t button_repeat_task;
 static Scroll_Part_ID active_sp_id;
 
+#define BUTTON_SIZE 20
+
 static inline ID_t find_deleted_ui_scrollbar(void)
 {
   return ARRAY_FIND_DELETED_ID(next_deleted_ui_scrollbar, ui_scrollbars, UI_SCROLLBAR_MAX_COUNT, UI_Scrollbar, "UI scrollbar");
@@ -270,7 +272,7 @@ static void ui_scrollbar_area_attach(const ID_t area_id, const ID_t ui_scrollbar
   update_area_size(ui_scrollbar, area_id);
   area_clear(ui_scrollbar_id);
 
-  UI_area_add_plug(area_id, get_slider(ui_scrollbar_id), 1, 20);
+  UI_area_add_plug(area_id, get_slider(ui_scrollbar_id), 1, BUTTON_SIZE);
   UI_area_add_plug(area_id, get_dec_button(ui_scrollbar_id), 1, 0);
   UI_area_add_plug(area_id, get_inc_button(ui_scrollbar_id), 1, 130);
 }
@@ -280,25 +282,32 @@ static void ui_scrollbar_area_resize(const ID_t area_id, const ID_t ui_scrollbar
   area_clear(ui_scrollbar_id);
 }
 
-static void ui_scrollbar_start_drag(const ID_t area_id, const ID_t ui_scrollbar_id)
+static void ui_scrollbar_click(const ID_t area_id, const ID_t ui_scrollbar_id)
 {
+  UI_Scrollbar *const ui_scrollbar = get_ui_scrollbar(ui_scrollbar_id);
+  const float travel_percent = (float)((UI_area_rel_pointer_y(area_id) - BUTTON_SIZE) * 2) / (ui_scrollbar->normal_scale[1] - (BUTTON_SIZE * 4) );
+
+  UI_slider_set_travel_percent(ui_scrollbar->slider, travel_percent);
+  UI_area_set_handled(area_id);
 }
 
 static void ui_scrollbar_inc(const ID_t area_id, const ID_t ui_scrollbar_id)
 {
   inc_button_pressed(ui_scrollbar_id);
+  UI_area_set_handled(area_id);
 }
 
 static void ui_scrollbar_dec(const ID_t area_id, const ID_t ui_scrollbar_id)
 {
   dec_button_pressed(ui_scrollbar_id);
+  UI_area_set_handled(area_id);
 }
 
 static ID_t get_ui_scrollbar_key_map(void)
 {
   if (!ui_scrollbar_key_map) {
     ui_scrollbar_key_map = Key_Map_create();
-    Key_Map_add(ui_scrollbar_key_map, Key_Action_create(LEFT_BUTTON, ui_scrollbar_start_drag, 0));
+    Key_Map_add(ui_scrollbar_key_map, Key_Action_create(LEFT_BUTTON, ui_scrollbar_click, 0));
     Key_Map_add(ui_scrollbar_key_map, Key_Action_create(WHEEL_DEC, ui_scrollbar_inc, 0));
     Key_Map_add(ui_scrollbar_key_map, Key_Action_create(WHEEL_INC, ui_scrollbar_dec, 0));
   }
